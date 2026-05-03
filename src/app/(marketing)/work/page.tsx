@@ -19,7 +19,7 @@ export default async function WorkIndexPage() {
     <div className="space-y-16">
       <PageHeader
         eyebrow="work"
-        title="Case studies — what shipped, what worked, what didn't."
+        title="Case studies, what shipped, what worked, what didn't."
         lede="Each entry is a real client engagement or a real product I built. The honest sections about what broke are the ones worth reading."
       />
 

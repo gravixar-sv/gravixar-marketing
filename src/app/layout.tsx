@@ -24,7 +24,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: { default: `${SITE.name} — ${SITE.tagline}`, template: `%s · ${SITE.name}` },
+  title: { default: `${SITE.name} · ${SITE.tagline}`, template: `%s · ${SITE.name}` },
   description:
     "Operations infrastructure, brand work, and AI tooling for teams that want what they're buying running before the contract. Production portals, intake wizards, content agents.",
   metadataBase: new URL(SITE.url),

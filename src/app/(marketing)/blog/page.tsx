@@ -9,7 +9,7 @@ export const revalidate = 1800;
 export const metadata: Metadata = buildMetadata({
   title: "Writing",
   description:
-    "Notes on operations, AI tooling, and the systems Qamar builds. Some posts drafted by an AI agent — always reviewed before publish.",
+    "Notes on operations, AI tooling, and the systems Qamar builds. Some posts drafted by an AI agent, always reviewed before publish.",
   path: "/blog",
 });
 
@@ -20,7 +20,7 @@ export default async function BlogIndexPage() {
       <PageHeader
         eyebrow="writing"
         title="Notes on the systems I build."
-        lede="Some posts I write directly. Some are drafted by the AI SEO agent that runs on this site, and I edit and approve them before they ship — flagged on each post."
+        lede="Some posts I write directly. Some are drafted by the AI SEO agent that runs on this site, and I edit and approve them before they ship, flagged on each post."
       />
 
       {posts.length === 0 ? (

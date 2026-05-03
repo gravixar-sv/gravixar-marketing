@@ -1,4 +1,4 @@
-// Content schemas — every MDX frontmatter is validated against one of these
+// Content schemas, every MDX frontmatter is validated against one of these
 // at build time by scripts/content-validate.ts. Bad frontmatter fails the
 // build before deploy.
 
@@ -29,7 +29,7 @@ export const blogPostSchema = z.object({
   tags: z.array(z.string().min(1)).default([]),
   cover: baseImage.optional(),
   draft: z.boolean().default(false),
-  // explicit AI-disclosure flag — surfaced on the post itself
+  // explicit AI-disclosure flag, surfaced on the post itself
   aiAssisted: z.boolean().default(false),
 });
 export type BlogPost = z.infer<typeof blogPostSchema>;
@@ -60,7 +60,7 @@ export const serviceSchema = z.object({
   bucket: serviceBucket,
   tagline: z.string().min(20).max(200),
   deliverables: z.array(z.string().min(1)).min(1),
-  // links to live proof — case studies, live demos, public artifacts
+  // links to live proof, case studies, live demos, public artifacts
   proof: z
     .array(
       z.object({
@@ -95,7 +95,7 @@ export type GraphicsItem = z.infer<typeof graphicsItemSchema>;
 
 export const homeBlockSchema = z.object({
   title: z.string().min(1),
-  // optional callout/eyebrow text — short
+  // optional callout/eyebrow text, short
   eyebrow: z.string().max(80).optional(),
 });
 export type HomeBlock = z.infer<typeof homeBlockSchema>;

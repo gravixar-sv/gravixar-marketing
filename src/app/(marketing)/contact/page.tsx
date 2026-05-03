@@ -17,7 +17,7 @@ export default function ContactPage() {
       <PageHeader
         eyebrow="contact"
         title="Tell me what you're trying to build."
-        lede="Two ways in: send a note with the details, or grab a slot directly. Either works — pick whichever you have less friction with."
+        lede="Two ways in: send a note with the details, or grab a slot directly. Either works, pick whichever you have less friction with."
       />
 
       <div className="grid gap-10 md:grid-cols-2">
@@ -26,7 +26,7 @@ export default function ContactPage() {
             send a note
           </h2>
           <p className="mt-2 text-sm text-zinc-400">
-            Best for complex briefs — operations problems, AI integrations, or
+            Best for complex briefs, operations problems, AI integrations, or
             anything where context matters.
           </p>
           <div className="mt-6">
@@ -39,7 +39,7 @@ export default function ContactPage() {
             book a 30-min call
           </h2>
           <p className="mt-2 text-sm text-zinc-400">
-            Pick a slot. No prep needed — bring the problem, I&apos;ll bring
+            Pick a slot. No prep needed, bring the problem, I&apos;ll bring
             the questions.
           </p>
           <div className="mt-6">

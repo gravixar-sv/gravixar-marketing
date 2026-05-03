@@ -1,65 +1,67 @@
-// Client roster — curated 8 with real logos. Each on a light card so
-// brand colors stay intact regardless of original color treatment.
-// To add more: drop a logo into /public/clients/ and append a row here.
+// Client roster as a horizontal marquee on a subtle light band. Logos
+// keep their original brand colors. Pauses on hover.
+//
+// Add a logo: drop the file into /public/clients/ and append to CLIENTS.
+// Logos are designed for light backgrounds so the band is off-white.
 
 import Image from "next/image";
 
 type ClientEntry = {
   name: string;
   logo: string;
-  industry?: string;
 };
 
 const CLIENTS: ClientEntry[] = [
-  { name: "Broomstick HUB", logo: "/clients/broomstick-hub.png", industry: "agency portal" },
-  { name: "Broomstick Creative", logo: "/clients/broomstick-creative.png", industry: "creative agency" },
-  { name: "Beeline", logo: "/clients/beeline.png", industry: "healthcare" },
-  { name: "OORT", logo: "/clients/oort.png", industry: "infrastructure" },
-  { name: "XpertPK", logo: "/clients/xpertpk.png", industry: "tech services" },
+  { name: "Broomstick HUB", logo: "/clients/broomstick-hub.png" },
+  { name: "Broomstick Creative", logo: "/clients/broomstick-creative.png" },
+  { name: "Beeline", logo: "/clients/beeline.png" },
+  { name: "OORT", logo: "/clients/oort.png" },
+  { name: "XpertPK", logo: "/clients/xpertpk.png" },
   { name: "GOMBOC", logo: "/clients/gomboc.avif" },
-  { name: "Rima Chahine", logo: "/clients/rima-chahine.png", industry: "personal brand" },
+  { name: "Rima Chahine", logo: "/clients/rima-chahine.png" },
   { name: "SAFFM", logo: "/clients/saffm.png" },
 ];
 
 export function Clients() {
+  // Duplicate the array so the translateX(-50%) loop appears seamless.
+  const loop = [...CLIENTS, ...CLIENTS];
+
   return (
     <div className="mt-10">
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 md:gap-4">
-        {CLIENTS.map((c) => (
-          <ClientCard key={c.name} client={c} />
-        ))}
-      </div>
-      <p className="mt-8 font-mono text-[10px] uppercase tracking-widest text-zinc-600">
-        and more — engagements range from one-off brand systems to full custom portals running in production
-      </p>
-    </div>
-  );
-}
-
-function ClientCard({ client }: { client: ClientEntry }) {
-  return (
-    <div
-      className="group flex aspect-[4/3] flex-col items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.96] p-4 transition-all hover:-translate-y-0.5 hover:border-brand/40 hover:shadow-lg hover:shadow-brand/10"
-      title={client.industry ? `${client.name} — ${client.industry}` : client.name}
-    >
-      <div className="relative flex h-12 w-full items-center justify-center md:h-14">
-        <Image
-          src={client.logo}
-          alt={`${client.name} logo`}
-          width={160}
-          height={64}
-          className="max-h-full w-auto object-contain"
+      <div className="relative overflow-hidden rounded-2xl bg-white/[0.97] py-8">
+        {/* Edge fades on left/right so logos slide in/out softly */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-y-0 left-0 z-10 w-24 bg-gradient-to-r from-white to-transparent"
         />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-y-0 right-0 z-10 w-24 bg-gradient-to-l from-white to-transparent"
+        />
+        <div
+          className="flex animate-marquee items-center gap-14 will-change-transform"
+          aria-label={`Clients: ${CLIENTS.map((c) => c.name).join(", ")}`}
+        >
+          {loop.map((c, i) => (
+            <div
+              key={`${c.name}-${i}`}
+              className="flex shrink-0 items-center"
+              title={c.name}
+            >
+              <Image
+                src={c.logo}
+                alt={`${c.name} logo`}
+                width={160}
+                height={56}
+                className="h-10 w-auto object-contain md:h-12"
+              />
+            </div>
+          ))}
+        </div>
       </div>
-      {client.industry ? (
-        <span className="font-mono text-[9px] uppercase tracking-widest text-zinc-500">
-          {client.industry}
-        </span>
-      ) : (
-        <span className="font-mono text-[9px] uppercase tracking-widest text-zinc-400">
-          {client.name}
-        </span>
-      )}
+      <p className="mt-6 text-center font-mono text-[10px] uppercase tracking-widest text-zinc-600">
+        and more. engagements range from one-off brand systems to full custom portals running in production
+      </p>
     </div>
   );
 }

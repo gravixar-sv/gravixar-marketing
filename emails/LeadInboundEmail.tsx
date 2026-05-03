@@ -33,7 +33,7 @@ export default function LeadInboundEmail({
       <Preview>{`New lead from ${name}${company ? ` (${company})` : ""}`}</Preview>
       <Body style={body}>
         <Container style={container}>
-          <Heading style={h1}>New lead — gravixar.com</Heading>
+          <Heading style={h1}>New lead, gravixar.com</Heading>
           <Section style={section}>
             <Text style={label}>From</Text>
             <Text style={value}>

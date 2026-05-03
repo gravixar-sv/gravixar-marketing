@@ -9,7 +9,7 @@ export const revalidate = 3600;
 
 export const metadata: Metadata = buildMetadata({
   title: "Graphics",
-  description: "Visual identity, motion, and brand work — gallery.",
+  description: "Visual identity, motion, and brand work, gallery.",
   path: "/graphics",
 });
 

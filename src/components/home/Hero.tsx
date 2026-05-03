@@ -29,7 +29,7 @@ export function Hero({ meta, body }: { meta: HomeBlock; body: string }) {
       />
 
       <div className="grid items-start gap-12 md:grid-cols-[minmax(0,1fr)_minmax(320px,420px)] md:gap-14 lg:gap-16">
-        {/* Left column — copy + CTAs */}
+        {/* Left column, copy + CTAs */}
         <div className="max-w-2xl">
           {meta.eyebrow ? (
             <div className="flex items-center gap-3">
@@ -61,7 +61,7 @@ export function Hero({ meta, body }: { meta: HomeBlock; body: string }) {
             </a>
           </div>
 
-          {/* Detail strip — what I do, in mono */}
+          {/* Detail strip, what I do, in mono */}
           <div className="mt-10 flex flex-wrap items-center gap-x-4 gap-y-2 font-mono text-[10px] uppercase tracking-widest text-zinc-500">
             <span className="flex items-center gap-1.5">
               <span className="h-1.5 w-1.5 rounded-full bg-brand" />
@@ -76,7 +76,7 @@ export function Hero({ meta, body }: { meta: HomeBlock; body: string }) {
           </div>
         </div>
 
-        {/* Right column — demo preview panel */}
+        {/* Right column, demo preview panel */}
         <DemoPreview />
       </div>
     </section>
@@ -86,7 +86,7 @@ export function Hero({ meta, body }: { meta: HomeBlock; body: string }) {
 function DemoPreview() {
   return (
     <aside
-      aria-label="demo.gravixar.com — coming online"
+      aria-label="demo.gravixar.com, coming online"
       className="rounded-xl border border-zinc-800 bg-gradient-to-b from-zinc-900/70 to-zinc-950/90 p-6 font-mono text-xs shadow-2xl shadow-black/40 backdrop-blur md:mt-2"
     >
       {/* Header */}
@@ -100,7 +100,7 @@ function DemoPreview() {
         </span>
       </div>
 
-      {/* Body — what you'll do */}
+      {/* Body, what you'll do */}
       <div className="mt-5">
         <p className="text-[10px] uppercase tracking-widest text-zinc-500">
           what you&apos;ll do

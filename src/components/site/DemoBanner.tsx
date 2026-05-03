@@ -1,5 +1,5 @@
 // Top-of-site banner pointing visitors at the demo subdomain. Softer
-// styling than the previous solid-fill version — dark background with a
+// styling than the previous solid-fill version, dark background with a
 // thin brand-accent top line. Reduces overall "redness" surface area.
 
 export function DemoBanner() {
@@ -16,7 +16,7 @@ export function DemoBanner() {
         >
           demo.gravixar.com
         </a>
-        <span className="hidden text-zinc-500 md:inline">— click around as a real client.</span>
+        <span className="hidden text-zinc-500 md:inline">- click around as a real client.</span>
       </div>
     </div>
   );

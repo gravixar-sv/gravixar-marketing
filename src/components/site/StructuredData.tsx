@@ -10,13 +10,13 @@ function ScriptLd({ data, id }: { data: AnyJson; id: string }) {
     <script
       type="application/ld+json"
       id={id}
-      // dangerouslyInject is OK here — we control the data shape.
+      // dangerouslyInject is OK here, we control the data shape.
       dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
     />
   );
 }
 
-/** Person + Organization + WebSite — global, render in root layout. */
+/** Person + Organization + WebSite, global, render in root layout. */
 export function StructuredDataGlobal() {
   const person = {
     "@context": "https://schema.org",

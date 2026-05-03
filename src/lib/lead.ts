@@ -13,7 +13,7 @@ export const leadSchema = z.object({
   company: z.string().max(160).optional(),
   // free-form: what brings them here
   message: z.string().min(20).max(4000),
-  // honeypot — must be empty. Bots fill every input.
+  // honeypot, must be empty. Bots fill every input.
   website: z.string().max(0).optional(),
   // optional, helps qualify
   source: z.string().max(80).optional(),

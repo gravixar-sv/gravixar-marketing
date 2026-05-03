@@ -10,7 +10,7 @@ export const revalidate = 3600;
 export const metadata: Metadata = buildMetadata({
   title: "Services",
   description:
-    "Three buckets — operations infrastructure, people ops, AI-augmented work — plus a separate graphics offering. Each linked to live proof.",
+    "Three buckets, operations infrastructure, people ops, AI-augmented work, plus a separate graphics offering. Each linked to live proof.",
   path: "/services",
 });
 
@@ -20,7 +20,7 @@ export default async function ServicesIndexPage() {
     <div className="space-y-16">
       <PageHeader
         eyebrow="services"
-        title="Three buckets, plus design — all backed by something running."
+        title="Three buckets, plus design, all backed by something running."
         lede="Pick the one that maps to your problem. Each page links to a case study and (where applicable) a live demo you can poke."
       />
       <div className="grid gap-4 md:grid-cols-2">

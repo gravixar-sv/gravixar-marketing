@@ -77,9 +77,9 @@ export function ContactForm() {
         required
         minLength={20}
         rows={6}
-        placeholder="The more concrete the better — what's broken, what you've tried, what 'good' looks like."
+        placeholder="The more concrete the better, what's broken, what you've tried, what 'good' looks like."
       />
-      {/* honeypot — visually hidden, must stay empty */}
+      {/* honeypot, visually hidden, must stay empty */}
       <div className="hidden" aria-hidden>
         <label>
           Website

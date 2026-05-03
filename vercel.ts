@@ -1,4 +1,4 @@
-// Vercel project configuration. Replaces vercel.json — typed, supports
+// Vercel project configuration. Replaces vercel.json, typed, supports
 // dynamic logic, and reads env at build time.
 //
 // Cron entries here are placeholders. The AI SEO agent and social

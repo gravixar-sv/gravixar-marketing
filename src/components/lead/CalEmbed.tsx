@@ -1,4 +1,4 @@
-// Cal.com embed. Using the public booking URL as an iframe — simplest
+// Cal.com embed. Using the public booking URL as an iframe, simplest
 // path; CSP already permits cal.com frames in next.config.ts. Swap to
 // the @calcom/embed-react component later if we want richer events.
 

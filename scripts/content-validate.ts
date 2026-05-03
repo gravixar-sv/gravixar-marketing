@@ -1,6 +1,6 @@
 #!/usr/bin/env tsx
 // Walks every .mdx file under content/ and validates frontmatter against
-// the matching zod schema. Wired into `prebuild` — bad frontmatter fails
+// the matching zod schema. Wired into `prebuild`, bad frontmatter fails
 // the build before deploy.
 //
 // Skips files under any `_drafts/` segment (those are AI-agent drafts;
@@ -83,7 +83,7 @@ async function main() {
     process.exit(1);
   }
 
-  console.log(`OK — ${total} content files validated.`);
+  console.log(`OK, ${total} content files validated.`);
 }
 
 main().catch((err) => {

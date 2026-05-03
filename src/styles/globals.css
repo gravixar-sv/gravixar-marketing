@@ -5,7 +5,7 @@
   --color-fg: #fafafa;
   --color-muted: #71717a;
 
-  /* Brand coral-orange — softer than pure red, plays beside the logo's red square */
+  /* Brand coral-orange, softer than pure red, plays beside the logo's red square */
   --color-brand: #ff6b35;
   --color-brand-soft: #ff8a5c;
   --color-brand-deep: #e65a2e;
@@ -49,6 +49,19 @@
   .bg-brand-glow {
     background: radial-gradient(60% 80% at 100% 0%, rgba(255, 107, 53, 0.16) 0%, rgba(255, 107, 53, 0) 60%);
   }
+  /* Horizontal marquee for client logos. Logos array is duplicated in the
+     component so the loop appears seamless when it wraps. */
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  .animate-marquee {
+    animation: marquee 38s linear infinite;
+  }
+  .animate-marquee:hover {
+    animation-play-state: paused;
+  }
+
   /* Pulsing dot for live/coming-online indicators */
   @keyframes brandPulse {
     0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(255, 107, 53, 0.55); }

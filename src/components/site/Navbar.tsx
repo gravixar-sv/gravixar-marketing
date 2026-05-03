@@ -13,7 +13,7 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-40 border-b border-zinc-900/80 bg-[#0a0a0a]/80 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-        <Link href="/" className="flex items-center gap-3" aria-label="Gravixar — home">
+        <Link href="/" className="flex items-center gap-3" aria-label="Gravixar, home">
           <Image
             src="/logos/gravixar-wordmark.png"
             alt="Gravixar"

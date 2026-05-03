@@ -10,7 +10,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
-  // Bot check first — botid platform headers are populated by the wrapper
+  // Bot check first, botid platform headers are populated by the wrapper
   // in next.config.ts. Locally this is a no-op pass.
   const bot = await checkBotId();
   if (bot.isBot) {
@@ -32,7 +32,7 @@ export async function POST(req: Request) {
     );
   }
 
-  // Honeypot — silent success so bots don't learn to retry.
+  // Honeypot, silent success so bots don't learn to retry.
   if (parsed.data.website && parsed.data.website.length > 0) {
     return NextResponse.json({ ok: true });
   }
@@ -56,7 +56,7 @@ export async function POST(req: Request) {
         from: FROM_EMAIL,
         to: NOTIFY_EMAIL,
         replyTo: record.email,
-        subject: `New lead — ${record.name}${record.company ? ` (${record.company})` : ""}`,
+        subject: `New lead, ${record.name}${record.company ? ` (${record.company})` : ""}`,
         react: LeadInboundEmail({
           name: record.name,
           email: record.email,

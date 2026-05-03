@@ -2,7 +2,7 @@
 //
 // Drafts a single post, writes it to Vercel Blob under
 // `drafts/blog/{date}-{slug}.mdx`, and emails Qamar with the body inlined
-// for review. Nothing is published — the file in Blob is reference only.
+// for review. Nothing is published, the file in Blob is reference only.
 // Approval = paste the MDX into a new file under content/blog/ in the
 // repo, edit, commit, push.
 

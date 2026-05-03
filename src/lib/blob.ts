@@ -1,4 +1,4 @@
-// Append-only lead log on Vercel Blob. One JSON file per month — the
+// Append-only lead log on Vercel Blob. One JSON file per month, the
 // log is small, write-light, and easy to read later. When the volume
 // outgrows this, move to Neon Postgres via the Marketplace.
 

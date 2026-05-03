@@ -8,7 +8,7 @@ export default function NotFound() {
         That page doesn&apos;t exist.
       </h1>
       <p className="mx-auto mt-3 max-w-md text-zinc-400">
-        Maybe it moved, maybe it never existed. Either way — back to the homepage.
+        Maybe it moved, maybe it never existed. Either way, back to the homepage.
       </p>
       <Link
         href="/"

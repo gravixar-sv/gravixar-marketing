@@ -3,7 +3,7 @@ import { env } from "./env";
 
 export const SITE = {
   name: "Gravixar",
-  tagline: "Operations systems, brand work, and AI tooling — running before we talk",
+  tagline: "Operations systems, brand work, AI tooling. Running before we talk.",
   url: env.NEXT_PUBLIC_SITE_URL,
   author: "Qamar",
   twitter: "@gravixar",
