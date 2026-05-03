@@ -3,8 +3,9 @@ import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/site/PageHeader";
 import { MDX } from "@/content/mdx";
 import { ContactCTA } from "@/components/home/ContactCTA";
+import { StructuredDataCaseStudy } from "@/components/site/StructuredData";
 import { loadCaseStudies } from "@/content/loaders";
-import { buildMetadata } from "@/lib/seo";
+import { buildMetadata, SITE } from "@/lib/seo";
 
 export const revalidate = 3600;
 
@@ -38,6 +39,13 @@ export default async function CaseStudyPage(
 
   return (
     <div className="space-y-16">
+      <StructuredDataCaseStudy
+        title={cs.meta.title}
+        description={cs.meta.summary}
+        url={`${SITE.url}/work/${slug}`}
+        publishedAt={cs.meta.publishedAt}
+        author={SITE.author}
+      />
       <PageHeader
         eyebrow={`${cs.meta.client} · ${cs.meta.period}`}
         title={cs.meta.title}

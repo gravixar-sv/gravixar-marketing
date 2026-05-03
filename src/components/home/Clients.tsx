@@ -1,46 +1,71 @@
-// Client roster grid. Names only for now — logos drop into public/clients/
-// later, then we render <Image /> per entry. The roster lives in this file
-// (not in MDX) because the schema is small enough that a typed array beats
-// frontmatter overhead, and the homepage is the only place it's used.
+// Client roster — first 3 with real logos on light cards, the rest as
+// typographic names. Same card shape so the grid reads unified
+// regardless of how many logos we have at any moment.
 
-const CLIENTS = [
-  { name: "Dreamixar" },
-  { name: "Robonamix" },
-  { name: "Rima Chahine" },
-  { name: "XpertPK" },
-  { name: "Carttix" },
-  { name: "AAN Associates" },
+import Image from "next/image";
+
+type ClientEntry = {
+  name: string;
+  logo?: string; // path under /public/clients/
+  industry?: string;
+};
+
+const CLIENTS: ClientEntry[] = [
+  { name: "Dreamixar", logo: "/clients/dreamixar.png", industry: "creative" },
+  { name: "Robonamix", logo: "/clients/robonamix.png", industry: "robotics" },
+  { name: "XpertPK", logo: "/clients/xpertpk.png", industry: "tech services" },
+  { name: "Rima Chahine", industry: "personal brand" },
+  { name: "Carttix", industry: "e-commerce" },
+  { name: "AAN Associates", industry: "professional services" },
   { name: "Wosqa" },
-  { name: "Seven Farms" },
-  { name: "Samana Urooj" },
+  { name: "Seven Farms", industry: "food & ag" },
+  { name: "Samana Urooj", industry: "personal brand" },
   { name: "GUMBOC" },
   { name: "Zee Project" },
-  { name: "SAFFM" },
-  { name: "Oort" },
-  { name: "ZAT" },
-  { name: "Broomstick Hub" },
-  { name: "Beeline" },
-] as const;
+  { name: "Broomstick Hub", industry: "agency" },
+];
 
 export function Clients() {
   return (
-    <div className="mt-10 rounded-xl border border-zinc-800 bg-zinc-950/40 p-6 md:p-8">
-      <div className="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3 md:grid-cols-4">
+    <div className="mt-10">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 md:gap-4">
         {CLIENTS.map((c) => (
-          <div
-            key={c.name}
-            className="group flex items-center gap-3 border-b border-zinc-900 py-2 transition-colors hover:border-brand/40"
-          >
-            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-zinc-700 transition-colors group-hover:bg-brand" />
-            <span className="font-mono text-[11px] uppercase tracking-widest text-zinc-300 transition-colors group-hover:text-zinc-100">
-              {c.name}
-            </span>
-          </div>
+          <ClientCard key={c.name} client={c} />
         ))}
       </div>
-      <p className="mt-6 font-mono text-[10px] uppercase tracking-widest text-zinc-600">
-        and more — engagements range one-off brand systems → full custom portals running in production
+      <p className="mt-8 font-mono text-[10px] uppercase tracking-widest text-zinc-600">
+        and more — engagements range from one-off brand systems to full custom portals running in production
       </p>
+    </div>
+  );
+}
+
+function ClientCard({ client }: { client: ClientEntry }) {
+  return (
+    <div
+      className="group flex aspect-[4/3] flex-col items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.96] p-4 transition-all hover:-translate-y-0.5 hover:border-brand/40 hover:shadow-lg hover:shadow-brand/10"
+      title={client.industry ? `${client.name} — ${client.industry}` : client.name}
+    >
+      {client.logo ? (
+        <div className="relative flex h-12 w-full items-center justify-center md:h-14">
+          <Image
+            src={client.logo}
+            alt={`${client.name} logo`}
+            width={160}
+            height={64}
+            className="max-h-full w-auto object-contain"
+          />
+        </div>
+      ) : (
+        <span className="font-display text-base font-semibold tracking-tight text-zinc-900 md:text-lg">
+          {client.name}
+        </span>
+      )}
+      {client.industry ? (
+        <span className="font-mono text-[9px] uppercase tracking-widest text-zinc-500">
+          {client.industry}
+        </span>
+      ) : null}
     </div>
   );
 }

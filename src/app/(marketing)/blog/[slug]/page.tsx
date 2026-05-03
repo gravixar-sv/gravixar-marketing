@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MDX } from "@/content/mdx";
+import { StructuredDataBlogPost } from "@/components/site/StructuredData";
 import { loadBlogPosts } from "@/content/loaders";
-import { buildMetadata } from "@/lib/seo";
+import { buildMetadata, SITE } from "@/lib/seo";
 
 export const revalidate = 1800;
 
@@ -37,6 +38,14 @@ export default async function BlogPostPage(
 
   return (
     <article className="mx-auto max-w-3xl">
+      <StructuredDataBlogPost
+        title={post.meta.title}
+        description={post.meta.excerpt}
+        url={`${SITE.url}/blog/${slug}`}
+        publishedAt={post.meta.publishedAt}
+        updatedAt={post.meta.updatedAt}
+        author={SITE.author}
+      />
       <header className="border-b border-zinc-900 pb-8">
         <div className="flex items-baseline gap-4">
           <p className="font-mono text-[11px] uppercase tracking-widest text-zinc-500">

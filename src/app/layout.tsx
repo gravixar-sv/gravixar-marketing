@@ -4,6 +4,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Navbar } from "@/components/site/Navbar";
 import { Footer } from "@/components/site/Footer";
 import { DemoBanner } from "@/components/site/DemoBanner";
+import { StructuredDataGlobal } from "@/components/site/StructuredData";
 import { SITE } from "@/lib/seo";
 import "@/styles/globals.css";
 
@@ -32,6 +33,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <StructuredDataGlobal />
+      </head>
       <body className="bg-[#0a0a0a] text-[#fafafa]">
         <DemoBanner />
         <Navbar />

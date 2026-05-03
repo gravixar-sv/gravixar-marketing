@@ -4,8 +4,9 @@ import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/site/PageHeader";
 import { MDX } from "@/content/mdx";
 import { ContactCTA } from "@/components/home/ContactCTA";
+import { StructuredDataService } from "@/components/site/StructuredData";
 import { loadServices } from "@/content/loaders";
-import { buildMetadata } from "@/lib/seo";
+import { buildMetadata, SITE } from "@/lib/seo";
 
 export const revalidate = 3600;
 
@@ -38,6 +39,11 @@ export default async function ServicePage(
 
   return (
     <div className="space-y-16">
+      <StructuredDataService
+        name={s.meta.title}
+        description={s.meta.tagline}
+        url={`${SITE.url}/services/${slug}`}
+      />
       <PageHeader
         eyebrow={s.meta.bucket}
         title={s.meta.title}
