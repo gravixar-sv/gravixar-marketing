@@ -1,0 +1,63 @@
+---
+title: "bs-hub — agency portal with AI-assisted intake and a 12-state delivery funnel"
+slug: "bs-hub"
+client: "Broomstick Hub"
+role: "Solo build — architecture, engineering, AI integration, brand"
+period: "Q1 2026 – present"
+summary: "Built and shipped a production client/PM portal handling the full client journey — adaptive AI intake, auto-PM routing, scope lock, project workspace with review state machine, audit log, and daily security-watch cron. The same codebase powers the live demo at demo.gravixar.com."
+problem: "Broomstick was running its agency on stitched-together tools — a Notion, a shared Drive, email threads, manual spreadsheet handoffs between admin and PM. Inquiries got lost in the seam between 'admin received it' and 'PM owns it'. Scopes drifted between the discovery call and the contract because nobody was holding the canonical version. There was no audit trail when something went sideways, so disputes ended in 'whose memory wins'. They needed one place where the client journey lived end-to-end."
+approach: "Built one portal around a state machine. The inquiry funnel is 12 explicit states with hard transitions — no implicit status, no admins typing free-form notes that might or might not mean 'approved'. Every mutating route writes to a compliance-grade audit log with a per-table safe-restore allowlist; the cancellation flow keeps the row, deletes tasks, and issues a credit ledger entry rather than hard-delete. AI is wired in at three points: the intake wizard at /start uses Claude to adaptively pick the next question and generate a brand brief from the client's website, the PM walks into the discovery call with that context already on screen, and a daily security-watch cron sweeps the audit log for anomalies (mass-signup spikes, DELETE bursts, stuck inquiries) and emails admin if anything trips."
+outcome: "Live in production. Onboards new clients in under 10 minutes (was 2-3 days of back-and-forth email). The demo subdomain reseeds 5 canonical scenarios weekly so prospects can click around as a real client before signing. 16 modules, all documented in the repo's MODULES.md so the same shape can be forked for the next client."
+metrics:
+  - { label: "Time to first project activation", value: "~10 min (was 2-3 days)" }
+  - { label: "Inquiry funnel states", value: "12, fully audited" }
+  - { label: "Modules", value: "16 — full dependency graph in MODULES.md" }
+  - { label: "Audit retention", value: "7y contract / 1y operational" }
+stack:
+  - "Next.js 16 App Router"
+  - "Prisma 7 + Supabase Postgres"
+  - "NextAuth v5 (JWT)"
+  - "Anthropic Claude (Sonnet + Haiku)"
+  - "Vercel Blob + Google Drive"
+  - "Resend + react-email"
+  - "Vercel BotID"
+cover:
+  src: "/graphics/bs-hub-cover.png"
+  alt: "bs-hub portal — admin inquiries view"
+publishedAt: "2026-05-02"
+draft: false
+---
+
+## What I built
+
+The portal handles four distinct surfaces in one codebase: **public marketing + signup wizard**, **client view of their own work**, **PM/admin operations console**, and **internal HR + presence tooling**. Each has its own permission model, its own dashboard, and its own audit boundaries.
+
+The 16 modules — from `identity-auth` at the base to `security-watch` at the tip — are catalogued in [MODULES.md](https://github.com/...) with a dependency graph that says exactly what depends on what. That document is the recipe: when I spin up a portal for the next client, I work down the list and decide module-by-module what to keep, drop, or customize. A pure task-tracker drops twelve modules. An internal HR tool keeps four.
+
+The piece I'm proudest of is the review state machine on tasks. Every deliverable flows through `DRAFT → SUBMITTED_FOR_INTERNAL → INTERNAL_APPROVED → SUBMITTED_FOR_CLIENT → CLIENT_APPROVED`, with a `CLIENT_REVISION_REQUESTED` branch back into the loop. Each transition is a single-purpose API call with a side-effect contract — emails, notifications, audit row. No state is implicit. No admin can flip a task to "approved" by editing a free-text field.
+
+## Decisions I'd defend
+
+**The state machine is non-negotiable.** Free-text status fields are how "almost works" turns into "definitely doesn't." Every transition is a function with explicit pre-conditions and side-effects, and every call site writes an audit row. The discipline pays for itself the first time a client claims a deliverable was never approved.
+
+**Audit log retention has two tiers.** `CONTRACT` rows (anything financial or contractual) live 7 years. `OPERATIONAL` rows (everyday CRUD) live 1 year. Compliance teams stop arguing once the policy is in code; the per-table classification lives in `auditLog.ts:defaultRetention()`.
+
+**AI fails open, never closed.** Every Claude call site — brand brief, suspicion classifier, follow-up question generator — has a graceful fallback. If the API key is unset or the call times out, the workflow continues without the AI enrichment. I will not ship a system whose critical path waits on a third-party LLM.
+
+**Restore is allowlist-only.** The Activity Log has a "Restore" button on update rows, but only for fields in `auditRestoreAllowlist.ts`. Status enums, money amounts, and assignment ownership are never auto-restorable — those need a human decision. The allowlist is the security boundary.
+
+## What broke (the honest section)
+
+**Activation latency on retainers.** When a PM activates a heavy retainer scope, the portal generates milestones, tasks, and a per-task AI brief. The auto-assigner runs ~5 queries per task to score-and-pick by skill and workload. On a 30-deliverable retainer that's 150 sequential queries before the activation finishes. First version timed out the request. Fix was to hand the activation to a background queue and stream status back to the UI; meanwhile I shipped a "Activating… (spinning up tasks)" disabled state on the button so PMs don't double-click during the 70 seconds.
+
+**The Stripe-bypass coupon was supposed to be temporary.** I shipped a `BYPASS_COUPONS` env var to support the demo period before live Stripe keys landed. It's still there. It will probably stay there as a comp/demo path. Some "temporary" hacks earn their keep.
+
+**"Lock scope" is a terminology hill I died on.** PMs initially submitted call notes via "Mark as Call Done" which then locked the scope. Felt fine until users complained the verb didn't match the action — they were locking a scope, not just marking a call done. Renamed the button to "Lock Scope" and added an "Unlock & re-scope" button for the assigned PM. Sounds trivial. Took two iterations and a lot of email-template editing because the lock flips a notification + dashboard banner + email cascade.
+
+**The first cancellation flow was a hard delete.** Wrong. Cancellation needs to keep the row, delete tasks, revert the inquiry to a re-scopeable state, and issue a credit. Took a v3.10 rebuild. The credit ledger now lives as `ClientCredit` rows; the finance module (planned) will treat them as first-class.
+
+## What's next
+
+[Beeline](#) — different shape, different domain. Coming soon.
+
+A finance module for bs-hub, mirroring the cancellation pattern: separate API + email template + admin UI + audit hooks. Expense tracking, salaried payroll, monthly reports. Last open loop on the bs-hub roadmap.

@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #0a0a0a;
+  --color-fg: #fafafa;
+  --color-muted: #71717a;
+
+  /* Brand coral-orange — softer than pure red, plays beside the logo's red square */
+  --color-brand: #ff6b35;
+  --color-brand-soft: #ff8a5c;
+  --color-brand-deep: #e65a2e;
+
+  /* Legacy alias kept around for any custom CSS that referenced it */
+  --color-accent: #ff6b35;
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", monospace;
+}
+
+@layer base {
+  html {
+    background: #0a0a0a;
+    color: #fafafa;
+    color-scheme: dark;
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  body {
+    min-height: 100dvh;
+  }
+  ::selection {
+    background: #ff6b35;
+    color: #0a0a0a;
+  }
+}
+
+@layer utilities {
+  /* Subtle dot grid for hero / feature backgrounds */
+  .bg-dot-grid {
+    background-image: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.06) 1px, transparent 0);
+    background-size: 28px 28px;
+  }
+  /* Soft brand wash for hero corner glow */
+  .bg-brand-glow {
+    background: radial-gradient(60% 80% at 100% 0%, rgba(255, 107, 53, 0.16) 0%, rgba(255, 107, 53, 0) 60%);
+  }
+  /* Pulsing dot for live/coming-online indicators */
+  @keyframes brandPulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(255, 107, 53, 0.55); }
+    50% { opacity: 0.55; box-shadow: 0 0 0 6px rgba(255, 107, 53, 0); }
+  }
+  .pulse-dot {
+    animation: brandPulse 2.2s ease-out infinite;
+  }
+}
