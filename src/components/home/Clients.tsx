@@ -16,8 +16,7 @@ type ClientEntry = {
 };
 
 const CLIENTS: ClientEntry[] = [
-  // Broomstick logos use the white-on-transparent versions, so no invert needed
-  { name: "Broomstick HUB", logo: "/clients/broomstick-hub.png" },
+  // Broomstick Creative uses the white-on-transparent version, no invert needed
   { name: "Broomstick Creative", logo: "/clients/broomstick-creative.png" },
   // Beeline, OORT, GOMBOC, XpertPK have brand colors that work on dark
   { name: "Beeline", logo: "/clients/beeline.png" },
@@ -60,6 +59,8 @@ export function Clients() {
                 alt={`${c.name} logo`}
                 width={180}
                 height={48}
+                loading="eager"
+                priority={i < CLIENTS.length}
                 className={`max-h-full max-w-full object-contain opacity-80 transition-opacity hover:opacity-100 ${
                   c.invertOnDark ? "[filter:brightness(0)_invert(1)]" : ""
                 }`}
