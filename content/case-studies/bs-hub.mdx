@@ -1,13 +1,13 @@
 ---
-title: "bs-hub — agency portal with AI-assisted intake and a 12-state delivery funnel"
+title: "Broomstick Hub — digital agency transformation, end-to-end portal with AI in the loop"
 slug: "bs-hub"
-client: "Broomstick Hub"
+client: "Broomstick Creative / Broomstick Hub"
 role: "Solo build — architecture, engineering, AI integration, brand"
 period: "Q1 2026 – present"
-summary: "Built and shipped a production client/PM portal handling the full client journey — adaptive AI intake, auto-PM routing, scope lock, project workspace with review state machine, audit log, and daily security-watch cron. The same codebase powers the live demo at demo.gravixar.com."
-problem: "Broomstick was running its agency on stitched-together tools — a Notion, a shared Drive, email threads, manual spreadsheet handoffs between admin and PM. Inquiries got lost in the seam between 'admin received it' and 'PM owns it'. Scopes drifted between the discovery call and the contract because nobody was holding the canonical version. There was no audit trail when something went sideways, so disputes ended in 'whose memory wins'. They needed one place where the client journey lived end-to-end."
-approach: "Built one portal around a state machine. The inquiry funnel is 12 explicit states with hard transitions — no implicit status, no admins typing free-form notes that might or might not mean 'approved'. Every mutating route writes to a compliance-grade audit log with a per-table safe-restore allowlist; the cancellation flow keeps the row, deletes tasks, and issues a credit ledger entry rather than hard-delete. AI is wired in at three points: the intake wizard at /start uses Claude to adaptively pick the next question and generate a brand brief from the client's website, the PM walks into the discovery call with that context already on screen, and a daily security-watch cron sweeps the audit log for anomalies (mass-signup spikes, DELETE bursts, stuck inquiries) and emails admin if anything trips."
-outcome: "Live in production. Onboards new clients in under 10 minutes (was 2-3 days of back-and-forth email). The demo subdomain reseeds 5 canonical scenarios weekly so prospects can click around as a real client before signing. 16 modules, all documented in the repo's MODULES.md so the same shape can be forked for the next client."
+summary: "Took a digital agency from email/Notion/Drive sprawl to a single AI-augmented portal: adaptive intake wizard, 12-state delivery funnel, role-aware project workspace with review state machine, compliance-grade audit log, daily security-watch cron. The same codebase powers the live demo at demo.gravixar.com."
+problem: "Like most digital agencies past a certain size, Broomstick was running on stitched-together tools — Notion for some things, Slack threads for others, email for proposals, a shared Drive for assets, manual handoffs between admin and PM. Inquiries got lost in the seam between 'admin received it' and 'PM owns it'. Scopes drifted between the discovery call and the contract because nobody was holding the canonical version. There was no audit trail when something went sideways, so disputes ended in 'whose memory wins'. They needed one place where the client journey lived end-to-end — and they wanted AI threaded in where it actually saved time, not as an afterthought."
+approach: "Built one portal around a state machine, then layered AI into the joints where humans were paying the highest tax. The inquiry funnel is 12 explicit states with hard transitions — no implicit status, no admins typing free-form notes that might or might not mean 'approved'. Every mutating route writes to a compliance-grade audit log with a per-table safe-restore allowlist; the cancellation flow keeps the row, deletes tasks, and issues a credit ledger entry rather than hard-delete. AI is wired in at three points: the intake wizard uses Claude to adaptively pick the next question and generate a brand brief from the client's website (so the PM walks into the discovery call with context, not blind); a daily security-watch cron sweeps the audit log for anomalies (mass-signup spikes, DELETE bursts, stuck inquiries, classifier blackouts) and emails admin if anything trips; and per-task AI briefs auto-generate from the scope so designers don't read the whole project to start a single deliverable. AI never auto-publishes, never auto-approves, never sends client-facing communication without human review."
+outcome: "Live in production. Onboards new clients in under 10 minutes (was 2-3 days of back-and-forth email). 16 modules, all documented in the repo's MODULES.md so the same shape can be forked for the next agency. The demo subdomain reseeds 5 canonical scenarios weekly so prospects can click around as a real client before signing. The pattern is now the recipe — every digital agency I work with starts here and we strip/extend modules per their shape."
 metrics:
   - { label: "Time to first project activation", value: "~10 min (was 2-3 days)" }
   - { label: "Inquiry funnel states", value: "12, fully audited" }
@@ -22,8 +22,8 @@ stack:
   - "Resend + react-email"
   - "Vercel BotID"
 cover:
-  src: "/graphics/bs-hub-cover.png"
-  alt: "bs-hub portal — admin inquiries view"
+  src: "/clients/broomstick-hub.png"
+  alt: "Broomstick Hub logo"
 publishedAt: "2026-05-02"
 draft: false
 ---

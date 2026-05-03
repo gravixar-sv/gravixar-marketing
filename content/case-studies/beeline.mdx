@@ -1,0 +1,47 @@
+---
+title: "Beeline — healthcare operations platform"
+slug: "beeline"
+client: "Beeline"
+role: "Solo build — architecture, engineering, brand work"
+period: "Q2 2026 – in development"
+summary: "Healthcare operations platform currently in active build. Combines patient/practitioner workflows, scheduling, and AI-assisted intake into a single system designed for clinics that have outgrown the SaaS-stitch."
+problem: "Healthcare practices reach a point where the standard tooling stack — separate scheduling app, separate patient records, separate billing, separate communications — stops scaling. The handoffs between systems generate the errors. The compliance overhead lives in a fourth tool nobody opens. Clinic ops leads spend hours per week on data reconciliation that should not exist."
+approach: "Building Beeline as a single platform — one identity, one audit boundary, one compliance posture — with surfaces for practitioner, patient, ops admin, and finance. AI threads in at intake (adaptive triage questions), records (summarization of patient history), and ops (anomaly detection across scheduling and billing). Same architectural patterns I built into Broomstick Hub, retuned for healthcare's specific needs around data residency, clinical state machines, and audit retention windows."
+outcome: "In active development. Public case study lands when the first cohort of clinics is live. If you're in healthcare ops and want to see what's running today, message me — I'll walk you through privately."
+metrics:
+  - { label: "Status", value: "in development" }
+  - { label: "Vertical", value: "healthcare / clinic ops" }
+  - { label: "Public launch", value: "TBA" }
+stack:
+  - "Next.js 16 App Router"
+  - "Prisma + Postgres"
+  - "NextAuth v5 (JWT)"
+  - "Anthropic Claude (Sonnet)"
+  - "Resend + react-email"
+  - "Vercel BotID"
+cover:
+  src: "/clients/beeline.png"
+  alt: "Beeline logo"
+publishedAt: "2026-05-03"
+draft: false
+---
+
+## What's being built
+
+Beeline is the second portal I'm building from the operations-infrastructure recipe — same architectural backbone as Broomstick Hub, retuned for the specific shape of clinic operations.
+
+The core insight is the same: most healthcare practices don't need another point solution. They need fewer tools, talking to each other, with the audit trail and the AI assist living *inside* the platform rather than bolted on.
+
+## Why healthcare specifically
+
+Healthcare ops has three problems that are well-suited to the operations-infrastructure approach:
+
+1. **Multi-role workflows.** Practitioner, patient, ops admin, and finance all touch the same record from different angles. Standard SaaS forces each role into a separate tool.
+2. **Compliance is real.** HIPAA-style audit retention isn't optional. The two-tier audit log pattern from bs-hub (contract retention 7y, operational 1y) maps directly onto healthcare requirements with minor tweaks.
+3. **AI assist is high-leverage.** Triage questions, history summarization, scheduling anomaly detection — all places where a well-scoped AI in the loop saves hours per week without ever publishing patient-facing content unsupervised.
+
+## What's coming
+
+The first version will have practitioner + patient + ops admin surfaces, with finance landing in a follow-up. Public case study, screenshots, and demo access become available when the first cohort goes live.
+
+In the meantime — if you run a clinic or know one that's at the "spreadsheets and Slack don't scale anymore" point, [reach out](/contact). Beta access is selective.
