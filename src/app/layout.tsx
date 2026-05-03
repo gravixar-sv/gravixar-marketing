@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Navbar } from "@/components/site/Navbar";
@@ -7,6 +8,20 @@ import { DemoBanner } from "@/components/site/DemoBanner";
 import { StructuredDataGlobal } from "@/components/site/StructuredData";
 import { SITE } from "@/lib/seo";
 import "@/styles/globals.css";
+
+// next/font self-hosts the font files (no Google CDN call), bakes in
+// font-display: swap, subsets to latin, and emits a CSS variable that
+// our Tailwind theme reads.
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-jetbrains",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: { default: `${SITE.name} — ${SITE.tagline}`, template: `%s · ${SITE.name}` },
@@ -32,7 +47,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html
+      lang="en"
+      className={`${inter.variable} ${jetbrainsMono.variable}`}
+    >
       <head>
         <StructuredDataGlobal />
       </head>
