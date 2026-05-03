@@ -52,15 +52,15 @@ export function Clients() {
           {loop.map((c, i) => (
             <div
               key={`${c.name}-${i}`}
-              className="flex shrink-0 items-center"
+              className="relative flex h-12 w-[180px] shrink-0 items-center justify-center"
               title={c.name}
             >
               <Image
                 src={c.logo}
                 alt={`${c.name} logo`}
-                width={160}
-                height={56}
-                className={`h-9 w-auto object-contain opacity-80 transition-opacity hover:opacity-100 md:h-11 ${
+                width={180}
+                height={48}
+                className={`max-h-full max-w-full object-contain opacity-80 transition-opacity hover:opacity-100 ${
                   c.invertOnDark ? "[filter:brightness(0)_invert(1)]" : ""
                 }`}
               />
