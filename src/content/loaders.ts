@@ -10,12 +10,14 @@ import matter from "gray-matter";
 import {
   blogPostSchema,
   caseStudySchema,
+  compareSchema,
   graphicsItemSchema,
   homeBlockSchema,
   pageSchema,
   serviceSchema,
   type BlogPost,
   type CaseStudy,
+  type Compare,
   type GraphicsItem,
   type HomeBlock,
   type Page,
@@ -110,6 +112,25 @@ export async function loadCaseStudies({
     "case-studies",
     (data, file) => {
       const result = caseStudySchema.safeParse(data);
+      if (!result.success) {
+        throw new Error(`Invalid frontmatter in ${file}:\n${result.error.message}`);
+      }
+      return result.data;
+    },
+    { includeDrafts },
+  );
+  return items
+    .filter((i) => includeDrafts || !i.meta.draft)
+    .sort((a, b) => b.meta.publishedAt.localeCompare(a.meta.publishedAt));
+}
+
+export async function loadCompares({
+  includeDrafts = false,
+}: { includeDrafts?: boolean } = {}): Promise<Loaded<Compare>[]> {
+  const items = await loadDir(
+    "compare",
+    (data, file) => {
+      const result = compareSchema.safeParse(data);
       if (!result.success) {
         throw new Error(`Invalid frontmatter in ${file}:\n${result.error.message}`);
       }

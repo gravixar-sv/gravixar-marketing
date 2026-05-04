@@ -2,21 +2,32 @@ import type { MetadataRoute } from "next";
 import {
   loadBlogPosts,
   loadCaseStudies,
+  loadCompares,
   loadGraphics,
   loadServices,
 } from "@/content/loaders";
 import { SITE } from "@/lib/seo";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [services, posts, studies, graphics] = await Promise.all([
+  const [services, posts, studies, graphics, compares] = await Promise.all([
     loadServices(),
     loadBlogPosts(),
     loadCaseStudies(),
     loadGraphics(),
+    loadCompares(),
   ]);
 
   const url = (path: string) => `${SITE.url}${path}`;
-  const staticRoutes = ["/", "/about", "/services", "/work", "/blog", "/graphics", "/contact"];
+  const staticRoutes = [
+    "/",
+    "/about",
+    "/services",
+    "/work",
+    "/blog",
+    "/graphics",
+    "/compare",
+    "/contact",
+  ];
 
   return [
     ...staticRoutes.map((p) => ({ url: url(p), lastModified: new Date() })),
@@ -30,5 +41,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(p.meta.publishedAt),
     })),
     ...graphics.map((g) => ({ url: url(`/graphics/${g.meta.slug}`), lastModified: new Date() })),
+    ...compares.map((c) => ({
+      url: url(`/compare/${c.meta.slug}`),
+      lastModified: new Date(c.meta.updatedAt ?? c.meta.publishedAt),
+    })),
   ];
 }

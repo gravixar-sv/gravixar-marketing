@@ -3,7 +3,10 @@ import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/site/PageHeader";
 import { MDX } from "@/content/mdx";
 import { ContactCTA } from "@/components/home/ContactCTA";
-import { StructuredDataCaseStudy } from "@/components/site/StructuredData";
+import {
+  StructuredDataBreadcrumb,
+  StructuredDataCaseStudy,
+} from "@/components/site/StructuredData";
 import { loadCaseStudies } from "@/content/loaders";
 import { buildMetadata, SITE } from "@/lib/seo";
 
@@ -45,6 +48,13 @@ export default async function CaseStudyPage(
         url={`${SITE.url}/work/${slug}`}
         publishedAt={cs.meta.publishedAt}
         author={SITE.author}
+      />
+      <StructuredDataBreadcrumb
+        items={[
+          { name: "Home", url: SITE.url },
+          { name: "Work", url: `${SITE.url}/work` },
+          { name: cs.meta.client, url: `${SITE.url}/work/${slug}` },
+        ]}
       />
       <PageHeader
         eyebrow={`${cs.meta.client} · ${cs.meta.period}`}

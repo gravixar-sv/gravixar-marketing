@@ -12,6 +12,7 @@ import matter from "gray-matter";
 import {
   blogPostSchema,
   caseStudySchema,
+  compareSchema,
   graphicsItemSchema,
   homeBlockSchema,
   pageSchema,
@@ -34,6 +35,7 @@ const SECTIONS: Section[] = [
   { dir: "graphics", schema: graphicsItemSchema, label: "graphics" },
   { dir: "home", schema: homeBlockSchema, label: "home" },
   { dir: "pages", schema: pageSchema, label: "pages" },
+  { dir: "compare", schema: compareSchema, label: "compare" },
 ];
 
 const inDrafts = (rel: string) =>
