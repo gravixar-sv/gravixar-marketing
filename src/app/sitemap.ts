@@ -4,17 +4,19 @@ import {
   loadCaseStudies,
   loadCompares,
   loadGraphics,
+  loadModules,
   loadServices,
 } from "@/content/loaders";
 import { SITE } from "@/lib/seo";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [services, posts, studies, graphics, compares] = await Promise.all([
+  const [services, posts, studies, graphics, compares, modules] = await Promise.all([
     loadServices(),
     loadBlogPosts(),
     loadCaseStudies(),
     loadGraphics(),
     loadCompares(),
+    loadModules(),
   ]);
 
   const url = (path: string) => `${SITE.url}${path}`;
@@ -22,6 +24,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/",
     "/about",
     "/services",
+    "/modules",
     "/work",
     "/blog",
     "/graphics",
@@ -44,6 +47,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...compares.map((c) => ({
       url: url(`/compare/${c.meta.slug}`),
       lastModified: new Date(c.meta.updatedAt ?? c.meta.publishedAt),
+    })),
+    ...modules.map((m) => ({
+      url: url(`/modules/${m.meta.slug}`),
+      lastModified: new Date(m.meta.updatedAt ?? m.meta.publishedAt),
     })),
   ];
 }

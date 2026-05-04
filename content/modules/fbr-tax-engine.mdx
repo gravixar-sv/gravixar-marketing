@@ -1,0 +1,18 @@
+---
+title: "FBR + EOBI tax engine"
+slug: "fbr-tax-engine"
+category: "finance"
+summary: "Property-tested salary engine for Pakistan's FBR slabs and EOBI rates. Forward Gross→Net + bisection Net→Gross solver. 17 of 17 vitest property tests green, decimal.js precision throughout."
+runningIn:
+  - { client: "Beeline Medical", productSlug: "beeline" }
+stack:
+  - "vitest + fast-check"
+  - "decimal.js"
+  - "Pakistan FBR slab data"
+order: 8
+publishedAt: "2026-05-04"
+---
+
+As far as I can tell, this is the only Pakistan-tax payroll engine shipped cleanly anywhere. FBR slabs change per fiscal year and per regime; EOBI rates are separate; consolidated-versus-component salary structures route through different math; bonuses entered late roll forward two months per §17.6. All of that lives in one pure module, with seventeen vitest property tests covering the invariants (1000-iteration round-trip, EXEMPT regime, bonusTaxedAsSalary=false, GROSS_AGREED bonus invariance).
+
+The Net→Gross solver uses bisection rather than Newton damping, after a discovered counterexample where a CONSOLIDATED-structure salary with a bonus-induced slab transition broke Newton's derivative continuity assumption and diverged by ~10k PKR. Bisection is slower; bisection is correct. The doc-comment in the engine records the counterexample so the next person doesn't "optimize" it back.

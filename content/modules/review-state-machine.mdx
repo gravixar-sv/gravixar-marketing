@@ -1,0 +1,17 @@
+---
+title: "Review state machine"
+slug: "review-state-machine"
+category: "ops"
+summary: "DRAFT → SUBMITTED_FOR_INTERNAL → INTERNAL_APPROVED → SUBMITTED_FOR_CLIENT → CLIENT_APPROVED with a CLIENT_REVISION_REQUESTED branch back into the loop. Every transition is a function with explicit preconditions and side-effects."
+runningIn:
+  - { client: "Broomstick Hub", productSlug: "bs-hub" }
+stack:
+  - "TypeScript discriminated unions"
+  - "Prisma transactions"
+order: 4
+publishedAt: "2026-05-04"
+---
+
+Most "status" fields are a typed prayer. The review state machine is the version that holds up under client disputes. Each transition is a single function with explicit pre-conditions (the source state must match) and side-effects (notification, email, audit row, downstream task fanout). No state is implicit. No admin can flip a deliverable to "approved" by editing a free-text field.
+
+The CLIENT_REVISION_REQUESTED branch is the part that earns its keep. It loops the deliverable back to DRAFT for the assignee, preserves the prior approvals as audit history, and flags the deliverable so the next submission shows reviewers exactly what was changed. The discipline pays for itself the first time a client claims something was never approved.

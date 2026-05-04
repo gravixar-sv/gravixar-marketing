@@ -15,10 +15,11 @@
 
   /* Self-hosted via next/font (see src/app/layout.tsx). The CSS vars
      are populated at runtime; the literal fallbacks kick in if the
-     font fails to load. */
-  --font-sans: var(--font-inter), "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-display: var(--font-inter), "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", monospace;
+     font fails to load. Geist is Vercel's typeface, technical agency
+     feel rather than consumer-marketing humanist. */
+  --font-sans: var(--font-geist), "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: var(--font-geist), "Geist", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", monospace;
 }
 
 @layer base {
@@ -48,6 +49,47 @@
   /* Soft brand wash for hero corner glow */
   .bg-brand-glow {
     background: radial-gradient(60% 80% at 100% 0%, rgba(255, 107, 53, 0.16) 0%, rgba(255, 107, 53, 0) 60%);
+  }
+  /* Hairline-bordered panel for cards. Interior uses a 1px ring at low
+     opacity so cards feel inset rather than boxed. Pairs with hover
+     gradient via .card-hover-glow. */
+  .card-surface {
+    background: linear-gradient(180deg, rgba(24, 24, 27, 0.4) 0%, rgba(10, 10, 10, 0.6) 100%);
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.04),
+      0 1px 0 0 rgba(255, 255, 255, 0.02);
+  }
+  /* Hover: brand-tinted ring + subtle outward glow */
+  .card-hover-glow {
+    transition:
+      box-shadow 220ms ease-out,
+      background 220ms ease-out,
+      transform 220ms ease-out;
+  }
+  .card-hover-glow:hover {
+    background: linear-gradient(180deg, rgba(34, 24, 22, 0.5) 0%, rgba(14, 10, 10, 0.65) 100%);
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 107, 53, 0.35),
+      0 0 0 1px rgba(255, 107, 53, 0.18),
+      0 8px 32px -8px rgba(255, 107, 53, 0.18);
+  }
+  /* Live-system panel — terminal-leaning, not consumer-marketing */
+  .live-panel {
+    background:
+      radial-gradient(120% 80% at 0% 0%, rgba(255, 107, 53, 0.08) 0%, rgba(255, 107, 53, 0) 50%),
+      linear-gradient(180deg, rgba(24, 24, 27, 0.7) 0%, rgba(10, 10, 10, 0.85) 100%);
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.06),
+      0 24px 60px -20px rgba(0, 0, 0, 0.6);
+  }
+  /* Soft drifting gradient — slow ambient motion behind the hero panel */
+  @keyframes ambientDrift {
+    0% { transform: translate3d(0, 0, 0); opacity: 0.7; }
+    50% { transform: translate3d(2%, 1%, 0); opacity: 1; }
+    100% { transform: translate3d(0, 0, 0); opacity: 0.7; }
+  }
+  .ambient-drift {
+    animation: ambientDrift 14s ease-in-out infinite;
   }
   /* Horizontal marquee for client logos. Logos array is duplicated in the
      component so the loop appears seamless when it wraps. */

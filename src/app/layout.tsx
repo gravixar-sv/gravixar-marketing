@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Navbar } from "@/components/site/Navbar";
@@ -11,15 +11,17 @@ import "@/styles/globals.css";
 
 // next/font self-hosts the font files (no Google CDN call), bakes in
 // font-display: swap, subsets to latin, and emits a CSS variable that
-// our Tailwind theme reads.
-const inter = Inter({
+// our Tailwind theme reads. Geist is Vercel's typeface, designed for
+// technical/agency interfaces — tighter terminals, cleaner numerals
+// than Inter, no rounded humanist warmth that reads consumer-marketing.
+const geistSans = Geist({
   subsets: ["latin"],
-  variable: "--font-inter",
+  variable: "--font-geist",
   display: "swap",
 });
-const jetbrainsMono = JetBrains_Mono({
+const geistMono = Geist_Mono({
   subsets: ["latin"],
-  variable: "--font-jetbrains",
+  variable: "--font-geist-mono",
   display: "swap",
 });
 
@@ -49,7 +51,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${jetbrainsMono.variable}`}
+      className={`${geistSans.variable} ${geistMono.variable}`}
     >
       <head>
         <StructuredDataGlobal />

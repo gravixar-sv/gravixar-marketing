@@ -8,6 +8,7 @@
 import {
   loadCaseStudies,
   loadCompares,
+  loadModules,
   loadServices,
 } from "@/content/loaders";
 import { SITE } from "@/lib/seo";
@@ -15,10 +16,11 @@ import { SITE } from "@/lib/seo";
 export const revalidate = 3600;
 
 export async function GET() {
-  const [services, studies, compares] = await Promise.all([
+  const [services, studies, compares, modules] = await Promise.all([
     loadServices(),
     loadCaseStudies(),
     loadCompares(),
+    loadModules(),
   ]);
 
   const url = (path: string) => `${SITE.url}${path}`;
@@ -38,6 +40,7 @@ export async function GET() {
   lines.push(`- [Home](${url("/")}): Landing + positioning + case-study previews`);
   lines.push(`- [About](${url("/about")}): Who Qamar is, how engagements work`);
   lines.push(`- [Services](${url("/services")}): The three service buckets`);
+  lines.push(`- [Modules](${url("/modules")}): Reusable production-tested patterns across builds`);
   lines.push(`- [Work](${url("/work")}): Case studies of shipped systems`);
   lines.push(`- [Compare](${url("/compare")}): Off-the-shelf vs custom honest reads`);
   lines.push(`- [Contact](${url("/contact")}): Lead form + Cal.com booking`);
@@ -66,6 +69,15 @@ export async function GET() {
   for (const c of compares) {
     lines.push(
       `- [${c.meta.title}](${url(`/compare/${c.meta.slug}`)}): ${c.meta.summary}`,
+    );
+  }
+  lines.push("");
+
+  lines.push("## Modules (reusable patterns)");
+  lines.push("");
+  for (const m of modules) {
+    lines.push(
+      `- [${m.meta.title}](${url(`/modules/${m.meta.slug}`)}): ${m.meta.summary}`,
     );
   }
   lines.push("");

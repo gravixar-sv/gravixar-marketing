@@ -1,0 +1,19 @@
+---
+title: "Identity & Auth"
+slug: "identity-auth"
+category: "auth"
+summary: "NextAuth v5 JWT credentials with the security defaults that should be standard but usually aren't: lockout, breach-list password check, anti-enumeration, invite-only signup."
+runningIn:
+  - { client: "Broomstick Hub", productSlug: "bs-hub" }
+  - { client: "Beeline Medical", productSlug: "beeline" }
+stack:
+  - "NextAuth v5"
+  - "bcrypt"
+  - "HIBP k-anonymity"
+order: 1
+publishedAt: "2026-05-04"
+---
+
+A real auth module isn't a sign-in form. It's the boring set of defenses that keep accounts honest: 5-attempt-per-30-minute lockout, HIBP password breach check (k-anonymity, fails open), dummy bcrypt-compare on unknown emails so attackers can't enumerate accounts by timing, invite-only signup that closes the public registration surface entirely, session augmentation with role + region + department + isSuperAdmin tier so every guard down the line has the context it needs.
+
+I ship this on every build. The shape changes per product (healthcare adds region-locking, agencies add multi-org); the security defaults don't. There's no clever new pattern here. There's just the discipline of doing the right things together rather than picking one or two and shipping the rest later.

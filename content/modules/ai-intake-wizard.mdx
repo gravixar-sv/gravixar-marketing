@@ -1,0 +1,17 @@
+---
+title: "AI intake wizard"
+slug: "ai-intake-wizard"
+category: "ai"
+summary: "Adaptive client intake using Claude. Asks 4-7 questions tuned to the prospect's stated context, fetches their public site, generates a brand brief the PM walks into the discovery call already holding."
+runningIn:
+  - { client: "Broomstick Hub", productSlug: "bs-hub" }
+stack:
+  - "Anthropic Claude (Sonnet)"
+  - "Vercel AI Gateway"
+order: 5
+publishedAt: "2026-05-04"
+---
+
+The intake wizard's job is to turn a cold form-fill into a warm discovery call. Visitor lands, types one or two sentences about their business, the wizard fetches their site, runs a Claude pass to draft a brand profile (tone, audience, current positioning, what they sell, what's missing), and asks adaptive follow-ups based on what's still ambiguous. Output: a concrete brief the PM reads before the call instead of starting from "tell me about your company."
+
+The architecture is provider-agnostic via Vercel AI Gateway, so the model string `anthropic/claude-sonnet-4-6` is one line away from `openai/gpt-5` if a better option ships. AI fails open: if the API is down, the wizard collects answers normally and flags the brief as "human-drafted only." The flow never blocks on a third-party LLM.

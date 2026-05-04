@@ -1,0 +1,18 @@
+---
+title: "Leave management with atomic balance updates"
+slug: "leave-management"
+category: "ops"
+summary: "Annual / sick / unpaid / parental / bereavement leave with pro-rated entitlements for new joiners, manager approve/decline state machine, and balance updates that run inside a Prisma transaction so balances can't desync."
+runningIn:
+  - { client: "Broomstick Hub", productSlug: "bs-hub" }
+  - { client: "Beeline Medical", productSlug: "beeline" }
+stack:
+  - "Prisma transactions"
+  - "Resend"
+order: 10
+publishedAt: "2026-05-04"
+---
+
+The bug everyone has shipped at least once: leave is approved, the calendar is updated, but the balance doesn't decrement because the second write failed silently. The fix is structural. Leave approval and balance update run inside the same Prisma transaction. If either fails, both roll back. The leave row never lives in "approved" status while the balance still reads as unspent.
+
+Pro-rated annual leave for new joiners is its own small wrinkle: a hire mid-year doesn't get full annual leave. The policy lives in `leavePolicy.ts` as a single source of truth, so the engine can't read one rule while the UI renders another. Submit, approve/decline, notify, balance auto-adjust. Notifications fire to all managers on submit, to the requester on decision, with email if Resend is configured.
