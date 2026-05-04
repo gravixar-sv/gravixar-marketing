@@ -2,6 +2,8 @@
 // styling than the previous solid-fill version, dark background with a
 // thin brand-accent top line. Reduces overall "redness" surface area.
 
+import { SITE } from "@/lib/seo";
+
 export function DemoBanner() {
   return (
     <div className="border-y border-brand/20 bg-zinc-950">
@@ -10,7 +12,7 @@ export function DemoBanner() {
         <span className="hidden md:inline">Live ops platform coming online at</span>
         <span className="md:hidden">Demo at</span>
         <a
-          href="https://demo.gravixar.com"
+          href={SITE.demoUrl}
           className="font-medium text-brand-soft underline-offset-4 hover:underline"
           rel="noreferrer"
         >

@@ -85,7 +85,7 @@ export async function GET() {
   lines.push("## Live demo");
   lines.push("");
   lines.push(
-    "- [demo.gravixar.com](https://demo.gravixar.com): Interactive showroom of the operations and AI patterns Qamar builds. Multiple scenes, persona-switcher login, weekly seed reset.",
+    `- [demo.gravixar.com](${SITE.demoUrl}): Interactive showroom of the operations and AI patterns Qamar builds. Multiple scenes, persona-switcher login, weekly seed reset.`,
   );
   lines.push("");
 

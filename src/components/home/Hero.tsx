@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { MDX } from "@/content/mdx";
 import type { HomeBlock } from "@/content/schema";
+import { SITE } from "@/lib/seo";
 
 // Personas the visitor can click into on demo.gravixar.com. Each maps to
 // a real seeded persona in the Lattice Studio scene. Clicking sends them
@@ -129,7 +130,7 @@ function DemoPanel() {
           {DEMO_PERSONAS.map((p) => (
             <a
               key={p.name}
-              href="https://demo.gravixar.com/lattice"
+              href={`${SITE.demoUrl}/lattice`}
               rel="noreferrer"
               className="group relative overflow-hidden rounded-md border border-zinc-800 bg-zinc-950/40 p-3 transition-colors hover:border-brand/50"
             >
@@ -167,7 +168,7 @@ function DemoPanel() {
 
       {/* Footer CTA */}
       <a
-        href="https://demo.gravixar.com"
+        href={SITE.demoUrl}
         rel="noreferrer"
         className="mt-5 flex items-center justify-between border-t border-zinc-800/80 pt-4 text-sm text-zinc-200 transition-colors hover:text-brand-soft"
       >
