@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { usePathname } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import {
   Boxes,
   Scale,
@@ -55,6 +56,36 @@ const TRAILING = [{ href: "/about", label: "About" }] as const;
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
+  const moreRef = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
+
+  // Close both menus on route change. Without this, the dropdown stays
+  // open when a link inside it is clicked because the same DOM persists
+  // across client-side navs in the App Router.
+  useEffect(() => {
+    setMoreOpen(false);
+    setMobileOpen(false);
+  }, [pathname]);
+
+  // Click-outside close for the desktop dropdown.
+  useEffect(() => {
+    if (!moreOpen) return;
+    function onPointerDown(e: PointerEvent) {
+      if (moreRef.current && !moreRef.current.contains(e.target as Node)) {
+        setMoreOpen(false);
+      }
+    }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setMoreOpen(false);
+    }
+    document.addEventListener("pointerdown", onPointerDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [moreOpen]);
 
   return (
     <header className="sticky top-0 z-40 border-b border-zinc-900/80 bg-[#0a0a0a]/80 backdrop-blur">
@@ -85,21 +116,30 @@ export function Navbar() {
             </Link>
           ))}
 
-          {/* "More" dropdown — pure CSS hover + focus-within, keyboard accessible */}
-          <div className="group relative">
+          {/* "More" dropdown — controlled state, click-outside + Esc close,
+              auto-closes on route change. */}
+          <div className="relative" ref={moreRef}>
             <button
               type="button"
-              className="inline-flex items-center gap-1 text-zinc-300 transition-colors hover:text-brand-soft focus-visible:outline-none focus-visible:text-brand-soft"
-              aria-haspopup="true"
+              onClick={() => setMoreOpen((v) => !v)}
+              aria-haspopup="menu"
+              aria-expanded={moreOpen}
+              className={`inline-flex items-center gap-1 transition-colors focus-visible:outline-none ${
+                moreOpen ? "text-brand-soft" : "text-zinc-300 hover:text-brand-soft"
+              }`}
             >
               More
               <ChevronDown
                 size={14}
-                className="transition-transform group-hover:rotate-180 group-focus-within:rotate-180"
+                className={`transition-transform ${moreOpen ? "rotate-180" : ""}`}
               />
             </button>
             <div
-              className="invisible absolute right-0 top-full z-50 mt-3 w-80 -translate-y-1 opacity-0 transition-all duration-150 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100"
+              className={`absolute right-0 top-full z-50 mt-3 w-80 transition-all duration-150 ${
+                moreOpen
+                  ? "visible translate-y-0 opacity-100"
+                  : "invisible -translate-y-1 opacity-0"
+              }`}
               role="menu"
             >
               <div className="live-panel rounded-xl p-2">
@@ -108,6 +148,7 @@ export function Navbar() {
                     key={href}
                     href={href}
                     role="menuitem"
+                    onClick={() => setMoreOpen(false)}
                     className="group/item flex items-start gap-3 rounded-lg px-3 py-3 transition-colors hover:bg-zinc-900/60"
                   >
                     <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-zinc-900/80 text-brand transition-colors group-hover/item:bg-brand/10">
