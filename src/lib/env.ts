@@ -15,6 +15,9 @@ const schema = z.object({
   // Vercel Cron sends `Authorization: Bearer ${CRON_SECRET}` on each invocation.
   // Set this in production env; leave unset locally and use the seo:draft script instead.
   CRON_SECRET: z.string().optional(),
+  // Admin token for the /admin dashboard. Set in Vercel production env.
+  // If unset, the admin page returns 503 (admin disabled).
+  ADMIN_TOKEN: z.string().optional(),
 });
 
 const parsed = schema.safeParse(process.env);
