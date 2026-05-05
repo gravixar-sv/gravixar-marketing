@@ -5,19 +5,25 @@
 import { put, list } from "@vercel/blob";
 import { env } from "./env";
 import type { LeadRecord } from "./lead";
+import type { EarlyAccessRecord } from "./early-access";
 
 const LEAD_LOG_PREFIX = "leads/";
+const EARLY_ACCESS_PREFIX = "early-access/";
 
 function monthKey(d = new Date()) {
   return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
 }
 
-export async function appendLead(record: LeadRecord): Promise<{ url: string } | null> {
+// Generic JSONL append. Reads the current month's file (if any), appends
+// the record as a new line, PUTs the full document back. Vercel Blob is
+// immutable per write, so we re-PUT each call. Cheap until volume grows.
+async function appendJsonl<T>(
+  prefix: string,
+  record: T,
+): Promise<{ url: string } | null> {
   if (!env.BLOB_READ_WRITE_TOKEN) return null;
-  const key = `${LEAD_LOG_PREFIX}${monthKey()}.jsonl`;
+  const key = `${prefix}${monthKey()}.jsonl`;
 
-  // Read existing month-file (if any) and append a line. Vercel Blob is
-  // immutable per-write, so we PUT the full document each call.
   let existing = "";
   try {
     const found = await list({ prefix: key, token: env.BLOB_READ_WRITE_TOKEN });
@@ -40,3 +46,9 @@ export async function appendLead(record: LeadRecord): Promise<{ url: string } | 
   });
   return { url: blob.url };
 }
+
+export const appendLead = (record: LeadRecord) =>
+  appendJsonl(LEAD_LOG_PREFIX, record);
+
+export const appendEarlyAccess = (record: EarlyAccessRecord) =>
+  appendJsonl(EARLY_ACCESS_PREFIX, record);

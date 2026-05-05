@@ -4,7 +4,7 @@ slug: "security-watch-cron"
 category: "audit"
 summary: "Sweeps the audit log nightly for anomalies (mass-signup spikes, DELETE bursts, lockout cascades, classifier blackouts, stuck inquiries) and emails admins when something trips. Quiet when nothing is wrong."
 runningIn:
-  - { client: "Broomstick Hub", productSlug: "bs-hub" }
+  - { client: "Agency portal", productSlug: "bs-hub" }
 stack:
   - "Vercel Cron"
   - "Resend"

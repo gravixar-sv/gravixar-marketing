@@ -44,6 +44,7 @@ export async function GET() {
   lines.push(`- [Work](${url("/work")}): Case studies of shipped systems`);
   lines.push(`- [Compare](${url("/compare")}): Off-the-shelf vs custom honest reads`);
   lines.push(`- [Contact](${url("/contact")}): Lead form + Cal.com booking`);
+  lines.push(`- [Early access](${url("/early-access")}): Hosted Gravixar SaaS waitlist (private beta opening soon)`);
   lines.push("");
 
   lines.push("## Services");

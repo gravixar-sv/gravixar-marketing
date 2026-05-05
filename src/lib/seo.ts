@@ -7,12 +7,10 @@ export const SITE = {
   url: env.NEXT_PUBLIC_SITE_URL,
   author: "Qamar",
   twitter: "@gravixar",
-  // Live demo target. Points at the Vercel preview URL for now;
-  // flip back to "https://demo.gravixar.com" when the custom domain
-  // DNS is configured (CNAME → cname.vercel-dns.com on the demo
-  // Vercel project). Display text in prose can stay as
-  // "demo.gravixar.com", that's still the canonical brand name.
-  demoUrl: "https://gravixar-demo.vercel.app",
+  // Live demo target. demo.gravixar.com went live 2026-05-05 via
+  // Vercel nameservers. The .vercel.app fallback URL still works,
+  // but we use the custom domain in production for brand consistency.
+  demoUrl: "https://demo.gravixar.com",
 } as const;
 
 export function buildMetadata({
