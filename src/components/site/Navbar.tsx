@@ -146,6 +146,12 @@ export function Navbar() {
           >
             Book a call
           </Link>
+          <Link
+            href="/early-access"
+            className="hidden rounded-md bg-brand px-3 py-1.5 text-sm font-medium text-[#0a0a0a] transition-colors hover:bg-brand-soft md:inline-block"
+          >
+            Get early access
+          </Link>
           <button
             type="button"
             onClick={() => setMobileOpen((v) => !v)}
@@ -201,9 +207,16 @@ export function Navbar() {
             <Link
               href="/contact"
               onClick={() => setMobileOpen(false)}
-              className="mt-2 block rounded-md bg-brand px-3 py-2.5 text-center text-sm font-medium text-[#0a0a0a]"
+              className="mt-2 block rounded-md border border-zinc-700 px-3 py-2.5 text-center text-sm text-zinc-200"
             >
               Book a call
+            </Link>
+            <Link
+              href="/early-access"
+              onClick={() => setMobileOpen(false)}
+              className="mt-2 block rounded-md bg-brand px-3 py-2.5 text-center text-sm font-medium text-[#0a0a0a]"
+            >
+              Get early access
             </Link>
           </div>
         </div>

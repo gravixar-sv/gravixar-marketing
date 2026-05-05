@@ -13,9 +13,10 @@ const DEMO_PERSONAS = [
   { name: "Sage", role: "designer", color: "from-emerald-400/40 to-cyan-400/20" },
 ] as const;
 
-// Live-system signal. Sourced from the actual products: bs-hub modules,
-// Beeline modules, scheduled crons, total LOC. Update via the periodic
-// product-sync memory rule (feedback_periodic_sync_marketing.md).
+// Live-system signal. Sourced from the actual products: agency portal
+// modules, healthcare ops modules, scheduled crons, total LOC. Update
+// via the periodic product-sync memory rule
+// (feedback_periodic_sync_marketing.md).
 const SYSTEM_STATS = [
   { label: "modules in production", value: "16" },
   { label: "modules in private beta", value: "9" },
