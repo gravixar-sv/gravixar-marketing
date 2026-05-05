@@ -15,6 +15,7 @@ import {
   compareSchema,
   graphicsItemSchema,
   homeBlockSchema,
+  moduleSchema,
   pageSchema,
   serviceSchema,
 } from "../src/content/schema.js";
@@ -36,6 +37,7 @@ const SECTIONS: Section[] = [
   { dir: "home", schema: homeBlockSchema, label: "home" },
   { dir: "pages", schema: pageSchema, label: "pages" },
   { dir: "compare", schema: compareSchema, label: "compare" },
+  { dir: "modules", schema: moduleSchema, label: "modules" },
 ];
 
 const inDrafts = (rel: string) =>

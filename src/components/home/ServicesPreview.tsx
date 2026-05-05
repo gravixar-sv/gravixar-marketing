@@ -4,10 +4,10 @@ import type { Service } from "@/content/schema";
 export function ServicesPreview({ services }: { services: Service[] }) {
   return (
     <section>
-      <p className="font-mono text-xs uppercase tracking-widest text-brand">
+      <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand">
         what i do
       </p>
-      <h2 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">
+      <h2 className="mt-3 text-3xl font-semibold tracking-[-0.015em] md:text-4xl">
         Three things, all backed by something running.
       </h2>
       <p className="mt-4 max-w-2xl text-zinc-400">
@@ -19,17 +19,17 @@ export function ServicesPreview({ services }: { services: Service[] }) {
           <Link
             key={s.slug}
             href={`/services/${s.slug}`}
-            className="group flex flex-col rounded-lg border border-zinc-800 bg-zinc-950/60 p-6 transition-colors hover:border-brand/60"
+            className="card-surface card-hover-glow group flex flex-col rounded-xl p-6"
           >
             <div className="flex items-baseline justify-between">
-              <p className="font-mono text-[10px] uppercase tracking-widest text-zinc-500 group-hover:text-brand">
+              <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500 group-hover:text-brand">
                 {s.bucket}
               </p>
               <span className="font-mono text-[10px] text-zinc-700">
                 {String(i + 1).padStart(2, "0")}
               </span>
             </div>
-            <h3 className="mt-3 text-xl font-semibold tracking-tight text-zinc-100">
+            <h3 className="mt-3 text-xl font-semibold tracking-[-0.01em] text-zinc-100">
               {s.title}
             </h3>
             <p className="mt-3 text-sm leading-relaxed text-zinc-400">
@@ -45,8 +45,9 @@ export function ServicesPreview({ services }: { services: Service[] }) {
                 ))}
               </ul>
             ) : null}
-            <span className="mt-6 inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-widest text-zinc-600 group-hover:text-brand">
-              learn more →
+            <span className="mt-6 inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600 group-hover:text-brand">
+              learn more
+              <span className="transition-transform group-hover:translate-x-0.5">→</span>
             </span>
           </Link>
         ))}

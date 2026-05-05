@@ -1,0 +1,18 @@
+---
+title: "Audit log + safe-restore"
+slug: "audit-log-restore"
+category: "audit"
+summary: "Two-tier retention (CONTRACT 7y / OPERATIONAL 1y) audit log with allowlist-gated one-click restore on UPDATE rows. Compliance teams stop arguing once the policy lives in code."
+runningIn:
+  - { client: "Broomstick Hub", productSlug: "bs-hub" }
+  - { client: "Beeline Medical", productSlug: "beeline" }
+stack:
+  - "Prisma"
+  - "Postgres"
+order: 3
+publishedAt: "2026-05-04"
+---
+
+Every mutating route calls `recordAudit()`. Every audit row has a tier: CONTRACT for finance, contracts, payments, credentials (kept seven years); OPERATIONAL for leave, WFH, notifications, sales activities (kept one). The tier is decided next to the call site, not in a config file, so future-me can't accidentally downgrade a finance event by writing the wrong constant.
+
+The restore button on UPDATE rows is gated by a per-table field allowlist. Status enums, money amounts, and assignment ownership are never auto-restorable; those need a human decision. Restoring something on the allowlist writes a new audit row that points back at the original. The trail is immutable in the sense that matters: every change is on record, even the corrections.

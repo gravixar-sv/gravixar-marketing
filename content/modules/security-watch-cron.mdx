@@ -1,0 +1,17 @@
+---
+title: "Daily security-watch cron"
+slug: "security-watch-cron"
+category: "audit"
+summary: "Sweeps the audit log nightly for anomalies (mass-signup spikes, DELETE bursts, lockout cascades, classifier blackouts, stuck inquiries) and emails admins when something trips. Quiet when nothing is wrong."
+runningIn:
+  - { client: "Broomstick Hub", productSlug: "bs-hub" }
+stack:
+  - "Vercel Cron"
+  - "Resend"
+order: 12
+publishedAt: "2026-05-04"
+---
+
+The right shape for ops monitoring is "email me when something is off," not "email me a dashboard every night." The security-watch cron sweeps the previous day's audit log against a small set of anomaly patterns: signup volume vs. rolling baseline, DELETE bursts beyond a per-actor threshold, lockout cascades that might indicate a credential-stuffing attempt, AI classifier blackouts (model down, fallback path hit), inquiries stuck in a state past their stage SLA.
+
+If nothing trips, the cron exits silently. If anything trips, an email lands with the matching audit rows inlined and a one-paragraph summary of what looks unusual. Three months in, you stop reading emails for what's working and only look when there's a subject line. That's the discipline.

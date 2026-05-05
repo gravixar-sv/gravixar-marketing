@@ -7,6 +7,12 @@ export const SITE = {
   url: env.NEXT_PUBLIC_SITE_URL,
   author: "Qamar",
   twitter: "@gravixar",
+  // Live demo target. Points at the Vercel preview URL for now;
+  // flip back to "https://demo.gravixar.com" when the custom domain
+  // DNS is configured (CNAME → cname.vercel-dns.com on the demo
+  // Vercel project). Display text in prose can stay as
+  // "demo.gravixar.com", that's still the canonical brand name.
+  demoUrl: "https://gravixar-demo.vercel.app",
 } as const;
 
 export function buildMetadata({

@@ -28,19 +28,20 @@ export default async function CompareIndexPage() {
           <Link
             key={c.meta.slug}
             href={`/compare/${c.meta.slug}`}
-            className="group rounded-lg border border-zinc-800 bg-zinc-950/60 p-6 transition-colors hover:border-brand/60"
+            className="card-surface card-hover-glow group rounded-xl p-6"
           >
-            <p className="font-mono text-[10px] uppercase tracking-widest text-zinc-500 group-hover:text-brand">
+            <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500 group-hover:text-brand">
               {c.meta.competitor} vs custom
             </p>
-            <h2 className="mt-2 text-xl font-semibold tracking-tight text-zinc-100 md:text-2xl">
+            <h2 className="mt-2 text-xl font-semibold tracking-[-0.015em] text-zinc-100 md:text-2xl">
               {c.meta.title}
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-zinc-400">
               {c.meta.summary}
             </p>
-            <p className="mt-4 font-mono text-[10px] uppercase tracking-widest text-zinc-600">
-              {c.meta.category} →
+            <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600 group-hover:text-brand">
+              {c.meta.category}
+              <span className="ml-1 inline-block transition-transform group-hover:translate-x-0.5">→</span>
             </p>
           </Link>
         ))}

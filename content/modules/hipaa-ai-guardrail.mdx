@@ -1,0 +1,17 @@
+---
+title: "HIPAA-aware AI guardrail"
+slug: "hipaa-ai-guardrail"
+category: "ai"
+summary: "Two independent defenses on every Claude call: a PHI sniffer regex that blocks free-text PHI pre-persistence, and a wrapper that prepends a stop-clause to every system prompt. Direct AI SDK imports outside the wrapper are bugs by convention."
+runningIn:
+  - { client: "Beeline Medical", productSlug: "beeline" }
+stack:
+  - "Anthropic Claude"
+  - "Custom phiSniffer regex set"
+order: 6
+publishedAt: "2026-05-04"
+---
+
+PHI doesn't belong in prompts. The naive failure mode is a developer dropping a patient note into a "summarize this" call and shipping it to a third-party model. Two defenses prevent it. First, `phiSniffer.ts` runs regex pattern checks (SSN-shaped numbers, MRN tells, common chart-note structures) on every free-text input pre-persistence and rejects what trips. Second, `withHipaaGuardrail()` wraps every Claude call and prepends a stop-clause to the system prompt: "You will not process protected health information. If the user input contains PHI, refuse and ask for the redacted form."
+
+The discipline is enforced socially as well: direct `@anthropic-ai/sdk` imports outside `claude.ts` are treated as bugs, and a contributor doc says so explicitly. The belt is the wrapper. The suspenders are the sniffer. Both run on every call.

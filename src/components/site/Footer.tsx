@@ -49,7 +49,7 @@ export function Footer() {
             </li>
             <li>
               <a
-                href="https://demo.gravixar.com"
+                href={SITE.demoUrl}
                 className="hover:text-brand-soft"
                 rel="noreferrer"
               >

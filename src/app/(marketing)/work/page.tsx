@@ -33,15 +33,15 @@ export default async function WorkIndexPage() {
             <Link
               key={cs.meta.slug}
               href={`/work/${cs.meta.slug}`}
-              className="group rounded-lg border border-zinc-800 bg-zinc-950/60 p-6 transition-colors hover:border-brand/60"
+              className="card-surface card-hover-glow group rounded-xl p-6"
             >
               <div className="flex items-baseline justify-between gap-3">
-                <p className="font-mono text-[10px] uppercase tracking-widest text-zinc-500 group-hover:text-brand">
+                <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500 group-hover:text-brand">
                   {cs.meta.client}
                 </p>
                 <p className="font-mono text-[10px] text-zinc-600">{cs.meta.period}</p>
               </div>
-              <h2 className="mt-2 text-xl font-semibold tracking-tight text-zinc-100">
+              <h2 className="mt-2 text-xl font-semibold tracking-[-0.015em] text-zinc-100">
                 {cs.meta.title}
               </h2>
               <p className="mt-3 text-sm leading-relaxed text-zinc-400">
@@ -52,7 +52,7 @@ export default async function WorkIndexPage() {
                   {cs.meta.stack.slice(0, 5).map((s) => (
                     <li
                       key={s}
-                      className="rounded-sm border border-zinc-800 bg-zinc-900 px-1.5 py-0.5 font-mono text-[10px] text-zinc-400"
+                      className="rounded-sm border border-zinc-800/80 bg-zinc-900/60 px-1.5 py-0.5 font-mono text-[10px] text-zinc-400"
                     >
                       {s}
                     </li>

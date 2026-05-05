@@ -13,6 +13,7 @@ import {
   compareSchema,
   graphicsItemSchema,
   homeBlockSchema,
+  moduleSchema,
   pageSchema,
   serviceSchema,
   type BlogPost,
@@ -20,6 +21,7 @@ import {
   type Compare,
   type GraphicsItem,
   type HomeBlock,
+  type Module,
   type Page,
   type Service,
 } from "./schema";
@@ -122,6 +124,25 @@ export async function loadCaseStudies({
   return items
     .filter((i) => includeDrafts || !i.meta.draft)
     .sort((a, b) => b.meta.publishedAt.localeCompare(a.meta.publishedAt));
+}
+
+export async function loadModules({
+  includeDrafts = false,
+}: { includeDrafts?: boolean } = {}): Promise<Loaded<Module>[]> {
+  const items = await loadDir(
+    "modules",
+    (data, file) => {
+      const result = moduleSchema.safeParse(data);
+      if (!result.success) {
+        throw new Error(`Invalid frontmatter in ${file}:\n${result.error.message}`);
+      }
+      return result.data;
+    },
+    { includeDrafts },
+  );
+  return items
+    .filter((i) => includeDrafts || !i.meta.draft)
+    .sort((a, b) => a.meta.order - b.meta.order);
 }
 
 export async function loadCompares({

@@ -138,6 +138,42 @@ export const compareSchema = z.object({
 });
 export type Compare = z.infer<typeof compareSchema>;
 
+// Module library entries: each describes a reusable production-tested
+// pattern (auth, audit log, review state machine, AI guardrail, etc.)
+// that ships across multiple Gravixar builds. The /modules page makes
+// the productization narrative visible. Frontmatter is intentionally
+// minimal; the MDX body carries the substance.
+export const moduleCategory = z.enum([
+  "auth",
+  "audit",
+  "ai",
+  "finance",
+  "ops",
+  "comms",
+]);
+
+export const moduleSchema = z.object({
+  title: z.string().min(3).max(80),
+  slug,
+  category: moduleCategory,
+  summary: z.string().min(20).max(280),
+  // Where this module is running today, with linked product slug.
+  runningIn: z
+    .array(
+      z.object({
+        client: z.string().min(1),
+        productSlug: slug.optional(),
+      }),
+    )
+    .min(1),
+  stack: z.array(z.string().min(1)).default([]),
+  publishedAt: isoDate,
+  updatedAt: isoDate.optional(),
+  order: z.number().int().nonnegative().default(0),
+  draft: z.boolean().default(false),
+});
+export type Module = z.infer<typeof moduleSchema>;
+
 export const SCHEMAS = {
   blog: blogPostSchema,
   "case-studies": caseStudySchema,
@@ -146,6 +182,7 @@ export const SCHEMAS = {
   home: homeBlockSchema,
   pages: pageSchema,
   compare: compareSchema,
+  modules: moduleSchema,
 } as const;
 
 export type ContentKind = keyof typeof SCHEMAS;

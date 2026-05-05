@@ -1,0 +1,18 @@
+---
+title: "Multi-currency finance core"
+slug: "multi-currency-finance"
+category: "finance"
+summary: "Every monetary row stores native amount + native currency + an FxRateSnapshot foreign key. Reports compute against the snapshot, never live FX. A regenerated report from yesterday matches the original row-for-row."
+runningIn:
+  - { client: "Beeline Medical", productSlug: "beeline" }
+stack:
+  - "Prisma 7"
+  - "Open Exchange Rates"
+  - "decimal.js"
+order: 7
+publishedAt: "2026-05-04"
+---
+
+"Approximately right" is the wrong default for finance. Off-the-shelf tools treat multi-currency as a configuration setting and produce reports that drift over time as exchange rates move. The pattern I ship treats currency as a first-class field on every monetary row.
+
+Each row stores: native amount, native currency code, an FxRateSnapshot foreign key pointing to the rate that was current when the row was created. Reports compute `convertedAmount = nativeAmount * snapshotRate` rather than calling live FX. A US-LLC + Pakistan-ops setup can run a single instance and produce reports that reconcile both sides, retroactively, without time-machine bugs. The cost at the schema level is one column. The benefit is audit-ready reproduction by design.

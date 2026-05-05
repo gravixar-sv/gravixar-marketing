@@ -1,0 +1,18 @@
+---
+title: "Daily check-in (Office / WFH / Field)"
+slug: "daily-checkin"
+category: "ops"
+summary: "Auto-prompts on the first portal pageview each calendar day (timezone-locked, not UTC). Manager+ team view with a 4-pill summary. Unique constraint enforces one status per day per user, idempotent on resubmit."
+runningIn:
+  - { client: "Broomstick Hub", productSlug: "bs-hub" }
+  - { client: "Beeline Medical", productSlug: "beeline" }
+stack:
+  - "Karachi-business-day helpers"
+  - "Prisma unique constraint"
+order: 11
+publishedAt: "2026-05-04"
+---
+
+Presence tracking that nobody fills in is worse than no tracking at all. The pattern that sticks is: auto-prompt the modal on the first portal pageview each calendar day in the user's local business timezone (not UTC, which causes a 5-hour midnight bug for Pakistan-based teams). User picks OFFICE / WFH / FIELD plus an optional one-line note, modal dismisses, doesn't reappear until tomorrow.
+
+The Prisma unique constraint on (user, date) makes resubmits idempotent and cleanups simple. Manager+ team view shows a 4-pill summary across the team for any selected date. The whole module is small, but it's the kind of small that turns into a permanent feature once a team uses it for a week.
