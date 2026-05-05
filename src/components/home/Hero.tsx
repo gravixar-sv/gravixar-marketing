@@ -6,11 +6,33 @@ import { SITE } from "@/lib/seo";
 // Personas the visitor can click into on demo.gravixar.com. Each maps to
 // a real seeded persona in the Lattice Studio scene. Clicking sends them
 // to the demo's persona-switcher; the demo handles the actual sign-in.
+// `try` is the closed-loop action visible on each persona's page on the
+// demo, so visitors know what they'll DO before they click.
 const DEMO_PERSONAS = [
-  { name: "Mira", role: "client", color: "from-rose-400/40 to-amber-300/20" },
-  { name: "Kai", role: "PM", color: "from-cyan-400/40 to-violet-400/20" },
-  { name: "Nox", role: "admin", color: "from-violet-400/40 to-rose-400/20" },
-  { name: "Sage", role: "designer", color: "from-emerald-400/40 to-cyan-400/20" },
+  {
+    name: "Mira",
+    role: "client",
+    try: "approve a deliverable",
+    color: "from-rose-400/40 to-amber-300/20",
+  },
+  {
+    name: "Kai",
+    role: "pm",
+    try: "send first reply on an inquiry",
+    color: "from-cyan-400/40 to-violet-400/20",
+  },
+  {
+    name: "Nox",
+    role: "admin",
+    try: "approve leave + see audit log",
+    color: "from-violet-400/40 to-rose-400/20",
+  },
+  {
+    name: "Sage",
+    role: "designer",
+    try: "submit a draft for client",
+    color: "from-emerald-400/40 to-cyan-400/20",
+  },
 ] as const;
 
 // Live-system signal. Sourced from the actual products: agency portal
@@ -122,10 +144,12 @@ function DemoPanel() {
         </span>
       </div>
 
-      {/* Persona grid, clickable into the demo */}
+      {/* Persona grid, clickable into the demo. Each card shows the
+          closed-loop action available in that role so visitors know
+          what they'll actually do before clicking. */}
       <div className="mt-5">
         <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">
-          click in as a persona
+          step in and run a workflow
         </p>
         <div className="mt-3 grid grid-cols-2 gap-2">
           {DEMO_PERSONAS.map((p) => (
@@ -133,17 +157,22 @@ function DemoPanel() {
               key={p.name}
               href={`${SITE.demoUrl}/lattice`}
               rel="noreferrer"
-              className="group relative overflow-hidden rounded-md border border-zinc-800 bg-zinc-950/40 p-3 transition-colors hover:border-brand/50"
+              className="group relative overflow-hidden rounded-md border border-zinc-800 bg-zinc-950/40 p-3 transition-all hover:-translate-y-0.5 hover:border-brand/50"
             >
               <span
                 aria-hidden
                 className={`pointer-events-none absolute inset-0 -z-0 bg-gradient-to-br ${p.color} opacity-0 transition-opacity group-hover:opacity-100`}
               />
-              <span className="relative z-10 block text-sm font-medium text-zinc-100">
-                {p.name}
+              <span className="relative z-10 flex items-baseline justify-between gap-1">
+                <span className="block text-sm font-medium text-zinc-100">
+                  {p.name}
+                </span>
+                <span className="font-mono text-[9px] uppercase tracking-[0.16em] text-zinc-500 group-hover:text-brand">
+                  {p.role}
+                </span>
               </span>
-              <span className="relative z-10 mt-0.5 block font-mono text-[10px] uppercase tracking-[0.16em] text-zinc-500">
-                {p.role}
+              <span className="relative z-10 mt-2 block text-[11px] leading-tight text-zinc-400 group-hover:text-zinc-200">
+                try · {p.try}
               </span>
             </a>
           ))}
@@ -152,9 +181,14 @@ function DemoPanel() {
 
       {/* Live system stats */}
       <div className="mt-5 border-t border-zinc-800/80 pt-4">
-        <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">
-          system signal
-        </p>
+        <div className="flex items-baseline justify-between">
+          <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">
+            system signal
+          </p>
+          <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-zinc-600">
+            weekly reset · sun 03:00 utc
+          </p>
+        </div>
         <dl className="mt-3 grid grid-cols-2 gap-3">
           {SYSTEM_STATS.map((s) => (
             <div key={s.label} className="flex flex-col">
@@ -171,10 +205,10 @@ function DemoPanel() {
       <a
         href={SITE.demoUrl}
         rel="noreferrer"
-        className="mt-5 flex items-center justify-between border-t border-zinc-800/80 pt-4 text-sm text-zinc-200 transition-colors hover:text-brand-soft"
+        className="group mt-5 flex items-center justify-between border-t border-zinc-800/80 pt-4 text-sm text-zinc-200 transition-colors hover:text-brand-soft"
       >
         <span>open demo full-screen</span>
-        <span aria-hidden className="font-mono text-[11px]">↗</span>
+        <span aria-hidden className="font-mono text-[11px] transition-transform group-hover:translate-x-0.5">↗</span>
       </a>
     </aside>
   );
