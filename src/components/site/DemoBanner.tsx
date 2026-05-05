@@ -1,6 +1,6 @@
-// Top-of-site banner pointing visitors at the demo subdomain. Softer
-// styling than the previous solid-fill version, dark background with a
-// thin brand-accent top line. Reduces overall "redness" surface area.
+// Top-of-site banner pointing visitors at the demo subdomain.
+// demo.gravixar.com went live 2026-05-05. Copy treats the demo as a
+// place to act, not announce — pulse-dot signals an active live system.
 
 import { SITE } from "@/lib/seo";
 
@@ -9,7 +9,7 @@ export function DemoBanner() {
     <div className="border-y border-brand/20 bg-zinc-950">
       <div className="mx-auto flex max-w-6xl items-center justify-center gap-2 px-6 py-2 text-xs text-zinc-300 md:text-sm">
         <span className="inline-block h-1.5 w-1.5 rounded-full bg-brand pulse-dot" />
-        <span className="hidden md:inline">Live ops platform coming online at</span>
+        <span className="hidden md:inline">Live ops platform running at</span>
         <span className="md:hidden">Demo at</span>
         <a
           href={SITE.demoUrl}
@@ -18,7 +18,7 @@ export function DemoBanner() {
         >
           demo.gravixar.com
         </a>
-        <span className="hidden text-zinc-500 md:inline">- click around as a real client.</span>
+        <span className="hidden text-zinc-500 md:inline">— sign in as a persona, run a real workflow.</span>
       </div>
     </div>
   );

@@ -1,7 +1,24 @@
 "use client";
 
+// Early-access waitlist form. Structured fields give Qamar enough triage
+// signal (interest, team size, timeline) without making the form long.
+// Free-text `need` is optional — for visitors who want to add context
+// the dropdowns don't capture.
+//
+// Adaptive questions powered by AI (GenAI follow-ups based on their
+// interest selection) is a follow-up, not in this iteration. The static
+// dropdowns cover the same triage need at zero LLM cost.
+
 import { useState } from "react";
 import { cn } from "@/lib/cn";
+import {
+  interestOptions,
+  teamSizeOptions,
+  timelineOptions,
+  INTEREST_LABELS,
+  TEAM_SIZE_LABELS,
+  TIMELINE_LABELS,
+} from "@/lib/early-access";
 
 type FormState =
   | { kind: "idle" }
@@ -21,6 +38,9 @@ export function EarlyAccessForm() {
     const payload = {
       email: String(fd.get("email") ?? ""),
       name: String(fd.get("name") ?? "") || undefined,
+      interest: String(fd.get("interest") ?? "") || undefined,
+      teamSize: String(fd.get("teamSize") ?? "") || undefined,
+      timeline: String(fd.get("timeline") ?? "") || undefined,
       need: String(fd.get("need") ?? "") || undefined,
       source: "early-access-page",
       website: String(fd.get("website") ?? ""), // honeypot
@@ -79,11 +99,40 @@ export function EarlyAccessForm() {
         name="name"
         placeholder="What should I call you?"
       />
+      <Select
+        label="What are you looking for?"
+        name="interest"
+        placeholder="Pick the closest match"
+        options={interestOptions.map((v) => ({
+          value: v,
+          label: INTEREST_LABELS[v],
+        }))}
+      />
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Select
+          label="Team size"
+          name="teamSize"
+          placeholder="—"
+          options={teamSizeOptions.map((v) => ({
+            value: v,
+            label: TEAM_SIZE_LABELS[v],
+          }))}
+        />
+        <Select
+          label="Timeline"
+          name="timeline"
+          placeholder="—"
+          options={timelineOptions.map((v) => ({
+            value: v,
+            label: TIMELINE_LABELS[v],
+          }))}
+        />
+      </div>
       <Textarea
-        label="What are you hoping to use this for? (optional)"
+        label="Anything else? (optional)"
         name="need"
         rows={3}
-        placeholder="e.g. agentic email for my consulting business, client portal for a 5-person studio, etc."
+        placeholder="Specific use case, current stack, what 'good' looks like for you."
       />
       {/* honeypot, visually hidden, must stay empty */}
       <div className="hidden" aria-hidden>
@@ -136,6 +185,40 @@ function Field({
         placeholder={placeholder}
         className="mt-2 block w-full rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none transition-colors placeholder:text-zinc-600 focus:border-brand"
       />
+    </label>
+  );
+}
+
+function Select({
+  label,
+  name,
+  placeholder,
+  options,
+}: {
+  label: string;
+  name: string;
+  placeholder?: string;
+  options: { value: string; label: string }[];
+}) {
+  return (
+    <label className="block">
+      <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-400">
+        {label}
+      </span>
+      <select
+        name={name}
+        defaultValue=""
+        className="mt-2 block w-full rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none transition-colors focus:border-brand"
+      >
+        <option value="" disabled>
+          {placeholder ?? "Select…"}
+        </option>
+        {options.map((o) => (
+          <option key={o.value} value={o.value}>
+            {o.label}
+          </option>
+        ))}
+      </select>
     </label>
   );
 }

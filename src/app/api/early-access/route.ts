@@ -8,7 +8,13 @@
 import { NextResponse } from "next/server";
 import { checkBotId } from "botid/server";
 import { randomUUID } from "node:crypto";
-import { earlyAccessSchema, type EarlyAccessRecord } from "@/lib/early-access";
+import {
+  earlyAccessSchema,
+  INTEREST_LABELS,
+  TEAM_SIZE_LABELS,
+  TIMELINE_LABELS,
+  type EarlyAccessRecord,
+} from "@/lib/early-access";
 import { FROM_EMAIL, NOTIFY_EMAIL, getResend } from "@/lib/resend";
 import { appendEarlyAccess } from "@/lib/blob";
 
@@ -61,7 +67,16 @@ export async function POST(req: Request) {
     const text = [
       `Email: ${record.email}`,
       record.name ? `Name: ${record.name}` : null,
-      record.need ? `Need: ${record.need}` : null,
+      record.interest
+        ? `Interest: ${INTEREST_LABELS[record.interest] ?? record.interest}`
+        : null,
+      record.teamSize
+        ? `Team size: ${TEAM_SIZE_LABELS[record.teamSize] ?? record.teamSize}`
+        : null,
+      record.timeline
+        ? `Timeline: ${TIMELINE_LABELS[record.timeline] ?? record.timeline}`
+        : null,
+      record.need ? `Notes: ${record.need}` : null,
       record.source ? `Source: ${record.source}` : null,
       `Received: ${record.createdAt}`,
     ]
