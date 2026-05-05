@@ -1,47 +1,57 @@
 ---
-title: "Beeline, healthcare operations platform"
+title: "Beeline, healthcare ops platform with HIPAA-aware AI and a Pakistan-tax-aware finance engine"
 slug: "beeline"
-client: "Beeline"
-role: "Solo build, architecture, engineering, brand work"
-period: "Q2 2026 – in development"
-summary: "Healthcare operations platform currently in active build. Combines patient/practitioner workflows, scheduling, and AI-assisted intake into a single system designed for clinics that have outgrown the SaaS-stitch."
-problem: "Healthcare practices reach a point where the standard tooling stack, separate scheduling app, separate patient records, separate billing, separate communications, stops scaling. The handoffs between systems generate the errors. The compliance overhead lives in a fourth tool nobody opens. Clinic ops leads spend hours per week on data reconciliation that should not exist."
-approach: "Building Beeline as a single platform, one identity, one audit boundary, one compliance posture, with surfaces for practitioner, patient, ops admin, and finance. AI threads in at intake (adaptive triage questions), records (summarization of patient history), and ops (anomaly detection across scheduling and billing). Same architectural patterns I built into Broomstick Hub, retuned for healthcare's specific needs around data residency, clinical state machines, and audit retention windows."
-outcome: "In active development. Public case study lands when the first cohort of clinics is live. If you're in healthcare ops and want to see what's running today, message me, I'll walk you through privately."
+client: "Beeline Medical"
+role: "Solo build, architecture, engineering, AI integration, brand"
+period: "Q2 2026 – private beta"
+summary: "Healthcare operations platform in private beta. Single identity and audit boundary across practitioner, ops admin, and external-payer surfaces. HIPAA-aware AI wrapper on every Claude call. Multi-currency finance engine with a property-tested Pakistan FBR + EOBI tax stack."
+problem: "Healthcare practices reach a point where the standard SaaS-stitch (separate scheduling, separate records, separate billing, separate comms) stops scaling. The handoffs between systems generate the errors. Compliance lives in a fourth tool nobody opens. Currency reality is messy when the clinic operates across borders, payrolls in PKR, invoices payers in USD, and reports need to reconcile both sides without time-machine bugs. AI is high-leverage in clinic ops (intake, summarization, anomaly watch) but poses real PHI risk if dropped in casually. None of the off-the-shelf tools solve all four at once."
+approach: "Built Beeline on the same architectural backbone as bs-hub, retuned for healthcare's specific constraints. Two-tier audit retention (CONTRACT 7y for finance/credentials/payroll/payments, OPERATIONAL 1y for leave/WFH/notifications) maps directly onto HIPAA-style requirements. HIPAA boundary is enforced two ways: a `phiSniffer.ts` regex pass runs on every free-text input pre-persistence, and a `withHipaaGuardrail()` wrapper prepends the PHI stop-clause to every Claude system prompt, with prompt caching on by default. Direct `@anthropic-ai/sdk` imports outside the wrapper are bugs, by convention. Multi-currency is reproducible-by-design: every monetary row stores native amount + native currency + an `FxRateSnapshot` foreign key, so reports compute `convertedAmount = nativeAmount * snapshotRate` (never live FX), making audit reproduction trivial. The salary engine is pure (decimal.js precision, 17/17 vitest property tests) and the Net→Gross solver uses bisection rather than Newton damping after a discovered counterexample where CONSOLIDATED + bonus-induced slab transition broke a Newton step by ~10k PKR."
+outcome: "9 of 14 modules live in private beta. ~5,900 lines of TypeScript across 85 source files. 11 scheduled crons, including credential expiry sweep (90/60/30/7-day windows + already-expired), invoice forecast/actuals generation, FX rate pre-warm, bonus-entry late detection. External Payer portal (USD-only invoice surface, acknowledge / raise query / mark paid) ships in the same codebase via conditional layout chrome. First production cohort onboarding once Supabase Pro and DNS land. Public case study expands when the first cohort is live; until then this is the private-beta walkthrough."
 metrics:
-  - { label: "Status", value: "in development" }
-  - { label: "Vertical", value: "healthcare / clinic ops" }
-  - { label: "Public launch", value: "TBA" }
+  - { label: "Modules live", value: "9 of 14 (64%)" }
+  - { label: "Source size", value: "~5,900 LOC across 85 files" }
+  - { label: "Scheduled crons", value: "11" }
+  - { label: "Salary engine tests", value: "17/17 vitest property tests" }
+  - { label: "Audit retention", value: "7y contract / 1y operational" }
+  - { label: "AI guardrail", value: "PHI sniffer + Claude HIPAA wrapper" }
 stack:
   - "Next.js 16 App Router"
-  - "Prisma + Postgres"
-  - "NextAuth v5 (JWT)"
-  - "Anthropic Claude (Sonnet)"
+  - "Prisma 7 (multi-file schema) + Supabase Postgres"
+  - "NextAuth v5 (JWT credentials)"
+  - "Anthropic Claude (Sonnet + Haiku) via HIPAA-guardrailed wrapper"
+  - "decimal.js + fast-check (vitest property tests)"
+  - "React-PDF (invoice rendering)"
   - "Resend + react-email"
-  - "Vercel BotID"
+  - "Open Exchange Rates (FX snapshots)"
+  - "Vercel Cron + Supabase Storage"
 cover:
   src: "/clients/beeline.png"
   alt: "Beeline logo"
-publishedAt: "2026-05-03"
+publishedAt: "2026-05-04"
 draft: false
 ---
 
-## What's being built
+## What's running today (private beta)
 
-Beeline is the second portal I'm building from the operations-infrastructure recipe, same architectural backbone as Broomstick Hub, retuned for the specific shape of clinic operations.
+Sign in at the live local instance and you can already do the round-trip: daily WFH/Office/Field check-in (auto-prompts on the first portal pageview of the Karachi calendar day), submit and approve leave through a multi-state machine (annual / sick / unpaid / parental / bereavement, with pro-rated annual leave for new joiners and atomic balance updates inside a Prisma transaction), track credentials with 90/60/30/7-day expiry alerts (NPI / state license / DEA / board cert / CAQH / UK GMC / other), invite teammates with role + region + department, see every mutation in a superadmin Activity feed with allowlist-gated one-click restore on UPDATE rows, and run the daily credential-expiry cron locally to watch reminders fire (with `CredentialReminderLog` rows preventing double-fires).
 
-The core insight is the same: most healthcare practices don't need another point solution. They need fewer tools, talking to each other, with the audit trail and the AI assist living *inside* the platform rather than bolted on.
+The finance module is the part I'm most excited about. F1 is 100% complete: 18-model schema, salary engine with 17/17 property tests (1000-iteration round-trip, EXEMPT regime, bonusTaxedAsSalary=false, GROSS_AGREED bonus invariance), expense ledger with team-scoped RBAC + FX snapshots + Supabase Storage receipts, employee CRUD that creates User + EmployeeFinanceProfile + invite email in one shot, payroll run generator that feeds the salary engine for every active employee and is idempotent on DRAFT regenerate, bonuses with §17.6 late-detection (entered after the 25th of `earnedYearMonth` rolls to X+2 with `enteredLate=true`), invoice compiler that generates next-month forecast (salary lines from finalized PayrollRun + utilities 3-month avg + petty cash 3-month avg + recurring rent + flagged hardware) and reconciles against actuals, React-PDF rendering with sectioned layout and dual USD+PKR columns, and the External Payer portal that gives non-staff users a USD-only invoice surface with acknowledge / raise query / mark paid actions.
 
-## Why healthcare specifically
+## Decisions I'd defend
 
-Healthcare ops has three problems that are well-suited to the operations-infrastructure approach:
+**The HIPAA boundary is enforced in code, not policy.** Two independent defenses: `phiSniffer.ts` runs regex PHI detection on every free-text input pre-persistence, and `withHipaaGuardrail()` wraps every Claude call with a stop-clause system prompt. The second is the belt; the first is the suspenders. Direct `@anthropic-ai/sdk` imports outside `claude.ts` are bugs by convention, and a contributor doc says so explicitly. Compliance teams stop arguing once the rule lives in code.
 
-1. **Multi-role workflows.** Practitioner, patient, ops admin, and finance all touch the same record from different angles. Standard SaaS forces each role into a separate tool.
-2. **Compliance is real.** HIPAA-style audit retention isn't optional. The two-tier audit log pattern from bs-hub (contract retention 7y, operational 1y) maps directly onto healthcare requirements with minor tweaks.
-3. **AI assist is high-leverage.** Triage questions, history summarization, scheduling anomaly detection, all places where a well-scoped AI in the loop saves hours per week without ever publishing patient-facing content unsupervised.
+**Reproducible-by-design multi-currency.** Every monetary row stores native amount + native currency + `FxRateSnapshot` FK. Reports never call live FX. A regenerated report from yesterday matches the original row-for-row, even if the exchange rate moved overnight. This is the difference between "approximately right" and "audit-ready," and it costs almost nothing to enforce at the schema level.
 
-## What's coming
+**Two-tier audit retention is policy in code.** `CONTRACT` rows (finance, credentials, employee contracts, payments) live 7 years. `OPERATIONAL` rows (leave, WFH, notifications, sales activities) live 1 year. The classification lives next to each `recordAudit()` call, so future-me can't accidentally downgrade a finance event by writing the wrong tier.
 
-The first version will have practitioner + patient + ops admin surfaces, with finance landing in a follow-up. Public case study, screenshots, and demo access become available when the first cohort goes live.
+**Bisection over Newton on the Net→Gross solver.** Newton's method works for 95% of cases, but a CONSOLIDATED-structure salary with a bonus-induced FBR slab transition breaks the derivative continuity assumption and Newton damping diverges by ~10k PKR. Bisection is slower but doesn't care about derivative behavior. The doc-comment in `salaryEngine.ts` records the counterexample so the next person doesn't "optimize" it back to Newton.
 
-In the meantime, if you run a clinic or know one that's at the "spreadsheets and Slack don't scale anymore" point, [reach out](/contact). Beta access is selective.
+**Invite-only signup.** Public `/register` doesn't exist. Admins create users via `/portal/admin/users`, the invitee gets a tokenized email link, sets a password, account flips active. There's no value in a self-serve signup flow for a clinic ops platform; there's a real cost (PHI surface) to allowing one.
+
+## What's next
+
+F1.6 is the last admin-page polish (FBR slab editor with June-25 alert wiring, EOBI rate page, FX manual override, FinancePermission UI, demo data seed). After F1: F2 (reports), F3 (historical CSV import + AI receipt OCR), then the `employees` directory module and CSV import for staff onboarding.
+
+If you run a clinic, group practice, or a multi-location specialty operation that has outgrown the SaaS-stitch and you're at the "spreadsheets and Slack don't scale anymore" point, [reach out](/contact). Beta access is selective. The Pakistan-tax engine is a first for the local market; the multi-currency posture means a US LLC + Pakistan ops team can run the same instance.

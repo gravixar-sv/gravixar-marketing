@@ -125,6 +125,45 @@ export function StructuredDataCaseStudy({
   return <ScriptLd data={article} id="ld-article" />;
 }
 
+/** Breadcrumb trail for any detail page (case-study / service / compare / blog).
+ *  Items are in reading order: ancestors first, current page last. */
+export function StructuredDataBreadcrumb({
+  items,
+}: {
+  items: { name: string; url: string }[];
+}) {
+  const data = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((it, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: it.name,
+      item: it.url,
+    })),
+  };
+  return <ScriptLd data={data} id="ld-breadcrumb" />;
+}
+
+/** FAQPage block. Surfaces in AI Overviews + ChatGPT/Perplexity citations.
+ *  Use on comparison pages, service pages, and any page with explicit Q&A. */
+export function StructuredDataFAQ({
+  faqs,
+}: {
+  faqs: { question: string; answer: string }[];
+}) {
+  const data = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((f) => ({
+      "@type": "Question",
+      name: f.question,
+      acceptedAnswer: { "@type": "Answer", text: f.answer },
+    })),
+  };
+  return <ScriptLd data={data} id="ld-faqpage" />;
+}
+
 /** Blog post structured data. */
 export function StructuredDataBlogPost({
   title,

@@ -26,5 +26,6 @@ Thumbs.db
 *.tsbuildinfo
 .idea/
 .vscode/
+.claude/
 
 .vercel

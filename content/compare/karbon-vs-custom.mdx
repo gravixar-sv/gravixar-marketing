@@ -1,0 +1,68 @@
+---
+title: "Karbon vs a custom workflow for boutique accounting firms"
+slug: "karbon-vs-custom"
+competitor: "Karbon"
+competitorUrl: "https://karbonhq.com"
+category: "accounting practice management + workflow"
+summary: "Karbon is the strongest accounting practice management tool I'd recommend. It's also priced and shaped for firms that have already standardized. Boutique firms (10 to 30 people, owner-operated) keep finding friction in the same three places. Here's where Karbon wins and where custom makes more sense."
+hook: "Karbon's email triage and workflow templates are the best in the category. The trap is the per-seat pricing on a small firm and the shape rigidity, you adapt to Karbon, Karbon doesn't adapt to you."
+whoForCompetitor: "Pick Karbon when your firm is 25+ people, your delivery has standardized, and your headline pain is email-as-workflow. Karbon's email-to-task model is genuinely the cleanest in the category and it pays for itself if your team lives in their inbox eight hours a day."
+whoForCustom: "Go custom when your firm is under 25 people, when your engagement-letter-to-workpaper handoff is bespoke (Pakistan FBR, multi-currency, US 1099 plus UK VAT, anything off the standardized track), when AI intake matters, or when the per-seat pricing math is hostile against a small partner team."
+linkedCaseStudy: "beeline"
+linkedService: "ai-tooling"
+faqs:
+  - question: "How does Karbon compare to ClickUp or Asana for an accounting firm?"
+    answer: "Karbon is purpose-built for accounting workflow (engagement letters, workpapers, client intake, deadline-driven recurrence) and ClickUp/Asana are not. If you're running an accounting firm, Karbon will fit better out of the box. The custom-vs-Karbon conversation is the harder one because both options are designed for the work."
+  - question: "Can a custom solution handle multi-currency and Pakistan FBR tax slabs?"
+    answer: "Yes, and this is one of the cleanest reasons to go custom. Off-the-shelf tools make multi-currency a configuration setting and produce reports that approximate. A custom build can store native amount plus FX-rate-snapshot per row and produce reports that reproduce row-for-row. Beeline's finance module ships exactly this pattern, with Pakistan FBR slabs and EOBI rates as first-class data, not a workaround."
+  - question: "What's the biggest hidden cost in Karbon?"
+    answer: "The pricing model is per-seat and meaningfully expensive for small firms. Add multiple integrations (QuickBooks, ledger software, document management) and the annual all-in often surprises owner-operators when they actually total it. The second hidden cost is shape rigidity, you adapt your engagement workflow to theirs, and the parts you'd want to make idiosyncratic (your firm's actual differentiation) get flattened."
+  - question: "How long does a custom accounting workflow take to build?"
+    answer: "For a 10 to 20 person firm, the operations layer (engagement letters, workpaper review state machine, audit trail, deadline crons, multi-currency finance) can ship in six to twelve weeks if the recipe already exists. Beeline's finance module is exactly this recipe, retuned per firm shape."
+  - question: "What about HIPAA and PHI for healthcare-adjacent practices?"
+    answer: "If your firm touches healthcare clients (or you're an integrated billing/coding practice that handles PHI), the off-the-shelf accounting tools are not built for that. A custom build with a HIPAA-aware AI guardrail (PHI sniffer pre-persistence plus a wrapper that prepends a stop-clause to every AI call) is the right shape. This is built into the Beeline pattern and ports cleanly to accounting."
+publishedAt: "2026-05-04"
+---
+
+## The honest version
+
+Karbon is the best accounting practice management tool I'd recommend out of the box. I'm not going to pretend otherwise. If your firm is 25 plus people, has standardized its delivery, and your team lives in email eight hours a day, Karbon's email-triage-to-task model is genuinely category-leading and you should buy it.
+
+The custom build conversation isn't "Karbon is bad." It's "Karbon is shaped for a firm you're not yet, or one you don't want to become."
+
+## Where Karbon wins
+
+Email-triage-to-task is the cleanest in the category. If 70% of your team's day is in email, this is the single feature that justifies the price.
+
+Workflow templates are mature and accountant-shaped. They speak the language (engagements, workpapers, prepared-by-client lists, recurring filings) which Asana and ClickUp don't. Onboarding velocity is fast if your shape fits.
+
+Their work-in-progress dashboards and client-progress views are well-designed. Partners get to the metric they care about (which engagements are stuck, which are overdue) in two clicks.
+
+## Where Karbon breaks for boutique firms
+
+Per-seat pricing is hostile against small firms. A 10-person firm pays meaningfully more per year than the headline numbers suggest once you total integrations and add-ons. The arithmetic gets worse as you add seats slower than Karbon's pricing tiers expect.
+
+Shape rigidity is the second tax. Karbon assumes a standardized engagement workflow, and the parts you'd want to make idiosyncratic (your firm's actual differentiation, your specialty practice, your hybrid US-Pakistan structure) get flattened to fit their model. You spend onboarding weeks teaching the team Karbon's mental model rather than encoding your own.
+
+Multi-currency is a configuration setting, not a first-class concept. Reports approximate. If you operate across PKR and USD or USD and GBP, the reconciliation drift is real and you end up exporting to Excel for anything audit-grade.
+
+There's no real story for AI intake. The category is behind here. AI in Karbon today is "summarize this email," not "generate an engagement-letter draft from a discovery-call transcript." Custom can do the latter; Karbon won't for at least a year.
+
+For firms that touch healthcare or any PHI-adjacent work, the off-the-shelf model is wrong. AI guardrails for PHI need to be enforced in code, not policy. Karbon doesn't do this and isn't going to.
+
+## What custom looks like
+
+[Beeline](/work/beeline) is healthcare-shaped, but the finance module is the part that ports cleanly to accounting. Multi-currency stored as native-amount plus FX-rate-snapshot per row, so any historical report reproduces row-for-row without time-machine bugs. Pakistan FBR slab math as first-class data with a property-tested salary engine (17 of 17 vitest property tests, decimal.js precision, bisection Net-to-Gross solver after a Newton counterexample). Two-tier audit retention, seven-year contract retention for finance, one-year operational. Invoice forecast and actuals reconciled against finalized payroll runs. External Payer portal as a separate surface in the same codebase.
+
+The pieces an accounting firm needs are 80% the same: engagement letter as a state-machine document with audit, workpaper review state machine, deadline crons with reminder cascades (90/60/30/7-day windows is the same shape Beeline runs for credentials), HIPAA-aware AI guardrail for any healthcare-adjacent client work, and the multi-currency finance backbone for cross-border firms.
+
+## How to decide
+
+Run this in order:
+
+1. **What's your seat count and 24-month projection?** Under 25 today, under 35 projected, custom math wins comfortably. Above that, Karbon's per-seat economics start to look reasonable.
+2. **What percentage of your delivery is bespoke?** Specialty practice, multi-currency, hybrid US-Pakistan, healthcare-adjacent? More than 30% bespoke and Karbon will flatten your differentiation.
+3. **Does AI in the workflow matter inside the next 12 months?** If yes, plan for custom. The accounting-tools category is behind on AI and will be.
+4. **Are you owner-operator or partner-operated?** Owner-operators tend to have more idiosyncratic shape (their firm reflects their thinking) and benefit more from custom. Partner firms with standardized governance fit Karbon better.
+
+If you're between Karbon and a custom workflow and want an honest read, [book a call.](/contact) I'll tell you when Karbon is the right answer.

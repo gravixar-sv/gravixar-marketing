@@ -1,0 +1,75 @@
+---
+title: "monday.com vs a custom portal: when the boards stop scaling"
+slug: "monday-com-vs-custom"
+competitor: "monday.com"
+competitorUrl: "https://monday.com"
+category: "operations workflow + work management"
+summary: "monday.com is excellent at being a flexible board layer. It's also the tool I most often help clients extend, then eventually move off when their workflow grows past what boards can model cleanly. Here's the line where monday.com is the right answer and where a custom portal is the cheaper long-term call."
+hook: "monday.com is the best general-purpose work management tool you can buy. The shift to custom isn't because monday.com is bad, it's because workflow that matters to your clients eventually needs semantics boards can't enforce."
+whoForCompetitor: "Keep monday.com when your work is genuinely board-shaped (kanban-style stages, tasks that move left to right, status fields that are advisory rather than load-bearing) and your team uses it for internal coordination. It's category-leading at this. I've rolled monday.com out for clients and recommended they stay on it."
+whoForCustom: "Go custom when monday.com's status fields have started carrying weight they shouldn't (clients reading the status, finance basing invoices on the status, audit needs to prove who changed what when), when AI needs to live inside the workflow rather than as an automation chrome layer, or when the per-seat math gets hostile."
+linkedCaseStudy: "monday-broomstick"
+linkedService: "operations-infrastructure"
+faqs:
+  - question: "Should I roll out monday.com first or go straight to custom?"
+    answer: "Roll out monday.com first if you haven't standardized your delivery shape yet. monday.com is flexible enough to let you discover what your workflow actually wants to be. Once it's stable and you've outgrown the board model, the custom build is the right next step. Skipping monday.com to go custom on day one usually means building the wrong thing."
+  - question: "What's the most expensive part of monday.com at scale?"
+    answer: "Two costs. The per-seat pricing past 30 seats compounds visibly. The bigger cost is the automations layer, which works for simple if-this-then-that and fails on multi-step workflows with state. Teams end up with a Zapier or Make.com layer on top of monday.com to cover the gap, and the maintenance burden on that stack quietly grows."
+  - question: "Can a custom portal handle the visual board view monday.com is known for?"
+    answer: "Yes, and the bs-hub portal does. A board view is straightforward to build once you have a real state machine underneath. The mistake is starting with the board view as the model, monday.com does that and that's why state semantics get thin. Build the state machine first, render boards on top."
+  - question: "How do I know when I've outgrown monday.com?"
+    answer: "Three signals: (1) your team has Notion docs explaining how to use your monday.com setup, (2) your monthly automation runs are failing more often and nobody can debug them, (3) clients are reading status fields and asking about discrepancies. Any one of those is a yellow flag. Two together is the threshold."
+  - question: "What's the migration path from monday.com to a custom portal?"
+    answer: "monday.com's CSV exports are honest and their API is decent, so data migration isn't the hard part. The hard part is encoding the state machine your monday.com setup approximates. That's a 4 to 8 week build for an agency-scale workflow, ported directly from the bs-hub recipe."
+publishedAt: "2026-05-04"
+---
+
+## The honest version
+
+I've rolled out monday.com for clients and stayed on it. I've also helped agencies migrate off monday.com to a custom portal. Both moves were the right call for the firm at the time. The decision is shape-driven, not preference-driven.
+
+Most agencies and ops-driven SMBs should be on monday.com first. The custom-build conversation comes later, and the trigger is usually the same three signals.
+
+## Where monday.com wins
+
+Visual flexibility. The board view, timeline view, kanban, calendar are all real and well-built. For internal coordination, this is genuinely the best of the category.
+
+Onboarding velocity. A team can be productive on monday.com in a week. Custom builds don't compete on this and shouldn't try.
+
+Integrations. The marketplace is mature. Most SaaS tools you'd want to wire in have a sanctioned integration. The Slack and email integrations are solid.
+
+Configurability without code. Custom fields, custom statuses, custom automations cover 80% of small-team needs. If your workflow fits inside that 80%, you should not be paying for a custom build.
+
+[I rolled out monday.com](/work/monday-broomstick) for Broomstick Creative across a 50-plus-user phased deployment with role-based boards, SOPs, automations, and dashboards. It worked. It still works. There's no shame in monday.com being the answer.
+
+## Where monday.com breaks
+
+Status fields that should have been state machines. monday.com lets anyone with edit rights flip a status field. There's no enforcement, no pre-condition check, no automatic side effects beyond simple automations. For internal coordination this is fine. For client-facing workflow where the status carries real weight (an invoice triggers, a deliverable locks, a contract activates), it's the wrong shape.
+
+The automations layer is fine for simple. Multi-step automations with state, error handling, retry semantics break. Teams add Zapier or Make.com on top, and now you're maintaining a stack of tools that all glue together imperfectly.
+
+Audit trail is shallow. There's a change log. It's not the kind of audit a finance or compliance team will accept for contract-tier records. If you have regulatory or contractual audit requirements, monday.com is not the place those records live.
+
+AI in the workflow is at the chrome-layer level. monday.com's AI features summarize columns and suggest automations. They don't run review state machines, generate brand briefs from URLs, or wire into your inquiry funnel. The category is behind here and will be for a while.
+
+Per-seat pricing past 30 seats compounds visibly. Add Pro features, automations volume tiers, and the marketplace integrations you actually use, and the annual all-in becomes meaningfully larger than the headline numbers.
+
+## What custom looks like as the next step
+
+[Broomstick Hub](/work/bs-hub) is the production version of "monday.com plus everything monday.com couldn't model." Twelve-state inquiry funnel with hard transitions. Review state machine on every deliverable with explicit pre-conditions and side-effects. Two-tier audit retention. AI intake with adaptive questions and a brand brief generated from the client's website. Daily security-watch cron sweeping for anomalies. Branded all the way through.
+
+The interesting part is that bs-hub's pattern is forkable. The 16 modules are documented in the repo. When the next agency outgrows monday.com, the build is "shape these modules to your delivery," not "invent everything from scratch." That's a 4 to 8 week build, not a 6 month one.
+
+The point of going custom isn't to outdo monday.com on flexibility. It's to win the parts monday.com flattens, the state-machine semantics, the audit, the AI inside the workflow, the branded client experience.
+
+## How to decide
+
+Run this in order:
+
+1. **Are your status fields advisory or load-bearing?** If clients read them, finance acts on them, contracts activate from them, they're load-bearing and monday.com's status model is too thin.
+2. **Are your automations failing more often?** If yes, you've outgrown the automations layer. Adding Zapier or Make.com on top buys you 6 months. Going custom is the longer-term fix.
+3. **Do you have docs explaining your monday.com setup?** Same heuristic as Notion. The docs are the tell.
+4. **Does AI assist matter inside the next 12 months?** If yes, plan the custom path. monday.com's AI roadmap isn't where you need to live.
+5. **Run the seat-plus-Pro-plus-marketplace arithmetic against a custom retainer.** It tips later than people expect, but it does tip.
+
+If you've rolled out monday.com and you're at one of the trigger signals, [book a call](/contact). I'll give you an honest read on whether you're at the line or not.

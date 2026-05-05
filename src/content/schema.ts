@@ -107,6 +107,37 @@ export const pageSchema = z.object({
 });
 export type Page = z.infer<typeof pageSchema>;
 
+// Comparison pages: "Productive.io vs custom", "Karbon vs custom", etc.
+// Bottom-funnel commercial intent, survives AI Overview displacement
+// because the search is vendor-comparison, not informational.
+// Each page renders an FAQPage block for AI-citation lift.
+export const compareSchema = z.object({
+  title: z.string().min(3).max(140),
+  slug,
+  competitor: z.string().min(1).max(80),
+  competitorUrl: z.string().url().optional(),
+  category: z.string().min(1).max(80), // "agency PM", "accounting workflow", "video-team storage"
+  summary: z.string().min(20).max(320),
+  hook: z.string().min(10).max(240), // the one named opinion the AI Overview can't summarize away
+  whoForCompetitor: z.string().min(10), // "pick the off-the-shelf tool when..."
+  whoForCustom: z.string().min(10), // "go custom when..."
+  linkedCaseStudy: slug.optional(),
+  linkedService: slug.optional(),
+  faqs: z
+    .array(
+      z.object({
+        question: z.string().min(5).max(200),
+        answer: z.string().min(20),
+      }),
+    )
+    .min(3)
+    .max(8),
+  publishedAt: isoDate,
+  updatedAt: isoDate.optional(),
+  draft: z.boolean().default(false),
+});
+export type Compare = z.infer<typeof compareSchema>;
+
 export const SCHEMAS = {
   blog: blogPostSchema,
   "case-studies": caseStudySchema,
@@ -114,6 +145,7 @@ export const SCHEMAS = {
   graphics: graphicsItemSchema,
   home: homeBlockSchema,
   pages: pageSchema,
+  compare: compareSchema,
 } as const;
 
 export type ContentKind = keyof typeof SCHEMAS;

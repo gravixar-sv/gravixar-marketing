@@ -1,0 +1,64 @@
+---
+title: "Productive.io vs a custom client portal: a real cost breakdown for agencies"
+slug: "productive-io-vs-custom"
+competitor: "Productive.io"
+competitorUrl: "https://productive.io"
+category: "agency operations + project management"
+summary: "Productive.io is fine if you can fit your delivery shape into theirs. The trap is the parts that look configurable but aren't, the parts you don't realize are missing until month four. Here's an honest read on when off-the-shelf wins and when a custom portal is the cheaper long-term call."
+hook: "Productive.io's time tracker is solid. Their client portal is the part most agencies eventually outgrow, and it's the part that's hardest to extend without going around the tool."
+whoForCompetitor: "Pick Productive.io when your delivery shape is genuinely standard (timed engagements, retainer plus project, billable utilization is your headline metric), your team is over 25 people, and you're willing to adapt your workflow to the tool rather than the other way round. Their reporting and time-attribution model is best-in-class for that profile and a custom build can't match it cheaply."
+whoForCustom: "Go custom when your delivery has a state machine you actually care about (review handoffs, scope-locks, audit trails), when AI assist needs to live inside the workflow rather than as a chrome extension, when client-facing surfaces need to look like your brand, or when you're under 25 people and the seat-cost arithmetic stops making sense."
+linkedCaseStudy: "bs-hub"
+linkedService: "operations-infrastructure"
+faqs:
+  - question: "How much does Productive.io cost compared to a custom portal?"
+    answer: "Productive.io's published pricing is per seat per month, and most agencies land in their Professional or Ultimate tiers. For a 15-person agency that's roughly $9,000 to $14,000 per year depending on tier and add-ons. A custom portal in the bs-hub-shape sits at a one-time build fee plus a monthly maintenance retainer that doesn't scale with seat count. Past about 18 months and 20 seats the math flips in favor of the custom build, and you own the codebase at the end."
+  - question: "Can a custom portal actually replace Productive.io's time tracking?"
+    answer: "Yes, but ask whether you need every feature or just the ones your team uses. Most agencies use timesheets, billable utilization, and a margin report. That's a small surface to rebuild and easy to sync to QuickBooks or Xero. What you don't get for free is the multi-currency multi-entity reporting Productive.io ships out of the box, that one is genuinely worth keeping if your shape needs it."
+  - question: "What's the biggest hidden cost in Productive.io?"
+    answer: "Configuring your workflow to match Productive.io's mental model. Their state machine is opinionated and the parts you'd want to extend (custom review states, audit retention policy, AI agents in the inquiry funnel) are not where they're investing. You spend a quarter teaching the team the tool, then another quarter building Notion docs to cover the gaps."
+  - question: "How long does a custom client portal take to build?"
+    answer: "From kickoff to a working portal handling real client work, four to ten weeks for the bs-hub shape. That's the period in which you have something running, not a v1 demo. The next twelve months are evolution, not rebuild."
+  - question: "What happens when the agency outgrows the custom build?"
+    answer: "Two paths. You either extend the modules (the bs-hub recipe pattern is built for this, drop in payroll, drop in finance, drop in a sales pipeline) or you migrate to a SaaS once your shape has stabilized enough that an off-the-shelf tool actually fits. Custom builds aren't lock-in if you keep the codebase and the data model is clean."
+publishedAt: "2026-05-04"
+---
+
+## The honest version
+
+Most agency comparisons I read are written by people selling one side or the other. I'll declare my bias: I build custom client portals. I also send agencies to Productive.io regularly, because for a real subset of teams it's the right call. The trick is knowing which side you're on before you spend a year fighting your tool.
+
+Productive.io's strongest pitch is for the agency that has standardized their shape. Five-person studios trying to figure out their delivery model don't fit. Forty-person agencies that have run the same playbook for three years fit beautifully. The middle (roughly 12 to 25 people, scaling, still iterating on how delivery works) is where the friction lives.
+
+## Where Productive.io wins
+
+The time-tracking and utilization reporting. This is genuinely best-in-class. If your headline metric is billable utilization across an entire team and you need the multi-currency, multi-entity slice, building this from scratch is wasteful. Use the tool.
+
+Their integration story for accounting (QuickBooks, Xero) is mature. If your finance team lives in those tools, Productive.io is the cheapest path to clean monthly reporting.
+
+Their support is responsive. Not flashy, just present.
+
+## Where Productive.io breaks
+
+The client portal is the part most agencies eventually outgrow. It's serviceable. It's not the part Productive.io is investing in. Once your client-facing experience matters (review state machine, branded surfaces, AI assist in the inquiry funnel, audit trails), you're either layering Notion on top or you're rebuilding what you wanted in the first place.
+
+The state machine is opinionated. If your delivery shape doesn't line up with theirs (and most agencies under 25 people don't), you spend a quarter teaching the team the tool, then another quarter writing Notion docs to cover the gaps. The Notion docs are the tell. Notion docs about your tool mean your tool isn't the tool.
+
+Custom workflows live in their "Automations" surface, which works for simple if-this-then-that and chokes on anything multi-step. Audit retention is single-tier. There's no real story for AI in the loop beyond a chrome extension that summarizes a project page.
+
+## What "custom portal" actually means
+
+I have a working example of the alternative. [Broomstick Hub](/work/bs-hub) runs Broomstick Creative's full delivery flow on a 12-state inquiry funnel with an explicit review state machine, two-tier audit retention, AI intake with a brand brief generated from the client's website, and a daily security-watch cron. The same codebase ships a [demo subdomain](https://demo.gravixar.com) where you can click through as a client persona before signing anything. This is what custom looks like when the recipe is real, not a one-off.
+
+The 16 modules are documented and forkable. When I spin up a portal for the next agency, I work down the list and decide module-by-module what to keep, drop, or customize. A pure task tracker drops twelve modules. An internal HR tool keeps four. The unit of work is the module, not the rebuild.
+
+## How to decide
+
+Run this in order:
+
+1. **List the parts of your delivery your client actually sees.** If they're hidden (your team uses Productive.io, your client gets a PDF), Productive.io is fine. If they're visible (the client logs into a portal, reviews work, signs off), the off-the-shelf experience matters and Productive.io probably loses.
+2. **Count seats.** Under 12 seats, custom retainer math beats Productive.io comfortably. Above 25, Productive.io's per-seat model starts winning unless you have other reasons to go custom.
+3. **Audit your Notion docs about your tool.** If you have any, your tool isn't the tool. That's a strong signal for custom.
+4. **Ask if AI assist is going to live inside or outside your workflow.** If outside (a chrome extension), Productive.io is fine. If inside (intake wizards, brief generators, anomaly watch), custom is the only path that doesn't fight the tool.
+
+If you're still genuinely uncertain after running that, I'll give you an honest read on a 20-minute call. [Book one here.](/contact)

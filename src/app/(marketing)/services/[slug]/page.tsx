@@ -4,7 +4,10 @@ import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/site/PageHeader";
 import { MDX } from "@/content/mdx";
 import { ContactCTA } from "@/components/home/ContactCTA";
-import { StructuredDataService } from "@/components/site/StructuredData";
+import {
+  StructuredDataBreadcrumb,
+  StructuredDataService,
+} from "@/components/site/StructuredData";
 import { loadServices } from "@/content/loaders";
 import { buildMetadata, SITE } from "@/lib/seo";
 
@@ -43,6 +46,13 @@ export default async function ServicePage(
         name={s.meta.title}
         description={s.meta.tagline}
         url={`${SITE.url}/services/${slug}`}
+      />
+      <StructuredDataBreadcrumb
+        items={[
+          { name: "Home", url: SITE.url },
+          { name: "Services", url: `${SITE.url}/services` },
+          { name: s.meta.title, url: `${SITE.url}/services/${slug}` },
+        ]}
       />
       <PageHeader
         eyebrow={s.meta.bucket}
