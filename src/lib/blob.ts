@@ -52,3 +52,53 @@ export const appendLead = (record: LeadRecord) =>
 
 export const appendEarlyAccess = (record: EarlyAccessRecord) =>
   appendJsonl(EARLY_ACCESS_PREFIX, record);
+
+// ---- Read helpers (admin dashboard) -------------------------------
+
+// Generic JSONL read for a single month. Returns parsed records or [].
+async function readJsonl<T>(prefix: string, month: string): Promise<T[]> {
+  if (!env.BLOB_READ_WRITE_TOKEN) return [];
+  const key = `${prefix}${month}.jsonl`;
+  try {
+    const found = await list({ prefix: key, token: env.BLOB_READ_WRITE_TOKEN });
+    const match = found.blobs.find((b) => b.pathname === key);
+    if (!match) return [];
+    const res = await fetch(match.url, { cache: "no-store" });
+    if (!res.ok) return [];
+    const text = await res.text();
+    return text
+      .split("\n")
+      .filter((line) => line.trim().length > 0)
+      .map((line) => JSON.parse(line) as T);
+  } catch {
+    return [];
+  }
+}
+
+// List all months for a prefix, newest first.
+async function listMonths(prefix: string): Promise<string[]> {
+  if (!env.BLOB_READ_WRITE_TOKEN) return [];
+  try {
+    const found = await list({ prefix, token: env.BLOB_READ_WRITE_TOKEN });
+    return found.blobs
+      .map((b) => b.pathname.slice(prefix.length).replace(".jsonl", ""))
+      .filter((m) => /^\d{4}-\d{2}$/.test(m))
+      .sort((a, b) => b.localeCompare(a));
+  } catch {
+    return [];
+  }
+}
+
+export const readLeads = (month: string) =>
+  readJsonl<LeadRecord>(LEAD_LOG_PREFIX, month);
+
+export const readEarlyAccess = (month: string) =>
+  readJsonl<EarlyAccessRecord>(EARLY_ACCESS_PREFIX, month);
+
+export const listLeadMonths = () => listMonths(LEAD_LOG_PREFIX);
+
+export const listEarlyAccessMonths = () => listMonths(EARLY_ACCESS_PREFIX);
+
+export function currentMonthKey() {
+  return monthKey();
+}
