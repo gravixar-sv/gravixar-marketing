@@ -2,13 +2,14 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import { Navbar } from "@/components/site/Navbar";
-import { Footer } from "@/components/site/Footer";
-import { DemoBanner } from "@/components/site/DemoBanner";
 import { StructuredDataGlobal } from "@/components/site/StructuredData";
 import { SITE } from "@/lib/seo";
 import "@/styles/globals.css";
 
+// Root layout — the bare-bones shell for every route. Marketing chrome
+// (DemoBanner, Navbar, Footer, main wrapper) lives in (marketing)/layout.tsx
+// so admin and other non-marketing routes don't inherit it.
+//
 // next/font self-hosts the font files (no Google CDN call), bakes in
 // font-display: swap, subsets to latin, and emits a CSS variable that
 // our Tailwind theme reads. Geist is Vercel's typeface, designed for
@@ -57,10 +58,7 @@ export default function RootLayout({
         <StructuredDataGlobal />
       </head>
       <body className="bg-[#0a0a0a] text-[#fafafa]">
-        <DemoBanner />
-        <Navbar />
-        <main className="mx-auto max-w-6xl px-6 pb-24 pt-12 md:pt-16">{children}</main>
-        <Footer />
+        {children}
         <Analytics />
         <SpeedInsights />
       </body>
