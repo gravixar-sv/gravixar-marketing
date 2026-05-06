@@ -33,9 +33,10 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
   applicationName: SITE.name,
   authors: [{ name: SITE.author, url: SITE.url }],
-  icons: {
-    icon: "/favicon.ico",
-  },
+  // Icons auto-detected from app/icon.png + app/apple-icon.png by
+  // Next.js's file-based icons convention. Don't add an `icons`
+  // override here — that points at /favicon.ico which doesn't exist
+  // and was causing browsers to render a generic placeholder.
 };
 
 export const viewport: Viewport = {
