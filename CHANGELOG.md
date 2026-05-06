@@ -1,5 +1,51 @@
 # CHANGELOG, gravixar-ai
 
+## v0.4.0, 2026-05-05, launch day (gravixar.com live)
+
+Hosted at **gravixar.com** for the first time. demo.gravixar.com also live.
+
+**Marketing content (3 stacked PRs merged):**
+- **W1 content (#1)**: Beeline case study refresh (9/14 modules framing), 5 comparison pages (Productive.io / Function Point / Karbon / Notion / monday.com), FAQPage + BreadcrumbList structured data, /llms.txt manifest.
+- **Design refresh (#2)**: Geist Sans + Geist Mono replace Inter + JetBrains Mono. Hero now has a live persona panel (Mira / Kai / Nox / Sage) with system-signal stats. New `.card-surface`, `.card-hover-glow`, `.live-panel`, `.ambient-drift` utilities. /modules library page with 12 module entries. ContactCTA in live-panel surface.
+- **Launch prep (#3)**: client names genericized across case studies + compare pages + module runningIn fields (logos kept per permission). monday-broomstick → monday-rollout-agency rename. /early-access waitlist with structured triage fields (interest dropdown + team size + timeline). Early-access endpoint + Blob log (separate prefix from leads).
+
+**Admin dashboard (#4):**
+- `/admin` route, single-user gated by `ADMIN_TOKEN` env var compared to HttpOnly cookie. Sufficient for sole-operator backend.
+- Lists discovery-call leads + early-access signups grouped by month. Month-picker for browsing history. mailto: links for direct reply.
+- Read helpers added to `lib/blob.ts`: `readLeads()`, `readEarlyAccess()`, `listLeadMonths()`, etc.
+
+**Launch-day polish (#5):**
+- DemoBanner copy: "coming online" → "running at" (demo is live).
+- Hero persona cards now show per-role action verbs ("approve a deliverable", "send first reply", etc.).
+- CalEmbed: replaced 720px-tall iframe with a styled card + click-to-popup-window button (was overflowing the contact form column).
+- Early-access form: structured dropdowns (9 interest options, team size, timeline) replace the free-text "what are you hoping to use this for" field. Notification email includes all selections.
+- Navbar gains a brand-filled "Get early access" CTA next to "Book a call".
+
+**Layout fix (#6):**
+- Marketing chrome (DemoBanner, Navbar, Footer) moved into `(marketing)/layout.tsx` so /admin and other non-marketing routes don't inherit it. Root layout stripped to just html/body/fonts/StructuredDataGlobal.
+
+**Favicon fix (#7):**
+- Removed broken `icons: { icon: '/favicon.ico' }` metadata override that pointed at a non-existent file (was returning 404).
+- `app/icon.png` is now auto-detected by Next.js's file-based icon convention. Added `app/apple-icon.png` for iOS home-screen shortcuts.
+
+**Infrastructure:**
+- **DNS**: domain at GoDaddy, nameservers switched to Vercel (`ns1.vercel-dns.com` / `ns2.vercel-dns.com`). Cloudflare zone removed (was causing intermittent SSL handshake failures from stale cached IPs).
+- DNS records preserved during migration: GoDaddy email MX records (smtp/mailstore1.secureserver.net), SPF, 4 verification TXT records (Google × 2, OpenAI, GoDaddy bookkeeping).
+- Vercel Blob store provisioned + connected to gravixar-marketing project; `BLOB_READ_WRITE_TOKEN` auto-injected.
+- **Resend**: only 1 domain on free tier; deferred sending from gravixar.com (low launch volume, /admin reads from Blob directly).
+
+**Memory updates:**
+- `feedback_periodic_sync_marketing.md` — bs-hub + Beeline evolve; resync marketing claims against canonical status docs every 2-4 weeks.
+- `feedback_light_mode_deferred.md` — light/dark theme toggle deferred until 3 trigger conditions hit (5+ closed builds, 50+ early-access signups, specific complaint).
+
+**Still NOT built:**
+- Demo Tour V1 (next session — see `DEMO-TOUR-PLAN.md` in gravixar-demo).
+- Case-study auto-drafter.
+- Social syndication queue.
+- AI personalization on /early-access form (V2 of structured fields).
+- Admin UI for promoting blog drafts (current flow: email + manual git commit).
+- Resend sending from `mail.gravixar.com` (separate Resend account or Pro upgrade required).
+
 ## v0.3.0, 2026-05-02, AI SEO agent + OG generator + port pin
 
 **Port pinned to 3300.** Gravixar dev server now runs at `localhost:3300` (or `gravixar.localhost:3300`). Avoids collision with bs-hub on 3000.
