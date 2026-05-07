@@ -138,18 +138,18 @@ function DemoPanel() {
             demo.gravixar.com
           </span>
         </div>
-        <span className="flex items-center gap-1.5 rounded-sm bg-brand/10 px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.18em] text-brand">
-          <span className="pulse-dot inline-block h-1 w-1 rounded-full bg-brand" />
-          live
+        <span className="flex items-center gap-1.5 rounded-sm bg-zinc-800/60 px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.18em] text-zinc-300">
+          <span className="inline-block h-1 w-1 rounded-full bg-zinc-500" />
+          back soon
         </span>
       </div>
 
-      {/* Persona grid, clickable into the demo. Each card shows the
-          closed-loop action available in that role so visitors know
-          what they'll actually do before clicking. */}
+      {/* Persona grid. Currently informational while the demo is in a
+          polish pass — clicks land on the coming-soon page. When the
+          demo unpauses, the cards become actionable again. */}
       <div className="mt-5">
         <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">
-          step in and run a workflow
+          here's what runs there
         </p>
         <div className="mt-3 grid grid-cols-2 gap-2">
           {DEMO_PERSONAS.map((p) => (
@@ -207,7 +207,7 @@ function DemoPanel() {
         rel="noreferrer"
         className="group mt-5 flex items-center justify-between border-t border-zinc-800/80 pt-4 text-sm text-zinc-200 transition-colors hover:text-brand-soft"
       >
-        <span>open demo full-screen</span>
+        <span>peek at the demo (coming back online)</span>
         <span aria-hidden className="font-mono text-[11px] transition-transform group-hover:translate-x-0.5">↗</span>
       </a>
     </aside>
