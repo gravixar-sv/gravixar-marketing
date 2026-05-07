@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/site/PageHeader";
-import { PortraitPlaceholder } from "@/components/site/PortraitPlaceholder";
+import { Portrait } from "@/components/site/Portrait";
 import { MDX } from "@/content/mdx";
 import { ContactCTA } from "@/components/home/ContactCTA";
 import { loadPage } from "@/content/loaders";
@@ -31,7 +31,7 @@ export default async function AboutPage() {
           <MDX source={page.body} />
         </article>
         <aside className="lg:sticky lg:top-24 lg:self-start">
-          <PortraitPlaceholder />
+          <Portrait />
         </aside>
       </div>
       <ContactCTA />
