@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/site/PageHeader";
+import { PortraitPlaceholder } from "@/components/site/PortraitPlaceholder";
 import { MDX } from "@/content/mdx";
 import { ContactCTA } from "@/components/home/ContactCTA";
 import { loadPage } from "@/content/loaders";
@@ -25,9 +26,14 @@ export default async function AboutPage() {
         title={page.meta.title}
         lede={page.meta.description}
       />
-      <article className="prose-invert max-w-3xl">
-        <MDX source={page.body} />
-      </article>
+      <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(260px,340px)] lg:gap-16">
+        <article className="prose-invert min-w-0">
+          <MDX source={page.body} />
+        </article>
+        <aside className="lg:sticky lg:top-24 lg:self-start">
+          <PortraitPlaceholder />
+        </aside>
+      </div>
       <ContactCTA />
     </div>
   );
