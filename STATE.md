@@ -2,7 +2,7 @@
 
 > Read first at session start. Updated on every PR.
 >
-> Last updated: 2026-05-09
+> Last updated: 2026-05-09 (no marketing changes today; HQ family layer absorbed all session time)
 
 ## Live now
 
@@ -11,6 +11,11 @@
 - v0.4.0 launch shipped 2026-05-05; subsequent polish via PRs #9-#14
 - Resend wired on `mail.gravixar.com` (separate account from Broomstick's)
 - BotID warn-only on lead routes until Vercel Bot Protection is enabled
+- **Cross-surface note (2026-05-09)**: HQ shipped massive family-layer
+  stack (chat, subjects, AI breakdown, Drive Picker, kid accounts).
+  Marketing untouched. **Phase 5 (HQ Inbox) will start consuming
+  marketing's lead Blob** so the leads surface in HQ; that's the first
+  bridge to be built between the two surfaces.
 
 ## Currently working on
 
@@ -18,9 +23,10 @@
 
 ## Next session
 
-- (TBD — driven by the program-level roadmap; see
-  `gravixar-notes/STATE.md` Quick state. Phase 3 will pull marketing into
-  view as HQ ↔ Marketing Bridge work begins.)
+- (No marketing-surface work scheduled. HQ Phase 5 will read this
+  repo's `leads/YYYY-MM.jsonl` and `early-access/YYYY-MM.jsonl` Blob
+  files but doesn't require code changes here. HQ Phase 6 — bridge —
+  will eventually edit content here via PR-from-HQ.)
 
 ## Open PRs
 
