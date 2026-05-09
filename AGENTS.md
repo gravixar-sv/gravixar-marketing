@@ -155,7 +155,8 @@ directly outside that file. Production env lives in Vercel
 | `ADMIN_TOKEN` | /admin dashboard gate | required for admin |
 | `CRON_SECRET` | SEO agent cron auth | required for cron to fire |
 | `AI_GATEWAY_API_KEY` | Vercel AI Gateway | required for SEO agent |
-| `RESEND_API_KEY` | transactional email | currently empty (1 domain on free tier; handled via /admin instead) |
+| `RESEND_API_KEY` | transactional email | required for outbound; sender domain `mail.gravixar.com` (separate Resend account from Broomstick's) |
+| `RESEND_FROM_EMAIL` | optional From: override | default `Gravixar <leads@mail.gravixar.com>` in `lib/resend.ts` |
 
 ### Content + schema discipline
 
@@ -186,10 +187,11 @@ If you modify it, preserve:
 - **AI in critical path = false**. SEO agent fails open: if API key
   unset or call times out, drafts skip, the workflow continues. Same
   rule applies to any future AI integrations.
-- **Email is currently silent**: Resend free tier allows 1 domain
-  (already used by Broomstick). Form submissions go to Vercel Blob
-  only; check /admin to triage. To enable email later: separate
-  Resend account or Pro upgrade.
+- **Email is live on `mail.gravixar.com`**: separate Resend account
+  from Broomstick's. Sender domain `mail.gravixar.com` (DKIM/SPF/DMARC
+  via Vercel DNS). Form submissions trigger both a Blob append and a
+  Resend send to `gravixar@gmail.com`. Both are best-effort; missing
+  keys skip the email step rather than failing the request.
 
 ## Key memory references
 
