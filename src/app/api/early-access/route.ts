@@ -22,11 +22,13 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
-  // Bot check first, botid platform headers are populated by the wrapper
-  // in next.config.ts. Locally this is a no-op pass.
+  // Bot check, warn-only. See /api/lead/route.ts for context: Vercel
+  // Bot Protection is not yet enabled at the platform level, so
+  // checkBotId() over-flags. Log for visibility, allow the submission
+  // through; honeypot + zod still gate spam.
   const bot = await checkBotId();
   if (bot.isBot) {
-    return NextResponse.json({ error: "blocked" }, { status: 403 });
+    console.warn("[early-access] botid flagged as bot; warn-only mode, allowing through");
   }
 
   let payload: unknown;
