@@ -120,8 +120,11 @@ periodic-sync rule.
 
 ### Branch + commit conventions
 
-- Feature branches: `feat/short-description`
-- Fixes: `fix/short-description`
+- Feature branches: `feat/DDMMYY-HHMM-mkt` (date+time stamp + repo
+  tag — `mkt` for this repo; `hq` and `demo` for the sister repos so
+  cross-repo branches stay distinguishable)
+- Fixes: `fix/DDMMYY-HHMM-mkt` (same pattern, `fix/` prefix)
+- Chores: `chore/DDMMYY-HHMM-mkt` (same)
 - One PR per concern, squash-merge by default
 - Commit messages: terse subject (under ~70 chars) + bullet body
   explaining changes and reasoning. Voice matches site copy
