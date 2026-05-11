@@ -2,7 +2,7 @@
 
 > Read first at session start. Updated on every PR.
 >
-> Last updated: 2026-05-09 (no marketing changes today; HQ family layer absorbed all session time)
+> Last updated: 2026-05-11 (HQ Inbox shipped; /admin deprecated)
 
 ## Live now
 
@@ -11,11 +11,12 @@
 - v0.4.0 launch shipped 2026-05-05; subsequent polish via PRs #9-#14
 - Resend wired on `mail.gravixar.com` (separate account from Broomstick's)
 - BotID warn-only on lead routes until Vercel Bot Protection is enabled
-- **Cross-surface note (2026-05-09)**: HQ shipped massive family-layer
-  stack (chat, subjects, AI breakdown, Drive Picker, kid accounts).
-  Marketing untouched. **Phase 5 (HQ Inbox) will start consuming
-  marketing's lead Blob** so the leads surface in HQ; that's the first
-  bridge to be built between the two surfaces.
+- **`/admin` deprecated 2026-05-11**: lead triage moved to HQ's unified
+  inbox at `https://hq.gravixar.com/inbox` when Phase 5 of gravixar-hq
+  shipped. Marketing still writes the lead/early-access JSONL blobs on
+  form submit (no change there); HQ polls every 15 min and triages.
+  `/admin` and `/admin/*` are 307-redirected to `hq.gravixar.com/inbox`.
+  Will promote to permanent (308) once HQ is stable for a few weeks.
 
 ## Currently working on
 
@@ -23,10 +24,9 @@
 
 ## Next session
 
-- (No marketing-surface work scheduled. HQ Phase 5 will read this
-  repo's `leads/YYYY-MM.jsonl` and `early-access/YYYY-MM.jsonl` Blob
-  files but doesn't require code changes here. HQ Phase 6 — bridge —
-  will eventually edit content here via PR-from-HQ.)
+- (No marketing-surface work scheduled. HQ Phase 6 — bridge — will
+  eventually add a preview pane + edit-via-PR flow from HQ against this
+  repo's MDX content.)
 
 ## Open PRs
 
@@ -49,7 +49,7 @@
 | `RESEND_API_KEY` | required, points at the new Gravixar Resend account |
 | `RESEND_FROM_EMAIL` | optional override; default `Gravixar <leads@mail.gravixar.com>` |
 | `BLOB_READ_WRITE_TOKEN` | auto-injected (Blob store connected) |
-| `ADMIN_TOKEN` | required for `/admin` |
+| `ADMIN_TOKEN` | ~~required for `/admin`~~ no longer used; `/admin` redirects to HQ. Safe to delete from Vercel env |
 | `CRON_SECRET` | required for SEO agent cron |
 | `AI_GATEWAY_API_KEY` | required for SEO agent |
 | `LEAD_NOTIFY_EMAIL` | optional; default `gravixar@gmail.com` |
