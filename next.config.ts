@@ -56,6 +56,13 @@ const nextConfig: NextConfig = {
       { source: "/services/people-ops", destination: "/services/operations-infrastructure", permanent: true },
       { source: "/services/ai-augmented-work", destination: "/services/ai-tooling", permanent: true },
       { source: "/services/graphics", destination: "/services/brand-visuals", permanent: true },
+      // /admin deprecated 2026-05-11. Lead triage moved to HQ's unified
+      // inbox when Phase 5 of gravixar-hq shipped. Marketing still writes
+      // the JSONL blobs on form submit (no change there); HQ polls every
+      // 15 min and triages. Kept temporary (307) so we can roll back if
+      // HQ has issues; promote to permanent (308) once HQ is stable.
+      { source: "/admin", destination: "https://hq.gravixar.com/inbox", permanent: false },
+      { source: "/admin/:path*", destination: "https://hq.gravixar.com/inbox", permanent: false },
     ];
   },
 };
