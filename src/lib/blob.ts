@@ -6,9 +6,11 @@ import { put, list } from "@vercel/blob";
 import { env } from "./env";
 import type { LeadRecord } from "./lead";
 import type { EarlyAccessRecord } from "./early-access";
+import type { ServiceInquiryRecord } from "./service-inquiry";
 
 const LEAD_LOG_PREFIX = "leads/";
 const EARLY_ACCESS_PREFIX = "early-access/";
+const SERVICE_INQUIRY_PREFIX = "service-inquiries/";
 
 function monthKey(d = new Date()) {
   return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
@@ -52,6 +54,9 @@ export const appendLead = (record: LeadRecord) =>
 
 export const appendEarlyAccess = (record: EarlyAccessRecord) =>
   appendJsonl(EARLY_ACCESS_PREFIX, record);
+
+export const appendServiceInquiry = (record: ServiceInquiryRecord) =>
+  appendJsonl(SERVICE_INQUIRY_PREFIX, record);
 
 // ---- Read helpers (admin dashboard) -------------------------------
 
