@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/site/PageHeader";
 import { MDX } from "@/content/mdx";
-import { ContactCTA } from "@/components/home/ContactCTA";
+import { ServiceInquiryForm } from "@/components/lead/ServiceInquiryForm";
 import {
   StructuredDataBreadcrumb,
   StructuredDataService,
@@ -127,7 +127,41 @@ export default async function ServicePage(
         </aside>
       </div>
 
-      <ContactCTA />
+      <section className="live-panel relative overflow-hidden rounded-2xl p-8 md:p-12">
+        <div
+          aria-hidden
+          className="bg-brand-glow ambient-drift pointer-events-none absolute inset-0 -z-0 opacity-60"
+        />
+        <div className="relative z-10 grid gap-10 md:grid-cols-2 md:items-start">
+          <div>
+            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand">
+              next step
+            </p>
+            <h2 className="mt-3 text-3xl font-semibold tracking-[-0.015em] md:text-4xl">
+              Tell me about your {s.meta.title.toLowerCase()} problem.
+            </h2>
+            <p className="mt-4 text-zinc-400">
+              Lands in my HQ inbox tagged with this page, so when I reply I
+              already know which service we&apos;re talking about. Replies
+              within 24 hours.
+            </p>
+            <p className="mt-6 text-sm text-zinc-500">
+              Prefer a call?{" "}
+              <Link
+                href="/contact"
+                className="text-brand-soft underline underline-offset-4 hover:text-brand"
+              >
+                Book 30 minutes
+              </Link>
+              .
+            </p>
+          </div>
+          <ServiceInquiryForm
+            sourcePage={`/services/${slug}`}
+            serviceTitle={s.meta.title}
+          />
+        </div>
+      </section>
     </div>
   );
 }
