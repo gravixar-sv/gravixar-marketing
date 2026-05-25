@@ -26,6 +26,10 @@ Thumbs.db
 *.tsbuildinfo
 .idea/
 .vscode/
-.claude/
+# .claude is per-developer scratch, but launch.json is project-tooling
+# (dev port + start command) and must be tracked so the `resume` ritual's
+# auto-start works on a fresh clone.
+.claude/*
+!.claude/launch.json
 
 .vercel
