@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/site/PageHeader";
 import { ContactForm } from "@/components/lead/ContactForm";
-import { CalEmbed } from "@/components/lead/CalEmbed";
+import { BookCall } from "@/components/lead/BookCall";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
@@ -43,7 +43,7 @@ export default function ContactPage() {
             the questions.
           </p>
           <div className="mt-6">
-            <CalEmbed />
+            <BookCall />
           </div>
         </section>
       </div>

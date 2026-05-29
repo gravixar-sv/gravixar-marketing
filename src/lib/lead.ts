@@ -13,6 +13,8 @@ export const leadSchema = z.object({
   company: z.string().max(160).optional(),
   // free-form: what brings them here
   message: z.string().min(20).max(4000),
+  // which service they're after (helps qualify before the reply/call)
+  service: z.string().max(120).optional(),
   // honeypot, must be empty. Bots fill every input.
   website: z.string().max(0).optional(),
   // optional, helps qualify
