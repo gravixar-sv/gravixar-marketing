@@ -18,6 +18,11 @@ const schema = z.object({
   // Admin token for the /admin dashboard. Set in Vercel production env.
   // If unset, the admin page returns 503 (admin disabled).
   ADMIN_TOKEN: z.string().optional(),
+  // In-house "book a call" (replaces cal.com). HMAC secret signs the
+  // email verification codes; MEET_URL is the reusable Google Meet room
+  // shared on confirmation. Both set in Vercel production env.
+  BOOKING_HMAC_SECRET: z.string().optional(),
+  BOOKING_MEET_URL: z.string().url().optional(),
 });
 
 const parsed = schema.safeParse(process.env);

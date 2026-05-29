@@ -59,7 +59,7 @@ export async function POST(req: Request) {
         from: FROM_EMAIL,
         to: NOTIFY_EMAIL,
         replyTo: record.email,
-        subject: `New lead, ${record.name}${record.company ? ` (${record.company})` : ""}`,
+        subject: `New lead, ${record.name}${record.service ? ` · ${record.service}` : ""}${record.company ? ` (${record.company})` : ""}`,
         react: LeadInboundEmail({
           name: record.name,
           email: record.email,

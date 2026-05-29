@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/cn";
+import { SERVICE_OPTIONS } from "@/lib/services";
 
 type FormState =
   | { kind: "idle" }
@@ -22,6 +23,7 @@ export function ContactForm() {
       name: String(fd.get("name") ?? ""),
       email: String(fd.get("email") ?? ""),
       company: String(fd.get("company") ?? "") || undefined,
+      service: String(fd.get("service") ?? "") || undefined,
       message: String(fd.get("message") ?? ""),
       website: String(fd.get("website") ?? ""), // honeypot
       source: "contact-page",
@@ -71,6 +73,23 @@ export function ContactForm() {
       <Field label="Your name" name="name" required minLength={2} />
       <Field label="Email" name="email" type="email" required />
       <Field label="Company (optional)" name="company" />
+      <label className="block">
+        <span className="font-mono text-[11px] uppercase tracking-widest text-zinc-400">
+          What do you need? (optional)
+        </span>
+        <select
+          name="service"
+          defaultValue=""
+          className="mt-2 block w-full rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none transition-colors focus:border-brand"
+        >
+          <option value="">Pick the closest match</option>
+          {SERVICE_OPTIONS.map((s) => (
+            <option key={s} value={s}>
+              {s}
+            </option>
+          ))}
+        </select>
+      </label>
       <Textarea
         label="What's the problem you're solving?"
         name="message"

@@ -7,10 +7,12 @@ import { env } from "./env";
 import type { LeadRecord } from "./lead";
 import type { EarlyAccessRecord } from "./early-access";
 import type { ServiceInquiryRecord } from "./service-inquiry";
+import type { BookingRecord } from "./booking";
 
 const LEAD_LOG_PREFIX = "leads/";
 const EARLY_ACCESS_PREFIX = "early-access/";
 const SERVICE_INQUIRY_PREFIX = "service-inquiries/";
+const BOOKING_PREFIX = "bookings/";
 
 function monthKey(d = new Date()) {
   return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
@@ -106,4 +108,21 @@ export const listEarlyAccessMonths = () => listMonths(EARLY_ACCESS_PREFIX);
 
 export function currentMonthKey() {
   return monthKey();
+}
+
+// ---- Bookings -----------------------------------------------------
+
+export const appendBooking = (record: BookingRecord) =>
+  appendJsonl(BOOKING_PREFIX, record);
+
+// Taken slot start-times across this month + next (the booking horizon
+// can cross a month boundary). Used to filter the available slots.
+export async function readTakenSlots(): Promise<string[]> {
+  const now = new Date();
+  const next = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
+  const months = [monthKey(now), monthKey(next)];
+  const rows = (
+    await Promise.all(months.map((m) => readJsonl<BookingRecord>(BOOKING_PREFIX, m)))
+  ).flat();
+  return rows.map((r) => r.startUtc);
 }
