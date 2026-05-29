@@ -15,6 +15,7 @@
     "prebuild": "pnpm run validate:content"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^3.0.81",
     "@mdx-js/react": "^3.1.1",
     "@next/mdx": "^16.2.6",
     "@react-email/components": "^1.0.12",

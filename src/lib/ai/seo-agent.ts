@@ -2,11 +2,12 @@
 // the local script. Returns structured frontmatter + MDX body that the
 // caller serializes to disk (locally) or to Vercel Blob (in prod).
 //
-// Routes through Vercel AI Gateway via the AI SDK, model strings are
-// "provider/model" so we can swap providers without changing call sites.
+// Generates through the direct Anthropic provider via the AI SDK. The
+// model is centralised in lib/ai/provider.ts so call sites stay clean.
 
 import { generateObject } from "ai";
 import { z } from "zod";
+import { contentModel } from "@/lib/ai/provider";
 
 export const draftSchema = z.object({
   title: z
@@ -91,7 +92,7 @@ Output the draft. The body should be MDX, plain markdown headings + paragraphs a
 `;
 
   const result = await generateObject({
-    model: "anthropic/claude-sonnet-4-6",
+    model: contentModel,
     schema: draftSchema,
     system: VOICE,
     prompt: userPrompt,
