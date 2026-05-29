@@ -15,6 +15,11 @@ const schema = z.object({
   // Vercel Cron sends `Authorization: Bearer ${CRON_SECRET}` on each invocation.
   // Set this in production env; leave unset locally and use the seo:draft script instead.
   CRON_SECRET: z.string().optional(),
+  // Shared secret for manual Trend Radar runs triggered from HQ /content.
+  // HQ sends `Authorization: Bearer ${TREND_RADAR_TRIGGER_SECRET}`; the
+  // trend-radar route accepts it as an alternative to CRON_SECRET. Set the
+  // SAME value in both this project and HQ's Vercel env.
+  TREND_RADAR_TRIGGER_SECRET: z.string().optional(),
   // Admin token for the /admin dashboard. Set in Vercel production env.
   // If unset, the admin page returns 503 (admin disabled).
   ADMIN_TOKEN: z.string().optional(),
