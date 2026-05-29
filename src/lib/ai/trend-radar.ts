@@ -1,6 +1,6 @@
 // Trend Radar core generator. Used by the production biweekly cron
 // route. Mirrors the seo-agent.ts pattern exactly: generateObject via
-// Vercel AI Gateway, structured output, fail-open on errors.
+// the direct Anthropic provider, structured output, fail-open on errors.
 //
 // Output: a ranked Trend Brief — 3-5 signals, each with a suggested
 // action type (content-angle | offer-pricing | watch). Never auto-acts.
@@ -8,6 +8,7 @@
 
 import { generateObject } from "ai";
 import { z } from "zod";
+import { contentModel } from "@/lib/ai/provider";
 
 // Fixed, version-controlled query set. Reviewed quarterly — update the
 // array and commit when the radar scope needs adjusting. Keeping it here
@@ -115,7 +116,7 @@ Produce a ranked Trend Brief with 3-5 signals. Most actionable to Gravixar goes 
 `;
 
   const result = await generateObject({
-    model: "anthropic/claude-sonnet-4-6",
+    model: contentModel,
     schema: briefSchema,
     system: SYSTEM_PROMPT,
     prompt,
