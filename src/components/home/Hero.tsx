@@ -3,35 +3,26 @@ import { MDX } from "@/content/mdx";
 import type { HomeBlock } from "@/content/schema";
 import { SITE } from "@/lib/seo";
 
-// Personas the visitor can click into on demo.gravixar.com. Each maps to
-// a real seeded persona in the Lattice Studio scene. Clicking sends them
-// to the demo's persona-switcher; the demo handles the actual sign-in.
-// `try` is the closed-loop action visible on each persona's page on the
-// demo, so visitors know what they'll DO before they click.
-const DEMO_PERSONAS = [
+// Live scenes on demo.gravixar.com. These MIRROR the demo's scene-index
+// entry screen exactly (same names, same plain-English subtitles, same
+// audiences) so the homepage → demo handoff keeps one mental model —
+// the NN/g "a link is a promise" principle. Each links straight into
+// that scene. Do NOT reframe these as personas; the demo opens as a
+// scene index, not a persona picker.
+const DEMO_SCENES = [
   {
-    name: "Mira",
-    role: "client",
-    try: "approve a deliverable",
+    name: "Lattice Studio",
+    whatItIs: "A client portal for a creative agency",
+    forWhom: "for agencies",
+    href: "/lattice",
     color: "from-rose-400/40 to-amber-300/20",
   },
   {
-    name: "Kai",
-    role: "pm",
-    try: "send first reply on an inquiry",
+    name: "Studio Mix",
+    whatItIs: "An AI-agents console for ops teams",
+    forWhom: "for founders & product",
+    href: "/studio-mix",
     color: "from-cyan-400/40 to-violet-400/20",
-  },
-  {
-    name: "Nox",
-    role: "admin",
-    try: "approve leave + see audit log",
-    color: "from-violet-400/40 to-rose-400/20",
-  },
-  {
-    name: "Sage",
-    role: "designer",
-    try: "submit a draft for client",
-    color: "from-emerald-400/40 to-cyan-400/20",
   },
 ] as const;
 
@@ -144,34 +135,35 @@ function DemoPanel() {
         </span>
       </div>
 
-      {/* Persona grid — live and clickable. Lattice personas link
-          via the identity-fork entry so visitors pick their context. */}
+      {/* Scene grid — mirrors the demo's scene-index entry exactly so
+          the homepage → demo handoff keeps one mental model. Each card
+          links straight into that live scene. */}
       <div className="mt-5">
         <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">
-          click in as a persona
+          open a live scene
         </p>
-        <div className="mt-3 grid grid-cols-2 gap-2">
-          {DEMO_PERSONAS.map((p) => (
+        <div className="mt-3 grid gap-2">
+          {DEMO_SCENES.map((s) => (
             <a
-              key={p.name}
-              href={`${SITE.demoUrl}/lattice`}
+              key={s.name}
+              href={`${SITE.demoUrl}${s.href}`}
               rel="noreferrer"
               className="group relative overflow-hidden rounded-md border border-zinc-800 bg-zinc-950/40 p-3 transition-all hover:-translate-y-0.5 hover:border-brand/50"
             >
               <span
                 aria-hidden
-                className={`pointer-events-none absolute inset-0 -z-0 bg-gradient-to-br ${p.color} opacity-0 transition-opacity group-hover:opacity-100`}
+                className={`pointer-events-none absolute inset-0 -z-0 bg-gradient-to-br ${s.color} opacity-0 transition-opacity group-hover:opacity-100`}
               />
-              <span className="relative z-10 flex items-baseline justify-between gap-1">
+              <span className="relative z-10 flex items-baseline justify-between gap-2">
                 <span className="block text-sm font-medium text-zinc-100">
-                  {p.name}
+                  {s.name}
                 </span>
                 <span className="font-mono text-[9px] uppercase tracking-[0.16em] text-zinc-500 group-hover:text-brand">
-                  {p.role}
+                  {s.forWhom}
                 </span>
               </span>
-              <span className="relative z-10 mt-2 block text-[11px] leading-tight text-zinc-400 group-hover:text-zinc-200">
-                try · {p.try}
+              <span className="relative z-10 mt-1.5 block text-[11px] leading-tight text-zinc-400 group-hover:text-zinc-200">
+                {s.whatItIs}
               </span>
             </a>
           ))}
