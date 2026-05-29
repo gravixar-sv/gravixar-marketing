@@ -24,12 +24,16 @@ export const runtime = "nodejs";
 export const maxDuration = 120;
 
 export async function GET(req: Request) {
-  // Auth check mirrors the SEO agent exactly.
-  if (env.CRON_SECRET) {
-    const auth = req.headers.get("authorization");
-    if (auth !== `Bearer ${env.CRON_SECRET}`) {
-      return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-    }
+  // Auth: accept either Vercel's auto-generated CRON_SECRET (scheduled
+  // runs) or TREND_RADAR_TRIGGER_SECRET (manual trigger from HQ). If
+  // neither is set the endpoint is unauthenticated — fine for local dev.
+  const auth = req.headers.get("authorization");
+  const cronOk = env.CRON_SECRET ? auth === `Bearer ${env.CRON_SECRET}` : true;
+  const triggerOk = env.TREND_RADAR_TRIGGER_SECRET
+    ? auth === `Bearer ${env.TREND_RADAR_TRIGGER_SECRET}`
+    : false;
+  if (env.CRON_SECRET && !cronOk && !triggerOk) {
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
   if (!env.BLOB_READ_WRITE_TOKEN) {

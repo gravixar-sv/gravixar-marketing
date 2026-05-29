@@ -18,6 +18,13 @@ const schema = z.object({
   // Admin token for the /admin dashboard. Set in Vercel production env.
   // If unset, the admin page returns 503 (admin disabled).
   ADMIN_TOKEN: z.string().optional(),
+  // Manual-trigger secret for the Trend Radar cron. Set the same value
+  // in BOTH this project (gravixar-marketing) and HQ (gravixar-hq).
+  // HQ's server action calls /api/cron/trend-radar with this secret so
+  // the operator can trigger a run from hq.gravixar.com without needing
+  // the Vercel dashboard. Separate from CRON_SECRET (Vercel auto-generates
+  // that one; we can't easily share it cross-project).
+  TREND_RADAR_TRIGGER_SECRET: z.string().optional(),
 });
 
 const parsed = schema.safeParse(process.env);
