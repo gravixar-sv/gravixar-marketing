@@ -23,18 +23,33 @@ export const runtime = "nodejs";
 export const maxDuration = 120;
 
 export async function GET(req: Request) {
-  if (env.CRON_SECRET) {
-    const auth = req.headers.get("authorization");
-    if (auth !== `Bearer ${env.CRON_SECRET}`) {
+  // Accept either secret: Vercel's auto-generated CRON_SECRET (scheduled
+  // runs) or the shared TREND_RADAR_TRIGGER_SECRET (manual "Draft now"
+  // from HQ /content). Same dual-secret posture as the trend-radar route,
+  // so HQ can trigger on-demand drafts with no extra env var. If neither
+  // is configured, allow the request (matches the local-dev posture).
+  const accepted = [env.CRON_SECRET, env.TREND_RADAR_TRIGGER_SECRET].filter(
+    (s): s is string => typeof s === "string" && s.length > 0,
+  );
+  if (accepted.length > 0) {
+    const auth = req.headers.get("authorization") ?? "";
+    const authorized = accepted.some((s) => auth === `Bearer ${s}`);
+    if (!authorized) {
       return NextResponse.json({ error: "unauthorized" }, { status: 401 });
     }
   }
+
+  // Optional topic seed for manual runs: hq sends ?topic=... so the
+  // operator can draft a specific angle (e.g. a Trend Brief content
+  // signal) instead of letting the agent pick. Scheduled runs omit it.
+  const topicSeed =
+    new URL(req.url).searchParams.get("topic")?.trim() || undefined;
 
   const posts = await loadBlogPosts({ includeDrafts: true });
   const recentTitles = posts.slice(0, 10).map((p) => p.meta.title);
   const knownTags = Array.from(new Set(posts.flatMap((p) => p.meta.tags)));
 
-  const draft = await generateDraft({ recentTitles, knownTags });
+  const draft = await generateDraft({ topicSeed, recentTitles, knownTags });
   const date = new Date().toISOString().slice(0, 10);
   const mdx = draftToMdx(draft, date);
 
