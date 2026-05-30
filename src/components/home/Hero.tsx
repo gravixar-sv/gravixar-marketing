@@ -52,11 +52,7 @@ export function Hero({ meta, body }: { meta: HomeBlock; body: string }) {
       {/* Background layers */}
       <div
         aria-hidden
-        className="bg-dot-grid pointer-events-none absolute inset-0 -z-10 opacity-50"
-      />
-      <div
-        aria-hidden
-        className="bg-brand-glow ambient-drift pointer-events-none absolute inset-0 -z-10"
+        className="bg-brand-glow pointer-events-none absolute inset-0 -z-10"
       />
       <div
         aria-hidden
@@ -68,7 +64,7 @@ export function Hero({ meta, body }: { meta: HomeBlock; body: string }) {
         <div className="max-w-2xl">
           {meta.eyebrow ? (
             <div className="flex items-center gap-3">
-              <span className="pulse-dot inline-block h-1.5 w-1.5 rounded-full bg-brand" />
+              <span className="inline-block h-1.5 w-1.5 rounded-full bg-brand" />
               <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand">
                 {meta.eyebrow}
               </p>
@@ -139,7 +135,7 @@ function DemoPanel() {
           </span>
         </div>
         <span className="flex items-center gap-1.5 rounded-sm bg-emerald-950/60 px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.18em] text-emerald-300">
-          <span className="pulse-dot inline-block h-1 w-1 rounded-full bg-emerald-400" />
+          <span className="inline-block h-1 w-1 rounded-full bg-emerald-400" />
           live
         </span>
       </div>

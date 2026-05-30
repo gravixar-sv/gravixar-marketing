@@ -8,11 +8,12 @@ export function ServicesPreview({ services }: { services: Service[] }) {
         what i do
       </p>
       <h2 className="mt-3 text-3xl font-semibold tracking-[-0.015em] md:text-4xl">
-        Three things, all backed by something running.
+        Three things I build. One I keep running.
       </h2>
       <p className="mt-4 max-w-2xl text-zinc-400">
-        Pick the one that maps to your problem. Each links to deliverables, proof,
-        and (where applicable) a live demo you can poke at.
+        Pick the one that maps to your problem. Every card links to the real
+        thing: a system in production, a live demo you can click, or a client
+        engagement with the parts that broke written down.
       </p>
       <div className="mt-10 grid gap-4 md:grid-cols-3">
         {services.map((s, i) => (
@@ -45,9 +46,8 @@ export function ServicesPreview({ services }: { services: Service[] }) {
                 ))}
               </ul>
             ) : null}
-            <span className="mt-6 inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600 group-hover:text-brand">
+            <span className="link-draw mt-6 inline-block font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600 group-hover:text-brand">
               learn more
-              <span className="transition-transform group-hover:translate-x-0.5">→</span>
             </span>
           </Link>
         ))}

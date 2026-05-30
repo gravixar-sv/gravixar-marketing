@@ -24,7 +24,7 @@ export function Footer() {
             />
           </div>
           <p className="mt-4 max-w-sm text-sm leading-relaxed text-zinc-400">
-            The AI-ops platform — it runs your operations, you approve the
+            The AI-ops platform. It runs your operations, you approve the
             moves. Running before you sign.
           </p>
         </div>

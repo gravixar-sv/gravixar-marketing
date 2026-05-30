@@ -8,7 +8,7 @@ import { buildMetadata } from "@/lib/seo";
 export const revalidate = 3600;
 
 export const metadata: Metadata = buildMetadata({
-  title: "Off-the-shelf vs custom — honest comparisons",
+  title: "Off-the-shelf vs custom, honest comparisons",
   description:
     "Productive.io, Function Point, Karbon, Notion, monday.com. Where each one wins, where each one breaks, and when a custom portal is the cheaper long-term call.",
   path: "/compare",
