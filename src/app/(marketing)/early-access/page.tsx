@@ -56,8 +56,8 @@ export default function EarlyAccessPage() {
     <div className="space-y-16">
       <PageHeader
         eyebrow="early access"
-        title="A hosted Gravixar account, for the inquiries that don't justify a custom build."
-        lede="The same modules that run in production at our custom-build clients, available as a monthly subscription. Pick one, sign in, configure, run. Private beta opening soon, get on the list."
+        title="The hosted platform — productized AI-ops, without commissioning a build."
+        lede="The same modules that run in production at our custom-build clients, available as a monthly subscription. Pick one, sign in, configure, run — a human still approves every write. Private beta opening soon, get on the list."
       />
 
       <section className="grid gap-12 lg:grid-cols-12">

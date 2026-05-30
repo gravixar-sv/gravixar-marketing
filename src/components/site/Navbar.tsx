@@ -100,7 +100,7 @@ export function Navbar() {
             className="h-7 w-auto md:h-8"
           />
           <span className="hidden font-mono text-[10px] uppercase tracking-[0.18em] text-brand md:inline">
-            ai-augmented ops
+            ai-ops platform
           </span>
         </Link>
 

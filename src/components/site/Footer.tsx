@@ -24,8 +24,8 @@ export function Footer() {
             />
           </div>
           <p className="mt-4 max-w-sm text-sm leading-relaxed text-zinc-400">
-            Operations, people, and AI work, for teams that want the systems
-            running before they sign.
+            The AI-ops platform — it runs your operations, you approve the
+            moves. Running before you sign.
           </p>
         </div>
         <div className="text-sm">
