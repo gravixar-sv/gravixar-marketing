@@ -1,0 +1,44 @@
+---
+title: "Fast AI builds break in front of clients. Here is what to build instead."
+slug: "fast-ai-builds-break-in-front-of-clients"
+excerpt: "Every AI-ops shop is selling speed. Live in two weeks. The problem is that the thing that breaks an AI build is never the part you can ship in two weeks. It is the exception nobody designed for."
+publishedAt: "2026-05-30"
+tags: ["ai-tooling", "operations", "ai-governance", "agency-ops"]
+draft: true
+aiAssisted: true
+---
+
+The pitch I keep seeing in 2026 is speed. Live in two weeks. Intake automated by Friday. Your whole ops stack agentic by the end of the month. It sounds like progress and it closes deals, so everyone says it.
+
+I am not going to compete on that, because the thing that breaks an AI build is never the part you can ship in two weeks. It is the part nobody scoped: what happens when the input is weird.
+
+## A real failure mode
+
+Here is the shape of it. An agency stands up an AI intake tool. A prospect fills out a form, the model reads it, classifies the lead, and routes it to the right person. In the demo it is magic. The founder pastes in three sample inquiries and all three land correctly. Contract signed, live in two weeks, exactly as promised.
+
+Then a real inquiry comes in that does not look like the samples. It is half a sentence and a budget number, or it is three paragraphs about a problem that spans two service lines, or it is a current client asking for something new through the new-business form. The model does what models do with ambiguous input: it picks something. It routes the lead. It does it confidently. And it is wrong.
+
+Nobody finds out for a week, because the tool did not error. It did not flag anything. It produced a clean, plausible, wrong answer, and the only signal that something broke is a deal sitting in the wrong queue while the person who should have called never knew it existed.
+
+That is the failure that costs money, and it is invisible precisely because the fast build worked. Speed did not cause the bug. Speed shipped a system with no answer for the case that was always going to show up.
+
+## The part that takes longer than two weeks
+
+The hard part of an AI build is not the happy path. The model gives you the happy path almost for free. The hard part is everything around the edge of it:
+
+- **Exception handling.** What does the system do when it is not sure? A real build has a confidence floor, and below it the lead goes to a human, not to a guess.
+- **A human in the loop where it matters.** Not on everything, that is just a slow tool. On the decisions that are expensive to get wrong, and only those.
+- **An audit trail.** When a lead lands in the wrong place, you need to be able to ask the system why it decided that, and get an actual answer. "The model said so" is not an answer you can fix.
+- **A way to watch for drift.** The inputs change. The questions people ask in June are not the questions they asked in March. Something has to notice that the classifier is slowly getting worse before a client does.
+
+None of that fits in the two-week story. All of it is the actual product.
+
+## What I build instead
+
+I build the boring layer on purpose. The intake tool still classifies the lead in a second, same as the fast version. The difference is that when it is not sure, it says so, and the lead goes to a person instead of a queue. Every decision is logged with the reasoning, so when something looks off you can open it up and see what the system was thinking. And there is a cron quietly watching the outputs so drift shows up as a message to me, not as a quarter of misrouted deals.
+
+This is slower to ship. It is also the difference between a tool that demos well and a tool you can put in front of a client and forget about. The agencies I work with are not buying automation for its own sake. They are buying the ability to stop checking.
+
+If your AI build is going to touch a client, the question is not how fast it goes live. It is what it does on the day the input is weird, because that day is coming. Build for that day, and the speed takes care of itself.
+
+If you want the version of this that you can poke at, the intake and the audit trail are running in the demo at **demo.gravixar.com**, and the ops layer behind it is the work at **/services/operations-infrastructure**.
