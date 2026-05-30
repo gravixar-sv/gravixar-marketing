@@ -18,10 +18,13 @@ import { NextResponse } from "next/server";
 import { put } from "@vercel/blob";
 import { env } from "@/lib/env";
 import { generateBrief, briefToMarkdown } from "@/lib/ai/trend-radar";
+import { handoffTopContentAngle, type HandoffResult } from "@/lib/ai/content-handoff";
 import { FROM_EMAIL, NOTIFY_EMAIL, getResend } from "@/lib/resend";
 
 export const runtime = "nodejs";
-export const maxDuration = 120;
+// Two sequential AI generations on a handoff run (brief + one seeded
+// draft), so give the function headroom beyond the single-call budget.
+export const maxDuration = 180;
 
 export async function GET(req: Request) {
   // Accept either secret: Vercel's auto-generated CRON_SECRET (scheduled
@@ -82,6 +85,21 @@ export async function GET(req: Request) {
     );
   }
 
+  // Trend -> draft handoff. Best-effort, repo-mode only. Runs after the
+  // brief is safely stored so a handoff failure never loses the brief.
+  // Converts the top content-angle signal into a committed _drafts/ post.
+  let handoff: HandoffResult | null = null;
+  if (env.MARKETING_GH_TOKEN) {
+    handoff = await handoffTopContentAngle({
+      brief,
+      date: runDate,
+      token: env.MARKETING_GH_TOKEN,
+    });
+    if (!handoff.drafted) {
+      console.warn("[trend-radar] handoff skipped:", handoff.reason);
+    }
+  }
+
   // Email notification — optional, fail-open.
   const resend = getResend();
   if (resend) {
@@ -97,13 +115,24 @@ export async function GET(req: Request) {
           ``,
           `Stored: ${blobUrl}`,
           ``,
+          ...(handoff?.drafted
+            ? [
+                `Auto-draft from top content angle: "${handoff.title}"`,
+                `  seed signal: ${handoff.seedSignal}`,
+                `  draft:       ${handoff.url}`,
+                `  promote it:  https://hq.gravixar.com/content?status=draft`,
+                ``,
+              ]
+            : handoff
+              ? [`Auto-draft: skipped (${handoff.reason})`, ``]
+              : []),
           `--- Full Brief ---`,
           ``,
           markdown,
           ``,
           `--- End ---`,
           ``,
-          `Triage: content-angle -> Fajar task | offer-pricing -> brain decision | watch -> monitor`,
+          `Triage: content-angle -> auto-drafted (promote in HQ) | offer-pricing -> brain decision | watch -> monitor`,
         ].join("\n"),
       });
     } catch (err) {
@@ -117,5 +146,8 @@ export async function GET(req: Request) {
     runDate,
     signalCount: brief.signals.length,
     blob: blobUrl,
+    // Present on repo-mode runs. `drafted: true` carries the committed
+    // draft's slug/title/url so HQ can link straight to it.
+    handoff: handoff ?? undefined,
   });
 }
