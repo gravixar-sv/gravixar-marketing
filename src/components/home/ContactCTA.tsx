@@ -6,7 +6,7 @@ export function ContactCTA() {
       {/* Subtle ambient gradient */}
       <div
         aria-hidden
-        className="bg-brand-glow ambient-drift pointer-events-none absolute inset-0 -z-0 opacity-60"
+        className="bg-brand-glow pointer-events-none absolute inset-0 -z-0 opacity-60"
       />
       <div className="relative z-10">
         <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand">

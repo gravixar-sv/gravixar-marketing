@@ -5,14 +5,14 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import {
-  Boxes,
-  Scale,
+  Stack,
+  Scales,
   Palette,
-  PenLine,
-  ChevronDown,
-  Menu,
+  NotePencil,
+  CaretDown,
+  List,
   X,
-} from "lucide-react";
+} from "@phosphor-icons/react";
 
 // Top-level entries: the primary buyer flow. Three items, plus the
 // "More" dropdown for secondary discovery, plus the persistent CTA.
@@ -29,13 +29,13 @@ const MORE = [
     href: "/modules",
     label: "Modules",
     description: "Reusable patterns across builds",
-    Icon: Boxes,
+    Icon: Stack,
   },
   {
     href: "/compare",
     label: "Compare",
     description: "Off-the-shelf vs custom honest reads",
-    Icon: Scale,
+    Icon: Scales,
   },
   {
     href: "/graphics",
@@ -47,7 +47,7 @@ const MORE = [
     href: "/blog",
     label: "Writing",
     description: "Notes from the field, AI-drafted then approved",
-    Icon: PenLine,
+    Icon: NotePencil,
   },
 ] as const;
 
@@ -129,8 +129,9 @@ export function Navbar() {
               }`}
             >
               More
-              <ChevronDown
+              <CaretDown
                 size={14}
+                weight="bold"
                 className={`transition-transform ${moreOpen ? "rotate-180" : ""}`}
               />
             </button>
@@ -152,7 +153,7 @@ export function Navbar() {
                     className="group/item flex items-start gap-3 rounded-lg px-3 py-3 transition-colors hover:bg-zinc-900/60"
                   >
                     <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-zinc-900/80 text-brand transition-colors group-hover/item:bg-brand/10">
-                      <Icon size={16} strokeWidth={1.75} />
+                      <Icon size={16} />
                     </span>
                     <span className="flex flex-col gap-0.5">
                       <span className="text-sm font-medium text-zinc-100">
@@ -200,7 +201,7 @@ export function Navbar() {
             aria-expanded={mobileOpen}
             className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-zinc-800 text-zinc-300 transition-colors hover:border-brand hover:text-brand-soft md:hidden"
           >
-            {mobileOpen ? <X size={18} /> : <Menu size={18} />}
+            {mobileOpen ? <X size={18} /> : <List size={18} />}
           </button>
         </div>
       </div>
@@ -227,7 +228,7 @@ export function Navbar() {
                 onClick={() => setMobileOpen(false)}
                 className="flex items-start gap-3 rounded-md px-3 py-2.5 transition-colors hover:bg-zinc-900"
               >
-                <Icon size={16} strokeWidth={1.75} className="mt-1 text-brand" />
+                <Icon size={16} className="mt-1 text-brand" />
                 <span className="flex flex-col">
                   <span className="text-sm text-zinc-200">{label}</span>
                   <span className="text-xs text-zinc-500">{description}</span>

@@ -106,7 +106,7 @@ export function BookCall() {
           const s = await fetch("/api/book/slots").then((r) => r.json()).catch(() => ({ slots: [] }));
           setSlots(s.slots ?? []);
           setPicked("");
-          throw new Error("That slot was just taken — pick another.");
+          throw new Error("That slot was just taken. Pick another.");
         }
         throw new Error(data.error ?? "couldn't confirm");
       }
@@ -218,7 +218,7 @@ export function BookCall() {
           <div>
             <span className={LABEL}>Pick a slot (your timezone)</span>
             {slots.length === 0 ? (
-              <p className="mt-2 text-xs text-zinc-500">No open slots right now — email me and I&apos;ll find a time.</p>
+              <p className="mt-2 text-xs text-zinc-500">No open slots right now. Email me and I&apos;ll find a time.</p>
             ) : (
               <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3">
                 {slots.map((s) => (
@@ -265,7 +265,7 @@ export function BookCall() {
 function friendly(code: string): string {
   switch (code) {
     case "bad_code": return "That code is wrong or expired. Try again.";
-    case "slot_taken": return "That slot was just taken — pick another.";
+    case "slot_taken": return "That slot was just taken. Pick another.";
     case "slot_unavailable": return "That slot is no longer available.";
     case "email_unavailable":
     case "send_failed": return "Couldn't send the code right now. Try again shortly.";

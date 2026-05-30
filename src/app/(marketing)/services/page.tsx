@@ -10,7 +10,7 @@ export const revalidate = 3600;
 export const metadata: Metadata = buildMetadata({
   title: "Services",
   description:
-    "Three buckets, operations infrastructure, people ops, AI-augmented work, plus a separate graphics offering. Each linked to live proof.",
+    "What I build: operations infrastructure, AI tooling, and brand work, plus the retainer that keeps an AI system honest after it ships. Each one linked to something running.",
   path: "/services",
 });
 
@@ -20,8 +20,8 @@ export default async function ServicesIndexPage() {
     <div className="space-y-16">
       <PageHeader
         eyebrow="services"
-        title="Three buckets, plus design, all backed by something running."
-        lede="Pick the one that maps to your problem. Each page links to a case study and (where applicable) a live demo you can poke."
+        title="Three things I build. One I keep running."
+        lede="Pick the one that maps to your problem. Each page links to the proof: a case study, a live demo, or a system running in production."
       />
       <div className="grid gap-4 md:grid-cols-2">
         {services.map((s) => (

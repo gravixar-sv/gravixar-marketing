@@ -31,7 +31,7 @@ export async function GET() {
   lines.push(`> ${SITE.tagline}`);
   lines.push("");
   lines.push(
-    "Gravixar is an AI-ops platform built by Qamar: productized modules — portals, intake wizards, content agents — that run operations with a human approving every write. Delivered as a hosted product and as high-touch custom builds. A working version of each is running before the contract closes. Live demos at demo.gravixar.com.",
+    "Gravixar is an AI-ops platform built by Qamar: productized modules (portals, intake wizards, content agents) that run operations with a human approving every write. Delivered as a hosted product and as high-touch custom builds. A working version of each is running before the contract closes. Live demos at demo.gravixar.com.",
   );
   lines.push("");
 

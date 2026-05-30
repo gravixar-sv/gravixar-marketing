@@ -1,25 +1,21 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist_Mono } from "next/font/google";
+import "@fontsource-variable/hubot-sans";
+import "@fontsource-variable/mona-sans";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { StructuredDataGlobal } from "@/components/site/StructuredData";
 import { SITE } from "@/lib/seo";
 import "@/styles/globals.css";
 
-// Root layout — the bare-bones shell for every route. Marketing chrome
+// Root layout, the bare-bones shell for every route. Marketing chrome
 // (DemoBanner, Navbar, Footer, main wrapper) lives in (marketing)/layout.tsx
 // so admin and other non-marketing routes don't inherit it.
 //
-// next/font self-hosts the font files (no Google CDN call), bakes in
-// font-display: swap, subsets to latin, and emits a CSS variable that
-// our Tailwind theme reads. Geist is Vercel's typeface, designed for
-// technical/agency interfaces — tighter terminals, cleaner numerals
-// than Inter, no rounded humanist warmth that reads consumer-marketing.
-const geistSans = Geist({
-  subsets: ["latin"],
-  variable: "--font-geist",
-  display: "swap",
-});
+// Display + body type is Hubot Sans + Mona Sans (GitHub's open variable
+// grotesks), self-hosted via @fontsource-variable and consumed by the
+// Tailwind theme as --font-display / --font-sans. Mono stays Geist Mono
+// (next/font self-hosts it) for field labels, numerals, and status pills.
 const geistMono = Geist_Mono({
   subsets: ["latin"],
   variable: "--font-geist-mono",
@@ -29,7 +25,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: { default: `${SITE.name} · ${SITE.tagline}`, template: `%s · ${SITE.name}` },
   description:
-    "Gravixar is an AI-ops platform: productized modules — portals, intake wizards, content agents — that run your operations with a human approving every write. Running in production before you buy. Delivered as a hosted product or a high-touch custom build.",
+    "Gravixar is an AI-ops platform: productized modules (portals, intake wizards, content agents) that run your operations with a human approving every write. Running in production before you buy. Delivered as a hosted product or a high-touch custom build.",
   metadataBase: new URL(SITE.url),
   applicationName: SITE.name,
   authors: [{ name: SITE.author, url: SITE.url }],
@@ -53,7 +49,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable}`}
+      className={geistMono.variable}
     >
       <head>
         <StructuredDataGlobal />

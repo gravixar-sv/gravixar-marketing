@@ -130,7 +130,7 @@ export default async function ServicePage(
       <section className="live-panel relative overflow-hidden rounded-2xl p-8 md:p-12">
         <div
           aria-hidden
-          className="bg-brand-glow ambient-drift pointer-events-none absolute inset-0 -z-0 opacity-60"
+          className="bg-brand-glow pointer-events-none absolute inset-0 -z-0 opacity-60"
         />
         <div className="relative z-10 grid gap-10 md:grid-cols-2 md:items-start">
           <div>
