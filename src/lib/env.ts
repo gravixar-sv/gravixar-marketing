@@ -10,6 +10,12 @@ const schema = z.object({
   RESEND_FROM_EMAIL: z.string().email().optional(),
   LEAD_NOTIFY_EMAIL: z.string().email().optional(),
   BLOB_READ_WRITE_TOKEN: z.string().optional(),
+  // Fine-grained GitHub PAT for the SEO agent (Phase 6.B4).
+  // Scope: Contents Read + Write on gravixar-sv/gravixar-marketing.
+  // When set, the agent commits drafts directly to
+  // content/blog/_drafts/<date>-<slug>.mdx instead of writing to Blob.
+  // When unset, the agent falls back to the legacy blob+email flow.
+  MARKETING_GH_TOKEN: z.string().optional(),
   ANTHROPIC_API_KEY: z.string().optional(),
   AI_GATEWAY_API_KEY: z.string().optional(),
   // Vercel Cron sends `Authorization: Bearer ${CRON_SECRET}` on each invocation.
