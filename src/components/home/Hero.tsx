@@ -91,7 +91,7 @@ export function Hero({ meta, body }: { meta: HomeBlock; body: string }) {
               href="/work"
               className="group rounded-md border border-zinc-700 px-5 py-2.5 text-sm text-zinc-200 transition-colors hover:border-brand hover:text-brand-soft"
             >
-              See what's running
+              See what&apos;s running
               <span className="ml-1 inline-block transition-transform group-hover:translate-x-0.5">
                 →
               </span>
