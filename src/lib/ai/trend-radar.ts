@@ -25,13 +25,9 @@ export const RADAR_QUERIES = [
 export const signalSchema = z.object({
   signal: z
     .string()
-    .min(20)
-    .max(200)
     .describe("What changed — one concrete line, no hedging."),
   why: z
     .string()
-    .min(40)
-    .max(400)
     .describe(
       "Why it matters to Gravixar — tied to a specific service or segment (operations infrastructure, AI tooling, brand & visuals, or recurring revenue model).",
     ),
@@ -42,8 +38,6 @@ export const signalSchema = z.object({
     ),
   action_note: z
     .string()
-    .min(20)
-    .max(300)
     .describe(
       "Specific: what to write, what to price-test, or what to monitor next run.",
     ),
@@ -52,13 +46,11 @@ export const signalSchema = z.object({
 export const briefSchema = z.object({
   signals: z
     .array(signalSchema)
-    .min(3)
-    .max(5)
+    .min(2)
+    .max(6)
     .describe("Ranked by relevance to Gravixar — most actionable first."),
   summary: z
     .string()
-    .min(60)
-    .max(400)
     .describe(
       "One-paragraph synthesis of the brief. What does this run's data say about Gravixar's position right now?",
     ),
