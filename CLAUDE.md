@@ -27,7 +27,7 @@ Lead capture is the funnel surface: `/contact`, `/early-access`, `/services/<slu
 ## Conventions
 
 - **Branches**: `feat/DDMMYY-HHMM-mkt` / `fix/...` / `chore/...` (date+time + repo tag). One PR per concern. Squash-merge.
-- **Commits**: terse subject (< ~70 chars) + bullet body explaining why. Voice matches site copy. AI-assisted: `Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>`.
+- **Commits**: terse subject (< ~70 chars) + bullet body explaining why. Voice matches site copy. AI-assisted: `Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>`.
 - **Git identity** (repo has no `user.name`/`user.email` — don't run `git config --global`): use `git -c user.name=Qamar -c user.email=gravixar@gmail.com commit ...` or env vars.
 - **Client names**: genericized in marketing copy unless explicit permission given. Logos OK in marquee + cover images.
 
