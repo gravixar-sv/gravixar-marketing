@@ -90,6 +90,9 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
+      '@gravixar-sv/core':
+        specifier: ^0.1.0
+        version: 0.1.0(eslint-config-next@16.2.6(@typescript-eslint/parser@8.60.0(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3))(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3))(eslint@9.39.4(jiti@2.7.0))(next@16.2.6(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))
       '@tailwindcss/postcss':
         specifier: ^4.3.0
         version: 4.3.0
@@ -441,6 +444,13 @@ packages:
 
   '@fontsource-variable/mona-sans@5.2.8':
     resolution: {integrity: sha512-8OWdTcP8KvRxkU1Skkk+tX3D5XHN9buejxSDwrT7teRfGnpKBYxQUApV/+zS8TzeHiSU8H5Tc0HfBr57ahgcvA==}
+
+  '@gravixar-sv/core@0.1.0':
+    resolution: {integrity: sha512-Lwkcd+fYHw1DiAm5OOi7QLpfzVIC6PhOFOWBLCPpvFIajMkswasXaQnjJwiLLPC0I0f1EhFMRjLjSD8G805PUA==, tarball: https://npm.pkg.github.com/download/@gravixar-sv/core/0.1.0/0c8adc3dd07130c8cb3d6805603b134f6a3e678c}
+    peerDependencies:
+      eslint: ^9
+      eslint-config-next: '>=15'
+      next: '>=15'
 
   '@humanfs/core@0.19.2':
     resolution: {integrity: sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA==}
@@ -3726,6 +3736,12 @@ snapshots:
   '@fontsource-variable/hubot-sans@5.2.8': {}
 
   '@fontsource-variable/mona-sans@5.2.8': {}
+
+  '@gravixar-sv/core@0.1.0(eslint-config-next@16.2.6(@typescript-eslint/parser@8.60.0(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3))(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3))(eslint@9.39.4(jiti@2.7.0))(next@16.2.6(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))':
+    dependencies:
+      eslint: 9.39.4(jiti@2.7.0)
+      eslint-config-next: 16.2.6(@typescript-eslint/parser@8.60.0(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3))(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3)
+      next: 16.2.6(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
 
   '@humanfs/core@0.19.2':
     dependencies:
