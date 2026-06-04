@@ -105,7 +105,10 @@ export async function POST(req: Request) {
       try {
         const safe = cv.name.replace(/[^a-zA-Z0-9._-]+/g, "-").slice(0, 80);
         const blob = await put(`job-applications/cv/${safe}`, cv, {
-          access: "private",
+          // Public store: private blobs fail here, so use public with a random
+          // suffix (unguessable URL). HQ still serves it via an owner-gated
+          // download route; the raw URL is never shown in the UI.
+          access: "public",
           addRandomSuffix: true,
           contentType: cv.type,
           token: env.BLOB_READ_WRITE_TOKEN,
