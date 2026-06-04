@@ -8,6 +8,7 @@ import {
   CV_MAX_BYTES,
   NAME_RE,
   PHONE_RE,
+  normalizeLink,
 } from "@/lib/job-application";
 import type { ScreeningQuestion } from "@/lib/careers";
 
@@ -44,6 +45,14 @@ export function JobApplicationForm({
   screeningQuestions = [],
 }: Props) {
   const [state, setState] = useState<FormState>({ kind: "idle" });
+  // Flexible links: the applicant can add as many as they like (LinkedIn,
+  // portfolio, online CV, GitHub, socials). Forgiving — no scheme required.
+  const [links, setLinks] = useState<string[]>([""]);
+  const setLinkAt = (i: number, v: string) =>
+    setLinks((prev) => prev.map((l, j) => (j === i ? v : l)));
+  const addLink = () => setLinks((prev) => [...prev, ""]);
+  const removeLink = (i: number) =>
+    setLinks((prev) => prev.filter((_, j) => j !== i));
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -99,6 +108,9 @@ export function JobApplicationForm({
       }
     }
 
+    // Normalize links (forgiving — prepend https:// when missing); drop blanks.
+    const normalizedLinks = links.map(normalizeLink).filter(Boolean);
+
     setState({ kind: "submitting" });
 
     // multipart/form-data so the CV rides along; the route uploads it to a
@@ -108,7 +120,7 @@ export function JobApplicationForm({
     body.set("email", String(fd.get("email") ?? "").trim());
     body.set("phone", phone);
     body.set("company", String(fd.get("company") ?? "").trim());
-    body.set("link", String(fd.get("link") ?? "").trim());
+    body.set("link", normalizedLinks.join("\n"));
     body.set("message", String(fd.get("message") ?? "").trim());
     body.set("sourcePage", sourcePage);
     body.set("source", "careers");
@@ -209,13 +221,49 @@ export function JobApplicationForm({
         maxLength={160}
         autoComplete="organization"
       />
-      <Field
-        label="LinkedIn or portfolio URL (optional)"
-        name="link"
-        type="url"
-        placeholder="https://linkedin.com/in/…"
-        autoComplete="url"
-      />
+      <div>
+        <span className="font-mono text-[11px] uppercase tracking-widest text-zinc-400">
+          Links (optional)
+        </span>
+        <p className="mt-1 text-xs text-zinc-600">
+          LinkedIn, portfolio, online CV, GitHub, socials — paste any, no
+          https:// needed.
+        </p>
+        <div className="mt-2 space-y-2">
+          {links.map((val, i) => (
+            <div key={i} className="flex items-center gap-2">
+              <input
+                type="text"
+                inputMode="url"
+                value={val}
+                onChange={(e) => setLinkAt(i, e.target.value)}
+                placeholder="linkedin.com/in/you"
+                autoComplete="off"
+                className="block w-full rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none transition-colors placeholder:text-zinc-600 focus:border-brand"
+              />
+              {links.length > 1 ? (
+                <button
+                  type="button"
+                  onClick={() => removeLink(i)}
+                  aria-label="Remove link"
+                  className="shrink-0 rounded-md border border-zinc-800 px-3 py-2 text-sm text-zinc-500 transition hover:border-zinc-600 hover:text-zinc-300"
+                >
+                  ×
+                </button>
+              ) : null}
+            </div>
+          ))}
+        </div>
+        {links.length < 6 ? (
+          <button
+            type="button"
+            onClick={addLink}
+            className="mt-2 text-xs text-brand-soft underline-offset-4 hover:text-brand hover:underline"
+          >
+            + Add another link
+          </button>
+        ) : null}
+      </div>
       <FileField
         label="CV — PDF or Word, optional (max 4 MB)"
         name="cv"
