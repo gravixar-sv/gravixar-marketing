@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { upload } from "@vercel/blob/client";
 import { cn } from "@/lib/cn";
 import {
   CV_ACCEPT,
@@ -16,7 +15,10 @@ import type { ScreeningQuestion } from "@/lib/careers";
 function friendlyError(code: string | undefined, status: number): string {
   if (code === "invalid")
     return "Some details look off. Please check the form and try again.";
-  if (code === "invalid_json")
+  if (code === "cv_type") return "Your CV must be a PDF or Word file.";
+  if (code === "cv_too_large")
+    return "Your CV is over 4 MB. Please upload a smaller file.";
+  if (code === "invalid_form" || code === "invalid_json")
     return "Something went wrong sending the form. Please try again.";
   return `Something failed (${code ?? status}).`;
 }
@@ -80,12 +82,8 @@ export function JobApplicationForm({
       return;
     }
 
-    setState({ kind: "submitting" });
-
-    // Optional CV: upload straight to private Blob from the browser, then send
-    // only the resulting URL. Validated here for fast feedback; the token route
-    // re-enforces type + size at the source.
-    let cvUrl: string | undefined;
+    // Validate the CV (type/size) before submitting — fast feedback; the route
+    // re-checks. The file itself rides in the multipart body below.
     const cvFile = fd.get("cv");
     if (cvFile instanceof File && cvFile.size > 0) {
       if (!(CV_CONTENT_TYPES as readonly string[]).includes(cvFile.type)) {
@@ -95,47 +93,37 @@ export function JobApplicationForm({
       if (cvFile.size > CV_MAX_BYTES) {
         setState({
           kind: "error",
-          message: "Your CV is over 5 MB. Please upload a smaller file.",
-        });
-        return;
-      }
-      try {
-        const safe = cvFile.name.replace(/[^a-zA-Z0-9._-]+/g, "-").slice(0, 80);
-        const blob = await upload(`job-applications/cv/${safe}`, cvFile, {
-          access: "private",
-          handleUploadUrl: "/api/job-application/cv-upload",
-          contentType: cvFile.type,
-        });
-        cvUrl = blob.url;
-      } catch {
-        setState({
-          kind: "error",
-          message:
-            "Your CV could not be uploaded. Try a smaller PDF or Word file, or apply with a link instead.",
+          message: "Your CV is over 4 MB. Please upload a smaller file.",
         });
         return;
       }
     }
 
-    const payload = {
-      name,
-      email: String(fd.get("email") ?? "").trim(),
-      phone,
-      company: String(fd.get("company") ?? "").trim() || undefined,
-      link: String(fd.get("link") ?? "").trim() || undefined,
-      cvUrl,
-      screeningAnswers: screeningAnswers.length > 0 ? screeningAnswers : undefined,
-      message: String(fd.get("message") ?? "").trim(),
-      sourcePage,
-      website: String(fd.get("website") ?? ""), // honeypot
-      source: "careers",
-    };
+    setState({ kind: "submitting" });
+
+    // multipart/form-data so the CV rides along; the route uploads it to a
+    // private blob server-side (no browser client-upload handshake).
+    const body = new FormData();
+    body.set("name", name);
+    body.set("email", String(fd.get("email") ?? "").trim());
+    body.set("phone", phone);
+    body.set("company", String(fd.get("company") ?? "").trim());
+    body.set("link", String(fd.get("link") ?? "").trim());
+    body.set("message", String(fd.get("message") ?? "").trim());
+    body.set("sourcePage", sourcePage);
+    body.set("source", "careers");
+    body.set("website", String(fd.get("website") ?? "")); // honeypot
+    if (screeningAnswers.length > 0) {
+      body.set("screeningAnswers", JSON.stringify(screeningAnswers));
+    }
+    if (cvFile instanceof File && cvFile.size > 0) {
+      body.set("cv", cvFile, cvFile.name);
+    }
 
     try {
       const res = await fetch("/api/job-application", {
         method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(payload),
+        body,
       });
       if (!res.ok) {
         const data = (await res.json().catch(() => ({}))) as { error?: string };
@@ -229,7 +217,7 @@ export function JobApplicationForm({
         autoComplete="url"
       />
       <FileField
-        label="CV — PDF or Word, optional (max 5 MB)"
+        label="CV — PDF or Word, optional (max 4 MB)"
         name="cv"
         accept={CV_ACCEPT}
       />

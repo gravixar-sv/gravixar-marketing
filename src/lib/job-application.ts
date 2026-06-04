@@ -23,10 +23,11 @@ export const NAME_RE = /^[\p{L}\p{M}][\p{L}\p{M} .'-]{1,79}$/u;
 // numbers both pass; we only guarantee it looks like a phone number.
 export const PHONE_RE = /^[+(]?\d[\d\s().-]{5,30}$/;
 
-// CV upload constraints. Enforced both on the client (UX) and, authoritatively,
-// in the client-upload token route's onBeforeGenerateToken (Blob rejects an
-// oversized or wrong-type file at the source). PDF + Word only.
-export const CV_MAX_BYTES = 5 * 1024 * 1024; // 5 MB — ample for a CV
+// CV upload constraints. Enforced on the client (fast feedback) and again in
+// the API route (authoritative). The CV is uploaded server-side through the
+// route, so the cap is kept under the serverless request-body limit. PDF +
+// Word only — ample for a CV.
+export const CV_MAX_BYTES = 4 * 1024 * 1024; // 4 MB
 export const CV_CONTENT_TYPES = [
   "application/pdf",
   "application/msword",
