@@ -73,9 +73,10 @@ export default function JobApplicationEmail({
             {cvUrl ? (
               <>
                 <Text style={label}>CV</Text>
-                <Link href={cvUrl} style={linkStyle}>
-                  Download CV
-                </Link>
+                <Text style={value}>
+                  Attached. Open it from the HQ Inbox — the file is stored
+                  privately, so it is not linked here.
+                </Text>
               </>
             ) : null}
             {source ? (

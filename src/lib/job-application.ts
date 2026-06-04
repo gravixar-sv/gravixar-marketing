@@ -23,6 +23,17 @@ export const NAME_RE = /^[\p{L}\p{M}][\p{L}\p{M} .'-]{1,79}$/u;
 // numbers both pass; we only guarantee it looks like a phone number.
 export const PHONE_RE = /^[+(]?\d[\d\s().-]{5,30}$/;
 
+// CV upload constraints. Enforced both on the client (UX) and, authoritatively,
+// in the client-upload token route's onBeforeGenerateToken (Blob rejects an
+// oversized or wrong-type file at the source). PDF + Word only.
+export const CV_MAX_BYTES = 5 * 1024 * 1024; // 5 MB — ample for a CV
+export const CV_CONTENT_TYPES = [
+  "application/pdf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+] as const;
+export const CV_ACCEPT = ".pdf,.doc,.docx";
+
 export const jobApplicationSchema = z.object({
   name: z.string().trim().min(2).max(80).regex(NAME_RE, "use your name only"),
   email: z.string().trim().email().max(160),

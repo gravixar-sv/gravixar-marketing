@@ -1,8 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import { upload } from "@vercel/blob/client";
 import { cn } from "@/lib/cn";
-import { NAME_RE, PHONE_RE } from "@/lib/job-application";
+import {
+  CV_ACCEPT,
+  CV_CONTENT_TYPES,
+  CV_MAX_BYTES,
+  NAME_RE,
+  PHONE_RE,
+} from "@/lib/job-application";
 
 // Map the API's machine error codes to something a human wants to read.
 function friendlyError(code: string | undefined, status: number): string {
@@ -53,12 +60,48 @@ export function JobApplicationForm({ sourcePage, roleTitle }: Props) {
 
     setState({ kind: "submitting" });
 
+    // Optional CV: upload straight to private Blob from the browser, then send
+    // only the resulting URL. Validated here for fast feedback; the token route
+    // re-enforces type + size at the source.
+    let cvUrl: string | undefined;
+    const cvFile = fd.get("cv");
+    if (cvFile instanceof File && cvFile.size > 0) {
+      if (!(CV_CONTENT_TYPES as readonly string[]).includes(cvFile.type)) {
+        setState({ kind: "error", message: "Your CV must be a PDF or Word file." });
+        return;
+      }
+      if (cvFile.size > CV_MAX_BYTES) {
+        setState({
+          kind: "error",
+          message: "Your CV is over 5 MB. Please upload a smaller file.",
+        });
+        return;
+      }
+      try {
+        const safe = cvFile.name.replace(/[^a-zA-Z0-9._-]+/g, "-").slice(0, 80);
+        const blob = await upload(`job-applications/cv/${safe}`, cvFile, {
+          access: "private",
+          handleUploadUrl: "/api/job-application/cv-upload",
+          contentType: cvFile.type,
+        });
+        cvUrl = blob.url;
+      } catch {
+        setState({
+          kind: "error",
+          message:
+            "Your CV could not be uploaded. Try a smaller PDF or Word file, or apply with a link instead.",
+        });
+        return;
+      }
+    }
+
     const payload = {
       name,
       email: String(fd.get("email") ?? "").trim(),
       phone,
       company: String(fd.get("company") ?? "").trim() || undefined,
       link: String(fd.get("link") ?? "").trim() || undefined,
+      cvUrl,
       message: String(fd.get("message") ?? "").trim(),
       sourcePage,
       website: String(fd.get("website") ?? ""), // honeypot
@@ -162,6 +205,11 @@ export function JobApplicationForm({ sourcePage, roleTitle }: Props) {
         placeholder="https://linkedin.com/in/…"
         autoComplete="url"
       />
+      <FileField
+        label="CV — PDF or Word, optional (max 5 MB)"
+        name="cv"
+        accept={CV_ACCEPT}
+      />
       <Textarea
         label="Why this role?"
         name="message"
@@ -245,6 +293,30 @@ function Field({
         autoComplete={autoComplete}
         placeholder={placeholder}
         className="mt-2 block w-full rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none transition-colors placeholder:text-zinc-600 focus:border-brand"
+      />
+    </label>
+  );
+}
+
+function FileField({
+  label,
+  name,
+  accept,
+}: {
+  label: string;
+  name: string;
+  accept?: string;
+}) {
+  return (
+    <label className="block">
+      <span className="font-mono text-[11px] uppercase tracking-widest text-zinc-400">
+        {label}
+      </span>
+      <input
+        name={name}
+        type="file"
+        accept={accept}
+        className="mt-2 block w-full cursor-pointer rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-300 outline-none transition-colors file:mr-3 file:rounded file:border-0 file:bg-zinc-800 file:px-3 file:py-1 file:text-xs file:font-medium file:text-zinc-100 hover:file:bg-zinc-700 focus:border-brand"
       />
     </label>
   );
