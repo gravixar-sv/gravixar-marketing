@@ -147,6 +147,7 @@ export default async function CareerPage({
           <JobApplicationForm
             sourcePage={`/careers/${slug}`}
             roleTitle={job.title}
+            screeningQuestions={job.screeningQuestions}
           />
         </div>
       </section>

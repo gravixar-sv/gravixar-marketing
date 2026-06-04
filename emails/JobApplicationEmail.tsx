@@ -20,6 +20,7 @@ export interface JobApplicationEmailProps {
   sourcePage: string;
   link?: string;
   cvUrl?: string;
+  screeningAnswers?: { questionId: string; label: string; value: string }[];
   source?: string;
   receivedAt: string;
 }
@@ -33,6 +34,7 @@ export default function JobApplicationEmail({
   sourcePage,
   link,
   cvUrl,
+  screeningAnswers,
   source,
   receivedAt,
 }: JobApplicationEmailProps) {
@@ -93,6 +95,20 @@ export default function JobApplicationEmail({
             <Text style={label}>Why this role</Text>
             <Text style={messageStyle}>{message}</Text>
           </Section>
+          {screeningAnswers && screeningAnswers.length > 0 ? (
+            <>
+              <Hr style={hr} />
+              <Section style={section}>
+                <Text style={label}>Screening answers</Text>
+                {screeningAnswers.map((a) => (
+                  <div key={a.questionId}>
+                    <Text style={label}>{a.label}</Text>
+                    <Text style={value}>{a.value || "—"}</Text>
+                  </div>
+                ))}
+              </Section>
+            </>
+          ) : null}
         </Container>
       </Body>
     </Html>

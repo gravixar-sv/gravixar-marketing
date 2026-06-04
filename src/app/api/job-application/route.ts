@@ -79,6 +79,7 @@ export async function POST(req: Request) {
           sourcePage: record.sourcePage,
           link: record.link,
           cvUrl: record.cvUrl,
+          screeningAnswers: record.screeningAnswers,
           source: record.source,
           receivedAt: record.createdAt,
         }),

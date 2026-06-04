@@ -10,6 +10,7 @@ import {
   NAME_RE,
   PHONE_RE,
 } from "@/lib/job-application";
+import type { ScreeningQuestion } from "@/lib/careers";
 
 // Map the API's machine error codes to something a human wants to read.
 function friendlyError(code: string | undefined, status: number): string {
@@ -31,9 +32,15 @@ interface Props {
   sourcePage: string;
   /** Display name of the role, drives the form heading + confirmation copy */
   roleTitle: string;
+  /** Role-specific screening questions, set in HQ. Rendered dynamically. */
+  screeningQuestions?: ScreeningQuestion[];
 }
 
-export function JobApplicationForm({ sourcePage, roleTitle }: Props) {
+export function JobApplicationForm({
+  sourcePage,
+  roleTitle,
+  screeningQuestions = [],
+}: Props) {
   const [state, setState] = useState<FormState>({ kind: "idle" });
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -55,6 +62,21 @@ export function JobApplicationForm({ sourcePage, roleTitle }: Props) {
     }
     if (!PHONE_RE.test(phone)) {
       setState({ kind: "error", message: "Please enter a valid phone number." });
+      return;
+    }
+
+    // Screening answers (role-specific). Required ones must be answered.
+    const screeningAnswers = screeningQuestions.map((q) => ({
+      questionId: q.id,
+      label: q.label,
+      value: String(fd.get(`sq_${q.id}`) ?? "").trim(),
+    }));
+    const missing = screeningQuestions.find(
+      (q) =>
+        q.required && !screeningAnswers.find((a) => a.questionId === q.id)?.value,
+    );
+    if (missing) {
+      setState({ kind: "error", message: `Please answer: ${missing.label}` });
       return;
     }
 
@@ -102,6 +124,7 @@ export function JobApplicationForm({ sourcePage, roleTitle }: Props) {
       company: String(fd.get("company") ?? "").trim() || undefined,
       link: String(fd.get("link") ?? "").trim() || undefined,
       cvUrl,
+      screeningAnswers: screeningAnswers.length > 0 ? screeningAnswers : undefined,
       message: String(fd.get("message") ?? "").trim(),
       sourcePage,
       website: String(fd.get("website") ?? ""), // honeypot
@@ -210,6 +233,43 @@ export function JobApplicationForm({ sourcePage, roleTitle }: Props) {
         name="cv"
         accept={CV_ACCEPT}
       />
+      {screeningQuestions.map((q) => {
+        const cls =
+          "mt-2 block w-full rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none transition-colors placeholder:text-zinc-600 focus:border-brand";
+        const name = `sq_${q.id}`;
+        return (
+          <label key={q.id} className="block">
+            <span className="font-mono text-[11px] uppercase tracking-widest text-zinc-400">
+              {q.label}
+              {q.required ? " *" : ""}
+            </span>
+            {q.type === "textarea" ? (
+              <textarea name={name} required={q.required} rows={3} className={cls} />
+            ) : q.type === "yesno" ? (
+              <select name={name} required={q.required} defaultValue="" className={cls}>
+                <option value="" disabled={q.required}>
+                  Select…
+                </option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+            ) : q.type === "select" ? (
+              <select name={name} required={q.required} defaultValue="" className={cls}>
+                <option value="" disabled={q.required}>
+                  Select…
+                </option>
+                {(q.options ?? []).map((o) => (
+                  <option key={o} value={o}>
+                    {o}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input name={name} type="text" required={q.required} className={cls} />
+            )}
+          </label>
+        );
+      })}
       <Textarea
         label="Why this role?"
         name="message"
