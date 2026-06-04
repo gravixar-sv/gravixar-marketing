@@ -60,6 +60,13 @@ export default async function CareerPage({
         remote={job.remote}
         applicantRegion={job.applicantRegion}
         location={job.location}
+        addressLocality={job.addressLocality}
+        addressRegion={job.addressRegion}
+        addressCountry={job.addressCountry}
+        salaryCurrency={job.salaryCurrency}
+        salaryMin={job.salaryMin}
+        salaryMax={job.salaryMax}
+        salaryUnit={job.salaryUnit}
       />
       <StructuredDataBreadcrumb
         items={[
