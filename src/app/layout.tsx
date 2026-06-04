@@ -49,7 +49,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={geistMono.variable}
+      className={`${geistMono.variable} scroll-smooth`}
     >
       <head>
         <StructuredDataGlobal />

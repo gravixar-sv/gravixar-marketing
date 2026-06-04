@@ -14,10 +14,12 @@ import {
 export interface JobApplicationEmailProps {
   name: string;
   email: string;
+  phone?: string;
   company?: string;
   message: string;
   sourcePage: string;
   link?: string;
+  cvUrl?: string;
   source?: string;
   receivedAt: string;
 }
@@ -25,10 +27,12 @@ export interface JobApplicationEmailProps {
 export default function JobApplicationEmail({
   name,
   email,
+  phone,
   company,
   message,
   sourcePage,
   link,
+  cvUrl,
   source,
   receivedAt,
 }: JobApplicationEmailProps) {
@@ -46,6 +50,12 @@ export default function JobApplicationEmail({
             <Text style={value}>
               {name} &lt;{email}&gt;
             </Text>
+            {phone ? (
+              <>
+                <Text style={label}>Phone</Text>
+                <Text style={value}>{phone}</Text>
+              </>
+            ) : null}
             {company ? (
               <>
                 <Text style={label}>Current employer</Text>
@@ -54,9 +64,17 @@ export default function JobApplicationEmail({
             ) : null}
             {link ? (
               <>
-                <Text style={label}>CV / portfolio</Text>
+                <Text style={label}>LinkedIn / portfolio</Text>
                 <Link href={link} style={linkStyle}>
                   {link}
+                </Link>
+              </>
+            ) : null}
+            {cvUrl ? (
+              <>
+                <Text style={label}>CV</Text>
+                <Link href={cvUrl} style={linkStyle}>
+                  Download CV
                 </Link>
               </>
             ) : null}

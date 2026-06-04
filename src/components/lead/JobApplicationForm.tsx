@@ -2,6 +2,16 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/cn";
+import { NAME_RE, PHONE_RE } from "@/lib/job-application";
+
+// Map the API's machine error codes to something a human wants to read.
+function friendlyError(code: string | undefined, status: number): string {
+  if (code === "invalid")
+    return "Some details look off. Please check the form and try again.";
+  if (code === "invalid_json")
+    return "Something went wrong sending the form. Please try again.";
+  return `Something failed (${code ?? status}).`;
+}
 
 type FormState =
   | { kind: "idle" }
@@ -21,16 +31,35 @@ export function JobApplicationForm({ sourcePage, roleTitle }: Props) {
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setState({ kind: "submitting" });
 
     const form = e.currentTarget;
     const fd = new FormData(form);
+    const name = String(fd.get("name") ?? "").trim();
+    const phone = String(fd.get("phone") ?? "").trim();
+
+    // Mirror the server rules client-side for instant, friendly feedback.
+    // The server (zod) is still the authority.
+    if (!NAME_RE.test(name)) {
+      setState({
+        kind: "error",
+        message: "Please enter your name using letters only (no numbers).",
+      });
+      return;
+    }
+    if (!PHONE_RE.test(phone)) {
+      setState({ kind: "error", message: "Please enter a valid phone number." });
+      return;
+    }
+
+    setState({ kind: "submitting" });
+
     const payload = {
-      name: String(fd.get("name") ?? ""),
-      email: String(fd.get("email") ?? ""),
-      company: String(fd.get("company") ?? "") || undefined,
-      link: String(fd.get("link") ?? "") || undefined,
-      message: String(fd.get("message") ?? ""),
+      name,
+      email: String(fd.get("email") ?? "").trim(),
+      phone,
+      company: String(fd.get("company") ?? "").trim() || undefined,
+      link: String(fd.get("link") ?? "").trim() || undefined,
+      message: String(fd.get("message") ?? "").trim(),
       sourcePage,
       website: String(fd.get("website") ?? ""), // honeypot
       source: "careers",
@@ -44,14 +73,15 @@ export function JobApplicationForm({ sourcePage, roleTitle }: Props) {
       });
       if (!res.ok) {
         const data = (await res.json().catch(() => ({}))) as { error?: string };
-        throw new Error(data.error ?? `request_failed_${res.status}`);
+        throw new Error(friendlyError(data.error, res.status));
       }
       form.reset();
       setState({ kind: "ok" });
     } catch (err) {
       setState({
         kind: "error",
-        message: err instanceof Error ? err.message : "unknown_error",
+        message:
+          err instanceof Error ? err.message : "Something failed. Please try again.",
       });
     }
   }
@@ -93,14 +123,44 @@ export function JobApplicationForm({ sourcePage, roleTitle }: Props) {
           one myself.
         </p>
       </div>
-      <Field label="Your name" name="name" required minLength={2} />
-      <Field label="Email" name="email" type="email" required />
-      <Field label="Current company (optional)" name="company" />
       <Field
-        label="CV / portfolio / LinkedIn (optional)"
+        label="Your name"
+        name="name"
+        required
+        minLength={2}
+        maxLength={80}
+        pattern="[^0-9<>]{2,80}"
+        title="Your name, letters only"
+        autoComplete="name"
+      />
+      <Field
+        label="Email"
+        name="email"
+        type="email"
+        required
+        autoComplete="email"
+      />
+      <Field
+        label="Phone"
+        name="phone"
+        type="tel"
+        required
+        inputMode="tel"
+        placeholder="+92 3xx xxxxxxx"
+        autoComplete="tel"
+      />
+      <Field
+        label="Current company (optional)"
+        name="company"
+        maxLength={160}
+        autoComplete="organization"
+      />
+      <Field
+        label="LinkedIn or portfolio URL (optional)"
         name="link"
         type="url"
-        placeholder="https://"
+        placeholder="https://linkedin.com/in/…"
+        autoComplete="url"
       />
       <Textarea
         label="Why this role?"
@@ -129,8 +189,14 @@ export function JobApplicationForm({ sourcePage, roleTitle }: Props) {
       </button>
       {state.kind === "error" ? (
         <p className="text-sm text-red-400">
-          Something failed: {state.message}. Try again, or email me directly at
-          gravixar@gmail.com.
+          {state.message} If it keeps failing, email me directly at{" "}
+          <a
+            href="mailto:gravixar@gmail.com"
+            className="underline underline-offset-4"
+          >
+            gravixar@gmail.com
+          </a>
+          .
         </p>
       ) : null}
     </form>
@@ -143,6 +209,11 @@ function Field({
   type = "text",
   required,
   minLength,
+  maxLength,
+  pattern,
+  title,
+  inputMode,
+  autoComplete,
   placeholder,
 }: {
   label: string;
@@ -150,6 +221,11 @@ function Field({
   type?: string;
   required?: boolean;
   minLength?: number;
+  maxLength?: number;
+  pattern?: string;
+  title?: string;
+  inputMode?: "text" | "tel" | "email" | "url" | "numeric";
+  autoComplete?: string;
   placeholder?: string;
 }) {
   return (
@@ -162,6 +238,11 @@ function Field({
         type={type}
         required={required}
         minLength={minLength}
+        maxLength={maxLength}
+        pattern={pattern}
+        title={title}
+        inputMode={inputMode}
+        autoComplete={autoComplete}
         placeholder={placeholder}
         className="mt-2 block w-full rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none transition-colors placeholder:text-zinc-600 focus:border-brand"
       />
