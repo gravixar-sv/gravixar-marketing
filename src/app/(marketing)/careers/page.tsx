@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PageHeader } from "@/components/site/PageHeader";
-import { getOpenJobs, employmentLabel } from "@/content/jobs";
+import { getCareersRoles, employmentLabel } from "@/lib/careers";
 import { buildMetadata } from "@/lib/seo";
 
-export const revalidate = 3600;
+// Read HQ's published snapshot; re-fetch every 5 min so role changes show.
+export const revalidate = 300;
 
 export const metadata: Metadata = buildMetadata({
   title: "Careers",
@@ -13,8 +14,8 @@ export const metadata: Metadata = buildMetadata({
   path: "/careers",
 });
 
-export default function CareersIndexPage() {
-  const jobs = getOpenJobs();
+export default async function CareersIndexPage() {
+  const jobs = await getCareersRoles();
 
   return (
     <div className="space-y-16">

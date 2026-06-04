@@ -8,17 +8,19 @@ import {
   StructuredDataJobPosting,
 } from "@/components/site/StructuredData";
 import {
-  getJob,
-  getOpenJobs,
+  getCareersRole,
+  getCareersRoles,
   employmentLabel,
   jobDescriptionHtml,
-} from "@/content/jobs";
+} from "@/lib/careers";
 import { buildMetadata, SITE } from "@/lib/seo";
 
-export const revalidate = 3600;
+// Read HQ's published snapshot; re-fetch every 5 min. New roles not pre-built
+// at deploy time render on demand (dynamicParams defaults to true).
+export const revalidate = 300;
 
 export async function generateStaticParams() {
-  return getOpenJobs().map((j) => ({ slug: j.slug }));
+  return (await getCareersRoles()).map((j) => ({ slug: j.slug }));
 }
 
 export async function generateMetadata({
@@ -27,7 +29,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const job = getJob(slug);
+  const job = await getCareersRole(slug);
   if (!job) return { title: "Not found" };
   return buildMetadata({
     title: `${job.title} · Careers`,
@@ -42,10 +44,11 @@ export default async function CareerPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const job = getJob(slug);
+  const job = await getCareersRole(slug);
   if (!job) notFound();
 
   const url = `${SITE.url}/careers/${slug}`;
+  const datePosted = job.publishedAt ?? new Date().toISOString().slice(0, 10);
 
   return (
     <div className="space-y-16">
@@ -54,7 +57,7 @@ export default async function CareerPage({
         description={jobDescriptionHtml(job)}
         url={url}
         identifier={job.slug}
-        datePosted={job.publishedAt}
+        datePosted={datePosted}
         validThrough={job.validThrough}
         employmentType={job.employmentType}
         remote={job.remote}
