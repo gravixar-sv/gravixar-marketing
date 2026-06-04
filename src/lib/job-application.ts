@@ -35,6 +35,16 @@ export const CV_CONTENT_TYPES = [
 ] as const;
 export const CV_ACCEPT = ".pdf,.doc,.docx";
 
+// Turn a user-typed link into a real URL: trim, and prepend https:// when no
+// scheme is present (so "linkedin.com/in/you" or "instagram.com/you" just
+// work). Empty stays empty; an existing scheme (https, mailto, …) is kept.
+export function normalizeLink(raw: string): string {
+  const s = raw.trim();
+  if (!s) return "";
+  if (/^[a-z][a-z0-9+.-]*:/i.test(s)) return s; // already has a scheme
+  return `https://${s}`;
+}
+
 export const jobApplicationSchema = z.object({
   name: z.string().trim().min(2).max(80).regex(NAME_RE, "use your name only"),
   email: z.string().trim().email().max(160),
@@ -52,8 +62,21 @@ export const jobApplicationSchema = z.object({
   // The careers-page slug the visitor applied from, e.g.
   // "/careers/founding-engineer". Set by the form from page context.
   sourcePage: z.string().min(1).max(120),
-  // LinkedIn / portfolio URL (optional). HQ renders it on the lead card.
-  link: z.string().trim().url().max(400).optional(),
+  // One or more applicant links (LinkedIn / portfolio / online CV / GitHub /
+  // socials), newline-joined. The form normalizes each (prepends https://);
+  // HQ renders each as its own anchor and only follows http(s).
+  link: z
+    .string()
+    .max(2000)
+    .optional()
+    .refine(
+      (v) =>
+        !v ||
+        v
+          .split("\n")
+          .every((l) => l.trim() === "" || /^https?:\/\/.+/i.test(l.trim())),
+      "each link must be a valid URL",
+    ),
   // Uploaded CV file. A private-Blob URL set by the client-upload step before
   // submit (the file itself never passes through the JSON body). Optional.
   cvUrl: z.string().url().max(600).optional(),

@@ -66,10 +66,16 @@ export default function JobApplicationEmail({
             ) : null}
             {link ? (
               <>
-                <Text style={label}>LinkedIn / portfolio</Text>
-                <Link href={link} style={linkStyle}>
-                  {link}
-                </Link>
+                <Text style={label}>Links</Text>
+                {link
+                  .split("\n")
+                  .map((u) => u.trim())
+                  .filter(Boolean)
+                  .map((u) => (
+                    <Link key={u} href={u} style={linkStyle}>
+                      {u}
+                    </Link>
+                  ))}
               </>
             ) : null}
             {cvUrl ? (
