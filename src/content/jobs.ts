@@ -48,13 +48,78 @@ const jobSchema = z.object({
   niceToHave: z.array(z.string().min(1)).default([]),
   draft: z.boolean().default(false),
   order: z.number().int().nonnegative().default(0),
-});
+
+  // Structured location for on-site roles. Drives the JobPosting jobLocation;
+  // Google for Jobs needs at least locality + country to index an on-site
+  // posting, so these are required (via the refine below) when remote is false.
+  addressLocality: z.string().max(80).optional(),
+  addressRegion: z.string().max(80).optional(),
+  addressCountry: z.string().length(2).optional(), // ISO-3166 alpha-2, e.g. "PK"
+
+  // Optional numeric salary -> JobPosting baseSalary (MonetaryAmount). Set
+  // currency + min + unit together; max optional (omit it for a single figure).
+  // This is what makes the salary show in the Google for Jobs rich result.
+  salaryCurrency: z.string().length(3).optional(), // ISO-4217, e.g. "PKR"
+  salaryMin: z.number().int().positive().optional(),
+  salaryMax: z.number().int().positive().optional(),
+  salaryUnit: z.enum(["HOUR", "DAY", "WEEK", "MONTH", "YEAR"]).optional(),
+}).refine(
+  (j) => j.remote || (!!j.addressLocality && !!j.addressCountry),
+  {
+    message:
+      "on-site roles (remote: false) need addressLocality + addressCountry for Google for Jobs",
+  },
+);
 
 export type Job = z.infer<typeof jobSchema>;
 
 // STARTER CONTENT — review/edit before going live (the operator merges this
 // PR, so nothing is public until then). Voice: first person, no em-dashes.
 const RAW_JOBS: z.input<typeof jobSchema>[] = [
+  {
+    slug: "social-media-bd-associate",
+    title: "Junior Social Media & Business Development Associate (AI-Enabled)",
+    team: "Growth",
+    location: "Bahria Town, Rawalpindi (on-site)",
+    remote: false,
+    applicantRegion: "Pakistan",
+    addressLocality: "Rawalpindi",
+    addressRegion: "Punjab",
+    addressCountry: "PK",
+    employmentType: "FULL_TIME",
+    compensation: "PKR 45,000 to 65,000 per month, plus performance commission.",
+    salaryCurrency: "PKR",
+    salaryMin: 45000,
+    salaryMax: 65000,
+    salaryUnit: "MONTH",
+    publishedAt: "2026-06-04",
+    validThrough: "2026-09-04",
+    summary:
+      "I am looking for an organized, eager-to-learn associate to run our social content and support business development, mentored directly by me with a clear step-by-step roadmap to follow. Fresh graduates are welcome.",
+    about:
+      "This is not a role where you figure everything out on your own. You will be guided directly by me, the founder, with a clear step-by-step roadmap to follow. Your main job is to keep that roadmap moving, stay on top of it, flag what is needed, and execute it well. I will hand you ready-made creatives, built with AI tools like Claude Code and Higgsfield, along with the captions to go with them. You organize, schedule, and publish them, keep our content calendar tidy, and play an active part in planning. In return you get direct mentorship from me, hands-on experience with AI tools used in real client work, performance commission on any new business you help bring in (paid once the deal closes and the client has paid), and a clear path to grow into social media, marketing, or business development. If you like keeping things in order, enjoy learning new tools, and want a role where you are properly mentored, this could be a great fit.",
+    responsibilities: [
+      "Own the content calendar. Schedule and publish the creatives and captions I give you, consistently and on time.",
+      "Keep our roadmap on track. Monitor progress, ask what is needed next, and stay organized.",
+      "Take part in planning. Share ideas, spot opportunities, and help shape what we post.",
+      "Support business development. Follow up with leads and help move conversations toward closing.",
+      "Learn and grow into our AI-driven content and business development workflows.",
+    ],
+    requirements: [
+      "Organized and reliable, with the attention to detail that means nothing slips through.",
+      "A good listener who also speaks up with their own ideas.",
+      "Coachable and curious. You can take a roadmap and run with it, and you genuinely want to learn.",
+      "Proactive. You ask \"what is next?\" instead of waiting to be told.",
+      "Strong written and spoken English.",
+      "Comfortable with AI tools, or genuinely excited to learn them.",
+      "0 to 2 years of experience. Fresh graduates are welcome to apply.",
+    ],
+    niceToHave: [
+      "A Bachelor's degree (preferred, but not required).",
+      "Early hands-on experience with social media scheduling, content, or sales and business development.",
+    ],
+    order: 0,
+  },
   {
     slug: "founding-engineer",
     title: "Founding Engineer (AI + Ops)",
@@ -86,6 +151,7 @@ const RAW_JOBS: z.input<typeof jobSchema>[] = [
       "Prisma, Tailwind, and Vercel familiarity.",
       "You have built something people actually use.",
     ],
+    draft: true,
     order: 0,
   },
   {
@@ -116,6 +182,7 @@ const RAW_JOBS: z.input<typeof jobSchema>[] = [
       "A portfolio or repos I can look at.",
       "Experience with the same stack I use (TypeScript, Next.js, Vercel).",
     ],
+    draft: true,
     order: 1,
   },
 ];

@@ -214,6 +214,13 @@ export function StructuredDataJobPosting({
   remote,
   applicantRegion,
   location,
+  addressLocality,
+  addressRegion,
+  addressCountry,
+  salaryCurrency,
+  salaryMin,
+  salaryMax,
+  salaryUnit,
 }: {
   title: string;
   description: string; // HTML
@@ -225,6 +232,17 @@ export function StructuredDataJobPosting({
   remote: boolean;
   applicantRegion: string;
   location: string;
+  // On-site structured address (remote === false). Falls back to `location`
+  // for the locality if a structured one is not provided.
+  addressLocality?: string;
+  addressRegion?: string;
+  addressCountry?: string; // ISO-3166 alpha-2
+  // Optional numeric salary -> baseSalary (MonetaryAmount). Emitted only when
+  // currency + min + unit are all present.
+  salaryCurrency?: string; // ISO-4217
+  salaryMin?: number;
+  salaryMax?: number;
+  salaryUnit?: "HOUR" | "DAY" | "WEEK" | "MONTH" | "YEAR";
 }) {
   const posting: AnyJson = {
     "@context": "https://schema.org/",
@@ -255,9 +273,26 @@ export function StructuredDataJobPosting({
       name: applicantRegion,
     };
   } else {
-    posting.jobLocation = {
-      "@type": "Place",
-      address: { "@type": "PostalAddress", addressLocality: location },
+    const address: AnyJson = {
+      "@type": "PostalAddress",
+      addressLocality: addressLocality ?? location,
+    };
+    if (addressRegion) address.addressRegion = addressRegion;
+    if (addressCountry) address.addressCountry = addressCountry;
+    posting.jobLocation = { "@type": "Place", address };
+  }
+  if (salaryCurrency && salaryMin && salaryUnit) {
+    const value: AnyJson = { "@type": "QuantitativeValue", unitText: salaryUnit };
+    if (salaryMax && salaryMax !== salaryMin) {
+      value.minValue = salaryMin;
+      value.maxValue = salaryMax;
+    } else {
+      value.value = salaryMin;
+    }
+    posting.baseSalary = {
+      "@type": "MonetaryAmount",
+      currency: salaryCurrency,
+      value,
     };
   }
   return <ScriptLd data={posting} id={`ld-job-${identifier}`} />;
