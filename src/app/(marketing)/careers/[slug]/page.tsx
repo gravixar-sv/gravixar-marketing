@@ -76,7 +76,16 @@ export default async function CareerPage({
         ]}
       />
 
-      <PageHeader eyebrow={job.team} title={job.title} lede={job.summary} />
+      <div className="space-y-6">
+        <PageHeader eyebrow={job.team} title={job.title} lede={job.summary} />
+        <a
+          href="#apply"
+          className="inline-flex items-center justify-center gap-2 rounded-md bg-brand px-6 py-3 text-sm font-semibold text-black transition-colors hover:bg-brand-soft"
+        >
+          Apply now
+          <span aria-hidden>↓</span>
+        </a>
+      </div>
 
       <div className="grid gap-12 md:grid-cols-3">
         <article className="prose-invert space-y-10 md:col-span-2">
@@ -110,7 +119,10 @@ export default async function CareerPage({
         </aside>
       </div>
 
-      <section className="live-panel relative overflow-hidden rounded-2xl p-8 md:p-12">
+      <section
+        id="apply"
+        className="live-panel relative scroll-mt-24 overflow-hidden rounded-2xl p-8 md:p-12"
+      >
         <div
           aria-hidden
           className="bg-brand-glow pointer-events-none absolute inset-0 -z-0 opacity-60"

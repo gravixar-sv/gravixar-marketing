@@ -73,10 +73,12 @@ export async function POST(req: Request) {
         react: JobApplicationEmail({
           name: record.name,
           email: record.email,
+          phone: record.phone,
           company: record.company,
           message: record.message,
           sourcePage: record.sourcePage,
           link: record.link,
+          cvUrl: record.cvUrl,
           source: record.source,
           receivedAt: record.createdAt,
         }),
