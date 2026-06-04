@@ -197,3 +197,68 @@ export function StructuredDataBlogPost({
   };
   return <ScriptLd data={post} id="ld-blogpost" />;
 }
+
+/** JobPosting structured data — the requirement for Google for Jobs
+ *  eligibility (free indexing). `description` must be the full HTML role
+ *  description. Remote roles use TELECOMMUTE + applicantLocationRequirements;
+ *  on-site roles use jobLocation. `directApply: true` because the apply form
+ *  lives on the same page. */
+export function StructuredDataJobPosting({
+  title,
+  description,
+  url,
+  identifier,
+  datePosted,
+  validThrough,
+  employmentType,
+  remote,
+  applicantRegion,
+  location,
+}: {
+  title: string;
+  description: string; // HTML
+  url: string;
+  identifier: string;
+  datePosted: string;
+  validThrough?: string;
+  employmentType: "FULL_TIME" | "PART_TIME" | "CONTRACTOR" | "INTERN";
+  remote: boolean;
+  applicantRegion: string;
+  location: string;
+}) {
+  const posting: AnyJson = {
+    "@context": "https://schema.org/",
+    "@type": "JobPosting",
+    title,
+    description,
+    datePosted,
+    employmentType,
+    url,
+    directApply: true,
+    identifier: {
+      "@type": "PropertyValue",
+      name: SITE.name,
+      value: identifier,
+    },
+    hiringOrganization: {
+      "@type": "Organization",
+      name: SITE.name,
+      sameAs: SITE.url,
+      logo: `${SITE.url}/logos/gravixar-wordmark.png`,
+    },
+  };
+  if (validThrough) posting.validThrough = validThrough;
+  if (remote) {
+    posting.jobLocationType = "TELECOMMUTE";
+    posting.applicantLocationRequirements = {
+      "@type": "Country",
+      name: applicantRegion,
+    };
+  } else {
+    posting.jobLocation = {
+      "@type": "Place",
+      address: { "@type": "PostalAddress", addressLocality: location },
+    };
+  }
+  return <ScriptLd data={posting} id={`ld-job-${identifier}`} />;
+}
