@@ -1,24 +1,32 @@
-// POST /api/job-application — careers-funnel lead capture. Mirrors
-// /api/service-inquiry structurally: validate → optional Resend notification
-// → append to a Vercel Blob JSONL line. The record travels into HQ Inbox as
-// a `LeadKind.JOB_APPLICATION` row (sourcePage = "/careers/<slug>", link =
-// CV/portfolio) via /api/cron/sync-leads.
+// POST /api/job-application — careers-funnel lead capture. Accepts
+// multipart/form-data (so the CV file rides along) → validate → upload the CV
+// to a PRIVATE Blob server-side → optional Resend notification → append a JSONL
+// line. The record travels into HQ Inbox as a `LeadKind.JOB_APPLICATION` row
+// via /api/cron/sync-leads.
+//
+// The CV is uploaded server-side (a plain authenticated `put`) rather than via
+// a browser client-upload handshake — simpler and reliable. The file must stay
+// under CV_MAX_BYTES, which is kept below the serverless body limit.
 //
 // Behaviour parity with the other lead routes:
 // - BotID warn-only until Vercel Bot Protection is enabled
 // - Honeypot silent-success so bots don't learn to retry
-// - Both side-effects best-effort, missing keys skip rather than fail
-// - 200 to the visitor as long as we have their data in memory
+// - Side-effects best-effort; a missing key skips rather than fails
+// - 200 to the visitor as long as we have their data
 
 import { NextResponse } from "next/server";
 import { checkBotId } from "botid/server";
 import { randomUUID } from "node:crypto";
+import { put } from "@vercel/blob";
 import {
   jobApplicationSchema,
+  CV_CONTENT_TYPES,
+  CV_MAX_BYTES,
   type JobApplicationRecord,
 } from "@/lib/job-application";
 import { FROM_EMAIL, NOTIFY_EMAIL, getResend } from "@/lib/resend";
 import { appendJobApplication } from "@/lib/blob";
+import { env } from "@/lib/env";
 import JobApplicationEmail from "../../../../emails/JobApplicationEmail";
 
 export const runtime = "nodejs";
@@ -32,12 +40,41 @@ export async function POST(req: Request) {
     );
   }
 
-  let payload: unknown;
+  let form: FormData;
   try {
-    payload = await req.json();
+    form = await req.formData();
   } catch {
-    return NextResponse.json({ error: "invalid_json" }, { status: 400 });
+    return NextResponse.json({ error: "invalid_form" }, { status: 400 });
   }
+
+  const str = (k: string): string => {
+    const v = form.get(k);
+    return typeof v === "string" ? v : "";
+  };
+
+  // screeningAnswers travels as a JSON string field.
+  let screeningAnswers: unknown = undefined;
+  const sa = str("screeningAnswers");
+  if (sa) {
+    try {
+      screeningAnswers = JSON.parse(sa);
+    } catch {
+      // ignore malformed answers rather than reject the application
+    }
+  }
+
+  const payload = {
+    name: str("name"),
+    email: str("email"),
+    phone: str("phone"),
+    company: str("company") || undefined,
+    link: str("link") || undefined,
+    message: str("message"),
+    sourcePage: str("sourcePage"),
+    source: str("source") || undefined,
+    website: str("website"),
+    screeningAnswers,
+  };
 
   const parsed = jobApplicationSchema.safeParse(payload);
   if (!parsed.success) {
@@ -52,8 +89,37 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true });
   }
 
+  // CV: validate + upload server-side to a PRIVATE blob. Type/size are hard
+  // errors (the visitor can fix them); a blob/token failure is non-fatal — the
+  // application still goes through without the CV.
+  let cvUrl: string | undefined;
+  const cv = form.get("cv");
+  if (cv instanceof File && cv.size > 0) {
+    if (!(CV_CONTENT_TYPES as readonly string[]).includes(cv.type)) {
+      return NextResponse.json({ error: "cv_type" }, { status: 400 });
+    }
+    if (cv.size > CV_MAX_BYTES) {
+      return NextResponse.json({ error: "cv_too_large" }, { status: 400 });
+    }
+    if (env.BLOB_READ_WRITE_TOKEN) {
+      try {
+        const safe = cv.name.replace(/[^a-zA-Z0-9._-]+/g, "-").slice(0, 80);
+        const blob = await put(`job-applications/cv/${safe}`, cv, {
+          access: "private",
+          addRandomSuffix: true,
+          contentType: cv.type,
+          token: env.BLOB_READ_WRITE_TOKEN,
+        });
+        cvUrl = blob.url;
+      } catch (err) {
+        console.error("[job-application] CV upload failed:", err);
+      }
+    }
+  }
+
   const record: JobApplicationRecord = {
     ...parsed.data,
+    cvUrl,
     id: randomUUID(),
     createdAt: new Date().toISOString(),
     ip: req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? undefined,
