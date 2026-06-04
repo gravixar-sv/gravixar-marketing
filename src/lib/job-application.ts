@@ -56,6 +56,18 @@ export const jobApplicationSchema = z.object({
   // Uploaded CV file. A private-Blob URL set by the client-upload step before
   // submit (the file itself never passes through the JSON body). Optional.
   cvUrl: z.string().url().max(600).optional(),
+  // Per-role screening answers (the role's screening questions, set in HQ).
+  // Travels into HQ Lead.screeningAnswers and shows on the role's applicants.
+  screeningAnswers: z
+    .array(
+      z.object({
+        questionId: z.string().min(1).max(40),
+        label: z.string().trim().min(1).max(200),
+        value: z.string().trim().max(4000),
+      }),
+    )
+    .max(12)
+    .optional(),
   // Honeypot, must be empty. Bots fill every input.
   website: z.string().max(0).optional(),
   // Optional UTM-ish tag, set by the form.
