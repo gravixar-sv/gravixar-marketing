@@ -36,6 +36,7 @@ export function Footer() {
             <li><Link href="/graphics" className="hover:text-brand-soft">Graphics</Link></li>
             <li><Link href="/blog" className="hover:text-brand-soft">Writing</Link></li>
             <li><Link href="/about" className="hover:text-brand-soft">About</Link></li>
+            <li><Link href="/careers" className="hover:text-brand-soft">Careers</Link></li>
           </ul>
         </div>
         <div className="text-sm">

@@ -7,11 +7,13 @@ import { env } from "./env";
 import type { LeadRecord } from "./lead";
 import type { EarlyAccessRecord } from "./early-access";
 import type { ServiceInquiryRecord } from "./service-inquiry";
+import type { JobApplicationRecord } from "./job-application";
 import type { BookingRecord } from "./booking";
 
 const LEAD_LOG_PREFIX = "leads/";
 const EARLY_ACCESS_PREFIX = "early-access/";
 const SERVICE_INQUIRY_PREFIX = "service-inquiries/";
+const JOB_APPLICATION_PREFIX = "job-applications/";
 const BOOKING_PREFIX = "bookings/";
 
 function monthKey(d = new Date()) {
@@ -59,6 +61,9 @@ export const appendEarlyAccess = (record: EarlyAccessRecord) =>
 
 export const appendServiceInquiry = (record: ServiceInquiryRecord) =>
   appendJsonl(SERVICE_INQUIRY_PREFIX, record);
+
+export const appendJobApplication = (record: JobApplicationRecord) =>
+  appendJsonl(JOB_APPLICATION_PREFIX, record);
 
 // ---- Read helpers (admin dashboard) -------------------------------
 
