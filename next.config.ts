@@ -69,6 +69,23 @@ const nextConfig: NextConfig = {
       { source: "/hr-services", destination: "/services", permanent: true },
       { source: "/operations-consulting", destination: "/services/operations-infrastructure", permanent: true },
       { source: "/contact-us", destination: "/contact", permanent: true },
+      // Round 2: legacy URLs from the GSC "Not found (404)" report (2026-06-09).
+      // Old WordPress careers/jobs taxonomy, case studies, and landing pages.
+      // WordPress internals (/wp-content/*, /wp-*.php, /comments/feed, date
+      // archives, hello-world) are deliberately NOT redirected -- they are dead,
+      // not moved, so a 404 is the correct, honest response.
+      { source: "/home", destination: "/", permanent: true },
+      { source: "/inquiry", destination: "/contact", permanent: true },
+      { source: "/case-studies", destination: "/work", permanent: true },
+      { source: "/case-study-monday", destination: "/work/monday-rollout-agency", permanent: true },
+      { source: "/case-study-lucidlink-wasabi", destination: "/work/lucidlink-wasabi", permanent: true },
+      // Old hiring funnel (WordPress) -> the new /careers funnel
+      { source: "/apply", destination: "/careers", permanent: true },
+      { source: "/jobs", destination: "/careers", permanent: true },
+      { source: "/jobs/:path*", destination: "/careers", permanent: true },
+      { source: "/open-roles", destination: "/careers", permanent: true },
+      { source: "/open-roles/:path*", destination: "/careers", permanent: true },
+      { source: "/job-department/:path*", destination: "/careers", permanent: true },
       // /admin deprecated 2026-05-11. Lead triage moved to HQ's unified
       // inbox when Phase 5 of gravixar-hq shipped. Marketing still writes
       // the JSONL blobs on form submit (no change there); HQ polls every
