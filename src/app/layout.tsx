@@ -23,9 +23,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: { default: `${SITE.name} · ${SITE.tagline}`, template: `%s · ${SITE.name}` },
+  title: { default: `${SITE.name} · AI-ops platform with a human on every approval`, template: `%s · ${SITE.name}` },
   description:
-    "Gravixar is an AI-ops platform: portals, intake wizards, and content agents that run your operations with a human approving every write. Running in production before you buy.",
+    "Gravixar is an AI-ops platform: portals, intake wizards, and content agents that run your operations with a human on every write. In production before you buy.",
   metadataBase: new URL(SITE.url),
   applicationName: SITE.name,
   authors: [{ name: SITE.author, url: SITE.url }],
