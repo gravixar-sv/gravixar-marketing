@@ -5,9 +5,9 @@ import { EarlyAccessForm } from "@/components/lead/EarlyAccessForm";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Get early access",
+  title: "Get Early Access to the Hosted Gravixar Platform",
   description:
-    "A hosted Gravixar account is in the works. Subscribe and run one of the modules (agentic email, client portal, intake wizard) inside our platform without commissioning a custom build. Lower-end pricing, monthly. Get on the early-access list.",
+    "A hosted Gravixar account is coming. Run a module (agentic email, client portal, intake wizard) on the platform without commissioning a custom build. Lower pricing, monthly.",
   path: "/early-access",
 });
 

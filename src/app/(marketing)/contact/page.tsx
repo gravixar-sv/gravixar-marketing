@@ -5,9 +5,9 @@ import { BookCall } from "@/components/lead/BookCall";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Contact",
+  title: "Contact Gravixar, Book a Discovery Call",
   description:
-    "Book a 30-minute discovery call, or send a longer note. I reply within 24 hours.",
+    "Book a 30-minute discovery call or send a longer note about your operations. I reply within 24 hours, founder to founder.",
   path: "/contact",
 });
 

@@ -8,9 +8,9 @@ import { buildMetadata } from "@/lib/seo";
 export const revalidate = 3600;
 
 export const metadata: Metadata = buildMetadata({
-  title: "Services",
+  title: "Operations Infrastructure, AI Tooling, Brand Work",
   description:
-    "What I build: operations infrastructure, AI tooling, and brand work, plus the retainer that keeps an AI system honest after it ships. Each one linked to something running.",
+    "Operations infrastructure, AI tooling, and brand work, plus the retainer that keeps an AI system honest after it ships. Each one stays linked to something running.",
   path: "/services",
 });
 

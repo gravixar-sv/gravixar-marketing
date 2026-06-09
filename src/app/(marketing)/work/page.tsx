@@ -8,8 +8,9 @@ import { buildMetadata } from "@/lib/seo";
 export const revalidate = 3600;
 
 export const metadata: Metadata = buildMetadata({
-  title: "Work",
-  description: "Case studies of systems Qamar has built and shipped.",
+  title: "Case Studies: AI-Ops Systems Built and Shipped",
+  description:
+    "Case studies of operations systems Gravixar has built and shipped: custom portals, AI tooling, and the workflows behind them, running in production.",
   path: "/work",
 });
 
