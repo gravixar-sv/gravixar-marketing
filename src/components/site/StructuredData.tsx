@@ -32,6 +32,7 @@ export function StructuredDataGlobal() {
       name: SITE.name,
       url: SITE.url,
     },
+    sameAs: ["https://www.linkedin.com/in/qamarabbas"],
   };
 
   const organization = {
@@ -43,10 +44,10 @@ export function StructuredDataGlobal() {
     founder: { "@type": "Person", name: SITE.author },
     description: SITE.tagline,
     sameAs: [
-      // Add real profiles here as they go live
+      "https://www.linkedin.com/in/qamarabbas",
+      // Add more as they go live: company LinkedIn page, GitHub, X/Twitter.
       // "https://twitter.com/gravixar",
       // "https://github.com/gravixar-sv",
-      // "https://linkedin.com/in/...",
     ],
   };
 

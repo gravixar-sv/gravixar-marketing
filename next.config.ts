@@ -56,6 +56,19 @@ const nextConfig: NextConfig = {
       { source: "/services/people-ops", destination: "/services/operations-infrastructure", permanent: true },
       { source: "/services/ai-augmented-work", destination: "/services/ai-tooling", permanent: true },
       { source: "/services/graphics", destination: "/services/brand-visuals", permanent: true },
+      // Legacy WordPress URLs from before the Next.js migration. These returned
+      // 404 after the rebuild while Google still had them indexed (confirmed
+      // 2026-06-09: /about-us, /what-we-do, /web-development, /contact-us all
+      // 404'd). 301 each to the nearest current page so crawl equity transfers
+      // instead of dead-ending. Extend this list from Search Console's "Pages"
+      // report once the property is verified and the full legacy set is known.
+      { source: "/about-us", destination: "/about", permanent: true },
+      { source: "/what-we-do", destination: "/services", permanent: true },
+      { source: "/web-development", destination: "/services", permanent: true },
+      { source: "/content-creation", destination: "/services/brand-visuals", permanent: true },
+      { source: "/hr-services", destination: "/services", permanent: true },
+      { source: "/operations-consulting", destination: "/services/operations-infrastructure", permanent: true },
+      { source: "/contact-us", destination: "/contact", permanent: true },
       // /admin deprecated 2026-05-11. Lead triage moved to HQ's unified
       // inbox when Phase 5 of gravixar-hq shipped. Marketing still writes
       // the JSONL blobs on form submit (no change there); HQ polls every
