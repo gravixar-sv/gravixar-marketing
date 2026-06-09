@@ -10,7 +10,7 @@ export const revalidate = 3600;
 export const metadata: Metadata = buildMetadata({
   title: "Module library, the patterns I reuse across builds",
   description:
-    "Production-tested modules reused across builds: auth, audit log, review state machines, AI guardrails, finance, tax engine, leave management. The library compounds with every build.",
+    "Production-tested modules reused across builds: auth, audit log, review state machines, AI guardrails, finance, tax, leave management. Compounds with every build.",
   path: "/modules",
 });
 

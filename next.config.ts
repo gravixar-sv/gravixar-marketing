@@ -48,6 +48,16 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
+      // Canonical host: redirect www.gravixar.com -> gravixar.com (the canonical
+      // set in SITE.url). Without this, www served a duplicate 200 and Bing
+      // refused to index the www pages ("page is a redirect" via the non-www
+      // canonical). One host, one set of ranking signals.
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.gravixar.com" }],
+        destination: "https://gravixar.com/:path*",
+        permanent: true,
+      },
       { source: "/services/operations", destination: "/services/operations-infrastructure", permanent: true },
       { source: "/services/ai", destination: "/services/ai-tooling", permanent: true },
       { source: "/services/brand", destination: "/services/brand-visuals", permanent: true },
