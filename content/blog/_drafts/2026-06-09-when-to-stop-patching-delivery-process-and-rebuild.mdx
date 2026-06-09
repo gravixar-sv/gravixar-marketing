@@ -1,0 +1,61 @@
+---
+title: "When to Stop Patching Your Delivery Process and Rebuild It From Scratch"
+slug: "when-to-stop-patching-delivery-process-and-rebuild"
+excerpt: "Patching a broken delivery process feels productive until you have 15 patches and no process. Here is how I decide when incremental fixes stop working and a clean rebuild is the right call."
+publishedAt: "2026-06-09"
+tags: ["operations", "ops-infrastructure", "agency-ops"]
+draft: true
+aiAssisted: true
+---
+
+## The Patch Accumulation Problem
+
+Every delivery process starts clean. Then a client asks for weekly status emails, so you add a Friday reminder. Then another client wants a shared drive instead of the portal, so you add a parallel folder structure. Then someone on a project misses a deadline and you add a check-in Slack message mid-week. Then the check-in message goes to the wrong channel once and you add a pinned note about which channel to use.
+
+None of those decisions were wrong individually. All of them made sense at the time. But after 18 months, you have a process that requires a 14-step onboarding doc to explain, breaks whenever someone new joins, and has three different places where a deliverable might live depending on which client it is for.
+
+That is not a process. That is scar tissue.
+
+## Why Incremental Fixes Feel Right (and Are Not Always Wrong)
+
+Patching is usually the correct move. Rebuilding a working system mid-flight is expensive and risky. If something mostly works, the marginal cost of a small fix is low and the disruption is minimal.
+
+The trap is treating "mostly works" as a permanent state instead of a temporary one. Each patch narrows the conditions under which the system works. You end up with a process that runs fine for clients who match a very specific profile, handled by a person who has been around long enough to remember all the exceptions.
+
+That is a fragile system disguised as a mature one.
+
+## The Four Signals I Actually Watch For
+
+**New people cannot run the process without shadowing.** If someone competent cannot follow your delivery process from documentation alone on day three, the process is not documented — it is institutionalized knowledge. That is fine when you are a solo operator. It becomes a ceiling the moment you try to scale or hand off.
+
+**You are explaining exceptions more than running steps.** When a weekly check-in with a client spends more time on "here is why this works differently for you" than on actual delivery updates, the exception has eaten the rule. Count the exceptions in one month. If they outnumber the standard cases, you do not have a standard.
+
+**A tool is holding the process together.** I have seen this in my own agency portal work. A spreadsheet becomes the source of truth because the actual system has too many gaps. The spreadsheet is not the problem — the gaps it is covering are. When a workaround tool becomes load-bearing, you have already rebuilt the process informally. Formalizing it is just honesty.
+
+**You dread onboarding a new client because of the setup overhead.** This one is practical and underrated. Dread is data. If adding a new client means 90 minutes of manual configuration, copying folders, setting permissions, and sending three orientation emails, that overhead compounds. At 10 active clients it is annoying. At 20 it is a constraint on revenue.
+
+## What a Rebuild Actually Involves
+
+A rebuild is not a software migration. Most of the time the tools stay the same. What changes is the decision logic underneath them.
+
+I start with the question: what does every client need, without exception? Not what most clients need. Every client. That is the core process. Everything else is a configuration option or an edge case that gets handled explicitly rather than through accumulated patches.
+
+For my own portal work, this meant stripping the delivery workflow back to five stages, making those stages non-negotiable, and then building configuration options on top for clients who needed different reporting cadences or file structures. The stages do not change. The skin around them can.
+
+The rebuild also requires a constraint decision: what will I stop supporting? Every patch you added solved a real problem for a real client. Some of those solutions belong in the rebuilt system. Some of them were one-off accommodations that should have stayed one-off. You have to be willing to say that some past flexibility was a mistake, or at least unsustainable.
+
+That conversation with existing clients is uncomfortable but short. In my experience, clients care far less about the specific process than you expect. They care about outcomes and communication. If you can tell them clearly what changes and why it improves their experience, most of them adjust without friction.
+
+## The Timing Question
+
+The worst time to rebuild is during a capacity crunch. The second-worst time is right after one, when you are relieved and distracted. The right time is a calm quarter where you have at least one month of runway to run the old and new processes in parallel before switching over.
+
+Parallel running sounds expensive. It is less expensive than discovering that your rebuilt process has a gap when a client is waiting on a deliverable.
+
+I rebuilt the core delivery workflow in my agency portal twice in four years. The first time I waited too long and did it under pressure. The second time I did it proactively when I hit signal three above — a spreadsheet had become the actual source of truth — and it took six weeks instead of three months.
+
+## One Thing I Am Confident About
+
+A delivery process that works through accumulated institutional knowledge is not an asset. It feels like one because it runs. But it is actually a liability that grows every time someone new touches it or every time a client falls slightly outside the original assumptions.
+
+The question is never whether to rebuild. It is whether you wait until the patches fail publicly or do it on your own terms first.
