@@ -7,7 +7,7 @@ import { buildMetadata } from "@/lib/seo";
 export const revalidate = 1800;
 
 export const metadata: Metadata = buildMetadata({
-  title: "Writing",
+  title: "Field Notes on Operations, AI Tooling and Systems",
   description:
     "Notes on operations, AI tooling, and the systems Qamar builds. Some posts drafted by an AI agent, always reviewed before publish.",
   path: "/blog",

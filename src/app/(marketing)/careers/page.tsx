@@ -8,7 +8,7 @@ import { buildMetadata } from "@/lib/seo";
 export const revalidate = 300;
 
 export const metadata: Metadata = buildMetadata({
-  title: "Careers",
+  title: "Careers at Gravixar, Build Systems That Run",
   description:
     "Open roles at Gravixar. Small team, real systems running in production, a human on every approval. If you would rather ship something running than talk about it, read on.",
   path: "/careers",

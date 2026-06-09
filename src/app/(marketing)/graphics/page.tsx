@@ -8,8 +8,9 @@ import { buildMetadata } from "@/lib/seo";
 export const revalidate = 3600;
 
 export const metadata: Metadata = buildMetadata({
-  title: "Graphics",
-  description: "Visual identity, motion, and brand work, gallery.",
+  title: "Brand and Visual Systems, Motion and Identity",
+  description:
+    "Visual identity, motion, and brand work for Gravixar and clients: logos, design systems, and the visuals that ship with every build.",
   path: "/graphics",
 });
 

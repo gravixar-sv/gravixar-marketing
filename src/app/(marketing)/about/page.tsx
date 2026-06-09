@@ -11,8 +11,9 @@ export const revalidate = 3600;
 export async function generateMetadata(): Promise<Metadata> {
   const page = await loadPage("about");
   return buildMetadata({
-    title: page.meta.title,
-    description: page.meta.description ?? "About Qamar and how he works.",
+    title: "About Gravixar, the operator behind the platform",
+    description:
+      "Qamar, founder of Gravixar, the AI-ops platform that runs operations with a human on every approval. Hands-on and close to every build since 2013.",
     path: "/about",
   });
 }
