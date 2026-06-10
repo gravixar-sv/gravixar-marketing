@@ -31,6 +31,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/compare",
     "/contact",
     "/early-access",
+    "/privacy",
   ];
 
   return [

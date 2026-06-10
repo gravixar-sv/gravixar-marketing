@@ -37,6 +37,7 @@ export function Footer() {
             <li><Link href="/blog" className="hover:text-brand-soft">Writing</Link></li>
             <li><Link href="/about" className="hover:text-brand-soft">About</Link></li>
             <li><Link href="/careers" className="hover:text-brand-soft">Careers</Link></li>
+            <li><Link href="/privacy" className="hover:text-brand-soft">Privacy</Link></li>
           </ul>
         </div>
         <div className="text-sm">
