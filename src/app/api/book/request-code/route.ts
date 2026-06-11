@@ -2,6 +2,7 @@
 // signed token. Stateless: the token (HMAC over email+code+expiry) is
 // what proves we issued the code; nothing is stored.
 import { NextResponse } from "next/server";
+import { checkBotId } from "botid/server";
 import { z } from "zod";
 import { issueCode } from "@/lib/booking";
 import { FROM_EMAIL, getResend } from "@/lib/resend";
@@ -15,6 +16,20 @@ const schema = z.object({
 });
 
 export async function POST(req: Request) {
+  // BotID BLOCKS here (not warn-only like the lead / early-access / inquiry
+  // endpoints). Those only log a lead, so a false-flag just drops one record;
+  // this endpoint SENDS AN EMAIL to a caller-supplied address, which is the
+  // weaponizable side effect — an unprotected open relay was abused to emit
+  // "Your Gravixar verification code" to dozens of unrelated inboxes (~1/hr),
+  // burning Resend quota + sender reputation (one recipient already
+  // Suppressed). Real browsers carry the withBotId client signal so they
+  // pass; scripted POSTs (the abuse) are flagged. We mirror the honeypot's
+  // silent fake-success so the abuser gets no signal to adapt against.
+  const bot = await checkBotId();
+  if (bot.isBot) {
+    return NextResponse.json({ ok: true, token: "" });
+  }
+
   let body: unknown;
   try {
     body = await req.json();
