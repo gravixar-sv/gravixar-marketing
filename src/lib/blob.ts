@@ -1,19 +1,8 @@
 // Append-only lead log on Vercel Blob. One JSON file per month, the
 // log is small, write-light, and easy to read later. When the volume
 // outgrows this, move to Neon Postgres via the Marketplace.
-//
-// PII boundary (2026-06-11): every JSONL under these prefixes carries
-// PII — names, emails, free-text messages, booking times. The store's
-// base URL is public and the month-keyed pathnames are guessable, so
-// `access: "public"` meant anyone holding the base URL could enumerate
-// every lead month-by-month (verified with an unauthenticated GET).
-// All writes are now `access: "private"`; reads go through get() with
-// the RW token, which reads BOTH old public files and new private ones,
-// so the flip needs no migration window. Pre-existing public files are
-// re-put private by scripts/privatize-blob-jsonl.ts (or organically by
-// the next append to that month).
 
-import { put, get, list } from "@vercel/blob";
+import { put, list } from "@vercel/blob";
 import { env } from "./env";
 import type { LeadRecord } from "./lead";
 import type { EarlyAccessRecord } from "./early-access";
@@ -31,37 +20,9 @@ function monthKey(d = new Date()) {
   return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
 }
 
-// Tolerant blob read across the private flip. Primary path: authorized
-// private-mode get() (the steady state). Fallback: the legacy public
-// list+fetch, for month files written before the flip — remove the
-// fallback once scripts/privatize-blob-jsonl.ts has converted them.
-async function readBlobText(key: string): Promise<string | null> {
-  const token = env.BLOB_READ_WRITE_TOKEN;
-  try {
-    const result = await get(key, { access: "private", token, useCache: false });
-    if (result && result.statusCode === 200) {
-      return new Response(result.stream).text();
-    }
-  } catch {
-    // fall through to the legacy public path
-  }
-  try {
-    const found = await list({ prefix: key, token });
-    const match = found.blobs.find((b) => b.pathname === key);
-    if (!match) return null;
-    const res = await fetch(match.url, { cache: "no-store" });
-    if (!res.ok) return null;
-    return res.text();
-  } catch {
-    return null;
-  }
-}
-
 // Generic JSONL append. Reads the current month's file (if any), appends
 // the record as a new line, PUTs the full document back. Vercel Blob is
 // immutable per write, so we re-PUT each call. Cheap until volume grows.
-// Side effect by design: re-putting a month file that predates the
-// private flip converts it to private.
 async function appendJsonl<T>(
   prefix: string,
   record: T,
@@ -71,14 +32,19 @@ async function appendJsonl<T>(
 
   let existing = "";
   try {
-    existing = (await readBlobText(key)) ?? "";
+    const found = await list({ prefix: key, token: env.BLOB_READ_WRITE_TOKEN });
+    const match = found.blobs.find((b) => b.pathname === key);
+    if (match) {
+      const res = await fetch(match.url);
+      if (res.ok) existing = await res.text();
+    }
   } catch {
     // first write of the month
   }
 
   const next = `${existing}${existing && !existing.endsWith("\n") ? "\n" : ""}${JSON.stringify(record)}\n`;
   const blob = await put(key, next, {
-    access: "private",
+    access: "public",
     addRandomSuffix: false,
     contentType: "application/x-ndjson",
     token: env.BLOB_READ_WRITE_TOKEN,
@@ -106,8 +72,12 @@ async function readJsonl<T>(prefix: string, month: string): Promise<T[]> {
   if (!env.BLOB_READ_WRITE_TOKEN) return [];
   const key = `${prefix}${month}.jsonl`;
   try {
-    const text = await readBlobText(key);
-    if (!text) return [];
+    const found = await list({ prefix: key, token: env.BLOB_READ_WRITE_TOKEN });
+    const match = found.blobs.find((b) => b.pathname === key);
+    if (!match) return [];
+    const res = await fetch(match.url, { cache: "no-store" });
+    if (!res.ok) return [];
+    const text = await res.text();
     return text
       .split("\n")
       .filter((line) => line.trim().length > 0)
