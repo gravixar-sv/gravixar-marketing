@@ -1,0 +1,80 @@
+---
+title: "How I Use a Status Log to Catch Delivery Problems Before Clients Do"
+slug: "status-log-catch-delivery-problems-before-clients"
+excerpt: "A plain text log updated daily has saved more client relationships than any project management tool I've tried. Here is the exact pattern I use and why it works at small team scale."
+publishedAt: "2026-06-12"
+tags: ["operations", "ops-infrastructure", "agency-ops", "client-portals"]
+draft: true
+aiAssisted: true
+---
+
+## The Problem With Dashboards
+
+Every project tool I have used over the past four years wants to show the client a dashboard. Green lights, progress bars, phase timelines. It looks professional in a sales call. It becomes a liability the moment a deadline slips.
+
+When a dashboard says 80% complete and the client knows delivery is late, the dashboard stops being a communication tool. It becomes evidence you do not have a handle on what is happening.
+
+The status log is the opposite of a dashboard. It does not show a state. It shows a sequence of events.
+
+## What a Status Log Actually Is
+
+One file. Updated at the end of each working day. Plain text or markdown, sitting inside the client portal the client already has access to.
+
+Each entry has three parts:
+
+1. Date and a one-line summary of what moved forward
+2. Any blocker that appeared, stated plainly
+3. What happens next and roughly when
+
+That is it. No scoring, no percentage complete, no RAG status dots.
+
+Here is a real entry structure, anonymized:
+
+```
+2025-07-08
+Completed integration between intake form and the staging database. Data is writing correctly for all field types except the multi-select, which is dropping the last value. Investigating a known Airtable truncation bug.
+
+Next: Fix confirmed tomorrow morning. Will push to the client-facing test environment by end of day Thursday.
+```
+
+Twenty seconds to write. Thirty seconds to read. The client sees it before they think to send a check-in email.
+
+## Why It Works Better Than a Standup Update
+
+Standup updates, whether written in Slack or said on a call, are optimized for the person giving them. You naturally frame things in a way that makes you sound on top of it. That is not dishonesty. It is just how spoken or semi-public updates work.
+
+A log entry is different because it lives permanently. The client can scroll back six weeks and read the sequence. That context changes what you write. You stop softening. You call blockers blockers.
+
+This matters most when something goes wrong. If a dependency slipped, the log will show the client that you flagged it three days ago. That is not blame-shifting. That is shared history, and it de-escalates most conflict before it starts.
+
+## The Trust Mechanism Nobody Talks About
+
+Clients do not get anxious because projects are late. They get anxious because they do not know what is happening. The anxiety is about information gap, not timeline.
+
+A daily log closes the gap continuously. Not perfectly, but consistently. After two or three weeks, the client stops checking in on a reflexive schedule. They check in when they have something to add. That shift is measurable: fewer "just checking in" emails is the clearest signal I have that a project is running well.
+
+In the portal I have run for four years, the projects with the fewest client-initiated status requests are not the projects that ran smoothest. They are the projects where the log was updated most consistently, including during the rough patches.
+
+## What Breaks This Pattern
+
+Two things kill the log.
+
+First: updating it weekly instead of daily. Weekly updates turn into summaries. Summaries are curated. The sequence disappears and you are back to a dashboard problem.
+
+Second: letting it drift into internal project notes. The log is a communication artifact, not a to-do list. If it starts containing internal decisions, testing notes, or team coordination items, the client starts reading things that were not meant for them and you stop being candid about blockers. Keep one internal notes file and one client-facing log.
+
+## How I Structure It in the Portal
+
+The log lives in a folder called `delivery` inside each client's space. The file name is `status-log.md`. The client has read access by default from day one of the engagement.
+
+I do not announce it in kickoff. I just start writing it and mention it once, usually at the end of the first week: "You will find daily updates in the delivery folder. I keep it current."
+
+That one sentence does more for the relationship than any onboarding deck slide about communication norms.
+
+For the healthcare platform currently in private beta, the log serves a second function: it doubles as a lightweight audit trail for which data behaviors were tested and when. That was not the original intent, but it turned out to be genuinely useful when a stakeholder asked about a decision made six weeks earlier.
+
+## One Opinion
+
+Most delivery problems are not technical. They are communication gaps that compound until someone is surprised. A daily status log is not a project management methodology. It is a simple habit that removes the gap before it compounds.
+
+Ship the log. Skip the dashboard.
