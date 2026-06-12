@@ -17,6 +17,9 @@ importers:
       '@fontsource-variable/mona-sans':
         specifier: ^5.2.8
         version: 5.2.8
+      '@gravixar-sv/core':
+        specifier: ^0.4.0
+        version: 0.4.0(eslint-config-next@16.2.6(@typescript-eslint/parser@8.60.0(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3))(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3))(eslint@9.39.4(jiti@2.7.0))(next@16.2.6(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))
       '@mdx-js/react':
         specifier: ^3.1.1
         version: 3.1.1(@types/react@19.2.15)(react@19.2.6)
@@ -441,6 +444,13 @@ packages:
 
   '@fontsource-variable/mona-sans@5.2.8':
     resolution: {integrity: sha512-8OWdTcP8KvRxkU1Skkk+tX3D5XHN9buejxSDwrT7teRfGnpKBYxQUApV/+zS8TzeHiSU8H5Tc0HfBr57ahgcvA==}
+
+  '@gravixar-sv/core@0.4.0':
+    resolution: {integrity: sha512-50pJSlJ1+ll2U4nWQNC+TOAXqK+u8Q7Z3Vjqctr85mmFyV8BhwieOFXgTp2dFs7Hpx1lCa0kvPuzVqvqKLXDCw==, tarball: https://npm.pkg.github.com/download/@gravixar-sv/core/0.4.0/034b7a46addad510456a8265c079a183aa19991a}
+    peerDependencies:
+      eslint: ^9
+      eslint-config-next: '>=15'
+      next: '>=15'
 
   '@humanfs/core@0.19.2':
     resolution: {integrity: sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA==}
@@ -3726,6 +3736,12 @@ snapshots:
   '@fontsource-variable/hubot-sans@5.2.8': {}
 
   '@fontsource-variable/mona-sans@5.2.8': {}
+
+  '@gravixar-sv/core@0.4.0(eslint-config-next@16.2.6(@typescript-eslint/parser@8.60.0(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3))(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3))(eslint@9.39.4(jiti@2.7.0))(next@16.2.6(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))':
+    dependencies:
+      eslint: 9.39.4(jiti@2.7.0)
+      eslint-config-next: 16.2.6(@typescript-eslint/parser@8.60.0(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3))(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3)
+      next: 16.2.6(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
 
   '@humanfs/core@0.19.2':
     dependencies:
