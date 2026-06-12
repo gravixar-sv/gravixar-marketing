@@ -40,6 +40,9 @@ export function BookCall() {
   const [service, setService] = useState<string>("");
   const [note, setNote] = useState("");
   const [website, setWebsite] = useState(""); // honeypot
+  // Form-render timestamp for the @gravixar-sv/core/antibot time-trap — a
+  // genuine fill takes >2s from mount; a replayed form is >24h stale.
+  const [renderedAt] = useState(() => Date.now());
 
   const [token, setToken] = useState("");
   const [code, setCode] = useState("");
@@ -55,7 +58,9 @@ export function BookCall() {
       const res = await fetch("/api/book/request-code", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ email, name, website }),
+        // One hidden input feeds both honeypot names: `website` (legacy +
+        // confirm route) and `hp_website` (@gravixar-sv/core/antibot).
+        body: JSON.stringify({ email, name, website, hp_website: website, ts: renderedAt }),
       });
       const data = (await res.json().catch(() => ({}))) as { token?: string; error?: string };
       if (!res.ok) throw new Error(data.error ?? "couldn't send the code");
