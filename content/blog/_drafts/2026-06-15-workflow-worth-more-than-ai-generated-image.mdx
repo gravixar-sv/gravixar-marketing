@@ -1,0 +1,72 @@
+---
+title: "The Workflow That Reviews and Delivers an AI Image Is Worth More Than the Image"
+slug: "workflow-worth-more-than-ai-generated-image"
+excerpt: "Midjourney and Firefly now hand you commercial-licensed images for under $50 a month. The generation is free. The approval trail, versioning, and delivery governance still cost real money — and that is where the margin lives."
+publishedAt: "2026-06-15"
+tags: ["operations", "ai-governance", "agency-ops", "ops-infrastructure", "ai-tooling"]
+draft: true
+aiAssisted: true
+---
+
+## The asset is a commodity now
+
+Midjourney charges $96 a year for a Pro seat with commercial use included. Adobe Firefly is bundled into Creative Cloud plans most brand studios already pay for. At those prices, the rendered image costs almost nothing per unit.
+
+If you run a brand studio and you have been charging $400–$600 for a single AI-assisted hero image, that number is gone. Clients can see the platform pricing. They know what generation costs. They will push back, and they will be right to.
+
+This is not a crisis. It is a clarification. The image was never the expensive part. The expensive part was always everything around it.
+
+## What actually takes time in a brand asset workflow
+
+I track time against deliverables in my own projects. When I look at any AI-generated image that ships to a client, the generation itself is 10–15 minutes of prompt iteration. The rest of the timeline looks like this:
+
+- Brand compliance check against the client's style guide
+- Internal review with written feedback attached to a specific file version
+- Client-facing review round with a numbered proof, not a Slack attachment
+- Revision with a clear diff — what changed from v1 to v2
+- Legal or usage flag review if the image touches a regulated category
+- Final delivery to the correct spec: size, format, file naming convention, destination folder
+- Audit record that proves which version was approved and when
+
+That sequence takes 3–6 hours per asset when done properly. None of it is generation. All of it is governance.
+
+## The approval trail is the product
+
+A client who uses Midjourney themselves can generate 200 images in an afternoon. What they cannot do — what almost no one does without a system built for it — is answer these questions six months later:
+
+- Which version of this image did we actually ship?
+- Who approved it?
+- Was the resolution correct for the Amazon A+ placement, or did someone upscale it at the last minute?
+- Is there a record of the legal review?
+
+When I build a brand asset delivery workflow, I treat the approval trail as a first-class output. The render is ephemeral. The trail is the thing that protects the client and protects the relationship.
+
+I keep numbered proof versions in a structured folder hierarchy, not in a chat thread. Every review round gets a written summary of what changed. Every final asset gets a delivery receipt — a short document that records the file name, dimensions, the date approved, and who signed off. That document costs almost nothing to produce and is worth a lot when someone asks a question in month four.
+
+## Versioning without a system is chaos
+
+Here is what I see when I audit a studio's existing process: a Dropbox folder with files named `hero_FINAL.png`, `hero_FINAL_v2.png`, `hero_FINAL_v2_USE_THIS.png`. Sometimes a fourth file with no date.
+
+This happens even in studios with talented people. It happens because the versioning step gets treated as overhead, not output. When you are generating assets at commodity speed, the version mess multiplies fast. Ten images per project becomes 60 candidate files becomes nobody knowing what shipped.
+
+The fix is not a new tool. It is a naming convention enforced at the point of handoff, a single folder structure that does not bend for exceptions, and a review gate that requires a version number before the client ever sees the file. I use a simple numbered scheme: `[project-code]-[asset-type]-[round]-[version]`. It takes one minute to set up and it survives a year of revisions without ambiguity.
+
+## Amazon A+ and structured delivery
+
+One concrete place where delivery governance pays off is Amazon A+ content. The spec is rigid: module types, pixel dimensions, file size caps, text overlay rules. Generation tools do not know the spec. A model will give you a beautiful 1600×900 image that fails the A+ upload because the background has too much detail near the crop zones.
+
+The quality check that catches this is not automated by any AI tool I have tested. It requires a checklist against the current A+ spec, a human eye on the safe zones, and a delivery file that is labeled by module type so the client's catalog team knows exactly where it goes. That checklist is operational IP. The image is not.
+
+## What clients pay for now
+
+I have had this conversation with clients directly. They see the Midjourney pricing page. They ask why the asset line item in a proposal is what it is.
+
+My answer is not defensive. I show them the workflow document: the review rounds, the proof numbering system, the delivery receipt, the audit log. I tell them they are paying for a process that means they will never have a confused conversation about which file is the approved one, and they will never ship an image that failed a spec check because someone was moving fast.
+
+That is a different sale than "we make images." It is a sale I can make without apologizing for the price.
+
+## The practical implication
+
+If you are running a brand studio or an ops-heavy agency and you have been treating image generation as the core of your creative offer, 2026 is the year to stop. Not because AI images are bad — they are fast and they are good enough for most commercial uses. But because you cannot build margin on a commodity.
+
+Build the workflow. Document the governance. Make the audit trail visible to the client. That is what they are actually buying.
