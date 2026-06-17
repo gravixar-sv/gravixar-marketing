@@ -58,6 +58,20 @@ const nextConfig: NextConfig = {
         destination: "https://gravixar.com/:path*",
         permanent: true,
       },
+      // Canonical host: the auto-generated Vercel production alias
+      // (gravixar-marketing.vercel.app) served a full, indexable 200 — a
+      // duplicate of gravixar.com that Bing indexed under "gravixar". 308 it
+      // to the canonical domain so search consolidates on gravixar.com and
+      // any stray link lands on the brand. Scoped to the EXACT production
+      // alias: preview hosts (gravixar-marketing-git-main-… / -<hash>-…) are
+      // longer, don't match this anchored host, and stay reachable (Vercel
+      // already serves them noindex).
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "gravixar-marketing.vercel.app" }],
+        destination: "https://gravixar.com/:path*",
+        permanent: true,
+      },
       { source: "/services/operations", destination: "/services/operations-infrastructure", permanent: true },
       { source: "/services/ai", destination: "/services/ai-tooling", permanent: true },
       { source: "/services/brand", destination: "/services/brand-visuals", permanent: true },
