@@ -20,7 +20,6 @@
     "@fontsource-variable/mona-sans": "^5.2.8",
     "@gravixar-sv/core": "^0.5.0",
     "@mdx-js/react": "^3.1.1",
-    "@next/mdx": "^16.2.6",
     "@octokit/rest": "^22.0.1",
     "@phosphor-icons/react": "^2.1.10",
     "@react-email/components": "^1.0.12",
@@ -39,7 +38,6 @@
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-email": "^6.5.0",
-    "remark-gfm": "^4.0.1",
     "resend": "^6.12.4",
     "tailwind-merge": "^3.6.0",
     "zod": "^4.4.3"
