@@ -79,6 +79,9 @@ export async function GET(req: Request) {
   }
 
   if (!isIndexingConfigured()) {
+    console.warn(
+      "[index-jobs] skipped: indexing_not_configured (GOOGLE_INDEXING_CREDENTIALS unset or not valid base64 JSON)",
+    );
     return NextResponse.json(
       { ok: false, reason: "indexing_not_configured" },
       { status: 200 },
@@ -119,6 +122,13 @@ export async function GET(req: Request) {
   if (pinged > 0 || notifications.length === 0) {
     await writeLastSlugs(currentSlugs);
   }
+
+  // Always log a one-line summary so each run (scheduled or manual) is
+  // observable — a successful ping is otherwise a silent 200, indistinguishable
+  // from a no-op skip.
+  console.log(
+    `[index-jobs] done: updated=${currentSlugs.length} deleted=${closedSlugs.length} pinged=${pinged}/${notifications.length}`,
+  );
 
   return NextResponse.json({
     ok: true,
