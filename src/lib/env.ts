@@ -34,6 +34,12 @@ const schema = z.object({
   // shared on confirmation. Both set in Vercel production env.
   BOOKING_HMAC_SECRET: z.string().optional(),
   BOOKING_MEET_URL: z.string().url().optional(),
+  // Google Indexing API service-account credentials, base64-encoded JSON.
+  // base64 keeps the multiline private key intact in a single Vercel env var.
+  // Used by the index-jobs cron to ping Google for Jobs on role open/close.
+  // The service account must be an Owner of the gravixar.com Search Console
+  // property. Unset -> indexing no-ops (never in the critical path).
+  GOOGLE_INDEXING_CREDENTIALS: z.string().optional(),
 });
 
 const parsed = schema.safeParse(process.env);

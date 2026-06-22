@@ -15,6 +15,10 @@ export const config: VercelConfig = {
     // Produces a ranked Trend Brief (3-5 signals) committed to Blob.
     // Human triages each signal; nothing auto-acts.
     { path: "/api/cron/trend-radar", schedule: "0 10 1,15 * *" },
+    // Job indexing: daily ping to Google's Indexing API for open JobPosting
+    // URLs (and removals for closed roles) so Google for Jobs picks up changes
+    // fast. No-ops without GOOGLE_INDEXING_CREDENTIALS.
+    { path: "/api/cron/index-jobs", schedule: "0 6 * * *" },
   ],
 };
 
