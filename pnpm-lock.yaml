@@ -14,7 +14,7 @@ overrides:
 
 patchedDependencies:
   gray-matter@4.0.3:
-    hash: k5effe4xxnpx6fbf6ebhute7ei
+    hash: upvc2vtjh2xtygxnqpecyf6w3q
     path: patches/gray-matter@4.0.3.patch
 
 importers:
@@ -71,7 +71,7 @@ importers:
         version: 2.1.1
       gray-matter:
         specifier: ^4.0.3
-        version: 4.0.3(patch_hash=k5effe4xxnpx6fbf6ebhute7ei)
+        version: 4.0.3(patch_hash=upvc2vtjh2xtygxnqpecyf6w3q)
       lucide-react:
         specifier: ^1.17.0
         version: 1.17.0(react@19.2.6)
@@ -5361,7 +5361,7 @@ snapshots:
 
   graceful-fs@4.2.11: {}
 
-  gray-matter@4.0.3(patch_hash=k5effe4xxnpx6fbf6ebhute7ei):
+  gray-matter@4.0.3(patch_hash=upvc2vtjh2xtygxnqpecyf6w3q):
     dependencies:
       js-yaml: 3.14.2
       kind-of: 6.0.3
