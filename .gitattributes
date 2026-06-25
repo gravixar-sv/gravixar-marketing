@@ -1,0 +1,4 @@
+# pnpm patch files are unified diffs applied verbatim against LF package sources.
+# With core.autocrlf=true on Windows, checkout would smudge them to CRLF and pnpm
+# would fail to apply the patch. Pin them to LF everywhere.
+patches/*.patch text eol=lf

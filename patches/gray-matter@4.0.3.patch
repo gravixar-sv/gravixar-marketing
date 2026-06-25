@@ -1,0 +1,18 @@
+diff --git a/lib/engines.js b/lib/engines.js
+index 38f993db06cf364191ac635a6590c2d29303297d..cdacec124f6fca8ce13ed8e2d0ab57d5dfa7448e 100644
+--- a/lib/engines.js
++++ b/lib/engines.js
+@@ -13,8 +13,11 @@ const engines = exports = module.exports;
+  */
+ 
+ engines.yaml = {
+-  parse: yaml.safeLoad.bind(yaml),
+-  stringify: yaml.safeDump.bind(yaml)
++  // js-yaml 4.x removed safeLoad/safeDump (its `load`/`dump` are now safe by default);
++  // js-yaml 3.x keeps safeLoad/safeDump. Feature-detect so gray-matter parses safely on
++  // BOTH majors — lets a security override bump js-yaml 3.x → 4.x without breaking here.
++  parse: (yaml.safeLoad || yaml.load).bind(yaml),
++  stringify: (yaml.safeDump || yaml.dump).bind(yaml)
+ };
+ 
+ /**

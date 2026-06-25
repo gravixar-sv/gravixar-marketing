@@ -12,6 +12,9 @@
       "postcss@<8.5.10": "^8.5.10",
       "esbuild@<0.28.1": "^0.28.1",
       "undici@<6.27.0": "^6.27.0"
+    },
+    "patchedDependencies": {
+      "gray-matter@4.0.3": "patches/gray-matter@4.0.3.patch"
     }
   },
   "scripts": {
