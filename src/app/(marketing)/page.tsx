@@ -1,7 +1,10 @@
 import { loadHomeBlock, loadServices } from "@/content/loaders";
 import { Hero } from "@/components/home/Hero";
 import { Proof } from "@/components/home/Proof";
+import { Demos } from "@/components/home/Demos";
 import { ServicesPreview } from "@/components/home/ServicesPreview";
+import { ManagedServices } from "@/components/home/ManagedServices";
+import { Capabilities } from "@/components/home/Capabilities";
 import { ContactCTA } from "@/components/home/ContactCTA";
 import { Reveal } from "@/components/site/Reveal";
 
@@ -21,7 +24,16 @@ export default async function HomePage() {
         <Proof meta={proof.meta} body={proof.body} />
       </Reveal>
       <Reveal>
+        <Demos />
+      </Reveal>
+      <Reveal>
         <ServicesPreview services={services.map((s) => s.meta)} />
+      </Reveal>
+      <Reveal>
+        <ManagedServices />
+      </Reveal>
+      <Reveal>
+        <Capabilities />
       </Reveal>
       <Reveal>
         <ContactCTA />

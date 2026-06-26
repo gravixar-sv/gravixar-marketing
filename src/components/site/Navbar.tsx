@@ -19,6 +19,7 @@ import {
 const PRIMARY = [
   { href: "/services", label: "Services" },
   { href: "/work", label: "Work" },
+  { href: "/demos", label: "Demos" },
 ] as const;
 
 // Items folded into the More dropdown — secondary discovery surfaces.

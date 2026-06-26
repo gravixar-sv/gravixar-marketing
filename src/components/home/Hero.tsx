@@ -35,15 +35,21 @@ const DEMO_PERSONAS = [
   },
 ] as const;
 
-// Live-system signal. Sourced from the actual products: agency portal
-// modules, healthcare ops modules, scheduled crons, total LOC. Update
-// via the periodic product-sync memory rule
+// Live-system signal. Every figure traces to canonical ground truth:
+//   modules built (24) + reused (13 = 5 shared + 8 extract verdicts)
+//     → brain _meta/module-health.json summary.{total, byVerdict}
+//   automated jobs (11) → HQ's 5 Vercel crons + 6 scheduled GitHub Actions
+//     (HQ-scoped on purpose, not a fleet-wide claim)
+//   demos (5) → live scenes on demo.gravixar.com (Care Ledger went live
+//     2026-06-26, joining Lattice, Studio Mix, Driftwood, Northbeam)
+//   engagements (9) → 7 published case studies + 2 managed-services retainers
+// Resync against canonical status on a cadence
 // (feedback_periodic_sync_marketing.md).
 const SYSTEM_STATS = [
-  { label: "modules in production", value: "16" },
-  { label: "modules in private beta", value: "9" },
-  { label: "scheduled crons", value: "11" },
-  { label: "live cases / demos", value: "4 / 2" },
+  { label: "modules built", value: "24" },
+  { label: "reused across products", value: "13" },
+  { label: "automated jobs in HQ", value: "11" },
+  { label: "engagements / demos", value: "9 / 5" },
 ] as const;
 
 export function Hero({ meta, body }: { meta: HomeBlock; body: string }) {
