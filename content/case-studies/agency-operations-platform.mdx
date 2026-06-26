@@ -1,0 +1,50 @@
+---
+title: "A live agency operating system, running a real agency's day-to-day"
+slug: "agency-operations-platform"
+client: "Marketing & creative agency (anonymized)"
+role: "Solo build, architecture, engineering, AI integration"
+period: "Live, in daily use"
+summary: "A multi-team operating system for a marketing and creative agency. Account managers run their books, clients review and approve deliverables in a scoped portal, finance runs invoicing and commissions, and the team's leave and WFH live in the same place. Live, used every day."
+problem: "The agency had outgrown the stitch. Account managers tracked their own clients in their own way, deliverables went out over email and chat with no canonical version, and approvals were a memory contest when a client pushed back. Finance lived in spreadsheets: invoices, payment requests, partner commissions, none of it tied to the work that earned them. Leave and WFH were a separate thread again. Each seam was a place for work to get lost, and the founder was the fallback source of truth for all of it."
+approach: "One portal, scoped per role, with a state machine at the center. Each account manager gets their own workflow and their own book of clients. Clients log into a scoped portal that shows only their projects and a real review and approval flow: a deliverable is submitted, reviewed internally, then sent for client approval, with version history and a recall so a draft sent early can be pulled back. The finance module ties money to the work: invoicing, payment requests, partner and referral commissions, and revenue tracking, in the same system that holds the deliverables. Leave and WFH management run alongside. In-app feedback ticketing lets the team raise issues, with Claude doing a first-pass triage so the founder sees a sorted queue, not a pile. Access is role-based with 2FA, and files sit on Wasabi, S3-compatible object storage. AI assists the triage; a human still decides."
+outcome: "Live and in daily use by the agency's team, with strong feedback from the people who run on it. It has also been demoed to a prospective client of theirs as proof of how they operate. The build is the agency OS recipe shaped to this agency: the same review state machine, audit posture, and finance backbone that the rest of my work runs on, retuned to how this team actually delivers. The next agency starts from this shape and we strip or extend per their delivery."
+metrics:
+  - { label: "Status", value: "Live, in daily use" }
+  - { label: "Review flow", value: "Submit → review → client approval, with version history + recall" }
+  - { label: "Finance", value: "Invoicing, payment requests, commissions, revenue tracking" }
+  - { label: "Access", value: "Role-based, with 2FA" }
+  - { label: "File storage", value: "Wasabi (S3-compatible)" }
+  - { label: "AI", value: "Claude-assisted feedback triage, human decides" }
+stack:
+  - "Next.js 16 App Router"
+  - "Prisma + Postgres"
+  - "NextAuth v5 + 2FA"
+  - "Anthropic Claude (feedback triage)"
+  - "Wasabi (S3-compatible object storage)"
+  - "Resend + react-email"
+cover:
+  src: "/api/og?title=A%20live%20agency%20operating%20system&kind=case%20study"
+  alt: "Gravixar case study: a live agency operating system"
+publishedAt: "2026-06-26"
+draft: false
+---
+
+## What's running today
+
+The portal carries the whole agency, scoped by who you are. An account manager sees their own book and their own workflow. A client sees only their projects, their deliverables, and the approval flow, nothing else. The founder sees across all of it.
+
+The piece that earns its keep is the deliverable review and approval loop. A deliverable is submitted, reviewed internally, then sent for client approval. Every version is kept, so "which draft did you approve" is a lookup, not an argument. If something goes out before it should have, there is a recall to pull it back. The state is explicit at every step.
+
+The finance module ties money to the work it came from: invoicing, payment requests, partner and referral commissions, and revenue tracking, in the same system that holds the projects. The people-ops layer (leave and WFH) lives there too, so presence is not a separate tool nobody opens.
+
+## Decisions I'd defend
+
+**Feedback gets AI triage, not AI answers.** The team raises issues in-app. Claude does a first-pass sort so the founder opens a triaged queue instead of a pile. The AI orders the work. A human still decides what happens to it. That line does not move.
+
+**Access is role-based with 2FA, by default.** This portal holds client work and the agency's money. The permission model and the second factor are not a later hardening pass; they are how it shipped.
+
+**Files live on Wasabi.** S3-compatible object storage keeps the active set affordable and portable, and keeps large assets out of the application database where they do not belong.
+
+## What's next
+
+It is live and the agency runs on it. The roadmap is the agency's roadmap now: shape the modules to where their delivery is heading, not a rebuild. If you run an agency at the point where the stitch is costing you more than it saves, [reach out](/contact). The same shape can be fitted to how your team actually works.
