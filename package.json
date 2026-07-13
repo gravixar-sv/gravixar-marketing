@@ -32,7 +32,7 @@
     "@ai-sdk/anthropic": "^3.0.92",
     "@fontsource-variable/hubot-sans": "^5.2.8",
     "@fontsource-variable/mona-sans": "^5.2.8",
-    "@gravixar-sv/core": "^0.5.0",
+    "@gravixar-sv/core": "^0.7.0",
     "@mdx-js/react": "^3.1.1",
     "@octokit/rest": "^22.0.1",
     "@phosphor-icons/react": "^2.1.10",
