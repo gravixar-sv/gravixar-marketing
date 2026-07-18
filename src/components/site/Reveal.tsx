@@ -31,7 +31,17 @@ export function Reveal({
       { threshold: 0.12, rootMargin: "0px 0px -8% 0px" },
     );
     io.observe(el);
-    return () => io.disconnect();
+    // Rescue: if the element sits in the viewport but the observer never
+    // fired (throttled/frozen contexts), force the reveal. Base visibility
+    // must not depend on observer callbacks running.
+    const rescue = window.setTimeout(() => {
+      const rect = el.getBoundingClientRect();
+      if (rect.top < window.innerHeight && rect.bottom > 0) setRevealed(true);
+    }, 1400);
+    return () => {
+      io.disconnect();
+      window.clearTimeout(rescue);
+    };
   }, []);
 
   return (

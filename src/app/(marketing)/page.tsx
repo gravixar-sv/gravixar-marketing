@@ -1,5 +1,6 @@
 import { loadHomeBlock, loadServices } from "@/content/loaders";
 import { Hero } from "@/components/home/Hero";
+import { Loop } from "@/components/home/Loop";
 import { Proof } from "@/components/home/Proof";
 import { Demos } from "@/components/home/Demos";
 import { ServicesPreview } from "@/components/home/ServicesPreview";
@@ -20,6 +21,9 @@ export default async function HomePage() {
   return (
     <div className="space-y-24 md:space-y-32">
       <Hero meta={hero.meta} body={hero.body} />
+      <Reveal>
+        <Loop />
+      </Reveal>
       <Reveal>
         <Proof meta={proof.meta} body={proof.body} />
       </Reveal>

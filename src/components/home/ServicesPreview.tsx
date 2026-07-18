@@ -15,12 +15,12 @@ export function ServicesPreview({ services }: { services: Service[] }) {
         thing: a system in production, a live demo you can click, or a client
         engagement with the parts that broke written down.
       </p>
-      <div className="mt-10 grid gap-4 md:grid-cols-3">
+      <div className="reveal-stagger mt-10 grid gap-4 md:grid-cols-3">
         {services.map((s, i) => (
           <Link
             key={s.slug}
             href={`/services/${s.slug}`}
-            className="card-surface card-hover-glow group flex flex-col rounded-xl p-6"
+            className="card-surface card-hover-glow group flex flex-col rounded-xl p-6 active:scale-[0.99]"
           >
             <div className="flex items-baseline justify-between">
               <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500 group-hover:text-brand">
