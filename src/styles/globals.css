@@ -49,6 +49,12 @@
     background: #ff6b35;
     color: #0a0a0a;
   }
+  /* Visible focus ring everywhere. Never removed, only restyled. */
+  :focus-visible {
+    outline: 2px solid rgba(255, 107, 53, 0.75);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
 }
 
 @layer utilities {
@@ -119,6 +125,73 @@
     transform: none;
   }
 
+  /* Hero entrance: pure CSS keyframes (no JS gate), so the fold renders
+     even if scripting never runs. Staggered per element via
+     [animation-delay:*] utilities at the call site. */
+  @keyframes rise-in {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .hero-enter {
+    animation: rise-in 700ms var(--ease-out) both;
+  }
+
+  /* Child stagger inside a <Reveal>: the parent's data-revealed flips all
+     .reveal-stagger children with an incremental delay. Scoped under
+     .reveal so the same grid renders statically when used outside one. */
+  .reveal .reveal-stagger > * {
+    opacity: 0;
+    transform: translateY(14px);
+    transition:
+      opacity 550ms var(--ease-out),
+      transform 550ms var(--ease-out);
+  }
+  .reveal[data-revealed="true"] .reveal-stagger > * {
+    opacity: 1;
+    transform: none;
+  }
+  .reveal[data-revealed="true"] .reveal-stagger > *:nth-child(2) {
+    transition-delay: 70ms;
+  }
+  .reveal[data-revealed="true"] .reveal-stagger > *:nth-child(3) {
+    transition-delay: 140ms;
+  }
+  .reveal[data-revealed="true"] .reveal-stagger > *:nth-child(4) {
+    transition-delay: 210ms;
+  }
+  .reveal[data-revealed="true"] .reveal-stagger > *:nth-child(5) {
+    transition-delay: 280ms;
+  }
+  .reveal[data-revealed="true"] .reveal-stagger > *:nth-child(n + 6) {
+    transition-delay: 350ms;
+  }
+
+  /* The approval-loop connector: a soft brand pulse travels the hairline.
+     Transform-only (the pulse is 12% wide, so 950% clears the far edge). */
+  @keyframes loop-pulse {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(950%);
+    }
+  }
+  .loop-pulse {
+    background: linear-gradient(
+      90deg,
+      rgba(255, 107, 53, 0) 0%,
+      rgba(255, 107, 53, 0.65) 50%,
+      rgba(255, 107, 53, 0) 100%
+    );
+    animation: loop-pulse 5.5s var(--ease-in-out) infinite;
+  }
+
   /* Crafted link: the underline draws in from the left on hover. Replaces
      the repeated "text followed by a → arrow" micro-interaction. */
   .link-draw {
@@ -138,16 +211,30 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .reveal {
+  .reveal,
+  .reveal .reveal-stagger > * {
     opacity: 1;
     transform: none;
     transition: none;
   }
-  .animate-marquee {
+  .animate-marquee,
+  .hero-enter,
+  .loop-pulse {
     animation: none;
   }
   .link-draw,
   .card-hover-glow {
+    transition: none;
+  }
+}
+
+/* Scripting off entirely: reveals must never gate base visibility
+   (ledger: ui-css-first-reveals-no-ticker-gated-visibility). */
+@media (scripting: none) {
+  .reveal,
+  .reveal .reveal-stagger > * {
+    opacity: 1;
+    transform: none;
     transition: none;
   }
 }

@@ -8,10 +8,18 @@ import { SITE } from "@/lib/seo";
 // homepage and on /demos.
 
 export function DemoGrid({ priority = false }: { priority?: boolean }) {
+  // Five scenes: the flagship (Lattice) leads full-width, the other four
+  // sit in a 2-up grid below. Breaks the orphan half-row a plain 2-col
+  // grid leaves with an odd count, and gives the lineup a hierarchy.
   return (
-    <div className="grid gap-5 md:grid-cols-2">
+    <div className="reveal-stagger grid gap-5 md:grid-cols-2">
       {DEMO_SCENES.map((scene, i) => (
-        <SceneCard key={scene.slug} scene={scene} priority={priority && i < 2} />
+        <SceneCard
+          key={scene.slug}
+          scene={scene}
+          priority={priority && i < 2}
+          featured={i === 0}
+        />
       ))}
     </div>
   );
@@ -20,15 +28,17 @@ export function DemoGrid({ priority = false }: { priority?: boolean }) {
 function SceneCard({
   scene,
   priority,
+  featured = false,
 }: {
   scene: DemoScene;
   priority: boolean;
+  featured?: boolean;
 }) {
   return (
     <a
       href={`${SITE.demoUrl}/${scene.slug}`}
       rel="noreferrer"
-      className="group block rounded-xl"
+      className={`group block rounded-xl ${featured ? "md:col-span-2" : ""}`}
     >
       <div className="overflow-hidden rounded-xl border border-zinc-800 bg-[#0b0b10] shadow-[0_24px_50px_-24px_rgba(0,0,0,0.85)] transition-[transform,border-color,box-shadow] duration-500 ease-out group-hover:-translate-y-1 group-hover:border-brand/40 group-hover:shadow-[0_36px_72px_-30px_rgba(0,0,0,0.9)]">
         {/* Window chrome */}
@@ -51,7 +61,7 @@ function SceneCard({
             src={scene.shot}
             alt={`${scene.name}: ${scene.whatItIs}`}
             fill
-            sizes="(min-width: 768px) 50vw, 100vw"
+            sizes={featured ? "(min-width: 768px) 1152px, 100vw" : "(min-width: 768px) 50vw, 100vw"}
             priority={priority}
             className="object-cover object-top transition-transform duration-700 ease-out group-hover:scale-[1.015]"
           />

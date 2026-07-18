@@ -125,7 +125,7 @@ export function Navbar() {
               onClick={() => setMoreOpen((v) => !v)}
               aria-haspopup="menu"
               aria-expanded={moreOpen}
-              className={`inline-flex items-center gap-1 transition-colors focus-visible:outline-none ${
+              className={`inline-flex items-center gap-1 transition-colors ${
                 moreOpen ? "text-brand-soft" : "text-zinc-300 hover:text-brand-soft"
               }`}
             >

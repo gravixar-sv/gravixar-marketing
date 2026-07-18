@@ -2,6 +2,7 @@ import Link from "next/link";
 import { MDX } from "@/content/mdx";
 import type { HomeBlock } from "@/content/schema";
 import { SITE } from "@/lib/seo";
+import { StatValue } from "./StatValue";
 
 // Personas the visitor can click into on demo.gravixar.com. Each maps to
 // a real seeded persona in the Lattice Studio scene. Clicking sends them
@@ -69,29 +70,29 @@ export function Hero({ meta, body }: { meta: HomeBlock; body: string }) {
         {/* Left column, copy + CTAs */}
         <div className="max-w-2xl">
           {meta.eyebrow ? (
-            <div className="flex items-center gap-3">
+            <div className="hero-enter flex items-center gap-3">
               <span className="inline-block h-1.5 w-1.5 rounded-full bg-brand" />
               <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand">
                 {meta.eyebrow}
               </p>
             </div>
           ) : null}
-          <h1 className="mt-5 text-[2.5rem] font-semibold leading-[1.02] tracking-[-0.02em] md:text-5xl lg:text-[3.75rem]">
+          <h1 className="hero-enter mt-5 text-[2.5rem] font-semibold leading-[1.02] tracking-[-0.02em] [animation-delay:80ms] md:text-5xl lg:text-[3.75rem]">
             {meta.title}
           </h1>
-          <div className="mt-6 max-w-xl text-lg leading-relaxed text-zinc-300">
+          <div className="hero-enter mt-6 max-w-xl text-lg leading-relaxed text-zinc-300 [animation-delay:160ms]">
             <MDX source={body} />
           </div>
-          <div className="mt-9 flex flex-wrap gap-3">
+          <div className="hero-enter mt-9 flex flex-wrap gap-3 [animation-delay:240ms]">
             <Link
               href="/contact"
-              className="rounded-md bg-brand px-5 py-2.5 text-sm font-medium text-[#0a0a0a] shadow-lg shadow-brand-deep/20 transition-all hover:bg-brand-soft hover:shadow-xl hover:shadow-brand-deep/30"
+              className="rounded-md bg-brand px-5 py-2.5 text-sm font-medium text-[#0a0a0a] shadow-lg shadow-brand-deep/20 transition-all hover:bg-brand-soft hover:shadow-xl hover:shadow-brand-deep/30 active:scale-[0.98]"
             >
               Book a call
             </Link>
             <Link
               href="/work"
-              className="group rounded-md border border-zinc-700 px-5 py-2.5 text-sm text-zinc-200 transition-colors hover:border-brand hover:text-brand-soft"
+              className="group rounded-md border border-zinc-700 px-5 py-2.5 text-sm text-zinc-200 transition-all hover:border-brand hover:text-brand-soft active:scale-[0.98]"
             >
               See what&apos;s running
               <span className="ml-1 inline-block transition-transform group-hover:translate-x-0.5">
@@ -101,7 +102,7 @@ export function Hero({ meta, body }: { meta: HomeBlock; body: string }) {
           </div>
 
           {/* Detail strip, what I do, in mono */}
-          <div className="mt-10 flex flex-wrap items-center gap-x-4 gap-y-2 font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">
+          <div className="hero-enter mt-10 flex flex-wrap items-center gap-x-4 gap-y-2 font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500 [animation-delay:320ms]">
             <span className="flex items-center gap-1.5">
               <span className="h-1 w-1 rounded-full bg-brand" />
               operations infrastructure
@@ -126,7 +127,7 @@ function DemoPanel() {
   return (
     <aside
       aria-label="demo.gravixar.com, live"
-      className="live-panel rounded-xl p-5 backdrop-blur md:mt-1"
+      className="live-panel hero-enter rounded-xl p-5 backdrop-blur [animation-delay:200ms] md:mt-1"
     >
       {/* Window-chrome dots + title */}
       <div className="flex items-center justify-between">
@@ -196,7 +197,9 @@ function DemoPanel() {
               <dt className="font-mono text-[9px] uppercase tracking-[0.16em] text-zinc-600">
                 {s.label}
               </dt>
-              <dd className="mt-1 font-mono text-base text-zinc-100">{s.value}</dd>
+              <dd className="mt-1 font-mono text-base text-zinc-100">
+                <StatValue value={s.value} />
+              </dd>
             </div>
           ))}
         </dl>
