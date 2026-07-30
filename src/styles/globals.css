@@ -33,7 +33,7 @@
        display    -> Hero h1, the only rank-1 on the site
        statement  -> Loop h2, the second peak, deliberately near the Hero
        section    -> the act-opener h2s
-       subsection -> ManagedServices h2
+       subsection -> the Problem / Approach / Outcome headings on a case study
        reference  -> Proof + Capabilities h2, the quietest headings
      Line heights ship with each rank so a rank swap does not silently fall
      back to `normal`; call sites can still override with leading-*. */

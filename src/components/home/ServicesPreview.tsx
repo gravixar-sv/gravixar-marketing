@@ -2,11 +2,13 @@ import Link from "next/link";
 import type { Service } from "@/content/schema";
 
 // BANDS, NOT INDEX ARITHMETIC.
-// Every service carries a track: something I build, or something I keep
-// running. Each track renders as its own 12-column band, and every card in a
-// band spans 12 / (cards in that band), so a band divides exactly and always
-// fills its row. Three builds land at span 4 (the same thirds this section has
-// always drawn), two ongoing engagements at span 6.
+// Every service carries a track: something I build (scoped, with an end date),
+// something I keep honest after it ships (a retainer where I make the calls),
+// or something I keep running (someone else's stack, maintained). Each track
+// renders as its own 12-column band, and every card in a band spans
+// 12 / (cards in that band), so a band divides exactly and always fills its
+// row. Today that is three builds at span 4 (the same thirds this section has
+// always drawn), two ongoing at span 6, and one maintain at span 12.
 //
 // What was here before: a `wide` flag that ran the last card full-width when
 // services.length % 3 === 1. It read the count instead of the meaning, so the
@@ -52,8 +54,8 @@ function toBands(services: Service[]): Band[] {
   const bands: Band[] = [];
   services.forEach((service, i) => {
     // The number is the position in the whole menu, not inside the band: the
-    // reader counts 01 through 05 straight down, because the split is about how
-    // an engagement runs, not the start of a second list.
+    // reader counts straight down through every card, because the split is
+    // about how an engagement runs, not the start of a second list.
     const card: Card = { service, number: String(i + 1).padStart(2, "0") };
     const band = bands.find((b) => b.track === service.track);
     if (band) band.cards.push(card);
@@ -70,19 +72,20 @@ export function ServicesPreview({ services }: { services: Service[] }) {
         what i do
       </p>
       <h2 className="mt-3 text-3xl font-semibold tracking-[-0.015em] md:text-section">
-        Three things I build. And what I keep honest after.
+        What I build, what I keep honest after it ships, and what I keep
+        running.
       </h2>
       <p className="mt-4 max-w-xl text-zinc-400">
         Pick the one that maps to your problem. Every card links to the real
         thing: a system in production, a live demo you can click, or a client
         engagement with the parts that broke written down.
       </p>
-      {/* One menu read in two halves, so spacing carries the split instead of a
-          label: 16px inside a band, 32px between the bands, and the 56px
-          page.tsx holds below this section before the managed-services block.
-          Every boundary at least doubles the gap beneath it, which is what
-          makes the grouping felt rather than announced. The drop from thirds to
-          halves says the same thing a second time in the card widths. */}
+      {/* One menu read in bands, so spacing carries the split instead of a
+          label: 16px inside a band, 32px between them. The card widths say it a
+          second time, stepping thirds to halves to full as the commitment
+          changes, which is why the band rule is worth more than a heading per
+          group. On mobile the spans go inert and only the 2:1 gap ratio is
+          left, which is thinner but still legible. */}
       <div className="mt-10 space-y-8">
         {bands.map((band) => {
           const span = BAND_SPAN[band.cards.length] ?? UNEVEN_BAND_SPAN;

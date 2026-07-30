@@ -7,24 +7,35 @@ import { buildMetadata } from "@/lib/seo";
 
 export const revalidate = 3600;
 
+// Describes the three tracks, not the services inside them, because the list
+// of services keeps growing and a description that enumerates them goes stale
+// on the next one. Tracks change when the shape of the business changes.
 export const metadata: Metadata = buildMetadata({
   title: "Operations infrastructure, AI tooling, audits, brand work",
   description:
-    "Operations infrastructure, AI tooling, brand work, a system audit where findings survive a refutation pass, and a retainer that keeps AI honest after it ships.",
+    "Three tracks: systems I build, an audit and a retainer that keep them honest after they ship, and client sites, hosting and email I keep running.",
   path: "/services",
 });
 
-// The two tracks, in render order, each label one clause of the h1 so the
-// heading works as this page's table of contents. A service's `track` decides
-// which row it lands in, so nothing here has to know how many services exist,
-// and an empty track renders nothing. The homepage leaves its equivalent bands
-// unlabelled and lets spacing carry the split; the index labels them because
-// /modules labels its groups, and because on the page where someone is
-// choosing, "is this a project or a commitment" is the question to answer
-// before the click.
+// Every track, in render order, each label echoing one clause of the h1 so the
+// heading works as this page's table of contents. The order is ascending
+// commitment: a project that ends, a system I keep honest after it ships, a
+// site I keep running for as long as you want it up. A service's `track`
+// decides which row it lands in, so nothing here has to know how many services
+// exist, and an empty track renders nothing. The homepage leaves its
+// equivalent bands unlabelled and lets spacing carry the split; the index
+// labels them because /modules labels its groups, and because on the page
+// where someone is choosing, "is this a project or a commitment" is the
+// question to answer before the click.
+//
+// THIS LIST IS THE WHOLE FILTER, and it fails quiet. A service whose track is
+// not named below matches no row, so it renders nowhere and raises nothing: no
+// build error, no empty state, just a page one service short. Widening
+// serviceSchema.track means adding a row here in the same commit.
 const TRACKS = [
   { id: "build", label: "what i build" },
   { id: "ongoing", label: "what i keep honest" },
+  { id: "maintain", label: "what i keep running" },
 ] as const;
 
 // A track's cards each span 12 / (services in that track), so every row fills
@@ -50,7 +61,7 @@ export default async function ServicesIndexPage() {
     <div className="space-y-16">
       <PageHeader
         eyebrow="services"
-        title="What I build, and what I keep honest after it ships."
+        title="What I build, what I keep honest after it ships, and what I keep running."
         lede="Pick the one that maps to your problem. Each page links to the proof: a case study, a live demo, or a system running in production."
       />
 
