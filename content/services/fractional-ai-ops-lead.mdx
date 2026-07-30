@@ -2,17 +2,31 @@
 title: "Fractional AI Ops Lead"
 slug: "fractional-ai-ops-lead"
 bucket: "ai"
-tagline: "The retainer that starts where a build ends. One AI system kept honest, audited every month, extended every quarter. The named successor to a project, not a product you bolt on."
+tagline: "The retainer that starts where a build ends. Your AI systems kept honest, audited every month, extended every quarter. The named successor to a project, not a product you bolt on."
 deliverables:
-  - "One production AI system owned and maintained (agent, automation, intake, or cron)"
-  - "Monthly audit of its outputs, with the reasoning, not just a green checkmark"
+  # Two tiers in one flat list, so each multi-system line says so out loud.
+  # The sidebar renders these as a single bulleted list with no grouping
+  # affordance, so the tier has to live in the sentence or it disappears.
+  - "Entry tier: one production AI system owned and maintained (agent, automation, intake, or cron)"
+  - "Monthly audit of what it actually produced, with the reasoning, not a green checkmark"
   - "One new automation or capability shipped per quarter"
   - "Drift and failure watch: when the model or the data moves, you hear it from me first"
   - "Async access for the judgment calls that do not fit a ticket"
+  - "Multi-system tier: all of the above across the set, plus one audit that reads them together"
+  - "Multi-system tier: shared modules on one version, and drift caught wherever it lands first"
 proof:
-  - { label: "The kind of systems I run", href: "/services/ai-tooling", kind: "external" }
-  - { label: "A portal running this in production", href: "/work", kind: "case-study" }
-pricing: "$3,500/month. Begins when a build ships."
+  # Every entry is a system where the AI posture this retainer maintains is
+  # already running, not a description of the offer. The blog link is the
+  # one that shows the gate rather than the output: the drafting agent on
+  # this site publishes nothing without a human moving a file.
+  - { label: "Agency portal, AI at three points and a nightly sweep of its audit log", href: "/work/bs-hub", kind: "case-study" }
+  - { label: "Healthcare platform, every model call behind a PHI guardrail", href: "/work/beeline", kind: "case-study" }
+  - { label: "A second agency system, Claude triaging the feedback queue", href: "/work/agency-operations-platform", kind: "case-study" }
+  - { label: "The approval gate in front of this site's own drafting agent", href: "/blog", kind: "live-demo" }
+# The $3,500 entry number is a locked decision and stays public. The
+# multi-system tier has no recorded price, so it is expressed as scope
+# rather than a number somebody would have to walk back on a call.
+pricing: "One system: $3,500/month, begins when a build ships. More than one: priced per system, after I look at what you are running."
 track: "ongoing"
 order: 4
 updatedAt: "2026-07-30"
@@ -29,8 +43,33 @@ What you get every month:
 - **One new thing a quarter.** The system should be more useful in month nine than it was at launch. Each quarter it gets one new automation or capability, scoped with you.
 - **You hear about drift first.** When a provider changes a model, or your data shifts under the system, that is a message from me, not a surprise from a client.
 
-I price this as one number, $3,500 a month, because predictable beats hourly and because the value is in the watching, not the hours. It is the named successor to a project: when a build ships, this is what it becomes. Not an upsell you opt into later, the default next step you can opt out of.
+## What this looks like on systems that are already live
+
+None of that is a posture I am describing from the outside. Every piece of it runs somewhere today.
+
+On [an agency portal](/work/bs-hub), AI sits at three points: an intake wizard that picks its next question from what the prospect already said, per-task briefs generated off the scope so a designer does not read the whole project to start one deliverable, and a nightly cron that sweeps the audit log for anomalies and emails a person when something trips. None of the three publishes, approves, or sends anything to a client on its own. Keeping that true through four years of changes is the job.
+
+On [a healthcare platform](/work/beeline), every model call goes through a wrapper that prepends a stop-clause about protected health information, with a regex pass on free text before anything persists. Importing the AI SDK anywhere outside that wrapper is treated as a bug. A convention like that rots the month nobody is reading the diffs, which is why the version I trust is the one that fails a build: 23 such checks run daily against my own platform.
+
+On [a second agency system](/work/agency-operations-platform), Claude does first-pass triage on the in-app feedback queue so the founder opens a sorted list instead of a pile. A human still decides.
+
+And the gate in front of my own agent is public. I wrote up [why the bottleneck is approval and not generation](/blog/bottleneck-is-approval-not-generation), including the stretch where this blog went 41 days without a post while four agent drafts sat unpromoted. Promotion is a person moving a file, so the approval is a commit and the audit trail cannot be skipped. That post is the most direct statement of what this retainer sells: the gate, the record, and somebody who reads the output.
+
+## When there is more than one system
+
+Everything above assumes one system, because that is how most of these start. Once you are running two or three, paying for the same retainer twice is the wrong answer, because the work stops being additive.
+
+What changes:
+
+- **One audit across the set, not a report each.** The findings worth having are the ones between systems: the same prompt pattern failing in two places, an intake classifier and a triage classifier disagreeing about the same customer, a cost line that only looks wrong when you add it up.
+- **Shared parts stay on one version.** The pieces I reuse across builds live in [one versioned package](/modules/shared-core-package), so a fix lands once and travels by a dependency bump instead of being pasted into each repo. That is only coherent if one person holds the whole set. Split across two retainers it degrades into copies.
+- **Drift arrives somewhere first.** When a provider changes a model, the system that breaks first is the warning for the rest. On separate engagements that signal gets thrown away. On one, it is why you hear about the second failure before it happens.
+- **The quarterly capability goes where it pays.** Not one new thing per system for tidiness. One new thing on the system that most needs it, chosen with you, which is a better trade once there are several.
+
+I price the single-system tier as one number, $3,500 a month, because predictable beats hourly and because the value is in the watching, not the hours. The multi-system tier I will not put a number on this page, and I would rather say why than invent one. Two systems can mean two crons on the same stack or two platforms that share nothing, and those are not the same job. It is priced per system, after I look at what you are actually running.
+
+It is the named successor to a project: when a build ships, this is what it becomes. Not an upsell you opt into later, the default next step you can opt out of.
 
 I keep these deliberately small. I am one person, the systems are real, and I would rather run a handful well than a roomful badly. If your system is stable and genuinely needs nothing, I will tell you to drop the retainer. The point is for it to earn its place every month.
 
-Pairs with **[Operations Infrastructure](/services/operations-infrastructure)** when the AI lives inside a portal I built, and with **[AI Tooling & Automations](/services/ai-tooling)** when you want the system in the first place.
+Pairs with **[Operations Infrastructure](/services/operations-infrastructure)** when the AI lives inside a portal I built, with **[AI Tooling & Automations](/services/ai-tooling)** when you want the system in the first place, and with **[System Audit](/services/system-audit)** when you would rather have everything read hard once before deciding what needs watching.

@@ -81,7 +81,7 @@ export async function GET() {
   lines.push(`> ${SITE.tagline}`);
   lines.push("");
   lines.push(
-    `Gravixar is an AI-ops platform built by Qamar: productized modules (portals, intake wizards, content agents) that run operations with a human approving every write. Today it ships as high-touch custom builds, several of them carrying a client's daily operations in production, plus ongoing retainers that keep shipped systems running, with a hosted version of the same modules opening in private beta (waitlist open now, not yet self-serve). Every module has a working version live somewhere: on this site, at demo.gravixar.com, or in a client's production stack, open to use before pricing comes up. ${DEMO_SCENES.length} live demo scenes at demo.gravixar.com, no sign-in.`,
+    `Gravixar is an AI-ops platform built by Qamar: productized modules (portals, intake wizards, content agents) that run operations with a human approving every write. Today it ships as high-touch custom builds, several of them carrying a client's daily operations in production, plus ongoing retainers that keep shipped systems running. A hosted version of the same modules, rented by the month, does not exist yet and carries no announced date; there is a waitlist. Every module has a working version live somewhere: on this site, at demo.gravixar.com, or in a client's production stack, open to use before pricing comes up. ${DEMO_SCENES.length} live demo scenes at demo.gravixar.com, no sign-in.`,
   );
   lines.push("");
 
@@ -98,7 +98,7 @@ export async function GET() {
   lines.push(`- [Blog](${url("/blog")}): Field notes on agency operations, delivery process, and keeping AI in the loop. Some posts are drafted by the SEO agent running on this site, flagged as such on the post, and published only when a human promotes the file`);
   lines.push(`- [Careers](${url("/careers")}): Current openings, published from the same hiring system Qamar runs internally, each role page carrying JobPosting structured data and its own apply form`);
   lines.push(`- [Contact](${url("/contact")}): Lead form plus in-house 30-minute call booking (email-verified code, reusable Google Meet room, calendar invite)`);
-  lines.push(`- [Early access](${url("/early-access")}): Hosted Gravixar waitlist. Pick a module, Qamar hosts it, monthly tiers listed on the page. Private beta, not self-serve yet`);
+  lines.push(`- [Early access](${url("/early-access")}): Waitlist for the module library. The modules are real and running in production inside builds; a hosted account where you rent one by the month does not exist yet, and the page prints no date`);
   lines.push("");
 
   lines.push("## Services");

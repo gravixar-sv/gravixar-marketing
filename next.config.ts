@@ -42,6 +42,17 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     serverActions: { bodySizeLimit: "5mb" },
+    // Same-document view transitions for client-side navigation. The CSS-only
+    // @view-transition rule is not an option here: it only fires cross-document,
+    // and the App Router navigates in-document, so it would animate nothing.
+    // Checked before enabling: this flag does NOT move the app onto the
+    // experimental React channel (needs-experimental-react.js gates that on
+    // taint, transitionIndicator and gestureTransition, not on this), and the
+    // flag alone is inert. It emits nothing until something wraps a subtree,
+    // which is exactly one place: <main> in the marketing layout. See the
+    // comment there for why the placement is load-bearing, and globals.css for
+    // the reduced-motion guard.
+    viewTransition: true,
   },
   async headers() {
     return [{ source: "/:path*", headers: SECURITY_HEADERS }];
