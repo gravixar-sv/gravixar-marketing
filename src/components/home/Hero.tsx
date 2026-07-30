@@ -2,48 +2,9 @@ import Link from "next/link";
 import { MDX } from "@/content/mdx";
 import type { HomeBlock } from "@/content/schema";
 import { SITE } from "@/lib/seo";
+import { ApprovalStrip } from "./ApprovalStrip";
 import { StatValue } from "./StatValue";
 import systemStats from "../../../content/data/system-stats.json";
-
-// Personas the visitor can click into on demo.gravixar.com. There is no
-// sign-in and no persona-switcher: every scene is a stateless playground,
-// so a tile just drops the visitor into the scene where that persona sits
-// and they can drive any column from there. Mira / Kai / Sage are the three
-// Lattice columns (gravixar-demo src/lib/playground/lattice-deliverables.ts
-// PERSONAS), Remi Okafor is the founder in the Cockpit scene (same directory,
-// cockpit-data.ts FOUNDER). `try` quotes
-// the button that persona actually presses, so visitors know what they'll DO
-// before they click. Re-confirm against the live scene before editing.
-const DEMO_PERSONAS = [
-  {
-    name: "Mira",
-    role: "client",
-    try: "approve a deliverable",
-    href: "/lattice",
-    color: "from-rose-400/40 to-amber-300/20",
-  },
-  {
-    name: "Kai",
-    role: "pm",
-    try: "approve and send to client",
-    href: "/lattice",
-    color: "from-cyan-400/40 to-violet-400/20",
-  },
-  {
-    name: "Sage",
-    role: "editor",
-    try: "submit a draft for review",
-    href: "/lattice",
-    color: "from-emerald-400/40 to-cyan-400/20",
-  },
-  {
-    name: "Remi",
-    role: "founder",
-    try: "approve an ai-drafted reply",
-    href: "/cockpit",
-    color: "from-amber-400/40 to-orange-500/20",
-  },
-] as const;
 
 // Live-system signal. These used to be hard-coded here with a comment asking a
 // human to resync them periodically, which is how "automated jobs" sat at 11
@@ -54,6 +15,14 @@ const DEMO_PERSONAS = [
 // of a quiet lie. Imported, not fetched: no network call at build or runtime,
 // so HQ stays strictly outside the critical path.
 const SYSTEM_STATS = systemStats.stats;
+
+// The oldest verifiedAt across the stats, printed beside them. The label here
+// used to read "weekly reset · sun 03:00 utc", which described the demo's reset
+// cron sitting above numbers that have nothing to do with the demo, and which
+// contradicted the demo's own "nothing is saved" line. These figures are counted
+// from the ops platform, so the honest label is when they were last counted, and
+// taking the oldest means the date can only understate the freshness.
+const COUNTED_AT = SYSTEM_STATS.map((s) => s.verifiedAt).sort()[0];
 
 export function Hero({ meta, body }: { meta: HomeBlock; body: string }) {
   // Padding stays minimal on both ends: the shared marketing layout already
@@ -155,39 +124,14 @@ function DemoPanel() {
         </span>
       </div>
 
-      {/* Persona grid, live and clickable. Each tile links straight to the
-          scene that persona sits in, no sign-in on the way. */}
-      <div className="mt-5">
-        <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">
-          act as any persona · no sign-in
-        </p>
-        <div className="mt-3 grid grid-cols-2 gap-2">
-          {DEMO_PERSONAS.map((p) => (
-            <a
-              key={p.name}
-              href={`${SITE.demoUrl}${p.href}`}
-              rel="noreferrer"
-              className="group relative overflow-hidden rounded-md border border-line bg-zinc-950/40 p-3 transition-all hover:-translate-y-0.5 hover:border-brand/50"
-            >
-              <span
-                aria-hidden
-                className={`pointer-events-none absolute inset-0 -z-0 bg-gradient-to-br ${p.color} opacity-0 transition-opacity group-hover:opacity-100`}
-              />
-              <span className="relative z-10 flex items-baseline justify-between gap-1">
-                <span className="block text-sm font-medium text-zinc-100">
-                  {p.name}
-                </span>
-                <span className="font-mono text-[9px] uppercase tracking-[0.16em] text-zinc-500 group-hover:text-brand">
-                  {p.role}
-                </span>
-              </span>
-              <span className="relative z-10 mt-2 block text-[11px] leading-tight text-zinc-400 group-hover:text-zinc-200">
-                try · {p.try}
-              </span>
-            </a>
-          ))}
-        </div>
-      </div>
+      {/* The loop itself, runnable. This slot used to hold a persona grid that
+          described what a visitor could do in the demo; it now does one of those
+          things here, on the fold that claims the AI asks before it acts. The
+          only client component in this panel besides <StatValue>, and for the
+          same reason: it server-renders its resolved state and enhances on
+          mount, so it cannot cost the fold anything if scripting never runs.
+          See ApprovalStrip.tsx for the full rationale. */}
+      <ApprovalStrip />
 
       {/* Live system stats */}
       <div className="mt-5 border-t border-line-soft pt-4">
@@ -196,7 +140,7 @@ function DemoPanel() {
             system signal
           </p>
           <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-zinc-600">
-            weekly reset · sun 03:00 utc
+            counted {COUNTED_AT}
           </p>
         </div>
         <dl className="mt-3 grid grid-cols-2 gap-3">
