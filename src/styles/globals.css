@@ -36,7 +36,22 @@
        subsection -> the Problem / Approach / Outcome headings on a case study
        reference  -> Proof + Capabilities h2, the quietest headings
      Line heights ship with each rank so a rank swap does not silently fall
-     back to `normal`; call sites can still override with leading-*. */
+     back to `normal`; call sites can still override with leading-*.
+
+     Ranks 1 to 4 ship behind a breakpoint prefix over a smaller literal base,
+     because 60px or 36px of display type has to come down on a narrow column
+     or it wraps into a wall. Rank 5 is the exception and ships UNPREFIXED: it
+     is already the smallest heading on the site, so there is no smaller base
+     left to fall to that still reads as a heading. It used to ship as
+     `text-xl md:text-reference`, and that 20px base sat 4px over body copy and
+     exactly level with the ServicesPreview card h3, which is heavier and
+     brighter, so below md the quietest rank lost every axis except the tag
+     name. 24px at every width is the fix. Do not put a `md:` back on it.
+     One number to keep in view: subsection's base is text-2xl, also 24px, so
+     below md rank 4 leads rank 5 on weight and colour rather than on size.
+     That pairing never renders, since subsection is case-study-only and
+     reference is homepage-only, but it is the ceiling that stops rank 5 from
+     growing again: rank 5 gets louder by colour and weight, never by size. */
   --text-display: 3.75rem;
   --text-display--line-height: 1.04;
   --text-statement: 3.25rem;
@@ -547,17 +562,54 @@
   .card-hover-glow:hover,
   .group:hover [class*="translate-"],
   .group:hover [class*="scale-"] {
-    /* All four, not just transform. Tailwind v4 compiles scale-*, translate-*
-       and rotate-* to the INDEPENDENT properties, so `active:scale-[0.98]`
-       emits `scale: .98` and never touches `transform` at all. Resetting
-       transform alone (which this block did until it was checked) left every
-       press and every card lift on the site still moving under reduced motion,
-       silently, because the rule looked correct. .card-hover-glow's
-       translateY IS a real transform, which is why the gap was easy to miss. */
+    /* .card-hover-glow's lift is a real transform, so this half is needed. The
+       other half is below, and the split between them is load-bearing. */
     transform: none;
+  }
+  /* An intervening rule. Do not delete it and do not merge the two blocks back
+     together, however redundant they look side by side. */
+  .link-draw:hover,
+  .group:hover .link-draw {
+    background-size: 0% 1.5px;
+  }
+  /* THE OTHER HALF, and the reason it is a separate rule.
+     Tailwind v4 compiles scale-*, translate-* and rotate-* to the INDEPENDENT
+     properties, so `active:scale-[0.98]` emits `scale: .98` and never touches
+     `transform`. Resetting transform alone left every press and every card lift
+     still moving under reduced motion. That was found and "fixed" by adding the
+     three resets next to `transform: none` in one block, and the fix silently
+     did nothing in production: Lightning CSS merged all four into the single
+     shorthand `transform: scale(1) translate(0) rotate(0)`, and per CSS
+     Transforms 2 the individual properties COMPOSE with transform rather than
+     being overridden by it, so the merged rule cancels nothing. Source correct,
+     build wrong, comment asserting the opposite, which is worse than the
+     original bug.
+     Splitting the declarations across two non-adjacent rules is what stops the
+     merge. THE ACCEPTANCE TEST IS THE BUILD OUTPUT, NOT THIS FILE: run
+     pnpm build, then grep .next/static/chunks/*.css for translate:none,
+     scale:none and rotate:none. Each must appear at least once. If they do not,
+     the minifier has merged them again and reduced motion is a no-op. */
+  a:hover,
+  a:active,
+  button:hover,
+  button:active,
+  .card-hover-glow:hover,
+  .group:hover [class*="translate-"],
+  .group:hover [class*="scale-"] {
     scale: none;
     translate: none;
     rotate: none;
+  }
+  /* Cross-route view transitions (experimental.viewTransition, wrapped around
+     <main> in the marketing layout). The default UA animation cross-fades the
+     old and new snapshots, which is movement a reader asked not to see. Zero
+     duration on both pseudos leaves the navigation itself untouched: the page
+     still changes, it just changes instantly. This cannot ride the class
+     whitelist above, because the animating things are UA pseudo-elements with
+     no class to name. */
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: 0s;
   }
 }
 

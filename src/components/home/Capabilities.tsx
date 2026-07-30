@@ -66,7 +66,11 @@ export function Capabilities() {
       <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand">
         capabilities &amp; integrations
       </p>
-      <h2 className="mt-3 text-xl font-medium tracking-[-0.01em] text-zinc-300 md:text-reference">
+      {/* Reference rank, held in lockstep with Proof's h2: unprefixed 24px at
+          every width, medium weight, zinc-200. One rank means one look, so the
+          two call sites change together or not at all. globals.css has why this
+          rank alone ships without a breakpoint prefix. */}
+      <h2 className="mt-3 text-reference font-medium tracking-[-0.01em] text-zinc-200">
         The surface area I build with.
       </h2>
       <p className="mt-4 max-w-2xl text-zinc-400">

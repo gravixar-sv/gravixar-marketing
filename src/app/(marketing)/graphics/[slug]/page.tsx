@@ -10,6 +10,11 @@ import {
   KIND_LABELS,
   OriginChip,
 } from "@/components/site/GraphicsMeta";
+import {
+  GALLERY_SIZES,
+  Lightbox,
+  type LightboxFrame,
+} from "@/components/site/Lightbox";
 import { StructuredDataBreadcrumb } from "@/components/site/StructuredData";
 import { loadGraphics } from "@/content/loaders";
 import { buildMetadata, SITE } from "@/lib/seo";
@@ -48,6 +53,22 @@ export default async function GraphicsItemPage(
   const items = await loadGraphics();
   const g = items.find((i) => i.meta.slug === slug);
   if (!g) notFound();
+
+  // How each gallery frame is presented, resolved once on the server and used by
+  // both the grid below and the lightbox. Two decisions per frame:
+  //  - fit: contain vs cover, see fitsInsideCell.
+  //  - onLight: a mark drawn for light backgrounds is black art, and black art
+  //    on the gallery's near-black cell is an empty box. Those assets get the
+  //    surface they were designed for, which is also the more honest
+  //    presentation: showing each variant on its intended background is itself
+  //    the thing being demonstrated.
+  // Resolved here rather than inside the lightbox so the enlarged frame can
+  // never disagree with the cell the reader clicked.
+  const frames: LightboxFrame[] = g.meta.gallery.map((img) => ({
+    ...img,
+    fit: fitsInsideCell(img),
+    onLight: img.src.includes("-dark"),
+  }));
 
   return (
     <div className="space-y-16">
@@ -126,35 +147,38 @@ export default async function GraphicsItemPage(
         </Reveal>
       ) : null}
 
-      {g.meta.gallery.length > 0 ? (
+      {/* The gallery grid is server-rendered and stays that way. Each cell is a
+          real link to the image file, so with scripting off the reader can still
+          see every frame here and still open any of them full size. <Lightbox>
+          takes the finished grid as children and only intercepts the click once
+          it is running; it never renders a frame itself, which is what keeps the
+          enhancement from becoming the only route to the image. */}
+      {frames.length > 0 ? (
         <Reveal>
-          <div className="reveal-stagger grid gap-5 md:grid-cols-2">
-            {g.meta.gallery.map((img) => {
-              const fit = fitsInsideCell(img);
-              // A mark drawn for light backgrounds is black art, and black art
-              // on the gallery's near-black cell is an empty box. Those assets
-              // get the surface they were designed for, which is also the more
-              // honest presentation: showing each variant on its intended
-              // background is itself the thing being demonstrated.
-              const onLight = img.src.includes("-dark");
-              return (
-                <div
+          <Lightbox title={g.meta.title} frames={frames}>
+            <div className="reveal-stagger grid gap-5 md:grid-cols-2">
+              {frames.map((img, i) => (
+                <a
                   key={img.src}
-                  className={`relative aspect-[4/3] overflow-hidden rounded-xl border border-line ${
-                    onLight ? "bg-zinc-200" : "bg-zinc-950"
+                  href={img.src}
+                  data-lightbox-index={i}
+                  className={`relative block aspect-[4/3] overflow-hidden rounded-xl border border-line transition-[border-color,translate] duration-200 ease-[var(--ease-out)] hover:border-brand/40 hover:-translate-y-0.5 ${
+                    img.onLight ? "bg-zinc-200" : "bg-zinc-950"
                   }`}
                 >
                   <Image
                     src={img.src}
                     alt={img.alt}
                     fill
-                    sizes="(min-width: 768px) 50vw, 100vw"
-                    className={fit ? "object-contain p-8 md:p-12" : "object-cover"}
+                    sizes={GALLERY_SIZES}
+                    className={
+                      img.fit ? "object-contain p-8 md:p-12" : "object-cover"
+                    }
                   />
-                </div>
-              );
-            })}
-          </div>
+                </a>
+              ))}
+            </div>
+          </Lightbox>
         </Reveal>
       ) : null}
 

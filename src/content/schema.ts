@@ -143,6 +143,23 @@ export const graphicsItemSchema = z.object({
   video: z
     .object({ src: z.string().min(1), poster: z.string().optional() })
     .optional(),
+  // The index card's moving cover, and a different thing from `video` above.
+  // `video` is the lead media on the detail route: full size, with controls,
+  // the reader presses play. `preview` is a short muted loop that starts
+  // itself when the card scrolls into view and stops when it leaves, so a
+  // piece whose whole subject is motion can show the motion in the gallery
+  // instead of describing it under a still.
+  // Same CSP constraint as `video`, and it binds harder here because nothing
+  // on the card asks the reader to click: both files must sit under public/,
+  // where default-src 'self' covers them. An off-origin src would parse, pass
+  // prebuild and ship green, then leave a dead card at runtime.
+  // poster is required, not optional as it is on `video`: the poster is what
+  // the server renders and the only frame a reader gets with scripting off or
+  // reduced motion asked for, so an entry without one would have a blank cell
+  // on exactly the paths that matter most.
+  preview: z
+    .object({ src: z.string().min(1), poster: z.string().min(1) })
+    .optional(),
   processNote: z.string().optional(),
   // Drives a wider cell in the /graphics grid. A property of the piece, not
   // of its position in an array, so the grid can't silently reflow when an

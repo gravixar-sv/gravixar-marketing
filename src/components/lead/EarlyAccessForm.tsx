@@ -73,7 +73,7 @@ export function EarlyAccessForm() {
           on the list
         </p>
         <h3 className="mt-2 text-xl font-semibold tracking-[-0.01em]">
-          Got you. I&apos;ll email when private beta opens.
+          Got you. I&apos;ll email when there is something you can actually run.
         </h3>
         <p className="mt-2 text-sm text-zinc-400">
           No drip sequence, no marketing list. One email when there&apos;s
