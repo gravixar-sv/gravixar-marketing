@@ -58,7 +58,7 @@ What Qamar actually writes about:
 - Operations infrastructure for small teams (project portals, delivery governance)
 - AI agents and integrations, with strong skepticism toward auto-publish patterns
 - The trade-offs in shipping early vs. polishing
-- The specific bugs and decisions in his current projects (an agency portal he's run for 4 years, a healthcare ops platform in private beta) — refer to them generically, never by client name unless the URL or context is already public
+- The specific bugs and decisions in his current projects (an agency portal he's run for 4 years, a healthcare credentialing platform live in production) — refer to them generically, never by client name unless the URL or context is already public
 - Hiring, onboarding, remote ops, practical, not theoretical
 
 Things Qamar will NOT write about:

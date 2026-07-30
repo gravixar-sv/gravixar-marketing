@@ -3,55 +3,57 @@ import { MDX } from "@/content/mdx";
 import type { HomeBlock } from "@/content/schema";
 import { SITE } from "@/lib/seo";
 import { StatValue } from "./StatValue";
+import systemStats from "../../../content/data/system-stats.json";
 
-// Personas the visitor can click into on demo.gravixar.com. Each maps to
-// a real seeded persona in the Lattice Studio scene. Clicking sends them
-// to the demo's persona-switcher; the demo handles the actual sign-in.
-// `try` is the closed-loop action visible on each persona's page on the
-// demo, so visitors know what they'll DO before they click.
+// Personas the visitor can click into on demo.gravixar.com. There is no
+// sign-in and no persona-switcher: every scene is a stateless playground,
+// so a tile just drops the visitor into the scene where that persona sits
+// and they can drive any column from there. Mira / Kai / Sage are the three
+// Lattice columns (gravixar-demo src/lib/playground/lattice-deliverables.ts
+// PERSONAS), Remi Okafor is the founder in the Cockpit scene (same directory,
+// cockpit-data.ts FOUNDER). `try` quotes
+// the button that persona actually presses, so visitors know what they'll DO
+// before they click. Re-confirm against the live scene before editing.
 const DEMO_PERSONAS = [
   {
     name: "Mira",
     role: "client",
     try: "approve a deliverable",
+    href: "/lattice",
     color: "from-rose-400/40 to-amber-300/20",
   },
   {
     name: "Kai",
     role: "pm",
-    try: "send first reply on an inquiry",
+    try: "approve and send to client",
+    href: "/lattice",
     color: "from-cyan-400/40 to-violet-400/20",
   },
   {
-    name: "Nox",
-    role: "admin",
-    try: "approve leave + see audit log",
-    color: "from-violet-400/40 to-rose-400/20",
+    name: "Sage",
+    role: "editor",
+    try: "submit a draft for review",
+    href: "/lattice",
+    color: "from-emerald-400/40 to-cyan-400/20",
   },
   {
-    name: "Sage",
-    role: "designer",
-    try: "submit a draft for client",
-    color: "from-emerald-400/40 to-cyan-400/20",
+    name: "Remi",
+    role: "founder",
+    try: "approve an ai-drafted reply",
+    href: "/cockpit",
+    color: "from-amber-400/40 to-orange-500/20",
   },
 ] as const;
 
-// Live-system signal. Every figure traces to canonical ground truth:
-//   modules built (24) + reused (13 = 5 shared + 8 extract verdicts)
-//     → brain _meta/module-health.json summary.{total, byVerdict}
-//   automated jobs (11) → HQ's 5 Vercel crons + 6 scheduled GitHub Actions
-//     (HQ-scoped on purpose, not a fleet-wide claim)
-//   demos (5) → live scenes on demo.gravixar.com (Care Ledger went live
-//     2026-06-26, joining Lattice, Studio Mix, Driftwood, Northbeam)
-//   engagements (9) → 7 published case studies + 2 managed-services retainers
-// Resync against canonical status on a cadence
-// (feedback_periodic_sync_marketing.md).
-const SYSTEM_STATS = [
-  { label: "modules built", value: "24" },
-  { label: "reused across products", value: "13" },
-  { label: "automated jobs in HQ", value: "11" },
-  { label: "engagements / demos", value: "9 / 5" },
-] as const;
+// Live-system signal. These used to be hard-coded here with a comment asking a
+// human to resync them periodically, which is how "automated jobs" sat at 11
+// for months while the real figure reached 17. They now come from
+// content/data/system-stats.json, where every entry carries the source it was
+// counted from and the date it was verified. The prebuild validator warns past
+// 45 days and fails the build past 90, so drift becomes a visible chore instead
+// of a quiet lie. Imported, not fetched: no network call at build or runtime,
+// so HQ stays strictly outside the critical path.
+const SYSTEM_STATS = systemStats.stats;
 
 export function Hero({ meta, body }: { meta: HomeBlock; body: string }) {
   // Padding stays minimal on both ends: the shared marketing layout already
@@ -153,17 +155,17 @@ function DemoPanel() {
         </span>
       </div>
 
-      {/* Persona grid — live and clickable. Lattice personas link
-          via the identity-fork entry so visitors pick their context. */}
+      {/* Persona grid, live and clickable. Each tile links straight to the
+          scene that persona sits in, no sign-in on the way. */}
       <div className="mt-5">
         <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">
-          click in as a persona
+          act as any persona · no sign-in
         </p>
         <div className="mt-3 grid grid-cols-2 gap-2">
           {DEMO_PERSONAS.map((p) => (
             <a
               key={p.name}
-              href={`${SITE.demoUrl}/lattice`}
+              href={`${SITE.demoUrl}${p.href}`}
               rel="noreferrer"
               className="group relative overflow-hidden rounded-md border border-line bg-zinc-950/40 p-3 transition-all hover:-translate-y-0.5 hover:border-brand/50"
             >
@@ -199,7 +201,7 @@ function DemoPanel() {
         </div>
         <dl className="mt-3 grid grid-cols-2 gap-3">
           {SYSTEM_STATS.map((s) => (
-            <div key={s.label} className="flex flex-col">
+            <div key={s.key} className="flex flex-col">
               <dt className="font-mono text-[9px] uppercase tracking-[0.16em] text-zinc-600">
                 {s.label}
               </dt>

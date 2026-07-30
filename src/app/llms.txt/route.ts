@@ -4,6 +4,13 @@
 // Convention: https://llmstxt.org. Hand-curated priority pages first,
 // then dynamic lists pulled from content loaders so additions show up
 // without manual edits.
+//
+// This file exists to be quoted verbatim by machines, so every claim in
+// it has to survive a fact-check. Counts come from the loaders and from
+// DEMO_SCENES, never hand-typed. Two claims that used to be wrong here
+// and must not come back: the demo has no sign-in and no persona login
+// (the scenes are stateless playgrounds in their own repo), and booking
+// is in-house, not cal.com (retired May 2026).
 
 import {
   loadCaseStudies,
@@ -11,6 +18,7 @@ import {
   loadModules,
   loadServices,
 } from "@/content/loaders";
+import { DEMO_SCENES } from "@/lib/demos";
 import { SITE } from "@/lib/seo";
 
 export const revalidate = 3600;
@@ -31,7 +39,7 @@ export async function GET() {
   lines.push(`> ${SITE.tagline}`);
   lines.push("");
   lines.push(
-    "Gravixar is an AI-ops platform built by Qamar: productized modules (portals, intake wizards, content agents) that run operations with a human approving every write. Delivered as a hosted product and as high-touch custom builds. A working version of each is running before the contract closes. Live demos at demo.gravixar.com.",
+    `Gravixar is an AI-ops platform built by Qamar: productized modules (portals, intake wizards, content agents) that run operations with a human approving every write. Today it ships as high-touch custom builds, several of them carrying a client's daily operations in production, with a hosted version of the same modules opening in private beta (waitlist open now, not yet self-serve). A working version of each is running before the contract closes. ${DEMO_SCENES.length} live demo scenes at demo.gravixar.com, no sign-in.`,
   );
   lines.push("");
 
@@ -39,11 +47,14 @@ export async function GET() {
   lines.push("");
   lines.push(`- [Home](${url("/")}): Landing + positioning + case-study previews`);
   lines.push(`- [About](${url("/about")}): Who Qamar is, how engagements work`);
-  lines.push(`- [Services](${url("/services")}): The three service buckets`);
+  lines.push(`- [Services](${url("/services")}): Three build buckets (operations, AI, brand) plus the fractional AI-ops retainer`);
   lines.push(`- [Modules](${url("/modules")}): Reusable production-tested patterns across builds`);
   lines.push(`- [Work](${url("/work")}): Case studies of shipped systems`);
   lines.push(`- [Compare](${url("/compare")}): Off-the-shelf vs custom honest reads`);
-  lines.push(`- [Contact](${url("/contact")}): Lead form + Cal.com booking`);
+  lines.push(`- [Demos](${url("/demos")}): The live demo scenes, one per buyer, with what to try in each`);
+  lines.push(`- [Blog](${url("/blog")}): Field notes on agency operations, delivery process, and keeping AI in the loop`);
+  lines.push(`- [Careers](${url("/careers")}): Open roles, published with structured JobPosting data`);
+  lines.push(`- [Contact](${url("/contact")}): Lead form plus in-house 30-minute call booking (email-verified code, reusable Google Meet room, calendar invite)`);
   lines.push(`- [Early access](${url("/early-access")}): Hosted Gravixar SaaS waitlist (private beta opening soon)`);
   lines.push("");
 
@@ -56,7 +67,7 @@ export async function GET() {
   }
   lines.push("");
 
-  lines.push("## Case studies (live or in private beta)");
+  lines.push("## Case studies (shipped systems, live or handed off)");
   lines.push("");
   for (const cs of studies) {
     lines.push(
@@ -86,8 +97,16 @@ export async function GET() {
   lines.push("## Live demo");
   lines.push("");
   lines.push(
-    `- [demo.gravixar.com](${SITE.demoUrl}): Interactive showroom of the operations and AI patterns Qamar builds. Multiple scenes, persona-switcher login, weekly seed reset.`,
+    `- [demo.gravixar.com](${SITE.demoUrl}): ${DEMO_SCENES.length} live scenes, one per buyer, showing the operations and AI patterns Qamar builds. No sign-in, no accounts, no persona login: every scene opens straight into working software with its own brand and sample data. These are purpose-built playground scenes in their own codebase, not the client production systems they echo.`,
   );
+  lines.push("");
+  lines.push("Scenes:");
+  lines.push("");
+  for (const scene of DEMO_SCENES) {
+    lines.push(
+      `- ${scene.name} (${scene.brand}), for ${scene.personaLabel}: ${scene.whatItIs}. ${scene.tryLine}`,
+    );
+  }
   lines.push("");
 
   return new Response(lines.join("\n"), {

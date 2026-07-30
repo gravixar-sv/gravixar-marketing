@@ -10,9 +10,6 @@
   --color-brand-soft: #ff8a5c;
   --color-brand-deep: #e65a2e;
 
-  /* Legacy alias kept around for any custom CSS that referenced it */
-  --color-accent: #ff6b35;
-
   /* Hairlines. Two ranks only, ratifying the container-vs-divider hierarchy
      the pages already draw by hand: --color-line for anything that encloses
      (section frames, panel edges), --color-line-soft for anything that only
@@ -68,12 +65,31 @@
   body {
     min-height: 100dvh;
   }
-  /* Headings carry the display face; body stays on Mona. */
+  /* Headings carry the display face; body stays on Mona.
+     text-wrap: balance evens the last line of a multi-line heading, which is
+     where a one-word final line reads as a mistake rather than a line break.
+     Every engine that ships it caps balancing at a handful of lines and falls
+     back to normal wrapping past the cap, so it cannot become a layout cost on
+     long text; the Hero h1 (the LCP element) is two or three lines, well inside
+     the cap and a single block's worth of extra line-breaking work.
+     The one heading balance is arguably wrong for is ContactCTA's h2: two
+     sentences over three lines, where balance chases equal line widths and will
+     break mid-clause, while `pretty` would keep the natural rag and only fix
+     the orphan. That is a one-line call-site override ([text-wrap:pretty] on
+     that h2, utilities beat base), not a reason to demote the default for every
+     heading on the site, most of which are one or two lines of display type. */
   h1,
   h2,
   h3,
   h4 {
     font-family: var(--font-display);
+    text-wrap: balance;
+  }
+  /* Body copy gets `pretty`, which kills the orphaned last word without
+     touching the lines above it, so paragraph rhythm is unchanged. Both
+     properties degrade to normal wrapping where unsupported. */
+  p {
+    text-wrap: pretty;
   }
   ::selection {
     background: #ff6b35;
@@ -139,11 +155,14 @@
     animation-play-state: paused;
   }
 
-  /* Scroll reveal: a section fades and rises once when it enters the
-     viewport. Driven by an IntersectionObserver (<Reveal>), not a scroll
+  /* Scroll reveal, FALLBACK PATH: a section fades and rises once when it enters
+     the viewport. Driven by an IntersectionObserver (<Reveal>), not a scroll
      listener. GPU-only (opacity + transform). Distance and duration are
      custom properties, so a section picks its weight with one extra class
-     instead of a second transition rule. */
+     instead of a second transition rule.
+     Engines with scroll-driven animation take the @supports path further down
+     instead, which needs no JS at all. This version is what Firefox (still
+     flag-gated as of mid-2026) and older Safari get. */
   .reveal {
     --reveal-y: 24px;
     --reveal-dur: 640ms;
@@ -164,7 +183,10 @@
   }
   /* Weight modifiers. They set the two custom properties and nothing else,
      which is what keeps the reduced-motion guard on .reveal sufficient for
-     them: there is no transform / transition / opacity here to outrank it. */
+     them: there is no transform / transition / animation / opacity here to
+     outrank it. --reveal-y is read by both paths; --reveal-dur only by this
+     one (see the @supports block for why duration cannot mean anything on a
+     scroll timeline). */
   .reveal-lead {
     --reveal-y: 40px;
     --reveal-dur: 820ms;
@@ -191,8 +213,10 @@
     animation: rise-in 700ms var(--ease-out) both;
   }
 
-  /* Child stagger inside a <Reveal>: the parent's data-revealed flips all
-     .reveal-stagger children with an incremental delay. Scoped under
+  /* Child stagger inside a <Reveal>, FALLBACK PATH: the parent's data-revealed
+     flips all .reveal-stagger children with an incremental delay. Where
+     scroll-driven animation exists the children take their own view() timelines
+     instead and this whole ladder goes inert; see the @supports block. Scoped under
      .reveal so the same grid renders statically when used outside one.
      The step is a registered property rather than a declaration on
      .reveal-stagger on purpose: registering it gives the 70ms default zero
@@ -236,6 +260,137 @@
      end on a child that lands a second and a half late. */
   .reveal[data-revealed="true"] .reveal-stagger > *:nth-child(n + 6) {
     transition-delay: calc(var(--stagger, 70ms) * 5);
+  }
+
+  /* SCROLL-DRIVEN REVEALS. This block REMOVES a JS dependency from base
+     visibility rather than adding one, which is the whole reason it exists.
+     The transition path above cannot resolve unless <Reveal> flips
+     data-revealed, so if hydration fails or frames never composite, every
+     section below the fold stays at opacity 0 for the life of the page: the
+     1400ms rescue timer in Reveal.tsx only covers what happens to be in the
+     viewport when it fires. A view() timeline is driven by scroll offset and
+     needs no script at all, so on engines that support it nothing about base
+     visibility runs through JS. Firefox still gates scroll-driven animation
+     behind a flag as of mid-2026, so the transition path stays the fallback.
+
+     The base state is INVERTED here (opacity 1 / transform none) and ALL the
+     hiding is done by the animation's backwards fill. That inversion is the
+     safety property, not a style choice: a view() timeline is inactive when its
+     scroll container has no scrollable overflow, in paged contexts (print), and
+     whenever the subject is not being rendered. An animation on an inactive
+     timeline has an unresolved local time and therefore applies no effect at
+     all, fill-mode notwithstanding. Written the obvious way, with opacity: 0 as
+     the base, a short page and every printout would resolve to invisible
+     content. Written this way they resolve to a fully visible page, and the
+     animation is purely additive.
+
+     Cascade, since it decides whether data-revealed fights this: animations
+     outrank every normal author declaration regardless of specificity, so the
+     animation beats both this rule and .reveal[data-revealed="true"] (0,2,0)
+     for its entire lifetime, and `both` makes that lifetime cover the before
+     phase (from-keyframe, hidden) and the after phase (to-keyframe, visible)
+     as well as the active range. Before the range is entered the section is
+     below the viewport bottom, so the backwards fill hiding it is correct even
+     when JS has already flipped the attribute; after the range is exited the
+     forwards fill holds it visible. data-revealed goes inert on this path and
+     never contradicts it. Transitions, however, outrank animations, which is
+     why the fallback transition is switched off here rather than left to
+     compete for opacity and transform. */
+  @supports (animation-timeline: view()) {
+    @keyframes reveal-rise {
+      from {
+        opacity: 0;
+        transform: translateY(var(--reveal-y));
+      }
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+    .reveal {
+      opacity: 1;
+      transform: none;
+      transition: none;
+      /* --reveal-y still does its job: the keyframe reads it, so .reveal-lead
+         and .reveal-quiet keep their 40px / 12px weights. --reveal-dur is INERT
+         on this path. Progress comes from scroll offset, not elapsed time, so
+         editing --reveal-dur changes nothing in Chrome no matter how it looks;
+         the knob for how fast a reveal resolves is animation-range below. */
+      animation-name: reveal-rise;
+      animation-timing-function: var(--ease-out);
+      /* `both`, for exactly the reason the .loop-pulse comment below gives:
+         outside the active range a fill of `none` drops the transform and the
+         section snaps to an un-animated state. Here it also does the hiding. */
+      animation-fill-mode: both;
+      animation-timeline: view();
+      /* Range: starts when the section's top edge crosses the bottom of the
+         viewport, ends 40vh of scrolling later. Deliberately a LENGTH rather
+         than a percentage of a named range, because several of these sections
+         are taller than the viewport. The geometry, stated properly because it
+         is easy to get wrong: the `entry` range is min(subject, viewport) long,
+         so `entry 100%` resolves the moment the subject's top edge reaches the
+         TOP of the window, by which point the heading has already left the
+         comfortable reading band. `cover N%` is worse still, since cover length
+         is subject + viewport. What a length end offset buys is an invariant:
+         with progress measured over cover, p_end = 0.4V / (V + H), and at that
+         progress the subject's top always sits at 0.6V regardless of section
+         height H. So a 20vh card and a 250vh section both finish with their top
+         edge 60% of the way down the window, comfortably on screen.
+         The var(--ease-out) curve above is front-loaded, which is a second
+         safety net here: even at 40% of the range a section is already near
+         full opacity, so no plausible resting scroll position leaves visible
+         content looking unfinished. */
+      animation-range: entry 0% entry 40vh;
+      /* Back to auto. The de-promotion hook was [data-revealed], which is no
+         longer guaranteed to fire on this path, and a permanent compositor
+         layer on every section is worse than letting the UA promote the
+         animation it is already running. */
+      will-change: auto;
+    }
+    /* Stagger children. The transition-delay ladder above is time-based and
+       does not translate to a scroll timeline, so the children get their own
+       view() timelines instead of riding the wrapper's. That is the version
+       that keeps the JS out: leaving them on the transition path would leave
+       precisely the bug this block removes, one level down, and a grid of
+       invisible cards inside a visible section is worse than either. Because
+       each child's timeline is its own box, a grid's second row reveals after
+       its first for free, and on mobile every stacked card reveals as it
+       arrives. --stagger (a <time>) now governs the fallback path only. */
+    .reveal .reveal-stagger > * {
+      --reveal-y: 14px;
+      opacity: 1;
+      transform: none;
+      transition: none;
+      animation-name: reveal-rise;
+      animation-timing-function: var(--ease-out);
+      animation-fill-mode: both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 32vh;
+    }
+    /* The within-a-row beat, md+ only (48rem to match Tailwind's md, which is
+       where all three .reveal-stagger grids go multi-column). Below md they are
+       single-column, layout position already staggers them, and an extra offset
+       would only make the last card arrive late. At md+ a row's children share a
+       top edge and so share a timeline position, which without this lands them
+       together, exactly what Loop.tsx forbids for its three steps. Offsets, not
+       delays: animation-delay is as meaningless here as duration.
+       A mod-3 CYCLE, not a two-step cap, because the offset has to track column
+       position rather than absolute index. Demos is md:grid-cols-2 with its
+       featured card at md:col-span-2, so its rows are {1}, {2,3}, {4,5}: an
+       nth-child(n + 3) catch-all would hand cards 4 and 5 the same offset, and
+       since they share a row they share a top edge, so they would arrive
+       together, reintroducing the very problem this ladder exists to fix. The
+       cycle gives Loop and ServicesPreview 0/6/12vh across their three columns,
+       Demos row 2 a 6/12vh beat and row 3 a 0/6vh beat. Max offset stays 12vh,
+       so the scroll budget the last section needs is unchanged. */
+    @media (min-width: 48rem) {
+      .reveal .reveal-stagger > *:nth-child(3n + 2) {
+        animation-range: entry 6vh entry 38vh;
+      }
+      .reveal .reveal-stagger > *:nth-child(3n) {
+        animation-range: entry 12vh entry 44vh;
+      }
+    }
   }
 
   /* The approval-loop connector: a soft brand pulse travels the hairline.
@@ -319,13 +474,23 @@
    Unlayered on purpose, so it outranks anything in @layer utilities whatever
    the specificity there. .reveal-lead / .reveal-quiet need no entry: they
    declare only --reveal-y / --reveal-dur, and the .reveal reset below zeroes
-   the transform and transition that would have read them. */
+   the transform, the transition and the animation that would have read them. */
 @media (prefers-reduced-motion: reduce) {
+  /* .reveal and its stagger children have to kill the animation, not just the
+     transition: unlayered or not, a normal declaration cannot outrank an
+     animation, so the scroll-driven variant would keep fading sections in and
+     out under the reader's scroll while this block sat there being ignored.
+     `animation: none` drops the name (no name, no effect, so the opacity and
+     transform below finally apply) and resets animation-timeline as a side
+     effect; the timeline is reset by hand anyway, because this is the guard
+     block and it says what it means rather than leaning on the shorthand. */
   .reveal,
   .reveal .reveal-stagger > * {
     opacity: 1;
     transform: none;
     transition: none;
+    animation: none;
+    animation-timeline: auto;
     will-change: auto;
   }
   .animate-marquee,
@@ -363,7 +528,14 @@
 
 /* Scripting off entirely: reveals must never gate base visibility
    (ledger: ui-css-first-reveals-no-ticker-gated-visibility). .hero-enter,
-   .animate-marquee and .link-draw are pure CSS and need nothing here. */
+   .animate-marquee and .link-draw are pure CSS and need nothing here.
+   This block is now load-bearing for the FALLBACK path only. Where
+   animation-timeline: view() exists the reveals are already scriptless, and the
+   animation outranks the two declarations below, so sections there still fade
+   in as the reader scrolls rather than snapping visible, which is the intended
+   no-JS behaviour and not a conflict. Keep the block: without support there is
+   no timeline, only the JS-gated transition, and this is the only thing that
+   makes the page readable. */
 @media (scripting: none) {
   .reveal,
   .reveal .reveal-stagger > * {

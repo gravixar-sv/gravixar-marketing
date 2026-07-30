@@ -13,7 +13,9 @@ export function DemoGrid({ priority = false }: { priority?: boolean }) {
   // grid leaves with an odd count, and gives the lineup a hierarchy.
   // Slower stagger than the page default (70ms): these are heavy screenshot
   // cards, so a 90ms step lets the featured one visibly lead its followers
-  // instead of arriving with them.
+  // instead of arriving with them. Fallback path only: engines with
+  // scroll-driven animation stagger by a scroll offset instead, and globals.css
+  // uses a mod-3 cycle there so this grid's {4,5} row still gets a beat.
   return (
     <div className="reveal-stagger grid gap-5 md:grid-cols-2 [--stagger:90ms]">
       {DEMO_SCENES.map((scene, i) => (

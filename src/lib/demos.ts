@@ -1,9 +1,13 @@
-// The live scenes on demo.gravixar.com, one buyer per scene. Mirrored
-// verbatim from the live demo's scene gallery (the deployed site is the
-// source of truth; the demo repo's local main can lag). Each card leads with
-// the scene's descriptor name and carries its product sub-name, exactly as
-// the demo presents it. Re-confirm names, slugs, personas, and that each link
-// resolves before publishing changes.
+// The live scenes on demo.gravixar.com, one buyer per scene. Slugs, descriptor
+// names, product sub-names, personas and action labels match the live demo's
+// scene gallery one for one (the deployed site is the source of truth; the demo
+// repo's local main can lag). The tryLine copy is paraphrased into this site's
+// house style: the demo writes those lines with arrows and no closing period,
+// so a wording difference there is deliberate, not drift. Each card leads with
+// the scene's descriptor name and carries its product sub-name, exactly as the
+// demo presents it. Re-confirm names, slugs, personas, and that each link
+// resolves before publishing changes, and never let a card here claim more than
+// the demo's own card claims.
 //
 // Screenshots are real captures pulled from the live demo's /scenes/<slug>.png
 // into /public/scenes here. A sixth scene (Verus Partners, an AI intake
@@ -78,7 +82,9 @@ export const DEMO_SCENES: DemoScene[] = [
     slug: "care-ledger",
     name: "Billing & Credentialing",
     brand: "Care Ledger",
-    whatItIs: "A HIPAA-conscious medical billing and credentialing portal",
+    // Matches the demo's own card wording. The demo deliberately withholds the
+    // HIPAA adjective on this scene, so marketing does not add it back.
+    whatItIs: "A medical billing & credentialing portal",
     tryLine: "Credential a provider, enable billing, close the clinic deal.",
     personaLabel: "healthcare & billing",
     accent: "#2dd4bf",

@@ -12,18 +12,26 @@ type CapabilityGroup = {
 const GROUPS: CapabilityGroup[] = [
   {
     label: "ai",
-    note: "Claude across products: drafting, assessment, triage, with a human on every write.",
+    // Eval gates: 37 eval-gate suites, roughly 475 act-eval cases.
+    // Source: brain/projects/gravixar-hq.md.
+    note: "Claude across products: drafting, assessment, triage, with a human on every write. 37 eval suites gate the ones running in my own ops platform.",
     items: [
       "Claude API (Anthropic)",
       "Content drafting",
       "Candidate assessment",
       "Feedback triage",
+      "Eval gates",
     ],
   },
   {
+    // Cal.com was retired in May 2026. /contact renders lead/BookCall, which
+    // runs the in-house flow in src/lib/booking.ts: generated slots, an
+    // HMAC-signed email verification code (no token storage), a Blob append,
+    // and a Resend confirmation carrying a reusable Google Meet link plus an
+    // .ics invite. No third-party scheduler is in the path.
     label: "payments & scheduling",
     note: "Take the money and book the time.",
-    items: ["Stripe", "Cal.com"],
+    items: ["Stripe", "In-house booking (no third-party scheduler)"],
   },
   {
     label: "storage & data",
@@ -37,7 +45,9 @@ const GROUPS: CapabilityGroup[] = [
   },
   {
     label: "ops & security",
-    note: "The boring, load-bearing layer: identity, audit, anti-bot, and PHI safety.",
+    // Governance: 23 registered checks running daily across the platform.
+    // Source: brain/projects/gravixar-hq.md.
+    note: "The boring, load-bearing layer: identity, audit, anti-bot, PHI safety, and 23 governance checks that run daily.",
     items: [
       "Monday.com",
       "Google OAuth + Drive",
@@ -45,6 +55,7 @@ const GROUPS: CapabilityGroup[] = [
       "Anti-bot / BotID",
       "Audit logging",
       "PHI detection / redaction",
+      "Governance checks",
     ],
   },
 ];

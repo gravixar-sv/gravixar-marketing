@@ -174,6 +174,28 @@ export const moduleSchema = z.object({
 });
 export type Module = z.infer<typeof moduleSchema>;
 
+// content/data/system-stats.json: the counters the homepage puts in front of
+// a visitor. Every number carries the provenance that produced it and the date
+// it was last recounted, so a stat can't drift without the drift being visible.
+// Not an MDX section, so scripts/content-validate.ts validates this file with
+// its own step and fails the build once a verifiedAt goes stale.
+export const systemStatSchema = z.object({
+  key: slug,
+  label: z.string().min(1).max(60),
+  // string, not number: some stats are composite ("9 / 5")
+  value: z.string().min(1).max(24),
+  // names where the number came from, in words, e.g.
+  // "brain/_meta/module-health.json summary.total"
+  source: z.string().min(10),
+  verifiedAt: isoDate,
+});
+export type SystemStat = z.infer<typeof systemStatSchema>;
+
+export const systemStatsSchema = z.object({
+  stats: z.array(systemStatSchema).min(1),
+});
+export type SystemStats = z.infer<typeof systemStatsSchema>;
+
 export const SCHEMAS = {
   blog: blogPostSchema,
   "case-studies": caseStudySchema,

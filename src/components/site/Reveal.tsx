@@ -2,10 +2,19 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
-// Reveals its children once, when they scroll into view: a fade + rise
-// driven by an IntersectionObserver (not a scroll listener). GPU-only
-// (opacity + transform). Honors prefers-reduced-motion via the .reveal
-// CSS in globals.css. `delay` staggers sibling reveals.
+// Reveals its children once, when they scroll into view: a fade + rise. GPU-only
+// (opacity + transform). Honors prefers-reduced-motion via the .reveal CSS in
+// globals.css.
+//
+// FALLBACK PATH ONLY. Where `animation-timeline: view()` exists (Chrome, Edge,
+// Safari 26), globals.css drives the reveal entirely in CSS and data-revealed is
+// inert, so this observer and its rescue timer set an attribute no rule reads.
+// That is the point: on those engines base visibility no longer depends on
+// hydration at all. This component is what Firefox (still flag-gated as of
+// mid-2026) and older Safari get.
+//
+// `delay` writes an inline transitionDelay and is therefore also fallback-only,
+// since delays mean nothing on a progress timeline. No call site uses it today.
 export function Reveal({
   children,
   className = "",
