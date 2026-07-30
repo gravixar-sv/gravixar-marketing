@@ -1,6 +1,6 @@
 // Top-of-site banner pointing visitors at the live demo subdomain.
-// demo.gravixar.com is live — four interactive scenes you can click
-// through. Keep the framing active.
+// demo.gravixar.com is live: five interactive scenes you can click
+// through, no sign-in. Keep the framing active.
 
 import { SITE } from "@/lib/seo";
 
