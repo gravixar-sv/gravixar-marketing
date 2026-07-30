@@ -4,14 +4,15 @@ slug: "bs-hub"
 client: "Digital agency, 4-year engagement"
 role: "Solo build, architecture, engineering, AI integration, brand"
 period: "Q1 2026 – present"
-summary: "Took a digital agency from email/Notion/Drive sprawl to a single AI-augmented portal: adaptive intake wizard, 12-state delivery funnel, role-aware project workspace with review state machine, compliance-grade audit log, daily security-watch cron. The same codebase powers the live demo at demo.gravixar.com."
+summary: "Took a digital agency from email/Notion/Drive sprawl to a single AI-augmented portal: adaptive intake wizard, 12-state delivery funnel, role-aware project workspace with review state machine, compliance-grade audit log, daily security-watch cron. Code recount, July 2026: 84 Prisma models, 255 endpoints, 9 crons."
 problem: "Like most digital agencies past a certain size, the studio was running on stitched-together tools, Notion for some things, Slack threads for others, email for proposals, a shared Drive for assets, manual handoffs between admin and PM. Inquiries got lost in the seam between 'admin received it' and 'PM owns it'. Scopes drifted between the discovery call and the contract because nobody was holding the canonical version. There was no audit trail when something went sideways, so disputes ended in 'whose memory wins'. They needed one place where the client journey lived end-to-end, and they wanted AI threaded in where it actually saved time, not as an afterthought."
 approach: "Built one portal around a state machine, then layered AI into the joints where humans were paying the highest tax. The inquiry funnel is 12 explicit states with hard transitions, no implicit status, no admins typing free-form notes that might or might not mean 'approved'. Every mutating route writes to a compliance-grade audit log with a per-table safe-restore allowlist; the cancellation flow keeps the row, deletes tasks, and issues a credit ledger entry rather than hard-delete. AI is wired in at three points: the intake wizard uses Claude to adaptively pick the next question and generate a brand brief from the client's website (so the PM walks into the discovery call with context, not blind); a daily security-watch cron sweeps the audit log for anomalies (mass-signup spikes, DELETE bursts, stuck inquiries, classifier blackouts) and emails admin if anything trips; and per-task AI briefs auto-generate from the scope so designers don't read the whole project to start a single deliverable. AI never auto-publishes, never auto-approves, never sends client-facing communication without human review."
-outcome: "Live in production. Onboards new clients in under 10 minutes (was 2-3 days of back-and-forth email). 16 modules, all documented in the repo's MODULES.md so the same shape can be forked for the next agency. The demo subdomain reseeds 5 canonical scenarios weekly so prospects can click around as a real client before signing. The pattern is now the recipe, every digital agency I work with starts here and we strip/extend modules per their shape."
+outcome: "Live in production. Onboards new clients in about 10 minutes (was 2-3 days of back-and-forth email). I stopped guessing at the size of it and measured: a 2026-07-21 recount run by the repo's own stats script came back with 84 Prisma models, 255 endpoints and 9 scheduled jobs, all catalogued in-repo so the same shape can be forked for the next agency. A 14-agent find-then-refute audit on 2026-07-29 raised 63 findings, refuted none of them and recalibrated 11 for severity; 87 findings closed across two pull requests with 252 of 252 tests passing. The pattern is now the recipe, every digital agency I work with starts here and I strip or extend per their shape."
 metrics:
   - { label: "Time to first project activation", value: "~10 min (was 2-3 days)" }
   - { label: "Inquiry funnel states", value: "12, fully audited" }
-  - { label: "Modules", value: "16, full dependency graph in MODULES.md" }
+  - { label: "System scale (code recount, 2026-07-21)", value: "84 Prisma models, 255 endpoints, 9 crons" }
+  - { label: "Audit pass (2026-07-29)", value: "63 findings, 0 refuted, 87 closed, 252/252 tests" }
   - { label: "Audit retention", value: "7y contract / 1y operational" }
 stack:
   - "Next.js 16 App Router"
@@ -32,7 +33,7 @@ draft: false
 
 The portal handles four distinct surfaces in one codebase: **public marketing + signup wizard**, **client view of their own work**, **PM/admin operations console**, and **internal HR + presence tooling**. Each has its own permission model, its own dashboard, and its own audit boundaries.
 
-The 16 modules, from `identity-auth` at the base to `security-watch` at the tip, are catalogued in [MODULES.md](https://github.com/...) with a dependency graph that says exactly what depends on what. That document is the recipe: when I spin up a portal for the next client, I work down the list and decide module-by-module what to keep, drop, or customize. A pure task-tracker drops twelve modules. An internal HR tool keeps four.
+Module count stopped being the useful unit once the system outgrew its first estimate. A recount on 2026-07-21, run by the repo's own `count-system-stats.ts` rather than from memory, measured 84 Prisma models, 255 API endpoints and 9 scheduled jobs. The named units, from `identity-auth` at the base to `security-watch` at the tip, are catalogued in-repo with a dependency graph that says exactly what depends on what. That catalogue is the recipe: when I spin up a portal for the next client, I work down the list and decide unit-by-unit what to keep, drop, or customize. A pure task-tracker needs a fraction of it. An internal HR tool needs less than that.
 
 The piece I'm proudest of is the review state machine on tasks. Every deliverable flows through `DRAFT → SUBMITTED_FOR_INTERNAL → INTERNAL_APPROVED → SUBMITTED_FOR_CLIENT → CLIENT_APPROVED`, with a `CLIENT_REVISION_REQUESTED` branch back into the loop. Each transition is a single-purpose API call with a side-effect contract, emails, notifications, audit row. No state is implicit. No admin can flip a task to "approved" by editing a free-text field.
 
@@ -46,6 +47,8 @@ The piece I'm proudest of is the review state machine on tasks. Every deliverabl
 
 **Restore is allowlist-only.** The Activity Log has a "Restore" button on update rows, but only for fields in `auditRestoreAllowlist.ts`. Status enums, money amounts, and assignment ownership are never auto-restorable, those need a human decision. The allowlist is the security boundary.
 
+**Findings get refuted before they get fixed.** The audit on 2026-07-29 ran as 14 parallel agents hunting problems, then a second pass trying to knock every finding down. 63 findings survived, none were refuted, 11 came back with a corrected severity. Two pull requests followed, closing 87 findings in total, and the suite finished 252 of 252. The refute pass is the part that matters: it is what keeps an audit from becoming a list of things that merely sounded bad.
+
 ## What broke (the honest section)
 
 **Activation latency on retainers.** When a PM activates a heavy retainer scope, the portal generates milestones, tasks, and a per-task AI brief. The auto-assigner runs ~5 queries per task to score-and-pick by skill and workload. On a 30-deliverable retainer that's 150 sequential queries before the activation finishes. First version timed out the request. Fix was to hand the activation to a background queue and stream status back to the UI; meanwhile I shipped a "Activating… (spinning up tasks)" disabled state on the button so PMs don't double-click during the 70 seconds.
@@ -58,6 +61,6 @@ The piece I'm proudest of is the review state machine on tasks. Every deliverabl
 
 ## What's next
 
-A separate platform for healthcare ops, different shape, different domain. Coming soon.
+The healthcare ops platform that was next when I wrote this is live: separate build, different shape, different problem space, running on its own branded domain since June 2026. [Written up here](/work/beeline).
 
 A finance module for the agency portal, mirroring the cancellation pattern: separate API + email template + admin UI + audit hooks. Expense tracking, salaried payroll, monthly reports. Last open loop on the roadmap.

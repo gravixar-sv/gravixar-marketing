@@ -18,7 +18,7 @@ Declarative. Lands a blunt short sentence, then earns it with a longer, specific
 
 ## 4. Vocabulary tier
 
-Plain, concrete, Anglo-Saxon. Says "run", "build", "ship", "use", "watch", "drift". Reaches for real nouns (portal, cron, intake wizard, audit trail, retainer) and real numbers (2009, 4 years, 9 of 14 modules, $3,500/month, 5 to 25 person stage). Technical when it earns it, never to impress.
+Plain, concrete, Anglo-Saxon. Says "run", "build", "ship", "use", "watch", "drift". Reaches for real nouns (portal, cron, intake wizard, audit trail, retainer) and real numbers (2009, 4 years, $3,500/month, 5 to 25 person stage). Technical when it earns it, never to impress.
 
 **Signature words:** run / running, ship, build, system, drift, almost, proof, in production, owns/owned, scoped, honest, audit trail, the part nobody quotes.
 
@@ -39,7 +39,7 @@ Plain, concrete, Anglo-Saxon. Says "run", "build", "ship", "use", "watch", "drif
 - Colons earn their keep: used for reveals and lists ("the same pattern everywhere: AI does the work...").
 - Oxford comma: yes.
 - Semicolons: rare; prefer a period.
-- Numerals for real figures ("9 of 14", "$3,500", "2009"); ranges written as "5 to 25", not "5–25".
+- Numerals for real figures ("$3,500", "2009", "84 models"); ranges written as "5 to 25", not "5–25".
 - Sentence-case everywhere, including headings. No Title Case, no ALL-CAPS for emphasis.
 - Double quotes for the skeptic's voice and for scare-quoting jargon ("v1", "healthy", "almost").
 

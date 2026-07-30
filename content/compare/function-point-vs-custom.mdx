@@ -20,8 +20,9 @@ faqs:
   - question: "Does a custom portal need to replicate Function Point's reporting?"
     answer: "Only the parts you actually use. Most agencies use a margin-per-client report, a utilization report, and an aging-receivables report. Three reports is a small surface. The dashboards that look impressive in the Function Point demo don't usually map to actual decisions."
   - question: "How long is the typical custom build for an agency Function Point's size?"
-    answer: "For a 15 to 25 person agency, four to ten weeks to a working portal handling live client work. Then twelve months of evolution rather than rebuild. The bs-hub recipe gets you there because the modules are pre-built; the work is shaping them to your delivery, not inventing them."
+    answer: "For a 15 to 25 person agency, four to ten weeks to a working portal handling live client work. Then twelve months of evolution rather than rebuild. The bs-hub recipe gets you there because the parts already exist and already run: a code recount on 2026-07-21 measured 84 database models, 255 endpoints and 9 scheduled jobs in that one codebase. The work is shaping that to your delivery, not inventing it."
 publishedAt: "2026-05-04"
+updatedAt: "2026-07-30"
 ---
 
 ## The honest version
@@ -52,7 +53,9 @@ No serious story for AI in the workflow. Not a knock specifically, the whole cat
 
 [The agency portal I built for a 4-year client](/work/bs-hub) is a working example. Twelve-state inquiry funnel with hard transitions. Review state machine on every deliverable, draft to internal-approved to client-approved with a revision-requested branch back into the loop. Two-tier audit retention, contract rows live seven years, operational rows live one. AI threaded into intake (adaptive questions, brand brief from the client's website), per-task AI briefs auto-generated from scope, daily security-watch cron sweeping for anomalies. Branded all the way through.
 
-The 16 modules are documented in the repo. The recipe is forkable. When I build for the next agency, I work down the module list and decide what to keep, drop, or customize. The unit of work is the module.
+That system is larger than the feature list makes it sound. When I had the repo count itself on 2026-07-21 it came back with 84 database models, 255 endpoints and 9 scheduled jobs, all documented and forkable. When I build for the next agency, I work down that surface and decide what to keep, drop, or customize. The unit of work is a slice of something already running, not a blank page.
+
+Onboarding is the other place it lands. Getting a new client activated on that portal takes about ten minutes, replacing the two to three days of back-and-forth email it used to take.
 
 The point of the custom build isn't to outdo Function Point on reporting. It's to win the parts Function Point flattens, the client experience, the review state machine, the AI assist that lives inside rather than alongside.
 

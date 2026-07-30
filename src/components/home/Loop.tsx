@@ -52,10 +52,12 @@ export function Loop() {
           <span className="loop-pulse absolute inset-y-0 left-0 w-[12%]" />
         </div>
 
-        {/* 220ms between steps, not the 70ms default: a section explaining a
-            three-step sequence cannot have its three steps arrive at once. The
-            pulse is not a timing reference for this, since where scroll-driven
-            animation exists it tracks the reader's scroll rather than a clock. */}
+        {/* A section explaining a three-step sequence cannot have its three steps
+            arrive at once. The beat is engine-conditional: --stagger (220ms, vs
+            the 70ms default) drives the transition fallback, while engines with
+            scroll-driven animation stagger by a 6vh/12vh scroll offset instead
+            (see the @supports block in globals.css). The pulse is not a timing
+            reference either way, since it tracks scroll where that exists. */}
         <ol className="reveal-stagger grid gap-10 [--stagger:220ms] md:grid-cols-3 md:gap-8">
           {STEPS.map((step) => (
             <li key={step.n} className="relative md:pt-8">

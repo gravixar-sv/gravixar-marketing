@@ -42,7 +42,10 @@ export function ContactCTA() {
         <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand">
           next step
         </p>
-        <h2 className="mt-3 max-w-3xl text-3xl font-semibold tracking-[-0.015em] md:text-section">
+        {/* pretty, not the global balance: this is two sentences over three
+            lines, where balance chases equal line widths and breaks mid-clause.
+            pretty keeps the natural rag and only fixes the orphan. */}
+        <h2 className="mt-3 max-w-3xl text-3xl font-semibold tracking-[-0.015em] [text-wrap:pretty] md:text-section">
           Bring me a real operations problem. I&apos;ll show you the system before
           you sign anything.
         </h2>
