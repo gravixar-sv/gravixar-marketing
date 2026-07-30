@@ -2,10 +2,14 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { PageHeader } from "@/components/site/PageHeader";
 import { MDX } from "@/content/mdx";
 import { ContactCTA } from "@/components/home/ContactCTA";
 import { Reveal } from "@/components/site/Reveal";
+import {
+  fitsInsideCell,
+  KIND_LABELS,
+  OriginChip,
+} from "@/components/site/GraphicsMeta";
 import { StructuredDataBreadcrumb } from "@/components/site/StructuredData";
 import { loadGraphics } from "@/content/loaders";
 import { buildMetadata, SITE } from "@/lib/seo";
@@ -25,10 +29,15 @@ export async function generateMetadata(
   const g = items.find((i) => i.meta.slug === slug);
   if (!g) return { title: "Not found" };
   return buildMetadata({
+    // summary, not "kind · year": the description is what a search result and a
+    // share card read out, and a taxonomy pair says nothing about the piece.
     title: g.meta.title,
-    description: `${g.meta.kind} · ${g.meta.year}`,
+    description: g.meta.summary,
     path: `/graphics/${slug}`,
-    ogImage: g.meta.cover.src,
+    // No ogImage: fall through to the branded /api/og card, as every case
+    // study does. A real cover is the wrong share image here. One is WebP,
+    // which unfurls unreliably on LinkedIn and some Slack paths, and the other
+    // is 1:1 under a summary_large_image card that wants roughly 1.91:1.
   });
 }
 
@@ -49,10 +58,34 @@ export default async function GraphicsItemPage(
           { name: g.meta.title, url: `${SITE.url}/graphics/${slug}` },
         ]}
       />
-      <PageHeader eyebrow={`${g.meta.kind} · ${g.meta.year}`} title={g.meta.title} />
+
+      {/* Written out rather than using <PageHeader>, for the same reason
+          /blog/[slug] writes its own: the meta row holds an element, the origin
+          chip, beside the mono line. PageHeader takes an eyebrow string only,
+          and flattening provenance into that string would render it as a
+          footnote. It is the header's second fact, so it sits on the same row as
+          kind and year. Weights match PageHeader exactly. */}
+      <header className="border-b border-zinc-900 pb-10">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+          <p className="font-mono text-xs uppercase tracking-widest text-brand">
+            {KIND_LABELS[g.meta.kind]} · {g.meta.year}
+          </p>
+          <OriginChip origin={g.meta.origin} />
+        </div>
+        <h1 className="mt-3 text-4xl font-semibold tracking-tight md:text-5xl">
+          {g.meta.title}
+        </h1>
+        <p className="mt-4 max-w-2xl text-lg leading-relaxed text-zinc-400">
+          {g.meta.summary}
+        </p>
+      </header>
 
       {/* Lead media is the fold, so it is deliberately outside a <Reveal>: the
-          cover is the LCP element here and must not wait on an observer. */}
+          cover is the LCP element here and must not wait on an observer.
+          The video branch stays wired but no entry uses it: next.config.ts
+          declares no media-src, so the CSP falls back to default-src 'self' and
+          a cross-origin source would be blocked at runtime after shipping
+          green. See the note on the video field in src/content/schema.ts. */}
       {g.meta.video ? (
         <div className="overflow-hidden rounded-xl border border-line bg-zinc-950">
           <video
@@ -71,7 +104,11 @@ export default async function GraphicsItemPage(
             fill
             sizes="100vw"
             priority
-            className="object-cover"
+            className={
+              fitsInsideCell(g.meta.cover)
+                ? "object-contain p-10 md:p-16"
+                : "object-cover"
+            }
           />
         </div>
       )}
@@ -92,20 +129,31 @@ export default async function GraphicsItemPage(
       {g.meta.gallery.length > 0 ? (
         <Reveal>
           <div className="reveal-stagger grid gap-5 md:grid-cols-2">
-            {g.meta.gallery.map((img) => (
-              <div
-                key={img.src}
-                className="relative aspect-[4/3] overflow-hidden rounded-xl border border-line bg-zinc-950"
-              >
-                <Image
-                  src={img.src}
-                  alt={img.alt}
-                  fill
-                  sizes="(min-width: 768px) 50vw, 100vw"
-                  className="object-cover"
-                />
-              </div>
-            ))}
+            {g.meta.gallery.map((img) => {
+              const fit = fitsInsideCell(img);
+              // A mark drawn for light backgrounds is black art, and black art
+              // on the gallery's near-black cell is an empty box. Those assets
+              // get the surface they were designed for, which is also the more
+              // honest presentation: showing each variant on its intended
+              // background is itself the thing being demonstrated.
+              const onLight = img.src.includes("-dark");
+              return (
+                <div
+                  key={img.src}
+                  className={`relative aspect-[4/3] overflow-hidden rounded-xl border border-line ${
+                    onLight ? "bg-zinc-200" : "bg-zinc-950"
+                  }`}
+                >
+                  <Image
+                    src={img.src}
+                    alt={img.alt}
+                    fill
+                    sizes="(min-width: 768px) 50vw, 100vw"
+                    className={fit ? "object-contain p-8 md:p-12" : "object-cover"}
+                  />
+                </div>
+              );
+            })}
           </div>
         </Reveal>
       ) : null}
@@ -149,7 +197,7 @@ export default async function GraphicsItemPage(
           href="/graphics"
           className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-400 transition-colors hover:text-brand"
         >
-          ← Back to the gallery
+          ← Back to the showcase
         </Link>
       </div>
 

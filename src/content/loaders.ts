@@ -164,17 +164,23 @@ export async function loadCompares({
     .sort((a, b) => b.meta.publishedAt.localeCompare(a.meta.publishedAt));
 }
 
-export async function loadGraphics(): Promise<Loaded<GraphicsItem>[]> {
-  const items = await loadDir("graphics", (data, file) => {
-    const result = graphicsItemSchema.safeParse(data);
-    if (!result.success) {
-      throw new Error(`Invalid frontmatter in ${file}:\n${result.error.message}`);
-    }
-    return result.data;
-  });
-  return items.sort(
-    (a, b) => a.meta.order - b.meta.order || b.meta.year - a.meta.year,
+export async function loadGraphics({
+  includeDrafts = false,
+}: { includeDrafts?: boolean } = {}): Promise<Loaded<GraphicsItem>[]> {
+  const items = await loadDir(
+    "graphics",
+    (data, file) => {
+      const result = graphicsItemSchema.safeParse(data);
+      if (!result.success) {
+        throw new Error(`Invalid frontmatter in ${file}:\n${result.error.message}`);
+      }
+      return result.data;
+    },
+    { includeDrafts },
   );
+  return items
+    .filter((i) => includeDrafts || !i.meta.draft)
+    .sort((a, b) => a.meta.order - b.meta.order || b.meta.year - a.meta.year);
 }
 
 export async function loadHomeBlock(name: "hero" | "proof"): Promise<Loaded<HomeBlock>> {

@@ -41,7 +41,7 @@ const MORE = [
   {
     href: "/graphics",
     label: "Graphics",
-    description: "Brand and visual portfolio",
+    description: "Visual work, labeled by origin",
     Icon: Palette,
   },
   {

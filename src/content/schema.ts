@@ -89,21 +89,70 @@ export const serviceSchema = z.object({
 });
 export type Service = z.infer<typeof serviceSchema>;
 
-export const graphicsKind = z.enum(["static", "motion", "brand"]);
+// What kind of artefact the piece is. The old trio was
+// ["static", "motion", "brand"], which asked a reader to act on the
+// difference between "static" and "brand" (there isn't one, a brand system
+// is mostly static) while having nowhere to put a shipped web surface or a
+// print deck. These five name the medium instead, so the filter on /graphics
+// sorts by something a buyer is actually shopping for.
+export const graphicsKind = z.enum([
+  "identity",
+  "interface",
+  "motion",
+  "web",
+  "print",
+]);
+
+// Who the work was for. This is the field that lets /graphics be a capability
+// showcase rather than a client-work portfolio: a portfolio implies "a client
+// hired me for this", which own-brand work cannot claim honestly, and that
+// implied claim is why the first attempt at populating this page was reverted.
+// Declaring provenance instead makes the honest claim, "I can build this, and
+// here it is built".
+//   client        = commissioned, a client paid for it and cleared it to show
+//   self-directed = my own brand or product, built to my own brief
+//   concept       = unbuilt or exploratory, no shipping client behind it
+export const graphicsOrigin = z.enum(["client", "self-directed", "concept"]);
 
 export const graphicsItemSchema = z.object({
   title: z.string().min(2).max(120),
   slug,
   kind: graphicsKind,
+  // Required, and deliberately NOT defaulted. A default would let an
+  // unlabeled entry render with a provenance it never declared, which is
+  // exactly the failure this field exists to prevent: silence would read as
+  // "client" to anyone scanning a gallery. Making it required means the
+  // build stops until a human says what the piece is. Same instinct as
+  // aiAssisted on blogPostSchema, volunteered rather than buried.
+  origin: graphicsOrigin,
   year: z.number().int().min(2000).max(2100),
+  // One line for the index card. Required because a card with a title and an
+  // image and no sentence makes the reader open the piece to learn whether
+  // it is worth opening.
+  summary: z.string().min(20).max(280),
   tools: z.array(z.string().min(1)).default([]),
   cover: baseImage,
   gallery: z.array(baseImage).default([]),
+  // CSP CONSTRAINT, read before adding a video. next.config.ts declares
+  // img-src (which includes the Vercel Blob host) but no media-src, so media
+  // falls back to default-src 'self'. A blob-hosted or otherwise off-origin
+  // video parses here, passes prebuild and ships green, then gets blocked at
+  // runtime with nothing in the build log to explain it. Same-origin files
+  // under public/ are covered by 'self'. Anything else needs a media-src
+  // directive added in the same change as the video, not after it.
   video: z
     .object({ src: z.string().min(1), poster: z.string().optional() })
     .optional(),
   processNote: z.string().optional(),
+  // Drives a wider cell in the /graphics grid. A property of the piece, not
+  // of its position in an array, so the grid can't silently reflow when an
+  // entry is added above it.
+  featured: z.boolean().default(false),
   order: z.number().int().nonnegative().default(0),
+  // Staged but not public. Filtered by loadGraphics, so a piece can sit in
+  // content/graphics/ while the copy is still being written, without the
+  // _drafts/ path trick.
+  draft: z.boolean().default(false),
 });
 export type GraphicsItem = z.infer<typeof graphicsItemSchema>;
 

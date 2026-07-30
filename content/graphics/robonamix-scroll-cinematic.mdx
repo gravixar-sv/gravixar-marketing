@@ -1,0 +1,69 @@
+---
+title: "A scroll-scrubbed camera flight through a robotics studio"
+slug: "robonamix-scroll-cinematic"
+kind: "motion"
+origin: "self-directed"
+year: 2026
+featured: true
+summary: "Six pre-rendered scenes flown as one continuous camera move, with scroll as the only driver. No WebGL and no 3D engine in the browser. About 9kB of engine, and everything else is media."
+tools:
+  - "Vanilla scroll-scrub engine"
+  - "AI-generated scene renders"
+  - "ffmpeg"
+  - "Next.js"
+cover:
+  src: "/graphics/robonamix-scroll-cinematic/bench.webp"
+  alt: "A miniature clay-styled electronics workbench: two breadboards strung with jumper wires, a tray of loose components, a wall of labeled drawers behind it, an angled desk lamp, spools of wire and a stool, with a robot arm and stacked crates further back in the room."
+  width: 1280
+  height: 720
+gallery:
+  - src: "/graphics/robonamix-scroll-cinematic/screen.webp"
+    alt: "Two shared workstations along a wall of the same clay studio, three glowing monitors and a keyboard between them, stools tucked under the desks, and an arched doorway of white daylight on the right."
+    width: 1280
+    height: 720
+  - src: "/graphics/robonamix-scroll-cinematic/floor.webp"
+    alt: "The arched doorway head-on, opening onto a grey road with painted lane markings. A monitor on the left shows a bar chart in coral and green, a control panel with four dials sits on the desk to the right."
+    width: 1280
+    height: 720
+  - src: "/graphics/robonamix-scroll-cinematic/rig.webp"
+    alt: "A small 3D printer part way through a print on an orange bench, nozzle lit, a coral blob already on the plate. A handheld controller and a monitor showing the part in progress sit beside it."
+    width: 1280
+    height: 720
+  - src: "/graphics/robonamix-scroll-cinematic/showcase.webp"
+    alt: "A lit alcove of display shelving, two rows of small finished pieces on white plinths under downlights, coral and sage and mustard forms arranged like a museum case."
+    width: 1280
+    height: 720
+  - src: "/graphics/robonamix-scroll-cinematic/earner.webp"
+    alt: "The camera past the display shelving and into a corridor, a lamp glowing on the top shelf and finished pieces below it, the wall opening into a bright empty room ahead."
+    width: 1280
+    height: 720
+processNote: "The encode is deliberately fat, and that is the point. Scrubbing needs a keyframe every 8 frames, because a long-GOP file that is cheap to stream will judder on every seek, so the file size here is a consequence of the interaction rather than something left unoptimized. Each clip is fetched as a whole Blob before it plays, which keeps it seekable without depending on the server honoring HTTP range requests, and that fetch is exactly why the WebP still has to double as a live poster: it holds the frame while the clip is still arriving. The known gap is mobile. The deployment ships one set of encodes and no mobile renditions, so a phone pulls desktop-sized clips. That is the next optimization and it is not done."
+order: 1
+draft: false
+---
+
+## What it is
+
+A visitor lands on the studio page and scrolls. The camera flies from outside a scene into its interior, through the room, and on into the next one, with no cuts anywhere in the sequence. Six scenes, one continuous move, and scroll position is the only thing driving it. It is live at [robonamix.com/inside-the-studio](https://robonamix.com/inside-the-studio).
+
+## There is no 3D engine in this
+
+Worth saying plainly, because a page that moves like this usually implies otherwise. No WebGL, no scene graph, no renderer running in the browser. The depth is baked into pre-rendered video long before anything reaches a visitor. At runtime the browser decodes frames and animates opacity and transform on plain elements, and that is the whole mechanism. The engine coordinating it is about 9kB compressed with zero dependencies.
+
+The scenes themselves are AI-generated. A video model rendered each one from a prompt and a reference frame, and the provider's watermark is still in the corner of every frame on this page, which is why you can see it. That split is worth being exact about, because it is the difference between what a model made and what I did. The model produced six rooms. I chose the ladder they describe, directed the camera so each flight ends where the next one begins, wrote the scrub engine that ties the playhead to scroll position, decided the encode strategy that makes seeking survive a phone, and built the branch that never fetches a single clip when a reader has asked for reduced motion. Generated scenes are cheap now. The part that is not cheap is making six of them behave as one continuous move.
+
+Which means the page has one cost, and it is media. There is no frame budget being spent on geometry, no device tier where the scene degrades into a slideshow because the GPU gave up. It gets faster by shipping better encodes, not by simplifying the world.
+
+## The six scenes are an argument
+
+The flight walks a ladder: Spark, then Resident, then Contributor, then Earner. Someone arrives curious, gets a bench, starts contributing to builds that are not theirs, and ends up earning from what they make. The scenes carry that in props rather than captions. A first breadboard, then a shared workstation, then a print rig running a job, then a shelf of finished pieces, then the room past the shelf. The camera does most of the explaining, so the copy on the page can stay short.
+
+## Reduced motion is a branch, not a slower version
+
+When a visitor asks for reduced motion, the clips are never fetched at all. The stills cross-dissolve instead. That is a real second implementation rather than a damped version of the first, and it has a side effect worth naming: the reader who wanted less motion also gets a much lighter page.
+
+## What you are looking at on this page
+
+These six frames are stills. The motion only exists on the live page, and I have not tried to fake the flight inside a gallery card, so if the interaction is the part you want to judge, [go and scroll the real thing](https://robonamix.com/inside-the-studio).
+
+Robonamix is my own project, which is what the self-directed label above says. Nobody commissioned this. It exists because I wanted to find out how far a scroll cinematic gets without a 3D engine, and the answer turned out to be most of the way.
