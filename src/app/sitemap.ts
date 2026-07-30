@@ -40,7 +40,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [
     ...staticRoutes.map((p) => ({ url: url(p), lastModified: new Date() })),
-    ...services.map((s) => ({ url: url(`/services/${s.meta.slug}`), lastModified: new Date() })),
+    ...services.map((s) => ({
+      url: url(`/services/${s.meta.slug}`),
+      lastModified: s.meta.updatedAt ? new Date(s.meta.updatedAt) : new Date(),
+    })),
     ...studies.map((s) => ({
       url: url(`/work/${s.meta.slug}`),
       lastModified: new Date(s.meta.publishedAt),

@@ -47,7 +47,7 @@ export async function GET() {
   lines.push("");
   lines.push(`- [Home](${url("/")}): Landing + positioning + case-study previews`);
   lines.push(`- [About](${url("/about")}): Who Qamar is, how engagements work`);
-  lines.push(`- [Services](${url("/services")}): Three build buckets (operations, AI, brand) plus the fractional AI-ops retainer`);
+  lines.push(`- [Services](${url("/services")}): Three build buckets (operations, AI, brand), plus two ongoing engagements: the fractional AI-ops retainer and a fixed-scope system audit`);
   lines.push(`- [Modules](${url("/modules")}): Reusable production-tested patterns across builds`);
   lines.push(`- [Work](${url("/work")}): Case studies of shipped systems`);
   lines.push(`- [Compare](${url("/compare")}): Off-the-shelf vs custom honest reads`);

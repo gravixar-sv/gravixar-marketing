@@ -5,11 +5,15 @@ import Link from "next/link";
 // Two real retainers run on this today; both are described generically here
 // (no client names or links) until the operator clears naming them.
 //
-// Reads as a SUBSECTION of ServicesPreview, not a peer: that heading promises
-// three builds plus one thing kept running, which is exactly the four service
-// files, so this fifth un-numbered offer gets no coral eyebrow and a smaller
-// h2. The retainer link stays a secondary button though, since it sells the
-// same paid outcome as the Hero and ContactCTA buttons pointing at /contact.
+// Reads as a SUBSECTION of ServicesPreview, not a peer. The argument is about
+// KIND, not count: the numbered menu above is the five service files (three on
+// the build track, two ongoing), and managed website retainers are not one of
+// them. They are not a build, not scoped, and not something a buyer chooses
+// between. So this block sits outside the numbering, with no coral eyebrow and
+// an h3 rather than an h2. Do not restate this as a count, which is what the
+// previous version did and why it went stale the day a fifth service shipped.
+// The retainer link stays a secondary button though, since it sells the same
+// paid outcome as the Hero and ContactCTA buttons pointing at /contact.
 
 const INCLUDED = [
   "WordPress site management",
