@@ -16,16 +16,15 @@
 // carries no case-study previews (its acts are hero plus approval loop,
 // then clients, demos and capabilities, then the services menu, then the ask).
 //
-// /graphics and /privacy are deliberately absent. /graphics is in the nav and
-// the sitemap, but content/graphics has no entries, so the page renders its
-// empty state; pointing a crawler at an empty gallery is a worse claim than
-// making none, so list it here once work sits behind it. /privacy is a real
-// page and a deliberate omission: this manifest is the priority set, not the
-// sitemap.
+// /graphics WAS absent while content/graphics had no entries, on the grounds
+// that pointing a crawler at an empty gallery is a worse claim than making
+// none. Work sits behind it now, so it is listed. /privacy stays a deliberate
+// omission: this manifest is the priority set, not the sitemap.
 
 import {
   loadCaseStudies,
   loadCompares,
+  loadGraphics,
   loadModules,
   loadServices,
 } from "@/content/loaders";
@@ -47,11 +46,12 @@ const TRACK_CLAUSE: Record<Service["track"], string> = {
 };
 
 export async function GET() {
-  const [services, studies, compares, modules] = await Promise.all([
+  const [services, studies, compares, modules, graphics] = await Promise.all([
     loadServices(),
     loadCaseStudies(),
     loadCompares(),
     loadModules(),
+    loadGraphics(),
   ]);
 
   const url = (path: string) => `${SITE.url}${path}`;
@@ -94,6 +94,7 @@ export async function GET() {
   lines.push(`- [Work](${url("/work")}): Case studies of shipped systems: the problem, the approach, the outcome, and the parts that broke`);
   lines.push(`- [Compare](${url("/compare")}): Off-the-shelf vs custom honest reads, each naming who should pick the SaaS, who should go custom, and an FAQ block`);
   lines.push(`- [Demos](${url("/demos")}): The live demo scenes, one per buyer, with what to try in each`);
+  lines.push(`- [Graphics](${url("/graphics")}): ${graphics.length} visual ${graphics.length === 1 ? "piece" : "pieces"}, each carrying a required origin label (client work, self-directed, or concept) so provenance is stated rather than implied`);
   lines.push(`- [Blog](${url("/blog")}): Field notes on agency operations, delivery process, and keeping AI in the loop. Some posts are drafted by the SEO agent running on this site, flagged as such on the post, and published only when a human promotes the file`);
   lines.push(`- [Careers](${url("/careers")}): Current openings, published from the same hiring system Qamar runs internally, each role page carrying JobPosting structured data and its own apply form`);
   lines.push(`- [Contact](${url("/contact")}): Lead form plus in-house 30-minute call booking (email-verified code, reusable Google Meet room, calendar invite)`);

@@ -23,7 +23,7 @@ export const metadata: Metadata = buildMetadata({
 // site I keep running for as long as you want it up. A service's `track`
 // decides which row it lands in, so nothing here has to know how many services
 // exist, and an empty track renders nothing. The homepage leaves its
-// equivalent bands unlabelled and lets spacing carry the split; the index
+// equivalent bands unlabeled and lets spacing carry the split; the index
 // labels them because /modules labels its groups, and because on the page
 // where someone is choosing, "is this a project or a commitment" is the
 // question to answer before the click.

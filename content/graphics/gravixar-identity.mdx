@@ -1,0 +1,57 @@
+---
+title: "The Gravixar identity system"
+slug: "gravixar-identity"
+kind: "identity"
+origin: "self-directed"
+year: 2026
+featured: false
+summary: "Mark, coral, dark-only palette, two variable grotesks and a mono label convention. The strongest thing I can say about it is that you are reading the system right now, on the site it was built for."
+tools:
+  - "Hubot Sans"
+  - "Mona Sans"
+  - "Geist Mono"
+  - "Tailwind v4 design tokens"
+cover:
+  src: "/logos/gravixar-avatar.png"
+  alt: "The Gravixar avatar mark: a black disc carrying a white lowercase g drawn from a single stroke, with a small solid red square set at the baseline to the right of it."
+  width: 1409
+  height: 1409
+gallery:
+  - src: "/logos/gravixar-wordmark.png"
+    alt: "The primary Gravixar wordmark, set in white lowercase letters on transparency, with the red square standing in for the dot over the i."
+    width: 4831
+    height: 1189
+  - src: "/logos/gravixar-wordmark-dark.png"
+    alt: "The dark-ink variant of the same wordmark for light backgrounds, black letters with the square shifted to a warmer orange-red so it holds against white."
+    width: 374
+    height: 100
+processNote: "Every value in this system is a token in one file rather than a hex code typed into components, which is the only reason the palette has stayed one palette. Coral ships as three values, not one, so hover and pressed and border states are decided once in the theme instead of being invented per component. The heading sizes are named after their job (display, statement, section, subsection, reference) rather than their size, because named ranks survive a redesign and text-3xl md:text-4xl does not. The honest gap: the lockups only exist as PNG. There is no vector master, so the wordmark is fine at screen sizes and will not hold up at print scale or on a large-format cut. Redrawing it as SVG is the outstanding piece of work here."
+order: 2
+draft: false
+---
+
+## What it is
+
+The identity Gravixar runs on: the mark, one accent color, a dark-only palette, a display and body pairing, and a mono label convention that shows up on every field, eyebrow and metric on the site. Not a deck describing a system. The system itself, in use, with the tokens that enforce it living in one theme block.
+
+## The coral is not the logo color, and that is the point
+
+The mark carries a small solid square in pure red. Red at full saturation is a terrible interface accent: it fights everything near it, and it already means "error" everywhere else on a page. So the accent is coral at `#ff6b35`, chosen to sit beside that red rather than compete with it. Warm enough to read as the same family, calm enough to survive being on every link, hover state and label. The dark-ink wordmark variant shifts the square a little warmer for the same reason, so a printed lockup on white does not glare.
+
+## Dark only, and committed to
+
+One surface at `#0a0a0a`, one text color at `#fafafa`, muted text at zinc-500, and hairlines in exactly two ranks: one for things that enclose, one for things that only separate inside an enclosure. There is no light theme, and not having one is a decision rather than a backlog item. A system that has to look right in both directions ends up with a palette that is a compromise in both. This one is tuned for a single condition and is sharper for it.
+
+## The type is where a generated brand gives itself away
+
+Display is Hubot Sans, body is Mona Sans, both open variable grotesks, self-hosted. They were picked specifically because the obvious choices read as a default. A site set in Inter or the framework's own face announces that nobody chose anything, and for a studio selling design judgment that is the worst available first impression. Mono is Geist Mono, and it does exactly one job.
+
+## The mono field label
+
+Small caps-height mono, 10px, uppercase, letter-spaced wide. It labels a section, a metric, a tool list, a date. It is the smallest element in the system and the one doing the most structural work, because it lets a page carry hierarchy without adding another heading size. Once a reader has seen three of them they know what one means, and after that the layout can be quiet.
+
+## Where to check it
+
+Scroll. The type ranks, the coral, the hairlines and the mono labels on this page are the deliverable, which is a stronger check than any mockup of them would be. If a piece of the system were weak, you would be looking straight at it.
+
+No client briefed this one, and I am not going to present it as though one did. It is my own brand, and the useful thing about that is the constraint it creates: I have to live inside these rules every time I ship a page here. That is a harder test than a guidelines PDF that gets opened twice and then ignored.
