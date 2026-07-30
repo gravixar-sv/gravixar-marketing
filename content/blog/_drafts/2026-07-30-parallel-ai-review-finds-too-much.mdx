@@ -1,0 +1,93 @@
+---
+title: "Parallel AI review finds too much, and the volume is the failure mode"
+slug: "parallel-ai-review-finds-too-much"
+excerpt: "Fourteen agent lanes over one codebase returned 63 findings in an afternoon. The count is not the result. What made the list usable was the pass that tried to kill every finding, and the two calls where the obvious action turned out to be wrong."
+publishedAt: "2026-07-30"
+tags: ["ai-governance", "ops-infrastructure", "ai-tooling", "operations"]
+draft: true
+aiAssisted: true
+---
+
+## The number that looks like a result and is not one
+
+On 2026-07-29 I ran a review pass over [an agency portal I have maintained for four years](/work/bs-hub). Fourteen agent lanes, one lane per concern, all of them working the codebase at the same time. They came back with 63 findings.
+
+Sixty-three is not a measure of how bad that codebase is. It is a measure of how many lanes I ran. Add four more lanes and the number goes up. Narrow the prompts and it goes up again, because narrower prompts produce more confident claims about smaller things. The count scales with the fleet, not with the risk.
+
+That is the part people get wrong about parallel AI review. The problem is not that agents miss things. Given lanes and time, they find plenty. The problem is that volume is itself the failure mode. A report long enough to need its own reading session does not get a reading session, it gets bookmarked, and a bookmarked audit has changed nothing about the code. The useful output of a review is not a document. It is a set of commits that exist a week later.
+
+So the interesting engineering is not in the find. It is in everything after it.
+
+## What a refutation pass actually has to prove
+
+After the find pass, every claimed defect goes to a second pass whose only job is to kill it. Not to confirm it. To kill it.
+
+That framing matters, because an agent asked "is this finding correct?" will usually agree with the finding. Agreement is the cheap answer. An agent asked "show me why this is not reachable" has to do work: trace the call path, check whether a guard upstream already handles it, look for the validation that makes the bad input impossible, find the caller that never passes that argument.
+
+A refutation succeeds if it can show one of three things. The finding is factually wrong about the code. The condition is already handled somewhere the first lane did not read. Or the path is not reachable in practice, which means there is no caller, no route, no role that can get there.
+
+Anything that survives all three keeps its place on the list, and it keeps the refutation attached to it. That is the part clients end up valuing most, because a finding that has already survived an attempt to kill it is a finding you can hand to a developer without a debate first.
+
+On the agency portal, the refutation pass killed none of the 63. I would rather report a number like that honestly than dress it up: fourteen well-scoped lanes on a codebase with a real state machine and a real audit log produced claims that all held. On other passes the kill rate has been meaningful. The rate is not the point. The attempt is.
+
+## The number I watch instead of the total
+
+The refutation pass moved severity on 11 of the 63.
+
+That is the number that decides whether the report gets used. Wrong ranking is the specific thing that makes a person stop reading a list. If items one through four are cosmetic and the cross-tenant leak is at fourteen, the reader learns by item three that this list is not ordered by what matters, and from then on they skim. You do not get that reader back.
+
+So severity is not assigned by the lane that found the issue. A lane is a specialist and specialists inflate: the error-handling lane genuinely believes an unhandled promise rejection is critical. Severity is assigned afterward, with the whole set visible, ranked against each other rather than against an abstract scale. Blast radius, reachability, whether it is already reachable in production today.
+
+Two pull requests then closed 87 findings on that codebase, the 63 from the pass plus backlog they pulled in with them, and the suite finished at 252 of 252. The 87 is a nice number. The 11 is the one that made the 87 possible, because it is what got the list read in the right order.
+
+## Two findings that were already broken in production
+
+The case for running a fleet at all is best made by [a healthcare platform I built](/work/beeline), reviewed with the same method on 2026-07-27. Fourteen bugs fixed: 3 from reading the user journey end to end, 8 from the adversarial pass, 3 deferred with the reason written down.
+
+Two of the fourteen were not latent. They were broken in production, at that moment, and nobody had reported them.
+
+The first was a tab labeled "All" that crashed on any record with a non-legacy status. Read that back and it sounds impossible to miss. It was easy to miss, because the people who used that screen daily had learned to work from the filtered tabs, and a tab that always failed got quietly reclassified in their heads as a tab that does not work. Nobody files a ticket about a thing they stopped expecting to work.
+
+The second was an API route that returned every client's credentials to any caller holding a single module grant. A cross-tenant data leak, shipped, live. It had gone unreported for the same structural reason in reverse: the people who could trigger it were not looking for it, and the people looking for it did not hold the grant. There is no user report waiting to be filed here. Nobody in the system was in a position to notice.
+
+That is the honest answer to "would this find anything in mine". A fleet of agents has no learned helplessness about the broken tab and no role boundary that stops it from asking what happens when a caller with one grant hits a route that trusts grants generally. It reads what the code does, not what everyone has adapted around.
+
+## Where the quiet failures actually live
+
+The lanes read data and migrations too, because that is where failure never announces itself.
+
+On the same platform, the pass surfaced an import that had silently dropped a third of its source. 240 provider blocks across 141 tabs, of which 141 landed. 1,796 payer rows, of which 1,123 landed. Recovering it moved the live system from 194 to 250 clients and from 1,521 to 2,042 records.
+
+Nothing had errored. The importer had reported success, and it was telling the truth about what it did: it processed one block per tab, so 141 tabs produced 141 blocks, and every one of those succeeded. The bug was in the shape of the assumption, not in the execution. Code that fails loudly gets fixed in a day. Code that succeeds at the wrong thing survives for a year, because every signal it emits says fine.
+
+This is why a review pass that only reads application logic is a partial review. The application was correct. The data underneath it was missing a third of itself, and the reports on top of it were internally consistent, which is exactly what makes it hard to see.
+
+## Two calls that went against the obvious action
+
+Here is the part that decides whether you let a fleet run unsupervised, and the answer is no.
+
+During that recovery, two judgment calls went against what the automatic move would have been.
+
+The first was a color in the source spreadsheet. Everyone involved, including me at first, read it as meaning one thing. It meant something else. Auto-mapping it the obvious way would have closed roughly 240 live records, which is to say it would have marked active work as finished and removed it from every queue that was supposed to chase it. The finding was correct that the color carried meaning. The inference about which meaning was wrong, and no amount of reading the spreadsheet resolves it, because the answer was not in the spreadsheet. It was in what the person who filled it in had been doing with it.
+
+The second was structural. 42 of 98 stacked blocks repeated the first block's identifier. Importing all of them would have produced 42 duplicate clients, and duplicate clients in a credentialing system are worse than missing ones: two records, both plausible, each with part of the history. Here the deduplication rule looked obviously wrong (why would you skip rows that clearly contain data) and was obviously right once you knew the identifier was inherited rather than repeated.
+
+Both times the automatic action was the destructive one. Both times the correct call required knowing something about how the humans used the system that is not recoverable from the code or the data.
+
+That is the boundary. A fleet of agents is very good at finding candidates and very bad at knowing which of two coherent interpretations of a real-world artifact is the one people meant. Give it write authority over a live dataset on the strength of a correct finding and it will confidently execute a wrong inference. It is also why every one of those calls goes in a ledger with the reasoning attached, including the ones that went against the obvious action, because in six months the only evidence that the decision was deliberate is that somebody wrote down why.
+
+## If you are running this yourself
+
+Most of the value here is in constraints, not tooling. Four that carry the method:
+
+**Define lanes by concern, not by directory.** One lane for tenant boundaries, one for error paths, one for migrations, one that walks the user journey the way a user actually walks it. Directory-based lanes produce overlapping findings and no coverage guarantee.
+
+**Never let the finder set the severity.** Rank the whole set once, in one pass, with everything visible. Specialists inflate, and inflated ranking is what stops a report from being read.
+
+**Make the second pass adversarial in its prompt, not just in its name.** "Verify this finding" gets you agreement. "Prove this is unreachable" gets you a call trace.
+
+**Keep a hard line between finding and acting on data.** Code fixes can go straight to a pull request, where a human reads a diff before it merges. Anything that mutates live records stops for a person, every time. Both of the judgment calls above were on that side of the line, and both would have done real damage on the other side of it.
+
+The output you want is not a long report. It is a list short enough that you act on it this week, ordered so the first item is the one worth acting on, with the reasoning attached to each survivor so nobody has to re-litigate it. Sixty findings is what the tooling produces. The filter is what makes it worth reading.
+
+The engagement version of this, scoped and priced before I start, is [System Audit](/services/system-audit).

@@ -1,0 +1,21 @@
+---
+title: "Shared core package"
+slug: "shared-core-package"
+category: "ops"
+summary: "The reused parts are a private, versioned npm package, not a folder someone copies. One source for the shared modules, auth and 2FA the flagship among them, propagated by a dependency bump rather than a copy."
+runningIn:
+  - { client: "Agency portal", productSlug: "bs-hub" }
+  - { client: "Internal operations HQ" }
+  - { client: "This site" }
+stack:
+  - "Private npm package"
+  - "Parity test battery"
+order: 13
+publishedAt: "2026-07-30"
+---
+
+A module library only compounds if there is one copy of each module. Otherwise "reused" means copied into the next repo and left to drift. So the reusable parts live in `@gravixar-sv/core`, a private versioned package: a repo consumes a module by depending on a version, and a check flags any repo still on an old one. The registry behind this page catalogues 24 modules, 18 at production status, and 11 shared through the package.
+
+Auth is the clearest case. TOTP, WebAuthn passkeys, single-use recovery codes and step-up verification are one parity-tested engine, not a security-critical flow copied per repo. The consuming app injects its issuer and its routes, and its call sites don't change when the engine does.
+
+The honest half is what stays out. Where two apps genuinely disagree on a contract the module stays local, because false uniformity costs more than drift does. Of the 13 counted as reused on the homepage, 9 are shared through the package and 4 are extraction verdicts, modules judged worth pulling out but not pulled out yet. Nothing here is sold or installed by a client. What a client gets is a build that starts further along, and a fix that lands in one place with a version on it.

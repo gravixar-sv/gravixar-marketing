@@ -125,7 +125,11 @@ export default async function CaseStudyPage(
 function Section({ title, body }: { title: string; body: string }) {
   return (
     <div>
-      <h2 className="text-2xl font-semibold tracking-tight md:text-3xl">{title}</h2>
+      {/* Subsection rank: these are the Problem / Approach / Outcome headings
+          inside a case study, a step under the page title and a step above the
+          reference headings. Set from the named scale so the ladder stays
+          retunable from @theme rather than drifting per page. */}
+      <h2 className="text-2xl font-semibold tracking-tight md:text-subsection">{title}</h2>
       <p className="mt-3 leading-relaxed text-zinc-300">{body}</p>
     </div>
   );

@@ -1,0 +1,89 @@
+---
+title: "The bottleneck is approval, not generation"
+slug: "bottleneck-is-approval-not-generation"
+excerpt: "This site runs an AI agent that drafts blog posts twice a week. Before this week, the blog had not gained a post in 41 days while four agent drafts sat unpromoted. That queue is the design, not the failure."
+publishedAt: "2026-07-30"
+tags: ["ai-governance", "ops-infrastructure", "ai-tooling", "agency-ops"]
+draft: false
+aiAssisted: true
+---
+
+## The gap I have to name first
+
+This site tells you it runs its own agents. The blog is the proof it points at. So here is the state of that proof, before I explain any of it.
+
+Before this week, the blog had not gained a post in 41 days. In the same stretch the drafting agent kept running on schedule. Four agent-written drafts sit in `content/blog/_drafts/` right now, unpromoted, the oldest from early June.
+
+That reads like neglect. I understand why. It is the single weakest-looking thing on this site, and I would rather explain it than quietly backfill the archive and hope nobody checked the dates.
+
+Because the gap is not a broken cron. It is a queue, and the queue is the part I built on purpose.
+
+## What actually runs here
+
+Three scheduled jobs run against this site, all declared in one typed config file so the schedule is code and not a dashboard setting somebody forgot about.
+
+An SEO agent drafts a post on Tuesday and Friday at 14:00 UTC. A Trend Radar scans the market on the 1st and the 15th at 10:00 UTC and produces a ranked brief of three to five signals. A job-indexing ping runs daily at 06:00 UTC so open roles reach Google for Jobs without me pasting URLs into a console.
+
+The ops system behind this site runs another 17 on the same posture, 11 platform crons plus 6 scheduled workflows. None of the 20 publishes anything on its own.
+
+## How a draft becomes a post
+
+The mechanic is deliberately boring, and the boring part is the whole argument.
+
+The agent writes a draft, then commits it to `content/blog/_drafts/` on the default branch. The content validator skips anything under a `_drafts/` segment, so a draft cannot fail the build and cannot appear on the site. It sits in the repository, readable, diffable, with the model's output exactly as produced.
+
+Promotion is a person moving the file out of that folder. That is it. No flag flips in a database, no publish button wired to an agent's output, no scheduled release. Moving a file is a git commit, so the approval carries an author, a timestamp, a diff, and whatever I changed in the body while reviewing it.
+
+That last part matters more than it sounds. The approval is not a record kept alongside the work. The approval **is** the audit trail, because the act of approving is the commit. There is no separate log to trust, and no way to publish without leaving one.
+
+## Why a queue forms, and why hiding it is worse
+
+An agent that drafts twice a week produces eight or nine candidates a month. I approve a fraction of that, because reading and editing a post is real hours and most of those hours are already owed to client systems. The arithmetic is not subtle. When production runs faster than approval, work accumulates. There is no configuration that makes that untrue.
+
+You have three options. Raise the approval rate, which means finding those hours somewhere. Lower the generation rate, which throws away the cheap part. Or let the queue exist.
+
+The fourth option, the one the market keeps selling, is to remove the gate and publish the drafts. That does not fix the bottleneck. It relocates it. The reading still has to happen, it just happens after the work is live, by readers, on my reputation. And the queue becomes invisible, which is the actual loss. A backlog you can see is a scheduling problem. A backlog you shipped is a credibility problem.
+
+I have made this argument before in a narrower place. I put a [manual checkpoint back into a delivery pipeline](/blog/manual-checkpoint-automated-delivery-pipeline) after it sent a client a report with the wrong project name in the header. In eight months that gate caught sixteen real errors across roughly 340 deliverables. I have also written about [what removing an approval step cost in client trust](/blog/approval-step-removed-costing-client-trust). This blog is the same shape, applied to my own name instead of a client's deliverable.
+
+## What the visible queue costs
+
+I am not going to pretend the honest version is free.
+
+Drafts decay. A post the agent wrote about a market signal in early June reads slightly stale in late July, and some of the backlog will never be worth promoting. That is wasted generation, and generation is cheap but not free.
+
+The gap is publicly legible. Anyone can sort this blog by date and find the 41 days. On a site whose pitch includes AI systems, that looks like the tool did not work.
+
+And a long queue tempts you to rush. I have felt exactly the pressure I described in the pipeline post, where eleven deliverables stacked up on a Friday afternoon and the review turned into a chore. A rushed review is worse than no review, because it launders the output as checked.
+
+What it buys is narrow and, to me, decisive. Nothing on this site has gone out unread. Every post carries an ai-assisted flag when an agent drafted it, including this one. If you disagree with something here, you are disagreeing with me, not with a model I left unsupervised.
+
+## The same gate, everywhere else in the stack
+
+The blog is the visible instance of a pattern that runs through every system I keep.
+
+Decisions land in an append-only ledger, 493 entries now, alongside 71 infrastructure entries. Append-only means a decision can be superseded with a forward link but never quietly edited, so "why is this like this" has an answer that predates my memory of it.
+
+Automated operations are guarded rather than free. 68 of them executed in July, each against a written rule about what it is allowed to touch. 23 governance checks run daily and fail the build when the code stops matching a rule someone wrote down, which is the only version of documentation I trust: the kind that breaks something when it goes stale.
+
+And before an AI sensor gets trusted at all, it passes 37 eval-gate suites covering roughly 475 cases. That is the gate before the gate. A sensor that has not earned it does not get to advise, let alone act.
+
+I use the same test everywhere. Not "can the agent do this," which is usually yes. The test is whether a human decision sits between the agent's output and anything a person outside my machine will see, and whether that decision leaves a record. On this blog it is a file move. In client systems it is a review step. The [audit engagement I sell](/services/system-audit) has the identical structure: a fleet of agents produces findings in parallel, a refutation pass tries to kill each one, and a person signs the ledger. On [an agency portal](/work/bs-hub) that produced 63 findings from 14 lanes, and the number I watched was not the total. It was the 11 the second pass re-ranked.
+
+## What I am changing, and what I am not
+
+Not the gate. The gate stays.
+
+What was actually broken was cadence, not architecture. I let promotion be something I did when I noticed the queue, and I stopped noticing. So promotion now gets a fixed window rather than a mood, the same fix I applied to that delivery pipeline when Friday batches got too long.
+
+I am also going to let drafts expire. A draft nobody promoted in six weeks is telling me the topic was not worth publishing, and keeping it in the folder pretending otherwise inflates the backlog with work I already declined. Deleting it is a decision too, and it commits like any other.
+
+The queue will still exist next month. That is not the failure state. If this blog ever runs empty of drafts, it means either the agent stopped or I stopped reading, and I would rather show you a backlog than either of those.
+
+## The rule under all of it
+
+If you are adding AI to something that produces work for other people, the question to settle first is not what the model can generate. It is who approves, and where the approval is recorded.
+
+Get that wrong and the generation rate becomes your publish rate, which sounds like throughput until the first thing you would not have signed goes out under your name.
+
+Get it right and you get a queue. Show people the queue.

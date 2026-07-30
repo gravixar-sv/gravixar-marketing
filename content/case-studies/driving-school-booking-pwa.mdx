@@ -1,0 +1,80 @@
+---
+# Genericized by policy: the client is described only as "a women-only driving
+# school in Pakistan". No brand name, no instructor names, no app URL, no
+# payment account details. Figures are from the engagement record in
+# C:\dev\gravixar-hq\brain (V1 live 2026-07-12).
+title: "A driving school booking PWA, with the school's rules built into the model"
+slug: "driving-school-booking-pwa"
+client: "Women-only driving school, Pakistan (anonymized)"
+role: "Solo build, architecture, engineering, deployment"
+period: "Live since July 2026"
+summary: "A mobile-first PWA for a women-only driving school in Pakistan, live the day it was built. Eligibility and guardian rules derive from date of birth, a slot is offered only when one instructor covers every lesson day, and payment verification is manual because that is how students pay."
+problem: "A driving school does not book appointments, it books courses: a run of consecutive lesson days at the same hour, taught by one instructor who has to be free for all of them. On top of that sit rules that are not optional. A minimum age. A guardian on file for anyone under 18, plus a restriction on where those students are allowed to drive until they turn 18. Seasonal opening hours. A closed day each week. Payment by mobile wallet or bank transfer with a human checking the transfer went through, because that is the payment culture the students actually live in. And a privacy requirement that runs against the grain of every driving-school website: do not put the instructors' names on the public site. In an off-the-shelf booking tool, nearly every one of those is a workaround, a free-text note, or a rule that lives in someone's head and gets broken on a busy afternoon."
+approach: "I built the school's rules into the data model instead of fitting the school into a template. Date of birth is the single input that decides eligibility and whether a guardian record is required, so age is derived rather than typed and the under-18 restriction cannot be skipped by editing a field. Availability is modelled properly: a weekly shift table for the three instructors plus a separate time-off table, and a slot is only offered to a student when a working, un-booked instructor covers every lesson day of the course, not just the first one. Seasonal hours and the weekly closed day are part of that same calculation. Payment follows the local culture rather than fighting it: the student pays by mobile wallet or bank transfer, submits the transaction reference, and an admin verifies it before the enrollment is confirmed. The payment screen renders only the methods that are actually configured, and the server rejects a submission against an unconfigured one, so a placeholder account can never reach a student. Four roles share one permission map. An instructor logs each lesson as done or absent, with an undo, and only ever sees their own lessons, and the course lifecycle is driven by those records: the first one starts the course, the last one completes it."
+outcome: "V1 went live on 2026-07-12, built and deployed the same day, then iterated for weeks with the school using it. The rules that were previously enforced by memory are now enforced by the model: an under-18 student cannot be booked onto an open route, and a course slot cannot be offered unless it can be honoured end to end. The honest part of this build is the launch itself. Sign-in was hard down from the first deploy through three layered causes, found one after another, and a schema change reached production in the wrong order and briefly broke signed-in pages. Both are written up below with the fixes and the standing policy that came out of them. The domain model is the part I would carry into the next build of this shape: a business that sells a course rather than a slot has the same availability problem no matter what it teaches."
+metrics:
+  - { label: "Status", value: "Live since 2026-07-12, iterated since" }
+  - { label: "V1", value: "Built and deployed the same day" }
+  - { label: "Eligibility", value: "Age 12+, derived from date of birth" }
+  - { label: "Under 18", value: "Guardian record required, closed routes until 18" }
+  - { label: "Booking unit", value: "A course of N consecutive lesson days at one fixed hour" }
+  - { label: "Slot rule", value: "Offered only when one instructor covers every lesson day" }
+  - { label: "Hours", value: "Summer 9 to 6, winter 9 to 5, Sundays closed" }
+  - { label: "Payment", value: "Manual reference, admin verified, methods gated by config" }
+  - { label: "Roles", value: "Four, on one permission map" }
+  - { label: "Instructor privacy", value: "Not listed publicly, at the client's request" }
+stack:
+  - "Next.js 16 App Router"
+  - "Installable PWA, mobile-first"
+  - "Prisma + Postgres"
+  - "OAuth sign-in with role-based permissions"
+cover:
+  src: "/api/og?title=A%20driving%20school%20PWA%2C%20rules%20in%20the%20model&kind=case%20study"
+  alt: "Gravixar case study: a booking PWA for a driving school"
+publishedAt: "2026-07-30"
+draft: false
+---
+
+## What's running today
+
+A mobile-first installable PWA. Students register, enroll, book a course and track their lessons on a phone, because a phone is the only device most of them will ever open it on. Admins verify payments and assign instructors. Instructors log lessons.
+
+The interesting part is not the screens, it is what the model refuses to allow.
+
+**Eligibility comes out of date of birth, not out of a form field.** A student enters their date of birth once. The minimum age of 12 is derived from it. So is whether a guardian record is required. There is no age field to get wrong, and no age field to lie in.
+
+**Under 18 is a different product, not a warning label.** A student under 18 cannot enroll without a guardian name, guardian ID and guardian phone on file, and their bookings are locked to fixed closed training routes until they turn 18. The unlock is the birthday. Nobody has to remember to flip it, and nobody can flip it early.
+
+**A slot is only offered if the whole course can be honoured.** A booking is a course: N consecutive lesson days at one fixed slot hour. Three instructors teach it. Availability is modelled as a weekly shift table plus a separate time-off table, and the query behind the slot picker asks the harder question: is there one working, un-booked instructor who covers every single lesson day of this course? If not, the slot is not shown. Seasonal hours are in the same calculation, 9 to 6 in summer, 9 to 5 in winter, and Sundays are closed.
+
+**Payment is manual on purpose.** The student pays by mobile wallet or bank transfer, submits the transaction reference, and an admin verifies it before the enrollment is confirmed. The payment screen renders only the methods that are configured, and the server rejects a submission made against an unconfigured method, so a half-set-up payment option cannot leak a placeholder account number to a student.
+
+**Lessons drive the course, not a status dropdown.** Four roles share one permission map. An instructor marks a lesson done or absent, with an undo, and can only touch their own lessons. The first lesson record auto-starts the course. The last one auto-completes it. The course state is a consequence of work that happened, not something an admin types.
+
+## Decisions I'd defend
+
+**Derive, don't ask.** Age, guardian requirement and the route restriction all fall out of one date. Every derived rule is a rule that cannot drift out of sync with the record it depends on.
+
+**Compute the expensive availability answer once.** Offering a slot that only works for the first three of eight lesson days would push the failure onto a student who already paid, and onto an admin who then has to phone somebody. Asking the whole-course question up front is more query work and less human work.
+
+**Build for the payment culture that exists.** Card rails are not how these students pay. A transaction reference plus a human verification step is, so that is what shipped, with the verification as a real state in the model rather than a note in a spreadsheet. Gating the visible methods on configuration is the small guardrail that makes the manual flow safe.
+
+**The instructors are not on the public site.** Every driving-school template leads with instructor photos and names. The school asked for the opposite, and for this school, in this place, that request outranks the pattern. A student sees only the instructor assigned to her. This one is worth stating plainly: a domain rule from the client beats a convention from the industry.
+
+## What broke, and the policy that came out of it
+
+**Sign-in was hard down from the first deploy, through three layered causes.** Each fix revealed the next one, which is the part that makes this worth writing down.
+
+First, the auth secret had never been set on the host. That alone produced roughly 547 errors in about an hour. Setting it moved the failure rather than ending it. Second, the OAuth client secret in the environment was stale, so the token exchange kept failing on credentials that looked correct. Rotating it got the exchange working, and that is when the real cause surfaced: the production database was completely empty, because the schema had never been pushed to it. The moment sign-in got far enough to succeed, the callback crashed on a table that did not exist.
+
+Two real problems sat on top of the actual one. Neither was the cause, and fixing either in isolation looked like no progress at all. The fix was to push the schema to production and verify the sign-in path end to end against the real environment, not against a local one where the tables happen to exist.
+
+**A schema pull request merged before the production schema push.** The change was additive and safe on its own, but the order was wrong: production started querying a table that did not exist yet, which meant a short window of 500s for signed-in users until the push landed.
+
+That one produced the standing policy, and it is not negotiable now: **schema changes push to the production database first, then the code merges.** Additive or not. The database leads, the deploy follows.
+
+## What's next
+
+The school is using it and the iteration is theirs to direct. The reusable piece is the availability engine, the part that answers whether one person can cover a run of consecutive days at a fixed hour. Any business that sells a course rather than a single slot has that same problem, and it is the problem generic booking tools quietly do not solve.
+
+If you run something where the rules are the product, and every tool you have tried made you work around them, [reach out](/contact).
