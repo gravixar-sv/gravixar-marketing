@@ -12,7 +12,7 @@ linkedCaseStudy: "bs-hub"
 linkedService: "operations-infrastructure"
 faqs:
   - question: "How much does Productive.io cost compared to a custom portal?"
-    answer: "Productive.io's published pricing is per seat per month, and most agencies land in their Professional or Ultimate tiers. For a 15-person agency that's roughly $9,000 to $14,000 per year depending on tier and add-ons. A custom portal in the bs-hub-shape sits at a one-time build fee plus a monthly maintenance retainer that doesn't scale with seat count. Past about 18 months and 20 seats the math flips in favor of the custom build, and you own the codebase at the end."
+    answer: "Productive.io's published pricing is per seat per month, and most agencies land in their Professional or Ultimate tiers. For a 15-person agency that's roughly $9,000 to $14,000 per year depending on tier and add-ons. A custom portal in the bs-hub-shape sits at a one-time build fee plus my published fractional retainer at $3,500 a month, which doesn't scale with seat count. Past about 18 months and 20 seats the math flips in favor of the custom build, and you own the codebase at the end."
   - question: "Can a custom portal actually replace Productive.io's time tracking?"
     answer: "Yes, but ask whether you need every feature or just the ones your team uses. Most agencies use timesheets, billable utilization, and a margin report. That's a small surface to rebuild and easy to sync to QuickBooks or Xero. What you don't get for free is the multi-currency multi-entity reporting Productive.io ships out of the box, that one is genuinely worth keeping if your shape needs it."
   - question: "What's the biggest hidden cost in Productive.io?"
@@ -20,8 +20,9 @@ faqs:
   - question: "How long does a custom client portal take to build?"
     answer: "From kickoff to a working portal handling real client work, four to ten weeks for the bs-hub shape. That's the period in which you have something running, not a v1 demo. The next twelve months are evolution, not rebuild."
   - question: "What happens when the agency outgrows the custom build?"
-    answer: "Two paths. You either extend the modules (the bs-hub recipe pattern is built for this, drop in payroll, drop in finance, drop in a sales pipeline) or you migrate to a SaaS once your shape has stabilized enough that an off-the-shelf tool actually fits. Custom builds aren't lock-in if you keep the codebase and the data model is clean."
+    answer: "Two paths. You either extend it (the bs-hub recipe pattern is built for this, drop in payroll, drop in finance, drop in a sales pipeline) or you migrate to a SaaS once your shape has stabilized enough that an off-the-shelf tool actually fits. Custom builds aren't lock-in if you keep the codebase and the data model is clean."
 publishedAt: "2026-05-04"
+updatedAt: "2026-07-30"
 ---
 
 ## The honest version
@@ -48,9 +49,9 @@ Custom workflows live in their "Automations" surface, which works for simple if-
 
 ## What "custom portal" actually means
 
-I have a working example of the alternative. [The agency portal I built for a 4-year client](/work/bs-hub) runs their full delivery flow on a 12-state inquiry funnel with an explicit review state machine, two-tier audit retention, AI intake with a brand brief generated from the client's website, and a daily security-watch cron. The same codebase ships a [demo subdomain](https://demo.gravixar.com) where you can click through as a client persona before signing anything. This is what custom looks like when the recipe is real, not a one-off.
+I have a working example of the alternative. [The agency portal I built for a 4-year client](/work/bs-hub) runs their full delivery flow on a 12-state inquiry funnel with an explicit review state machine, two-tier audit retention, AI intake with a brand brief generated from the client's website, and a daily security-watch cron. If you want to see the moving parts before signing anything, [demo.gravixar.com](https://demo.gravixar.com) has five purpose-built scenes with no login and no sales call in front of them. Those scenes are their own build, not a copy of a client's production system, because live client data does not belong in a sales demo.
 
-The 16 modules are documented and forkable. When I spin up a portal for the next agency, I work down the list and decide module-by-module what to keep, drop, or customize. A pure task tracker drops twelve modules. An internal HR tool keeps four. The unit of work is the module, not the rebuild.
+The recipe is documented and forkable, and the honest measure of it is the code. A recount on 2026-07-21 counted 84 database models, 255 endpoints and 9 scheduled jobs. When I spin up a portal for the next agency I work down that surface and decide what to keep, drop, or customize. A pure task tracker keeps a thin slice. An ops-heavy firm keeps most of the finance and audit layers. The unit of work is a slice of something already running, not the rebuild.
 
 ## How to decide
 

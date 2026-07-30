@@ -1,0 +1,32 @@
+{
+  "stats": [
+    {
+      "key": "modules-built",
+      "label": "modules built",
+      "value": "24",
+      "source": "brain/_meta/module-health.json summary.total, the canonical module registry (18 production, 1 beta, 5 internal)",
+      "verifiedAt": "2026-07-30"
+    },
+    {
+      "key": "modules-reused",
+      "label": "reused across products",
+      "value": "13",
+      "source": "brain/_meta/module-health.json summary.byVerdict, shared (9) plus extract (4)",
+      "verifiedAt": "2026-07-30"
+    },
+    {
+      "key": "automated-jobs",
+      "label": "automated jobs in HQ",
+      "value": "17",
+      "source": "gravixar-hq vercel.ts crons array (11 entries) plus gravixar-hq .github/workflows on.schedule triggers (6 workflows)",
+      "verifiedAt": "2026-07-30"
+    },
+    {
+      "key": "engagements-demos",
+      "label": "live engagements / demos",
+      "value": "4 / 5",
+      "source": "engagements: brain/projects.config.json, category client-engagement with lifecycle active (bs-hub, beeline-medical, carttix, broomstick); a fifth, shafatmotion, is delivered and wound-down so it is not counted as live. demos: the 5 playground scenes in gravixar-sv/gravixar-demo. The previous value of 9 counted published case studies plus managed-services retainers, a different unit than the label implied.",
+      "verifiedAt": "2026-07-30"
+    }
+  ]
+}

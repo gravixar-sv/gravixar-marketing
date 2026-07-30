@@ -3,53 +3,75 @@ import { MDX } from "@/content/mdx";
 import type { HomeBlock } from "@/content/schema";
 import { SITE } from "@/lib/seo";
 import { StatValue } from "./StatValue";
+import systemStats from "../../../content/data/system-stats.json";
 
-// The gate a visitor holds in each live scene, with the button label
-// quoted verbatim from that scene so the promise resolves the moment
-// they land. Five rows, one per scene, deliberately repetitive: it is
-// the same approval loop on five different desks, which is the point.
-//
-// This replaced a "click in as a persona" grid of four tiles (Mira /
-// Kai / Nox / Sage) that all linked to /lattice. The demo has no
-// persona switcher, no sign-in, and no Nox; the tiles promised an
-// identity fork that was removed in demo PR #14. Re-confirm each label
-// against the live scene before editing.
-const DEMO_GATES = [
-  { action: "Approve & send to client", scene: "Agency OS", slug: "lattice" },
-  { action: "Approve & publish", scene: "Agent Console", slug: "studio-mix" },
-  { action: "Approve & send", scene: "Founder Cockpit", slug: "cockpit" },
-  { action: "Request change", scene: "Brand Guardian", slug: "northbeam" },
-  { action: "Approve billing", scene: "Billing & Credentialing", slug: "care-ledger" },
+// Personas the visitor can click into on demo.gravixar.com. There is no
+// sign-in and no persona-switcher: every scene is a stateless playground,
+// so a tile just drops the visitor into the scene where that persona sits
+// and they can drive any column from there. Mira / Kai / Sage are the three
+// Lattice columns (gravixar-demo src/lib/playground/lattice-deliverables.ts
+// PERSONAS), Remi Okafor is the founder in the Cockpit scene (same directory,
+// cockpit-data.ts FOUNDER). `try` quotes
+// the button that persona actually presses, so visitors know what they'll DO
+// before they click. Re-confirm against the live scene before editing.
+const DEMO_PERSONAS = [
+  {
+    name: "Mira",
+    role: "client",
+    try: "approve a deliverable",
+    href: "/lattice",
+    color: "from-rose-400/40 to-amber-300/20",
+  },
+  {
+    name: "Kai",
+    role: "pm",
+    try: "approve and send to client",
+    href: "/lattice",
+    color: "from-cyan-400/40 to-violet-400/20",
+  },
+  {
+    name: "Sage",
+    role: "editor",
+    try: "submit a draft for review",
+    href: "/lattice",
+    color: "from-emerald-400/40 to-cyan-400/20",
+  },
+  {
+    name: "Remi",
+    role: "founder",
+    try: "approve an ai-drafted reply",
+    href: "/cockpit",
+    color: "from-amber-400/40 to-orange-500/20",
+  },
 ] as const;
 
-// Live-system signal. Every figure traces to canonical ground truth:
-//   modules built (24) + reused (13 = 5 shared + 8 extract verdicts)
-//     → brain _meta/module-health.json summary.{total, byVerdict}
-//   automated jobs (11) → HQ's 5 Vercel crons + 6 scheduled GitHub Actions
-//     (HQ-scoped on purpose, not a fleet-wide claim)
-//   demos (5) → live scenes on demo.gravixar.com (Care Ledger went live
-//     2026-06-26, joining Lattice, Studio Mix, Driftwood, Northbeam)
-//   engagements (9) → 7 published case studies + 2 managed-services retainers
-// Resync against canonical status on a cadence
-// (feedback_periodic_sync_marketing.md).
-const SYSTEM_STATS = [
-  { label: "modules built", value: "24" },
-  { label: "reused across products", value: "13" },
-  { label: "automated jobs in HQ", value: "11" },
-  { label: "engagements / demos", value: "9 / 5" },
-] as const;
+// Live-system signal. These used to be hard-coded here with a comment asking a
+// human to resync them periodically, which is how "automated jobs" sat at 11
+// for months while the real figure reached 17. They now come from
+// content/data/system-stats.json, where every entry carries the source it was
+// counted from and the date it was verified. The prebuild validator warns past
+// 45 days and fails the build past 90, so drift becomes a visible chore instead
+// of a quiet lie. Imported, not fetched: no network call at build or runtime,
+// so HQ stays strictly outside the critical path.
+const SYSTEM_STATS = systemStats.stats;
 
 export function Hero({ meta, body }: { meta: HomeBlock; body: string }) {
+  // Padding stays minimal on both ends: the shared marketing layout already
+  // pays pt-12/16 above this, under a sticky navbar + demo banner, and the
+  // page wrapper's section gap carries the distance down to the mechanism
+  // this headline promises.
   return (
-    <section className="relative -mx-6 px-6 pb-24 pt-10 md:pt-16 lg:pt-20">
+    <section className="relative -mx-6 px-6 pb-10 pt-4 md:pb-12 md:pt-6 lg:pt-8">
       {/* Background layers */}
       <div
         aria-hidden
         className="bg-brand-glow pointer-events-none absolute inset-0 -z-10"
       />
+      {/* Fade band height tracks the section's bottom padding, any taller and
+          the gradient rides up into the copy. */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-24 bg-gradient-to-b from-transparent to-[#0a0a0a]"
+        className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-10 bg-gradient-to-b from-transparent to-[#0a0a0a] md:h-12"
       />
 
       <div className="grid items-start gap-12 md:grid-cols-[minmax(0,1fr)_minmax(340px,440px)] md:gap-14 lg:gap-16">
@@ -63,7 +85,7 @@ export function Hero({ meta, body }: { meta: HomeBlock; body: string }) {
               </p>
             </div>
           ) : null}
-          <h1 className="hero-enter mt-5 text-[2.5rem] font-semibold leading-[1.02] tracking-[-0.02em] [animation-delay:80ms] md:text-5xl lg:text-[3.75rem]">
+          <h1 className="hero-enter mt-5 text-[2.5rem] font-semibold leading-[1.02] tracking-[-0.02em] [animation-delay:80ms] md:text-5xl lg:text-display">
             {meta.title}
           </h1>
           <div className="hero-enter mt-6 max-w-xl text-lg leading-relaxed text-zinc-300 [animation-delay:160ms]">
@@ -90,7 +112,7 @@ export function Hero({ meta, body }: { meta: HomeBlock; body: string }) {
           {/* Detail strip, what I do, in mono */}
           <div className="hero-enter mt-10 flex flex-wrap items-center gap-x-4 gap-y-2 font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500 [animation-delay:320ms]">
             <span className="flex items-center gap-1.5">
-              <span className="h-1 w-1 rounded-full bg-brand" />
+              <span className="h-1 w-1 rounded-full bg-zinc-700" />
               operations infrastructure
             </span>
             <span className="text-zinc-700">·</span>
@@ -113,7 +135,7 @@ function DemoPanel() {
   return (
     <aside
       aria-label="demo.gravixar.com, live"
-      className="live-panel hero-enter rounded-xl p-5 backdrop-blur [animation-delay:200ms] md:mt-1"
+      className="live-panel hero-enter rounded-xl p-5 [animation-delay:200ms] md:mt-1"
     >
       {/* Window-chrome dots + title */}
       <div className="flex items-center justify-between">
@@ -133,46 +155,53 @@ function DemoPanel() {
         </span>
       </div>
 
-      {/* The gates, on hairlines rather than tiles: five near-identical
-          rows are the argument (one loop, five desks), and a card grid
-          would fight the demo grid further down the page. */}
+      {/* Persona grid, live and clickable. Each tile links straight to the
+          scene that persona sits in, no sign-in on the way. */}
       <div className="mt-5">
         <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">
-          the same gate, five desks
+          act as any persona · no sign-in
         </p>
-        <ul className="mt-2 divide-y divide-zinc-800/70 border-t border-zinc-800/70">
-          {DEMO_GATES.map((g) => (
-            <li key={g.slug}>
-              <a
-                href={`${SITE.demoUrl}/${g.slug}`}
-                rel="noreferrer"
-                className="group flex items-baseline justify-between gap-3 py-2 transition-transform duration-150 active:scale-[0.98]"
-              >
-                <span className="link-draw text-[13px] leading-snug text-zinc-200 group-hover:text-brand-soft">
-                  {g.action}
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          {DEMO_PERSONAS.map((p) => (
+            <a
+              key={p.name}
+              href={`${SITE.demoUrl}${p.href}`}
+              rel="noreferrer"
+              className="group relative overflow-hidden rounded-md border border-line bg-zinc-950/40 p-3 transition-all hover:-translate-y-0.5 hover:border-brand/50"
+            >
+              <span
+                aria-hidden
+                className={`pointer-events-none absolute inset-0 -z-0 bg-gradient-to-br ${p.color} opacity-0 transition-opacity group-hover:opacity-100`}
+              />
+              <span className="relative z-10 flex items-baseline justify-between gap-1">
+                <span className="block text-sm font-medium text-zinc-100">
+                  {p.name}
                 </span>
-                <span className="shrink-0 font-mono text-[10px] uppercase tracking-[0.16em] text-zinc-500">
-                  {g.scene}
+                <span className="font-mono text-[9px] uppercase tracking-[0.16em] text-zinc-500 group-hover:text-brand">
+                  {p.role}
                 </span>
-              </a>
-            </li>
+              </span>
+              <span className="relative z-10 mt-2 block text-[11px] leading-tight text-zinc-400 group-hover:text-zinc-200">
+                try · {p.try}
+              </span>
+            </a>
           ))}
-        </ul>
+        </div>
       </div>
 
       {/* Live system stats */}
-      <div className="mt-5 border-t border-zinc-800/80 pt-4">
+      <div className="mt-5 border-t border-line-soft pt-4">
         <div className="flex items-baseline justify-between">
           <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">
             system signal
           </p>
           <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-zinc-600">
-            sample data, nothing saved
+            weekly reset · sun 03:00 utc
           </p>
         </div>
         <dl className="mt-3 grid grid-cols-2 gap-3">
           {SYSTEM_STATS.map((s) => (
-            <div key={s.label} className="flex flex-col">
+            <div key={s.key} className="flex flex-col">
               <dt className="font-mono text-[9px] uppercase tracking-[0.16em] text-zinc-600">
                 {s.label}
               </dt>
@@ -188,7 +217,7 @@ function DemoPanel() {
       <a
         href={SITE.demoUrl}
         rel="noreferrer"
-        className="group mt-5 flex items-center justify-between border-t border-zinc-800/80 pt-4 text-sm text-zinc-200 transition-colors hover:text-brand-soft"
+        className="group mt-5 flex items-center justify-between border-t border-line-soft pt-4 text-sm text-zinc-200 transition-colors hover:text-brand-soft"
       >
         <span>open the demo</span>
         <span aria-hidden className="font-mono text-[11px] transition-transform group-hover:translate-x-0.5">↗</span>

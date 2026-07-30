@@ -20,8 +20,9 @@ faqs:
   - question: "How do I know when I've outgrown monday.com?"
     answer: "Three signals: (1) your team has Notion docs explaining how to use your monday.com setup, (2) your monthly automation runs are failing more often and nobody can debug them, (3) clients are reading status fields and asking about discrepancies. Any one of those is a yellow flag. Two together is the threshold."
   - question: "What's the migration path from monday.com to a custom portal?"
-    answer: "monday.com's CSV exports are honest and their API is decent, so data migration isn't the hard part. The hard part is encoding the state machine your monday.com setup approximates. That's a 4 to 8 week build for an agency-scale workflow, ported directly from the bs-hub recipe."
+    answer: "monday.com's CSV exports are honest and their API is decent, so data migration isn't the hard part. The hard part is encoding the state machine your monday.com setup approximates. That's a 4 to 8 week build for an agency-scale workflow, ported directly from the bs-hub recipe, which a 2026-07-21 recount measured at 84 database models, 255 endpoints and 9 scheduled jobs already in production."
 publishedAt: "2026-05-04"
+updatedAt: "2026-07-30"
 ---
 
 ## The honest version
@@ -58,7 +59,9 @@ Per-seat pricing past 30 seats compounds visibly. Add Pro features, automations 
 
 [The agency portal I built for a 4-year client](/work/bs-hub) is the production version of "monday.com plus everything monday.com couldn't model." Twelve-state inquiry funnel with hard transitions. Review state machine on every deliverable with explicit pre-conditions and side-effects. Two-tier audit retention. AI intake with adaptive questions and a brand brief generated from the client's website. Daily security-watch cron sweeping for anomalies. Branded all the way through.
 
-The interesting part is that bs-hub's pattern is forkable. The 16 modules are documented in the repo. When the next agency outgrows monday.com, the build is "shape these modules to your delivery," not "invent everything from scratch." That's a 4 to 8 week build, not a 6 month one.
+The interesting part is that bs-hub's pattern is forkable, and it is a long way past board-shaped. A recount on 2026-07-21 put it at 84 database models, 255 endpoints and 9 scheduled jobs, documented in the repo. When the next agency outgrows monday.com, the build is "shape this to your delivery," not "invent everything from scratch." That's a 4 to 8 week build, not a 6 month one.
+
+It also gets reviewed like production software rather than like a config change. A review pass in July 2026 raised 63 findings on that codebase, none of them refuted as false positives, 87 findings were closed across two pull requests, and the suite finished at 252 of 252 passing. That is the sort of trail an automations layer cannot produce for you.
 
 The point of going custom isn't to outdo monday.com on flexibility. It's to win the parts monday.com flattens, the state-machine semantics, the audit, the AI inside the workflow, the branded client experience.
 

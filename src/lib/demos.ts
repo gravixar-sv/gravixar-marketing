@@ -1,26 +1,25 @@
-// The live scenes on demo.gravixar.com, one buyer per scene. Sourced
-// from the live demo's scene gallery (the deployed site is the source of
-// truth; the demo repo's local main can lag). Each card leads with the
-// scene's descriptor name and carries its product sub-name, exactly as the
-// demo presents it.
+// The live scenes on demo.gravixar.com, one buyer per scene. Slugs, descriptor
+// names, product sub-names, personas and action labels match the live demo's
+// scene gallery one for one (the deployed site is the source of truth; the demo
+// repo's local main can lag). The tryLine copy is paraphrased into this site's
+// house style: the demo writes those lines with arrows and no closing period,
+// so a wording difference there is deliberate, not drift. Each card leads with
+// the scene's descriptor name and carries its product sub-name, exactly as the
+// demo presents it. Re-confirm names, slugs, personas, and that each link
+// resolves before publishing changes, and never let a card here claim more than
+// the demo's own card claims.
 //
-// `name`, `brand`, `slug`, `personaLabel`, `openLabel` and `whatItIs` are
-// a shared contract and must match `gravixar-demo/src/lib/scenes.ts`
-// exactly. `tryLine` is deliberately NOT verbatim: the demo writes these
-// with arrows ("Brief -> on-brand draft -> you approve"), and they are
-// rewritten here in house prose with commas and a full stop. That is a
-// house-style choice, not drift. Everything else, re-confirm against the
-// live demo, including that each link resolves, before publishing.
+// Screenshots are real captures pulled from the live demo's /scenes/<slug>.png
+// into /public/scenes here, refreshed with the demo repo's `pnpm capture`.
+// Re-capture whenever the demo has a visual pass, or these cards quietly
+// advertise a version of the product that no longer exists.
 //
-// Screenshots are real captures pulled from the live demo's
-// /scenes/<slug>.png into /public/scenes here, refreshed with the demo's
-// `pnpm capture`. Re-capture whenever the demo has a visual pass.
-//
-// Five scenes, and only five. A scene is listed here only once it is
-// genuinely clickable; roadmap scenes are not named on any public
-// surface, because an aging "coming soon" costs more on a page whose
-// whole argument is "this is real, in production" than the anticipation
-// buys.
+// Five scenes, and only five. A scene is listed here only once it is genuinely
+// clickable. Verus Partners was previously described here as "coming online
+// and intentionally not listed until it is live", but it was in fact named on
+// the demo index and on /demos for five weeks against a 404, so it has been
+// removed from the demo's scene registry entirely and is not named on any
+// public surface. Roadmap scenes live in the brain.
 
 export type DemoScene = {
   slug: string;
@@ -91,6 +90,8 @@ export const DEMO_SCENES: DemoScene[] = [
     slug: "care-ledger",
     name: "Billing & Credentialing",
     brand: "Care Ledger",
+    // Matches the demo's own card wording. The demo deliberately withholds the
+    // HIPAA adjective on this scene, so marketing does not add it back.
     whatItIs: "A medical billing & credentialing portal",
     tryLine: "Credential a provider, enable billing, close the clinic deal.",
     personaLabel: "healthcare & billing",
