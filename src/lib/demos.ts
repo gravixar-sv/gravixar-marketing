@@ -10,8 +10,16 @@
 // the demo's own card claims.
 //
 // Screenshots are real captures pulled from the live demo's /scenes/<slug>.png
-// into /public/scenes here. A sixth scene (Verus Partners, an AI intake
-// wizard) is coming online and is intentionally not listed until it is live.
+// into /public/scenes here, refreshed with the demo repo's `pnpm capture`.
+// Re-capture whenever the demo has a visual pass, or these cards quietly
+// advertise a version of the product that no longer exists.
+//
+// Five scenes, and only five. A scene is listed here only once it is genuinely
+// clickable. Verus Partners was previously described here as "coming online
+// and intentionally not listed until it is live", but it was in fact named on
+// the demo index and on /demos for five weeks against a 404, so it has been
+// removed from the demo's scene registry entirely and is not named on any
+// public surface. Roadmap scenes live in the brain.
 
 export type DemoScene = {
   slug: string;

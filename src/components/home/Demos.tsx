@@ -123,7 +123,7 @@ export function Demos() {
           </p>
         </div>
         <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600">
-          sandbox · resets every sunday
+          sandbox · nothing is saved
         </p>
       </div>
       <div className="mt-10">

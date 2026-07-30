@@ -25,7 +25,7 @@ export default function DemosIndexPage() {
       <DemoGrid priority />
 
       <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600">
-        sandbox · resets every sunday · each scene has its own brand and sample data · next online: Verus Partners
+        sandbox · each scene has its own brand and sample data, and nothing you press is saved
       </p>
 
       <ContactCTA />
