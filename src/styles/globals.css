@@ -452,6 +452,24 @@
     }
   }
 
+  /* Approval strip in the hero panel (ApprovalStrip.tsx): the step that has not
+     happened yet sits de-emphasised until the visitor approves the draft.
+     Opacity only, and switched by an attribute the CLIENT writes, so the server
+     paint is all three rows at full emphasis. That inversion is why this needs
+     no @media (scripting: none) entry the way .reveal does: there is no state
+     here that resolves to hidden content when the script never arrives.
+     0.55 rather than a deeper fade because the row still has to be read, not
+     just seen: composited on #0a0a0a it leaves the payoff (zinc-300) at about
+     4.6:1 and the label (zinc-100) near 5.8:1, where 0.5 over zinc-400 body copy
+     would land at 2.6:1 and the row would read as disabled rather than as next.
+     No idle motion: the transition only ever runs from the click. */
+  .approval-step {
+    transition: opacity 200ms var(--ease-out);
+  }
+  .approval-step[data-dimmed="true"] {
+    opacity: 0.55;
+  }
+
   /* Crafted link: the underline draws in from the left on hover. Replaces
      the repeated "text followed by a → arrow" micro-interaction. */
   .link-draw {
@@ -505,6 +523,11 @@
     animation: none;
     animation-timeline: auto;
   }
+  /* .approval-step keeps its data-dimmed opacity, so approving still promotes
+     the last row; only the fade between the two states goes. The strip's
+     control transitions colour at its call site, which this block deliberately
+     leaves alone, for the reason spelled out below. */
+  .approval-step,
   .link-draw,
   .card-hover-glow {
     transition: none;
@@ -524,7 +547,17 @@
   .card-hover-glow:hover,
   .group:hover [class*="translate-"],
   .group:hover [class*="scale-"] {
+    /* All four, not just transform. Tailwind v4 compiles scale-*, translate-*
+       and rotate-* to the INDEPENDENT properties, so `active:scale-[0.98]`
+       emits `scale: .98` and never touches `transform` at all. Resetting
+       transform alone (which this block did until it was checked) left every
+       press and every card lift on the site still moving under reduced motion,
+       silently, because the rule looked correct. .card-hover-glow's
+       translateY IS a real transform, which is why the gap was easy to miss. */
     transform: none;
+    scale: none;
+    translate: none;
+    rotate: none;
   }
 }
 

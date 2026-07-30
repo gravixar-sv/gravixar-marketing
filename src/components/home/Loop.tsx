@@ -16,7 +16,7 @@ const STEPS = [
   },
   {
     n: "03",
-    title: "The system learns",
+    title: "The rule tightens",
     body: "Each approval tightens the rule the next draft follows. The queue gets quieter every week, not louder.",
   },
 ] as const;
