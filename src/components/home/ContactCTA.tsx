@@ -42,7 +42,7 @@ export function ContactCTA() {
         <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand">
           next step
         </p>
-        <h2 className="mt-3 max-w-3xl text-3xl font-semibold tracking-[-0.015em] md:text-4xl">
+        <h2 className="mt-3 max-w-3xl text-3xl font-semibold tracking-[-0.015em] md:text-section">
           Bring me a real operations problem. I&apos;ll show you the system before
           you sign anything.
         </h2>

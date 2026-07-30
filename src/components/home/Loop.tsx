@@ -24,17 +24,24 @@ const STEPS = [
 export function Loop() {
   return (
     <section aria-label="How the approval loop works">
-      <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand">
-        how it works
-      </p>
-      <h2 className="mt-3 text-3xl font-semibold tracking-[-0.015em] md:text-4xl">
-        One loop runs everything.
-      </h2>
-      <p className="mt-4 max-w-2xl text-zinc-400">
-        Every module I ship, from the demos to the client portals, moves work
-        through the same three steps. It is the reason the AI gets trusted with
-        real operations.
-      </p>
+      {/* Statement beside footnote, not above it: this h2 is the page's
+          second typographic peak (still under the hero h1), so the lede
+          sits in a narrower column where it reads as annotation. */}
+      <div className="grid gap-8 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] md:items-end">
+        <div>
+          <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand">
+            how it works
+          </p>
+          <h2 className="mt-3 max-w-[13ch] text-4xl font-semibold leading-[1.0] tracking-[-0.025em] md:text-[2.75rem] lg:text-statement">
+            One loop runs everything.
+          </h2>
+        </div>
+        <p className="mt-4 max-w-md text-zinc-400 md:mt-0">
+          Every module I ship, from the demos to the client portals, moves work
+          through the same three steps. It is the reason the AI gets trusted
+          with real operations.
+        </p>
+      </div>
 
       <div className="relative mt-12">
         {/* Connector hairline + traveling pulse (desktop only) */}
@@ -45,7 +52,11 @@ export function Loop() {
           <span className="loop-pulse absolute inset-y-0 left-0 w-[12%]" />
         </div>
 
-        <ol className="reveal-stagger grid gap-10 md:grid-cols-3 md:gap-8">
+        {/* 220ms between steps, not the 70ms default: a section explaining a
+            three-step sequence cannot have its three steps arrive at once. The
+            pulse is not a timing reference for this, since where scroll-driven
+            animation exists it tracks the reader's scroll rather than a clock. */}
+        <ol className="reveal-stagger grid gap-10 [--stagger:220ms] md:grid-cols-3 md:gap-8">
           {STEPS.map((step) => (
             <li key={step.n} className="relative md:pt-8">
               <span
