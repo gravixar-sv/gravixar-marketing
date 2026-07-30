@@ -55,7 +55,7 @@ export function Capabilities() {
       <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand">
         capabilities &amp; integrations
       </p>
-      <h2 className="mt-3 text-3xl font-semibold tracking-[-0.015em] md:text-4xl">
+      <h2 className="mt-3 text-xl font-medium tracking-[-0.01em] text-zinc-300 md:text-reference">
         The surface area I build with.
       </h2>
       <p className="mt-4 max-w-2xl text-zinc-400">
@@ -64,16 +64,24 @@ export function Capabilities() {
         platform itself.
       </p>
 
-      <div className="mt-10 overflow-hidden rounded-xl border border-zinc-800/80">
+      {/* No container box: the rows sit on the canvas and are separated by their
+          own hairlines, so the top rule is unconditional (a conditional i > 0
+          rule would leave the first row's top edge floating), and the last row
+          carries a bottom rule so the stack closes instead of trailing off.
+          The rules take border-line rather than border-line-soft on purpose:
+          with the box gone they are the only structure left, so they enclose
+          rather than merely separate. The chips keep border-zinc-800, which is
+          a solid chip outline against their own fill, not a hairline rank. */}
+      <div className="mt-10">
         {GROUPS.map((group, i) => (
           <div
             key={group.label}
-            className={`grid gap-x-8 gap-y-4 p-6 md:grid-cols-[minmax(0,220px)_minmax(0,1fr)] md:p-7 ${
-              i > 0 ? "border-t border-zinc-800/80" : ""
+            className={`grid gap-x-8 gap-y-4 border-t border-line py-5 md:grid-cols-[minmax(0,220px)_minmax(0,1fr)] md:py-6 ${
+              i === GROUPS.length - 1 ? "border-b" : ""
             }`}
           >
             <div>
-              <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand">
+              <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">
                 {group.label}
               </p>
               <p className="mt-2 text-sm leading-relaxed text-zinc-500">

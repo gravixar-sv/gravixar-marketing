@@ -13,6 +13,15 @@
   /* Legacy alias kept around for any custom CSS that referenced it */
   --color-accent: #ff6b35;
 
+  /* Hairlines. Two ranks only, ratifying the container-vs-divider hierarchy
+     the pages already draw by hand: --color-line for anything that encloses
+     (section frames, panel edges), --color-line-soft for anything that only
+     separates inside an enclosure (row rules, list dividers). Deliberately
+     unrelated to the .card-surface / .live-panel inset rings below, which are
+     elevation tiers, not hairlines. */
+  --color-line: rgba(250, 250, 250, 0.1);
+  --color-line-soft: rgba(250, 250, 250, 0.05);
+
   /* Display + body: Hubot Sans + Mona Sans (GitHub's open variable
      grotesks), self-hosted via @fontsource-variable (imported in
      layout.tsx). Chosen over Geist/Inter so the type does not read as a
@@ -20,6 +29,27 @@
   --font-sans: "Mona Sans Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-display: "Hubot Sans Variable", "Mona Sans Variable", ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", monospace;
+
+  /* Heading ranks, named after the job rather than the size, because the
+     page reads as a sequence of peaks and every ad hoc `text-3xl md:text-4xl`
+     flattened them into one. Each rank has exactly one consumer:
+       display    -> Hero h1, the only rank-1 on the site
+       statement  -> Loop h2, the second peak, deliberately near the Hero
+       section    -> the act-opener h2s
+       subsection -> ManagedServices h2
+       reference  -> Proof + Capabilities h2, the quietest headings
+     Line heights ship with each rank so a rank swap does not silently fall
+     back to `normal`; call sites can still override with leading-*. */
+  --text-display: 3.75rem;
+  --text-display--line-height: 1.04;
+  --text-statement: 3.25rem;
+  --text-statement--line-height: 1.06;
+  --text-section: 2.25rem;
+  --text-section--line-height: 1.12;
+  --text-subsection: 1.75rem;
+  --text-subsection--line-height: 1.2;
+  --text-reference: 1.5rem;
+  --text-reference--line-height: 1.3;
 
   /* Motion: strong custom curves. Never raw linear / ease-in-out on UI. */
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
@@ -111,18 +141,37 @@
 
   /* Scroll reveal: a section fades and rises once when it enters the
      viewport. Driven by an IntersectionObserver (<Reveal>), not a scroll
-     listener. GPU-only (opacity + transform). */
+     listener. GPU-only (opacity + transform). Distance and duration are
+     custom properties, so a section picks its weight with one extra class
+     instead of a second transition rule. */
   .reveal {
+    --reveal-y: 24px;
+    --reveal-dur: 640ms;
     opacity: 0;
-    transform: translateY(16px);
+    transform: translateY(var(--reveal-y));
     transition:
-      opacity 600ms var(--ease-out),
-      transform 600ms var(--ease-out);
+      opacity var(--reveal-dur) var(--ease-out),
+      transform var(--reveal-dur) var(--ease-out);
     will-change: opacity, transform;
   }
   .reveal[data-revealed="true"] {
     opacity: 1;
     transform: none;
+    /* Release the compositor layer once the section has landed. Without this
+       every revealed section holds a promoted layer for the rest of the
+       page's life, which is most of the page by the time you reach the CTA. */
+    will-change: auto;
+  }
+  /* Weight modifiers. They set the two custom properties and nothing else,
+     which is what keeps the reduced-motion guard on .reveal sufficient for
+     them: there is no transform / transition / opacity here to outrank it. */
+  .reveal-lead {
+    --reveal-y: 40px;
+    --reveal-dur: 820ms;
+  }
+  .reveal-quiet {
+    --reveal-y: 12px;
+    --reveal-dur: 480ms;
   }
 
   /* Hero entrance: pure CSS keyframes (no JS gate), so the fold renders
@@ -144,7 +193,22 @@
 
   /* Child stagger inside a <Reveal>: the parent's data-revealed flips all
      .reveal-stagger children with an incremental delay. Scoped under
-     .reveal so the same grid renders statically when used outside one. */
+     .reveal so the same grid renders statically when used outside one.
+     The step is a registered property rather than a declaration on
+     .reveal-stagger on purpose: registering it gives the 70ms default zero
+     specificity, so a call site can widen the beat with [--stagger:110ms] on
+     the grid. A `.reveal .reveal-stagger` declaration would outrank that
+     utility and the override would silently do nothing.
+     Every call below still writes the 70ms fallback into the var() itself.
+     Without it, an engine that ignores @property leaves --stagger unregistered,
+     `calc(var(--stagger, 70ms) * 1)` is invalid at computed-value time, and the whole
+     grid lands at once. The registration carries the specificity argument; the
+     fallback carries the default. */
+  @property --stagger {
+    syntax: "<time>";
+    inherits: true;
+    initial-value: 70ms;
+  }
   .reveal .reveal-stagger > * {
     opacity: 0;
     transform: translateY(14px);
@@ -157,19 +221,21 @@
     transform: none;
   }
   .reveal[data-revealed="true"] .reveal-stagger > *:nth-child(2) {
-    transition-delay: 70ms;
+    transition-delay: calc(var(--stagger, 70ms) * 1);
   }
   .reveal[data-revealed="true"] .reveal-stagger > *:nth-child(3) {
-    transition-delay: 140ms;
+    transition-delay: calc(var(--stagger, 70ms) * 2);
   }
   .reveal[data-revealed="true"] .reveal-stagger > *:nth-child(4) {
-    transition-delay: 210ms;
+    transition-delay: calc(var(--stagger, 70ms) * 3);
   }
   .reveal[data-revealed="true"] .reveal-stagger > *:nth-child(5) {
-    transition-delay: 280ms;
+    transition-delay: calc(var(--stagger, 70ms) * 4);
   }
+  /* Cap: past the fifth child the wait stops growing, so a long grid does not
+     end on a child that lands a second and a half late. */
   .reveal[data-revealed="true"] .reveal-stagger > *:nth-child(n + 6) {
-    transition-delay: 350ms;
+    transition-delay: calc(var(--stagger, 70ms) * 5);
   }
 
   /* The approval-loop connector: a soft brand pulse travels the hairline.
@@ -189,7 +255,44 @@
       rgba(255, 107, 53, 0.65) 50%,
       rgba(255, 107, 53, 0) 100%
     );
-    animation: loop-pulse 5.5s var(--ease-in-out) infinite;
+    /* Parked until the section reveals. Left running from page load it has
+       already looped a dozen times before anyone scrolls here, so it reads as
+       wallpaper instead of as the loop closing. Gating on JS is safe here in a
+       way it never is for content: the pulse is aria-hidden decoration, so no
+       base visibility depends on the ticker. */
+    animation: loop-pulse 4.6s var(--ease-in-out) 200ms both infinite;
+    animation-play-state: paused;
+  }
+  .reveal[data-revealed="true"] .loop-pulse {
+    animation-play-state: running;
+  }
+  /* No <Reveal> ancestor means no gate to wait for, so run rather than sit
+     dead forever. Keeps the pulse correct if the connector is ever used
+     outside a revealed section. */
+  .loop-pulse:not(.reveal *) {
+    animation-play-state: running;
+  }
+  /* Where scroll-driven animation exists, hand the pulse to the reader's
+     scroll position instead of a timer: one pass, tied to the element's own
+     view progress, so it travels as the loop comes into view rather than
+     beside it. No JS and no scroll listener. Must set play-state back to
+     running, since a paused animation ignores its timeline too. Overriding
+     iteration-count matters more than it looks: an infinite scroll-driven
+     animation would restart every time the element re-entered view.
+     The `both` fill on the shorthand above is load-bearing here, not tidiness:
+     with iteration-count 1 and a view() range, the animation is outside its
+     active phase both before `entry 20%` and after `cover 60%`, and a fill of
+     `none` would drop the transform entirely and leave the 12%-wide coral span
+     sitting at left:0 as a static smear on the hairline. `both` clamps it to
+     translateX(-100%) before and 950% after, both of which the parent clips.
+     Browsers without support keep the timed version above. */
+  @supports (animation-timeline: view()) {
+    .loop-pulse {
+      animation-timeline: view();
+      animation-range: entry 20% cover 60%;
+      animation-iteration-count: 1;
+      animation-play-state: running;
+    }
   }
 
   /* Crafted link: the underline draws in from the left on hover. Replaces
@@ -210,31 +313,68 @@
   }
 }
 
+/* WHITELIST, hand-maintained: this block names every animated class one by
+   one, so anything animated added above stays in motion for readers who asked
+   it not to until it is added here too. Extend it in the same commit.
+   Unlayered on purpose, so it outranks anything in @layer utilities whatever
+   the specificity there. .reveal-lead / .reveal-quiet need no entry: they
+   declare only --reveal-y / --reveal-dur, and the .reveal reset below zeroes
+   the transform and transition that would have read them. */
 @media (prefers-reduced-motion: reduce) {
   .reveal,
   .reveal .reveal-stagger > * {
     opacity: 1;
     transform: none;
     transition: none;
+    will-change: auto;
   }
   .animate-marquee,
   .hero-enter,
   .loop-pulse {
+    /* `animation: none` resets animation-timeline too, so this also kills the
+       scroll-driven .loop-pulse variant. Reset it by hand as well: this is the
+       guard block, so it says what it means rather than leaning on the
+       shorthand. */
     animation: none;
+    animation-timeline: auto;
   }
   .link-draw,
   .card-hover-glow {
     transition: none;
   }
+  /* The half a whitelist structurally cannot cover. Movement at call sites is
+     written as Tailwind utilities on the element itself (active:scale-[0.98],
+     hover:-translate-y-0.5, group-hover:translate-x-0.5), so naming classes
+     here would never keep up with the components. Drop the movement and leave
+     colour and opacity alone, which is the trade this media query is actually
+     asking for. `transition: none` above only made the same movement instant;
+     it never stopped it. Unlayered, so it outranks the utilities in
+     @layer utilities on cascade order alone, with no !important needed. */
+  a:hover,
+  a:active,
+  button:hover,
+  button:active,
+  .card-hover-glow:hover,
+  .group:hover [class*="translate-"],
+  .group:hover [class*="scale-"] {
+    transform: none;
+  }
 }
 
 /* Scripting off entirely: reveals must never gate base visibility
-   (ledger: ui-css-first-reveals-no-ticker-gated-visibility). */
+   (ledger: ui-css-first-reveals-no-ticker-gated-visibility). .hero-enter,
+   .animate-marquee and .link-draw are pure CSS and need nothing here. */
 @media (scripting: none) {
   .reveal,
   .reveal .reveal-stagger > * {
     opacity: 1;
     transform: none;
     transition: none;
+    will-change: auto;
+  }
+  /* The pulse is decoration, so no content was gated on it, but with no JS to
+     flip data-revealed it would stay parked. Spell the no-JS path out. */
+  .loop-pulse {
+    animation-play-state: running;
   }
 }

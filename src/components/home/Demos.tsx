@@ -11,8 +11,11 @@ export function DemoGrid({ priority = false }: { priority?: boolean }) {
   // Five scenes: the flagship (Lattice) leads full-width, the other four
   // sit in a 2-up grid below. Breaks the orphan half-row a plain 2-col
   // grid leaves with an odd count, and gives the lineup a hierarchy.
+  // Slower stagger than the page default (70ms): these are heavy screenshot
+  // cards, so a 90ms step lets the featured one visibly lead its followers
+  // instead of arriving with them.
   return (
-    <div className="reveal-stagger grid gap-5 md:grid-cols-2">
+    <div className="reveal-stagger grid gap-5 md:grid-cols-2 [--stagger:90ms]">
       {DEMO_SCENES.map((scene, i) => (
         <SceneCard
           key={scene.slug}
@@ -40,9 +43,9 @@ function SceneCard({
       rel="noreferrer"
       className={`group block rounded-xl ${featured ? "md:col-span-2" : ""}`}
     >
-      <div className="overflow-hidden rounded-xl border border-zinc-800 bg-[#0b0b10] shadow-[0_24px_50px_-24px_rgba(0,0,0,0.85)] transition-[transform,border-color,box-shadow] duration-500 ease-out group-hover:-translate-y-1 group-hover:border-brand/40 group-hover:shadow-[0_36px_72px_-30px_rgba(0,0,0,0.9)]">
+      <div className="overflow-hidden rounded-xl border border-line bg-zinc-950/60 shadow-[0_24px_50px_-24px_rgba(0,0,0,0.85)] transition-[transform,border-color,box-shadow] duration-500 ease-out group-hover:-translate-y-1 group-hover:border-brand/40 group-hover:shadow-[0_36px_72px_-30px_rgba(0,0,0,0.9)]">
         {/* Window chrome */}
-        <div className="flex items-center justify-between border-b border-white/5 px-4 py-2.5">
+        <div className="flex items-center justify-between border-b border-line-soft px-4 py-2.5">
           <span className="flex items-center gap-1.5">
             <span className="h-2 w-2 rounded-full bg-zinc-700" />
             <span className="h-2 w-2 rounded-full bg-zinc-700" />
@@ -86,7 +89,7 @@ function SceneCard({
         <p className="mt-1.5 text-sm leading-relaxed text-zinc-400">
           {scene.whatItIs}
         </p>
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-t border-white/5 pt-3">
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-t border-line-soft pt-3">
           <p className="text-sm leading-relaxed text-zinc-500">{scene.tryLine}</p>
           <span className="link-draw inline-flex shrink-0 items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500 group-hover:text-brand">
             {scene.openLabel}
@@ -109,7 +112,7 @@ export function Demos() {
           <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand">
             the demos
           </p>
-          <h2 className="mt-3 text-3xl font-semibold tracking-[-0.015em] md:text-4xl">
+          <h2 className="mt-3 text-3xl font-semibold tracking-[-0.015em] md:text-section">
             Pick the scene closest to your desk.
           </h2>
           <p className="mt-4 max-w-xl text-zinc-400">

@@ -54,16 +54,22 @@ const SYSTEM_STATS = [
 ] as const;
 
 export function Hero({ meta, body }: { meta: HomeBlock; body: string }) {
+  // Padding stays minimal on both ends: the shared marketing layout already
+  // pays pt-12/16 above this, under a sticky navbar + demo banner, and the
+  // page wrapper's section gap carries the distance down to the mechanism
+  // this headline promises.
   return (
-    <section className="relative -mx-6 px-6 pb-24 pt-10 md:pt-16 lg:pt-20">
+    <section className="relative -mx-6 px-6 pb-10 pt-4 md:pb-12 md:pt-6 lg:pt-8">
       {/* Background layers */}
       <div
         aria-hidden
         className="bg-brand-glow pointer-events-none absolute inset-0 -z-10"
       />
+      {/* Fade band height tracks the section's bottom padding, any taller and
+          the gradient rides up into the copy. */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-24 bg-gradient-to-b from-transparent to-[#0a0a0a]"
+        className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-10 bg-gradient-to-b from-transparent to-[#0a0a0a] md:h-12"
       />
 
       <div className="grid items-start gap-12 md:grid-cols-[minmax(0,1fr)_minmax(340px,440px)] md:gap-14 lg:gap-16">
@@ -77,7 +83,7 @@ export function Hero({ meta, body }: { meta: HomeBlock; body: string }) {
               </p>
             </div>
           ) : null}
-          <h1 className="hero-enter mt-5 text-[2.5rem] font-semibold leading-[1.02] tracking-[-0.02em] [animation-delay:80ms] md:text-5xl lg:text-[3.75rem]">
+          <h1 className="hero-enter mt-5 text-[2.5rem] font-semibold leading-[1.02] tracking-[-0.02em] [animation-delay:80ms] md:text-5xl lg:text-display">
             {meta.title}
           </h1>
           <div className="hero-enter mt-6 max-w-xl text-lg leading-relaxed text-zinc-300 [animation-delay:160ms]">
@@ -104,7 +110,7 @@ export function Hero({ meta, body }: { meta: HomeBlock; body: string }) {
           {/* Detail strip, what I do, in mono */}
           <div className="hero-enter mt-10 flex flex-wrap items-center gap-x-4 gap-y-2 font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500 [animation-delay:320ms]">
             <span className="flex items-center gap-1.5">
-              <span className="h-1 w-1 rounded-full bg-brand" />
+              <span className="h-1 w-1 rounded-full bg-zinc-700" />
               operations infrastructure
             </span>
             <span className="text-zinc-700">·</span>
@@ -127,7 +133,7 @@ function DemoPanel() {
   return (
     <aside
       aria-label="demo.gravixar.com, live"
-      className="live-panel hero-enter rounded-xl p-5 backdrop-blur [animation-delay:200ms] md:mt-1"
+      className="live-panel hero-enter rounded-xl p-5 [animation-delay:200ms] md:mt-1"
     >
       {/* Window-chrome dots + title */}
       <div className="flex items-center justify-between">
@@ -159,7 +165,7 @@ function DemoPanel() {
               key={p.name}
               href={`${SITE.demoUrl}/lattice`}
               rel="noreferrer"
-              className="group relative overflow-hidden rounded-md border border-zinc-800 bg-zinc-950/40 p-3 transition-all hover:-translate-y-0.5 hover:border-brand/50"
+              className="group relative overflow-hidden rounded-md border border-line bg-zinc-950/40 p-3 transition-all hover:-translate-y-0.5 hover:border-brand/50"
             >
               <span
                 aria-hidden
@@ -182,7 +188,7 @@ function DemoPanel() {
       </div>
 
       {/* Live system stats */}
-      <div className="mt-5 border-t border-zinc-800/80 pt-4">
+      <div className="mt-5 border-t border-line-soft pt-4">
         <div className="flex items-baseline justify-between">
           <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">
             system signal
@@ -209,7 +215,7 @@ function DemoPanel() {
       <a
         href={SITE.demoUrl}
         rel="noreferrer"
-        className="group mt-5 flex items-center justify-between border-t border-zinc-800/80 pt-4 text-sm text-zinc-200 transition-colors hover:text-brand-soft"
+        className="group mt-5 flex items-center justify-between border-t border-line-soft pt-4 text-sm text-zinc-200 transition-colors hover:text-brand-soft"
       >
         <span>open the demo</span>
         <span aria-hidden className="font-mono text-[11px] transition-transform group-hover:translate-x-0.5">↗</span>
