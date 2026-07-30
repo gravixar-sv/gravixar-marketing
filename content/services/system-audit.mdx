@@ -1,0 +1,53 @@
+---
+title: "System Audit"
+slug: "system-audit"
+bucket: "audit"
+tagline: "A fleet of agents hunts findings in your codebase in parallel lanes, then a second pass tries to kill each one. Only the survivors reach you, ranked, with the reasoning attached."
+track: "ongoing"
+order: 5
+updatedAt: "2026-07-30"
+deliverables:
+  - "Parallel find pass: agent lanes across the codebase, one lane per concern"
+  - "Refutation pass: every claimed defect gets an adversarial second read whose job is to kill it"
+  - "Severity recalibrated so the top of the list is worth reading first"
+  - "A findings ledger: each survivor with its reasoning, each kill with why it died"
+  - "P0 and P1 fixes applied in reviewable pull requests, test suite green before handover"
+  - "Optional standing governance checks that fail the build when code drifts from a written rule"
+proof:
+  - { label: "Agency portal, 63 findings through a 14-lane pass", href: "/work/bs-hub", kind: "case-study" }
+  - { label: "Healthcare platform, two live bugs nobody had reported", href: "/work/beeline", kind: "case-study" }
+  - { label: "The systems this method runs against", href: "/work", kind: "case-study" }
+pricing: "Fixed scope, one codebase, priced before I start. No hourly, no open-ended discovery."
+---
+
+Parallel AI review has a volume problem. Point enough agents at a codebase and you have sixty findings by lunch, and sixty findings nobody reads is worth less than five that get fixed. The count is not the product. The filter is.
+
+So this engagement has two halves. First a fleet of agents works the codebase in parallel lanes, one lane per concern: data integrity, auth and tenant boundaries, error paths, migrations, the user journey walked the way a user actually walks it. Then every claimed defect goes to a second pass whose only job is to refute it, to show the finding is wrong, already handled, or not reachable in practice. Whatever survives that gets a severity it can defend. Only survivors reach your report.
+
+## What the two passes produce
+
+On an agency portal, fourteen agent lanes produced 63 findings. The refutation pass killed none of them and moved severity on 11, which is the number I watch more closely than the total. Wrong ranking is what makes a person stop reading a list. Two pull requests closed 87 findings, the 63 from this pass plus the backlog they pulled in with them, and the suite finished at 252 of 252 passing.
+
+On a healthcare platform, the same method fixed 14 bugs: 3 found by reading the user journey end to end, 8 by the adversarial pass, 3 deferred with the reason written down. Two of the 14 were already broken in production and nobody knew. One was a tab labeled "All" that crashed on any record with a non-legacy status. The other was an API route that returned every client's credentials to any caller holding a single module grant, a cross-tenant data leak sitting in a shipped app.
+
+That second one is the honest answer to "would this find anything in mine". It had gone unreported because the people who could trigger it were not looking, and the people looking did not hold the grant.
+
+## The findings that are not bugs
+
+The pass reads data and migrations too, because that is where failure stays quiet. On the same platform it surfaced an import that had silently dropped a third of its source: 240 provider blocks across 141 tabs of which 141 landed, and 1,796 payer rows of which 1,123 landed. Recovering it moved the live system from 194 to 250 clients and from 1,521 to 2,042 records. Nothing had errored. The importer had reported success.
+
+Two calls during that recovery went against the obvious action, and they matter more than the fixes. A color in the source spreadsheet did not mean what everyone assumed it meant, and auto-mapping it would have closed roughly 240 live records. Separately, 42 of 98 stacked blocks repeated the first block's identifier, so importing all of them would have created 42 duplicate clients. Both times the automatic move was the wrong one. That judgment is the part a fleet of agents cannot do alone, and it is why a person signs the ledger.
+
+## What you receive
+
+- **The ledger.** Every surviving finding with the reasoning that kept it alive, its severity, and the refutation it beat. The kills are in there too, so you can see what was considered and dropped.
+- **The fixes.** P0 and P1 applied in reviewable pull requests, one concern per PR, tests green before handover.
+- **Standing enforcement, if you want it.** Governance checks that run daily and fail the build when the code stops matching a written rule. There are 23 of those running against my own platform, which is how I know they hold rather than rot.
+
+## What this is not
+
+This is not a penetration test. Nobody is attacking your running infrastructure, and this does not replace a security firm's engagement letter. It is not a compliance certification either. It will tell you where a HIPAA-shaped or SOC-shaped claim is unsupported by the code, and it will not sign anything on your behalf.
+
+What it is: a hostile reading of your code, data, and migrations, filtered down to a list short enough that you act on it this week.
+
+Pairs with **[Fractional AI Ops Lead](/services/fractional-ai-ops-lead)** when you want the checks watched after handover, and with **[Operations Infrastructure](/services/operations-infrastructure)** when the audit turns into a rebuild.

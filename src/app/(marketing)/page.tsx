@@ -48,9 +48,9 @@ export default async function HomePage() {
       <Reveal className="reveal-quiet mt-20 md:mt-24">
         <Capabilities />
       </Reveal>
-      {/* One Reveal for both, because ManagedServices is a nested fourth line
-          under "Three things I build. One I keep running." and not a fifth
-          offer. The 56px internal gap is the smallest section-to-section gap on
+      {/* One Reveal for both, because managed website retainers are not one of
+          the numbered service files above, so they read as a subsection rather
+          than a sixth offer. The 56px internal gap is the smallest gap on
           the page on purpose: it is the only thing that makes the demotion read
           as nesting instead of an orphaned fragment. */}
       <Reveal className="mt-28 md:mt-36">

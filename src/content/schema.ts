@@ -52,12 +52,18 @@ export const caseStudySchema = z.object({
 });
 export type CaseStudy = z.infer<typeof caseStudySchema>;
 
-export const serviceBucket = z.enum(["operations", "ai", "brand"]);
+export const serviceBucket = z.enum(["operations", "ai", "brand", "audit"]);
 
 export const serviceSchema = z.object({
   title: z.string().min(3).max(80),
   slug,
   bucket: serviceBucket,
+  // Whether this is a build with an end or something I keep running. Drives
+  // layout: the service grids are 12 columns and each card spans
+  // 12 / (services in its own track), so a row always fills exactly and never
+  // leaves an orphan. The span comes from what a service IS, not from its
+  // index in an array, so adding a sixth service can't silently break a grid.
+  track: z.enum(["build", "ongoing"]).default("build"),
   tagline: z.string().min(20).max(200),
   deliverables: z.array(z.string().min(1)).min(1),
   // links to live proof, case studies, live demos, public artifacts
@@ -72,6 +78,10 @@ export const serviceSchema = z.object({
     .default([]),
   pricing: z.string().optional(), // free-form, "From $X" or "Project-based"
   order: z.number().int().nonnegative().default(0),
+  // ISO date, e.g. "2026-07-30". When the scope of this offer last moved,
+  // not when the page copy was tweaked. Optional: a service that has never
+  // changed shape doesn't need one.
+  updatedAt: isoDate.optional(),
 });
 export type Service = z.infer<typeof serviceSchema>;
 

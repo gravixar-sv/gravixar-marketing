@@ -368,7 +368,9 @@
       animation-range: entry 0% entry 32vh;
     }
     /* The within-a-row beat, md+ only (48rem to match Tailwind's md, which is
-       where all three .reveal-stagger grids go multi-column). Below md they are
+       where every .reveal-stagger grid goes multi-column: Loop, Demos, and the two
+       ServicesPreview track bands, whose 12-column shape the cycle also suits,
+       a band of 3 landing 0/6/12vh and a band of 2 landing 0/6vh). Below md they are
        single-column, layout position already staggers them, and an extra offset
        would only make the last card arrive late. At md+ a row's children share a
        top edge and so share a timeline position, which without this lands them
