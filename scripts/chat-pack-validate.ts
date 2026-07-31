@@ -12,7 +12,12 @@
 //      mandate stops being prose and starts being a test.
 
 import { getPack, validatePack } from "../src/lib/chat/pack";
-import { classify, assertSendable, ROUTE_COPY } from "../src/lib/chat/gate";
+import {
+  classify,
+  assertSendable,
+  shouldOfferCapture,
+  ROUTE_COPY,
+} from "../src/lib/chat/gate";
 import {
   DEFAULT_OPENER,
   DISCLOSURE,
@@ -67,6 +72,17 @@ async function main() {
         );
         continue;
       }
+    }
+
+    // The capture card is only ever offered when Bosun ran out of road. This
+    // shipped wrong once: routes offered it, so a correct answer to "what do
+    // you do" came with a form asking for the visitor's email.
+    const offered = shouldOfferCapture(result);
+    const shouldOffer = result.kind === "escalate" || result.kind === "miss";
+    if (offered !== shouldOffer) {
+      failures.push(
+        `  "${f.input}"\n    capture card offered=${offered} on a ${result.kind}, expected ${shouldOffer}\n    why it matters: asking for contact details after a good answer is the pushiness the spec rejects.`,
+      );
     }
 
     // Everything Bosun would send has to survive the outgoing filter.

@@ -214,6 +214,24 @@ export function classify(rawInput: string, pack: Pack, ctx: GateContext): GateRe
   return { kind: "miss", text: HANDOFF.offer };
 }
 
+/**
+ * Whether this turn should put the capture card in front of the visitor.
+ *
+ * ONLY when Bosun has actually run out of road: an escalation trigger, or a
+ * question it could not answer. Not on a route, and never on an answer.
+ *
+ * The first version included routes, so asking "what do you do" got a correct
+ * answer AND a form asking for your email, which is the pushiness the launcher
+ * spec spends a paragraph rejecting. Answering someone well is not a cue to
+ * ask them for their contact details.
+ *
+ * Exported and pure so the fixtures can assert it. It lived inline in the
+ * route handler before, where nothing tested it.
+ */
+export function shouldOfferCapture(result: GateResult): boolean {
+  return result.kind === "escalate" || result.kind === "miss";
+}
+
 function escalationCopy(trigger: EscalationTrigger): string {
   switch (trigger) {
     case "human_request":

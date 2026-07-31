@@ -20,7 +20,7 @@
 
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { classify, assertSendable, DISCLOSURE } from "@/lib/chat/gate";
+import { classify, assertSendable, shouldOfferCapture, DISCLOSURE } from "@/lib/chat/gate";
 import { getPack } from "@/lib/chat/pack";
 import { BOSUN, DEFAULT_OPENER, OPENERS } from "@/lib/chat/persona";
 import { safeSourcePage } from "@/lib/chat/scrub";
@@ -80,9 +80,9 @@ export async function POST(req: Request) {
     // are only ever the constants.
     quoted: result.kind === "answer",
     // The client uses these to decide whether to show the capture card, and to
-    // know whether this turn counted as a miss worth logging.
-    offerCapture:
-      result.kind === "escalate" || result.kind === "miss" || result.kind === "route",
+    // know whether this turn counted as a miss worth logging. offerCapture is
+    // computed by a pure exported function so the fixtures cover it.
+    offerCapture: shouldOfferCapture(result),
     isMiss: result.kind === "miss" || result.kind === "escalate",
   });
 }
