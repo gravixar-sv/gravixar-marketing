@@ -22,7 +22,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { classify, assertSendable, shouldOfferCapture, DISCLOSURE } from "@/lib/chat/gate";
 import { getPack } from "@/lib/chat/pack";
-import { BOSUN, DEFAULT_OPENER, OPENERS } from "@/lib/chat/persona";
+import { BOSUN, DEFAULT_OPENER, OPENERS, SUGGESTIONS } from "@/lib/chat/persona";
 import { safeSourcePage } from "@/lib/chat/scrub";
 
 export const runtime = "nodejs";
@@ -105,5 +105,10 @@ export async function GET(req: Request) {
     // is a constant that no code path can skip.
     disclosure: DISCLOSURE,
     opener: key ? OPENERS[key] : DEFAULT_OPENER,
+    // A deterministic surface is strong on questions it knows and no help at
+    // all in working out what those are. Handing over four that certainly work
+    // beats leaving someone to guess and get refused. Every one is asserted in
+    // the fixtures to resolve to a real answer.
+    suggestions: SUGGESTIONS,
   });
 }

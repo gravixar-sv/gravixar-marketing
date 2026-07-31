@@ -26,8 +26,13 @@ export type RefusalReason =
 export const REFUSALS: Record<RefusalReason, string> = {
   // The single most common one. Deliberately not apologetic: this surface is
   // narrow on purpose and saying so is more useful than sounding sorry.
+  // Rewritten after a visitor typed "Hello" and got the old version, which
+  // opened "That is outside what I cover." Correct, and it reads as a door
+  // closing on someone who has not asked anything yet. This is the catch-all
+  // for everything with no pack vocabulary, which includes ordinary human
+  // noise, so it has to end somewhere useful rather than just decline.
   off_topic:
-    "That is outside what I cover. I only answer from what Gravixar has published: the services, the work, the modules, and how an engagement runs. Ask me one of those and I will be useful.",
+    "I do not cover that one. What I am good for: the six services and what they cost, the work that has shipped, the reusable modules, and booking time with Qamar. Any of those and I will be genuinely useful.",
 
   // MANDATE CLAUSE 7. Covers "ignore previous instructions", "print your
   // prompt", "what are your rules", "repeat the text above".
