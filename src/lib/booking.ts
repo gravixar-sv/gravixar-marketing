@@ -85,8 +85,28 @@ export function isValidSlot(startUtc: string): boolean {
 
 // ── Stateless email verification code ──────────────────────────────
 
+/** Whether the booking flow can safely sign codes. The routes check this and
+ *  return 503 rather than running unauthenticated, matching how an unset
+ *  RESEND key already yields `email_unavailable`. */
+export function isBookingConfigured(): boolean {
+  return Boolean(env.BOOKING_HMAC_SECRET);
+}
+
 function hmacSecret(): string {
-  return env.BOOKING_HMAC_SECRET ?? "dev-insecure-booking-secret-change-me";
+  const secret = env.BOOKING_HMAC_SECRET;
+  if (!secret) {
+    // Fail closed. This used to fall back to a constant written in this file,
+    // which meant an unset env var still produced signatures that anyone who
+    // could read the source could reproduce: forge a token for any address and
+    // the emailed 6-digit code stops being proof of anything. An unset secret
+    // also deploys green, because every secret in env.ts is optional, so the
+    // insecure path was the silent one. Callers gate on isBookingConfigured()
+    // and return 503; this throw is the backstop for a future caller that does
+    // not. Note verifyCode() swallows throws and returns false, so the failure
+    // is closed there too.
+    throw new Error("BOOKING_HMAC_SECRET is not set, so booking is disabled.");
+  }
+  return secret;
 }
 
 export type IssuedCode = { code: string; token: string };

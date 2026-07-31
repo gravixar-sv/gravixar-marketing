@@ -274,6 +274,10 @@ function friendly(code: string): string {
     case "slot_unavailable": return "That slot is no longer available.";
     case "email_unavailable":
     case "send_failed": return "Couldn't send the code right now. Try again shortly.";
+    // Operator secret missing, so the flow is off rather than degraded. Point
+    // at the contact form instead of inviting a retry that cannot succeed.
+    case "booking_unavailable":
+      return "Booking is temporarily unavailable. Use the contact form and I'll set a time up.";
     default: return code.replace(/_/g, " ");
   }
 }

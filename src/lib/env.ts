@@ -32,6 +32,10 @@ const schema = z.object({
   // In-house "book a call" (replaces cal.com). HMAC secret signs the
   // email verification codes; MEET_URL is the reusable Google Meet room
   // shared on confirmation. Both set in Vercel production env.
+  // Optional here so the build never depends on a secret, but booking FAILS
+  // CLOSED without it: /api/book/request-code and /api/book/confirm return
+  // 503 booking_unavailable rather than signing with a fallback constant.
+  // Set it locally in .env.local too, or the flow is disabled in dev.
   BOOKING_HMAC_SECRET: z.string().optional(),
   BOOKING_MEET_URL: z.string().url().optional(),
   // Google Indexing API service-account credentials, base64-encoded JSON.

@@ -49,7 +49,7 @@ Each of these processes your data only to provide its service to us, under its o
 
 ## File storage and retention
 
-If you attach a CV to a job application, it is uploaded to private storage on Vercel Blob and is only accessible to us. Form submissions are kept as an append-only log so we have a record of who reached out.
+If you attach a CV to a job application, it is stored on Vercel Blob at a randomly generated address that is never published, linked, or shown anywhere in the interface, and it is opened through an admin route that requires authentication. That address is unguessable rather than individually permissioned, so anyone who came into possession of the full address could open the file. Form submissions are kept as an append-only log so there is a record of who reached out.
 
 We keep enquiry, booking, and waitlist data for as long as we need it to follow up and keep our records, and application data for the duration of the hiring process and a reasonable period after. If you want your data removed sooner, ask and we will delete it.
 
