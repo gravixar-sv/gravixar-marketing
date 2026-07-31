@@ -54,7 +54,12 @@ export function GraphicsCardPreview({
 
     const io = new IntersectionObserver(
       ([entry]) => {
-        inView = entry?.isIntersecting ?? false;
+        // Ratio, not isIntersecting. The flag is true on ANY overlap, and the
+        // observer queues a notification whenever it changes regardless of the
+        // thresholds list, so reading it started the clip on the first pixel
+        // and left the threshold below purely decorative. Comparing the ratio
+        // is what actually spends the threshold.
+        inView = (entry?.intersectionRatio ?? 0) >= 0.35;
         sync();
       },
       // A third of the card is enough to call it seen, and it means the clip
