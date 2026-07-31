@@ -34,6 +34,7 @@ type Meta = {
   pronunciation: string;
   disclosure: string;
   opener: string;
+  suggestions: string[];
 };
 
 export function Bosun({ sourcePage }: { sourcePage: string }) {
@@ -43,6 +44,9 @@ export function Bosun({ sourcePage }: { sourcePage: string }) {
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [showCapture, setShowCapture] = useState(false);
+  // Shown before the first question, and again after a dead end, which is
+  // exactly when someone does not know what this thing can answer.
+  const [showSuggestions, setShowSuggestions] = useState(true);
   const [consecutiveMisses, setConsecutiveMisses] = useState(0);
 
   const missesRef = useRef<string[]>([]);
@@ -128,10 +132,12 @@ export function Bosun({ sourcePage }: { sourcePage: string }) {
     return () => document.removeEventListener("keydown", onKey);
   }, [open]);
 
-  async function send() {
-    const message = input.trim();
+  async function send(override?: string) {
+    const message = (override ?? input).trim();
     if (!message || busy) return;
     setInput("");
+    // Once someone has asked something, the chips have done their job.
+    setShowSuggestions(false);
     setTurns((t) => [...t, { role: "visitor", text: message }]);
     setBusy(true);
     turnCountRef.current += 1;
@@ -170,6 +176,10 @@ export function Bosun({ sourcePage }: { sourcePage: string }) {
       // of the conversation: every good answer after it came with a form
       // asking for your email. Reset per turn, so the card is present exactly
       // when the current turn ran out of road.
+      // Put the chips back when Bosun could not help. A refusal or a miss is
+      // precisely the moment someone needs to be shown what DOES work, rather
+      // than left to guess again and get refused again.
+      setShowSuggestions(data.kind === "miss" || data.kind === "refusal");
       setShowCapture(data.offerCapture === true);
       if (data.offerCapture && outcomeRef.current === "none") {
         outcomeRef.current = "handoff_offered";
@@ -262,6 +272,20 @@ export function Bosun({ sourcePage }: { sourcePage: string }) {
           </div>
         ))}
         {busy ? <p className="text-[11px] text-zinc-600">thinking</p> : null}
+        {showSuggestions && meta?.suggestions?.length && !busy ? (
+          <div className="flex flex-wrap gap-1.5 pt-1">
+            {meta.suggestions.map((s) => (
+              <button
+                key={s}
+                type="button"
+                onClick={() => void send(s)}
+                className="rounded-full border border-zinc-800 px-2.5 py-1 text-[11px] text-zinc-400 transition-colors duration-200 ease-out hover:border-brand hover:text-brand-soft"
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+        ) : null}
         {showCapture ? (
           <CaptureCard
             sourcePage={sourcePage}

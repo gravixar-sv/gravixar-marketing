@@ -67,6 +67,53 @@ export const DEFAULT_OPENER =
   "Ask about the services, the work, or how an engagement starts. If I do not have it published, I will say so rather than guess.";
 
 /**
+ * SMALLTALK. Not decoration, and the thing this surface most obviously lacked
+ * on first contact: a visitor typed "Hello" and was told it was outside what
+ * Bosun covers, which is both true and useless. A greeting is not an off-topic
+ * question, it is someone checking whether the thing is alive. Answer it, then
+ * put three concrete openings in front of them so the next message is easy.
+ */
+export const GREETING =
+  "Hello. I am most useful on three things: what a service includes, what it costs, and what has already been built. Ask one of those, or tell me what you are working on.";
+
+/**
+ * The answer to "how can you help me", which is the commonest opening question
+ * anywhere and was landing as a MISS, so Bosun replied that it had nothing
+ * published and offered to hand the visitor to a human. Describing its own job
+ * is not a fact about Gravixar that needs a source, it is the one thing Bosun
+ * always knows. Ends on a question, because the brief asks it to find out what
+ * the visitor has and where it hurts.
+ */
+export const CAPABILITY = [
+  "Here is what I can actually do:",
+  "",
+  "- Tell you what any of the six services includes, and what it costs",
+  "- Show you what was built for a comparable client, and what broke",
+  "- Check whether a module already covers what you need",
+  "- Compare a tool you run now against a custom build",
+  "- Book you a call with Qamar",
+  "",
+  "What are you working on?",
+].join("\n");
+
+export const THANKS =
+  "Anytime. If you want a next step, booking a call is the fastest one.";
+
+/**
+ * Rendered as tappable chips under the opener and after a dead end. A
+ * deterministic surface is strong on questions it knows and useless at helping
+ * someone guess what those are, so the guessing is removed. Every one of these
+ * is asserted in the fixtures to resolve to a real answer, so a chip can never
+ * become a question Bosun cannot handle.
+ */
+export const SUGGESTIONS: readonly string[] = [
+  "What do you do?",
+  "What does the fractional AI ops lead cost?",
+  "What does a system audit include?",
+  "Book a call",
+] as const;
+
+/**
  * MANDATE CLAUSE 12. Nobody is watching this chat in real time, so no copy
  * anywhere may imply somebody is about to join. These are the only two real
  * paths, and the ceiling is stated once and honestly.

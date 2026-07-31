@@ -20,9 +20,12 @@
 // degrades this surface rather than breaking it.
 
 import {
+  CAPABILITY,
   DISCLOSURE,
+  GREETING,
   HANDOFF,
   IDENTITY_ANSWER,
+  THANKS,
   BANNED_PROMISES,
   RESPONSE_CEILING,
 } from "./persona";
@@ -42,7 +45,8 @@ export type GateResult =
   | { kind: "refusal"; reason: RefusalReason; text: string }
   | { kind: "escalate"; trigger: EscalationTrigger; text: string }
   | { kind: "answer"; text: string; href: string; entryId: string; score: number }
-  | { kind: "route"; route: "booking" | "contact" | "overview"; text: string }
+  | { kind: "route"; route: "booking" | "contact" | "overview" | "capability"; text: string }
+  | { kind: "smalltalk"; text: string }
   | { kind: "miss"; text: string };
 
 /** Conversation state the gate needs. Deliberately tiny and not persisted. */
@@ -141,11 +145,31 @@ const ESCALATE: readonly { trigger: EscalationTrigger; re: RegExp }[] = [
   },
 ];
 
+// ---- Smalltalk -------------------------------------------------------
+// Handled EARLY, before the in-domain check, because that check keys on pack
+// vocabulary and a greeting shares none. "Hello" was scoring 0.09 and landing
+// in the off-topic refusal, so the first thing a visitor did was get told they
+// were off topic.
+// The salaam branch is deliberately loose on the joining vowel and spacing,
+// because "assalam o alaikum", "assalamualaikum" and "salam" are all the same
+// greeting and the operator is in Islamabad, so this is a normal opener here.
+const GREETING_RE =
+  /^\s*(?:hi|hey|hello|yo|hiya|howdy|greetings|good (?:morning|afternoon|evening)|(?:assalam|asalam|salaam|salam)(?:\s*[ou]?\s*|-)?(?:alaikum|alaykum|aleikum)?)\b[\s!.,?]*$/i;
+const THANKS_RE = /^\s*(thanks|thank you|ta|cheers|appreciate it|great|perfect|nice|cool|ok(ay)?|got it)\b[\s!.,?]*$/i;
+
+// "What can you do" worked and "how can you help me" did not, because this was
+// a hand-enumerated list of phrasings and I happened to write one and not the
+// other. Widened to cover the question by SHAPE rather than by wording.
+// NOT "what do you do". On a services site that means "what does Gravixar do",
+// and answering it with a description of Bosun's own abilities is a worse
+// answer than the service list. This branch is only the "what are YOU for"
+// shape; the offering itself is the overview route below.
+const ROUTE_CAPABILITY =
+  /\b(how (can|could|do) you help|what can you (do|help|tell)|who are you for|what are you for|how do you work|what can i ask|help me with|where do i start|what should i ask)\b/i;
+
 // ---- 6. Routing ------------------------------------------------------
 const ROUTE_BOOKING =
   /\b(book|schedule|set up|arrange) (a )?(call|meeting|chat|time|slot)\b|\bbook a call\b|\bavailability\b|\bcalendar\b/i;
-const ROUTE_OVERVIEW =
-  /\b(what do you (do|offer)|what services|what can you (do|help)|how does this work|what is gravixar)\b/i;
 
 export const ROUTE_COPY = {
   booking:
@@ -163,6 +187,12 @@ export function classify(rawInput: string, pack: Pack, ctx: GateContext): GateRe
 
   // 2. Identity, before anything else, always a constant, always free.
   if (IDENTITY.test(input)) return { kind: "identity", text: IDENTITY_ANSWER };
+
+  // 2b. Smalltalk. Cheap, and it decides whether this reads as a tool or as a
+  // bouncer. Anchored to whole short messages, so "hi, what does the audit
+  // cost" still reaches the matcher rather than being answered as a greeting.
+  if (GREETING_RE.test(input)) return { kind: "smalltalk", text: GREETING };
+  if (THANKS_RE.test(input)) return { kind: "smalltalk", text: THANKS };
 
   // 3. Security denies. Nothing outranks these.
   for (const { reason, re } of SECURITY_DENY) {
@@ -182,6 +212,15 @@ export function classify(rawInput: string, pack: Pack, ctx: GateContext): GateRe
     if (re.test(input)) return { kind: "refusal", reason, text: REFUSALS[reason] };
   }
 
+  // 5a. What Bosun is for. BEFORE the matcher on purpose: this is a question
+  // about Bosun, not about Gravixar, so a service page half-matching it would
+  // be a worse answer than the real one. It was previously after the matcher
+  // AND phrased too narrowly, so "how can you help me" fell through to a miss
+  // and Bosun offered to fetch a human rather than describe its own job.
+  if (ROUTE_CAPABILITY.test(input)) {
+    return { kind: "route", route: "capability", text: CAPABILITY };
+  }
+
   // 5. The published answer bank.
   const match = confidentMatch(input, pack);
   if (match) {
@@ -198,7 +237,13 @@ export function classify(rawInput: string, pack: Pack, ctx: GateContext): GateRe
   if (ROUTE_BOOKING.test(input)) {
     return { kind: "route", route: "booking", text: ROUTE_COPY.booking };
   }
-  if (ROUTE_OVERVIEW.test(input)) {
+  // The service overview, for someone asking about the offering rather than
+  // about Bosun. ROUTE_CAPABILITY handles the "what are YOU for" shape earlier.
+  if (
+    /\b(what do you (do|offer|sell|build)|what services|services|offering|packages|how does this work|what is gravixar)\b/i.test(
+      input,
+    )
+  ) {
     return { kind: "route", route: "overview", text: ROUTE_COPY.overview };
   }
 

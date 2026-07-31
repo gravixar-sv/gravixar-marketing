@@ -19,11 +19,15 @@ import {
   ROUTE_COPY,
 } from "../src/lib/chat/gate";
 import {
+  CAPABILITY,
   DEFAULT_OPENER,
   DISCLOSURE,
+  GREETING,
   HANDOFF,
   IDENTITY_ANSWER,
   OPENERS,
+  SUGGESTIONS,
+  THANKS,
 } from "../src/lib/chat/persona";
 import { REFUSALS } from "../src/lib/chat/refusals";
 import cases from "../src/lib/chat/fixtures.json";
@@ -108,10 +112,25 @@ async function main() {
   // that must never impersonate Qamar or speak for the business. Published copy
   // is exempt because it is rendered attributed, as a quotation, which is what
   // makes its first person safe.
+  // Every suggestion chip must resolve to something genuinely useful. A chip
+  // that lands on a miss is worse than no chip: Bosun offered the question
+  // itself and then could not answer it.
+  for (const s of SUGGESTIONS) {
+    const r = classify(s, pack, { consecutiveMisses: 0 });
+    if (r.kind !== "answer" && r.kind !== "route") {
+      failures.push(
+        `  suggestion chip "${s}"\n    resolves to ${r.kind}, expected answer or route\n    why it matters: Bosun put this question in the visitor's hand, so it has to be one it can handle.`,
+      );
+    }
+  }
+
   const OWN_WORDS: [string, string][] = [
     ["DISCLOSURE", DISCLOSURE],
     ["IDENTITY_ANSWER", IDENTITY_ANSWER],
     ["DEFAULT_OPENER", DEFAULT_OPENER],
+    ["GREETING", GREETING],
+    ["THANKS", THANKS],
+    ["CAPABILITY", CAPABILITY],
     ...Object.entries(OPENERS),
     ...Object.entries(REFUSALS),
     ...Object.entries(HANDOFF),

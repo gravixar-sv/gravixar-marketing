@@ -44,6 +44,15 @@
   { "input": "can we schedule a meeting", "expect": "route", "detail": "booking", "why": "Booking phrased without the word book." },
   { "input": "what do you do", "expect": "route", "detail": "overview", "why": "The commonest opening question on any site, answered from the real service list." },
 
+  { "input": "Hello", "expect": "smalltalk", "why": "A visitor's first word was answered with 'that is outside what I cover'. A greeting is someone checking the thing is alive, not an off-topic question." },
+  { "input": "hi", "expect": "smalltalk", "why": "Same, two letters, the commonest opener there is." },
+  { "input": "assalam o alaikum", "expect": "smalltalk", "why": "The operator is in Islamabad, so this is a normal opener on this site." },
+  { "input": "thanks", "expect": "smalltalk", "why": "Closing courtesy scored 0.23 and got refused, which ends every good conversation on a decline." },
+  { "input": "How can you help me?", "expect": "route", "detail": "capability", "why": "The commonest opening question anywhere. It landed as a MISS, so Bosun said it had nothing published and offered a human, about its own job." },
+  { "input": "what can you do", "expect": "route", "detail": "capability", "why": "Worked before only because the old regex happened to enumerate this exact phrasing." },
+  { "input": "where do I start", "expect": "route", "detail": "capability", "why": "Same intent, no shared words with any of the phrasings the old regex listed." },
+  { "input": "hi, what does a system audit include?", "expect": "answer", "detail": "service:system-audit", "why": "A greeting PREFIX must not swallow the real question. The smalltalk match is anchored to whole short messages for exactly this." },
+
   { "input": "asdfgh qwerty", "expect": "refusal", "detail": "off_topic", "why": "Garbage input must land somewhere deliberate rather than in the matcher." },
   { "input": "", "expect": "miss", "why": "Empty input must not throw, and must not be treated as a question." }
 ]
