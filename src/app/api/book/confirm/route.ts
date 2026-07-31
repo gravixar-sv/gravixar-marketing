@@ -66,7 +66,19 @@ export async function POST(req: Request) {
     note,
     ip: req.headers.get("x-forwarded-for")?.split(",")[0]?.trim(),
   };
-  await appendBooking(record).catch(() => null);
+  // NOT best-effort. This used to be `.catch(() => null)` followed by an
+  // unconditional `ok: true`, so if Blob was unset or having a bad minute the
+  // visitor was told their call was booked while the record existed in no
+  // system, on no calendar, and in no inbox. Nobody would find out until the
+  // meeting did not happen. Storage is the booking; if it did not land, say so
+  // and let them try again or use the contact form.
+  try {
+    const stored = await appendBooking(record);
+    if (!stored) throw new Error("blob unavailable");
+  } catch (err) {
+    console.error("[book/confirm] booking NOT stored, refusing to confirm:", err);
+    return NextResponse.json({ error: "booking_not_stored" }, { status: 503 });
+  }
 
   // 4. Notify both parties (best-effort) with the Meet link + .ics.
   const link = meetUrl();

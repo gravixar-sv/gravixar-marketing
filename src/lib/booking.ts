@@ -21,10 +21,25 @@ export const BOOKING = {
   tz: "Asia/Karachi", // PKT, UTC+5, no DST
   tzOffsetHours: 5,
   // Slot start times in PKT, on business days (Mon–Fri).
-  pktHours: [15, 17, 19],
+  //
+  // WHY FIVE HOURS AND WHY THESE. PKT is UTC+5, so the old [15,17,19] rendered
+  // as 06:00 / 08:00 / 10:00 in New York and 03:00 / 05:00 / 07:00 in San
+  // Francisco. A US buyer was offered exactly one civil time and the west coast
+  // none at all, on a site that sells to agencies and founders. 13:00 opens the
+  // UK morning and 21:00 is the only hour that reaches New York midday and San
+  // Francisco at 09:00. The call ends at 21:30, which is the limit worth
+  // trading. Mornings before 13:00 stay unbookable on purpose.
+  pktHours: [13, 15, 17, 19, 21],
   horizonDays: 14,
-  maxSlots: 15,
-  leadHours: 12, // earliest bookable slot from now
+  // Per DAY, not per request. maxSlots alone silently truncated the fourteen
+  // day horizon to five business days (3 x 5 = 15), so the horizon was fiction.
+  // A five hour pool would have made it three days.
+  maxPerDay: 3,
+  maxSlots: 45,
+  // 12 hours is asymmetric: a New York visitor booking at 14:00 ET took the
+  // next PKT slot using twelve hours that were entirely the operator's night.
+  // 24 guarantees a full overnight before anything lands.
+  leadHours: 24,
 } as const;
 
 export type Slot = {
@@ -49,6 +64,8 @@ export function generateSlots(takenUtc: string[] = []): Slot[] {
     const weekday = pkt.getUTCDay(); // 0 Sun … 6 Sat
     if (weekday === 0 || weekday === 6) continue;
 
+    // Everything still open on this PKT day, in order.
+    const openToday: number[] = [];
     for (const h of BOOKING.pktHours) {
       // PKT hour h on this PKT date → UTC = h - offset.
       const startUtcMs = Date.UTC(
@@ -60,13 +77,37 @@ export function generateSlots(takenUtc: string[] = []): Slot[] {
         0,
       );
       if (startUtcMs < earliest) continue;
-      const iso = new Date(startUtcMs).toISOString();
-      if (taken.has(iso)) continue;
-      slots.push({ startUtc: iso, pktLabel: pktLabelFor(startUtcMs) });
+      if (taken.has(new Date(startUtcMs).toISOString())) continue;
+      openToday.push(startUtcMs);
+    }
+
+    // SPREAD, do not take the first N. Capping a five hour pool at three by
+    // slicing would offer 13:00, 15:00 and 17:00 every day, which is 04:00,
+    // 06:00 and 08:00 in New York: exactly the problem the later hours were
+    // added to fix. Picking evenly across what is open puts the earliest, a
+    // middle and the latest in front of every visitor, so the UK and the US
+    // each see something civil on the same day, and the unused hours become
+    // the backfill when one is taken.
+    for (const startUtcMs of pickSpread(openToday, BOOKING.maxPerDay)) {
+      slots.push({
+        startUtc: new Date(startUtcMs).toISOString(),
+        pktLabel: pktLabelFor(startUtcMs),
+      });
       if (slots.length >= BOOKING.maxSlots) break;
     }
   }
   return slots;
+}
+
+/** Up to `k` items spread evenly across `items`, always including both ends. */
+function pickSpread<T>(items: T[], k: number): T[] {
+  if (items.length <= k) return items;
+  if (k <= 1) return items.slice(0, k);
+  const out: T[] = [];
+  for (let i = 0; i < k; i++) {
+    out.push(items[Math.round((i * (items.length - 1)) / (k - 1))]!);
+  }
+  return out;
 }
 
 function pktLabelFor(utcMs: number): string {
@@ -85,11 +126,16 @@ export function isValidSlot(startUtc: string): boolean {
 
 // ── Stateless email verification code ──────────────────────────────
 
-/** Whether the booking flow can safely sign codes. The routes check this and
+/** Whether the booking flow can run end to end. The routes check this and
  *  return 503 rather than running unauthenticated, matching how an unset
- *  RESEND key already yields `email_unavailable`. */
+ *  RESEND key already yields `email_unavailable`.
+ *
+ *  BOOKING_MEET_URL is required here, not just at confirm, even though only
+ *  confirm needs it. Checking it late would mean emailing someone a code,
+ *  taking their name and their chosen slot, and only then discovering the
+ *  meeting has nowhere to happen. Do not start a flow that cannot finish. */
 export function isBookingConfigured(): boolean {
-  return Boolean(env.BOOKING_HMAC_SECRET);
+  return Boolean(env.BOOKING_HMAC_SECRET) && Boolean(env.BOOKING_MEET_URL);
 }
 
 function hmacSecret(): string {
@@ -174,8 +220,22 @@ export function buildIcs(opts: {
   ].join("\r\n");
 }
 
+/**
+ * The join link. Throws rather than substituting a placeholder.
+ *
+ * This used to fall back to https://meet.google.com/landing, which is Google's
+ * marketing page and not a room. With BOOKING_MEET_URL unset, that dead link
+ * shipped in the confirmation email AND baked into the .ics LOCATION, so the
+ * visitor arrived at the appointed minute, clicked, and landed nowhere. Every
+ * secret in env.ts is optional, so nothing failed and nothing was logged.
+ * Callers gate on isBookingConfigured() and refuse before taking any details.
+ */
 export function meetUrl(): string {
-  return env.BOOKING_MEET_URL ?? "https://meet.google.com/landing";
+  const url = env.BOOKING_MEET_URL;
+  if (!url) {
+    throw new Error("BOOKING_MEET_URL is not set, so booking is disabled.");
+  }
+  return url;
 }
 
 // ── Confirm payload schema ─────────────────────────────────────────

@@ -13,8 +13,11 @@ type Slot = { startUtc: string; pktLabel: string };
 type Step = "details" | "verify" | "done";
 
 const LABEL = "font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500";
+// No focus:outline-none. It was killing the global coral :focus-visible ring
+// that globals.css sets deliberately, leaving a border tint as the only focus
+// signal, which is colour alone and fails a keyboard user outright.
 const INPUT =
-  "mt-1.5 w-full rounded-md border border-zinc-800 bg-zinc-950/60 px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 focus:border-brand/50 focus:outline-none";
+  "mt-1.5 w-full rounded-md border border-zinc-800 bg-zinc-950/60 px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 focus:border-brand/50";
 
 function fmtLocal(iso: string): string {
   try {
@@ -193,7 +196,14 @@ export function BookCall() {
             <span className={LABEL}>Anything to share? (optional)</span>
             <textarea className={INPUT} rows={2} value={note} onChange={(e) => setNote(e.target.value)} placeholder="What's the problem, current stack, what 'good' looks like." />
           </label>
-          {error ? <p className="text-xs text-red-400">{error}</p> : null}
+          {/* role="alert" so the failure is announced. Without it a screen
+              reader user presses submit, nothing is read, and the form looks
+              like it simply did nothing. */}
+          {error ? (
+            <p role="alert" className="text-xs text-red-400">
+              {error}
+            </p>
+          ) : null}
           <button
             type="submit"
             disabled={busy}
@@ -208,12 +218,21 @@ export function BookCall() {
       {step === "verify" ? (
         <form onSubmit={confirm} className="mt-5 space-y-4">
           <div>
-            <span className={LABEL}>Enter the 6-digit code sent to {email}</span>
+            {/* A real <label>, not a <span>. The details step wraps its inputs
+                in labels; this step dropped it, so the one field that arrives
+                by email was announced as an unlabelled text box. */}
+            <label className={LABEL} htmlFor="booking-code">
+              Enter the 6-digit code sent to {email}
+            </label>
             <input
+              id="booking-code"
               className={`${INPUT} tracking-[0.4em]`}
               inputMode="numeric"
               pattern="\d{6}"
               maxLength={6}
+              // Lets iOS and Android offer the code straight from the SMS or
+              // mail notification instead of making people switch apps.
+              autoComplete="one-time-code"
               value={code}
               onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
               placeholder="••••••"
@@ -243,7 +262,14 @@ export function BookCall() {
               </div>
             )}
           </div>
-          {error ? <p className="text-xs text-red-400">{error}</p> : null}
+          {/* role="alert" so the failure is announced. Without it a screen
+              reader user presses submit, nothing is read, and the form looks
+              like it simply did nothing. */}
+          {error ? (
+            <p role="alert" className="text-xs text-red-400">
+              {error}
+            </p>
+          ) : null}
           <div className="flex items-center gap-3">
             <button
               type="submit"
@@ -278,6 +304,10 @@ function friendly(code: string): string {
     // at the contact form instead of inviting a retry that cannot succeed.
     case "booking_unavailable":
       return "Booking is temporarily unavailable. Use the contact form and I'll set a time up.";
+    // The slot was NOT taken. Say that plainly rather than leaving someone
+    // unsure whether they are double-booking by retrying.
+    case "booking_not_stored":
+      return "That did not save, so nothing is booked. Try again in a moment, or use the contact form.";
     default: return code.replace(/_/g, " ");
   }
 }
