@@ -89,10 +89,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true });
   }
 
-  // CV: validate + upload server-side to Blob. Type/size are hard errors (the
-  // visitor can fix them); a blob/token failure is non-fatal — the application
-  // still goes through without the CV. NOTE the access mode below: this is NOT
-  // a private blob, whatever the older comments in this repo claimed.
+  // CV: validate + upload server-side to a private Blob. Type/size are hard
+  // errors (the visitor can fix them); a blob/token failure is non-fatal — the
+  // application still goes through without the CV.
   let cvUrl: string | undefined;
   const cv = form.get("cv");
   if (cv instanceof File && cv.size > 0) {
@@ -106,19 +105,22 @@ export async function POST(req: Request) {
       try {
         const safe = cv.name.replace(/[^a-zA-Z0-9._-]+/g, "-").slice(0, 80);
         const blob = await put(`job-applications/cv/${safe}`, cv, {
-          // PUBLIC, with an unguessable random suffix as the only protection.
-          // HQ's download route gates on the owner and never shows the raw URL,
-          // but the URL itself carries no authentication, so anyone who obtains
-          // it can read the CV indefinitely. privacy.mdx now says exactly this
-          // rather than claiming private storage.
+          // PRIVATE. The URL alone grants nothing, so a leaked link is not a
+          // leaked CV. This replaces access: "public" + addRandomSuffix, whose
+          // only protection was that the URL was hard to guess: it carried no
+          // authentication and never expired, so anyone who came across one
+          // could read the CV forever, and HQ's owner gate in front of it was
+          // decorative.
           //
-          // The previous comment here said private blobs "fail here". That is
-          // out of date: @vercel/blob v2 supports access: "private". Moving to
-          // it is the real fix and is deliberately NOT bundled into this PR,
-          // because it also needs HQ's /api/inbox/leads/[id]/cv route to stream
-          // via get(pathname, { access: "private" }) instead of redirecting to
-          // head().downloadUrl, plus a decision on CVs already stored public.
-          access: "public",
+          // Requires HQ to READ it correctly, which is why the two shipped as a
+          // pair (gravixar-hq #645). head().downloadUrl is NOT a signed URL, it
+          // is just the blob URL with ?download=1, so HQ can no longer redirect
+          // to it; /api/inbox/leads/[id]/cv now streams the blob server-side
+          // with the read-write token. Merge HQ first.
+          //
+          // addRandomSuffix stays: it keeps filenames unique so two applicants
+          // named cv.pdf do not collide. It is no longer load-bearing security.
+          access: "private",
           addRandomSuffix: true,
           contentType: cv.type,
           token: env.BLOB_READ_WRITE_TOKEN,

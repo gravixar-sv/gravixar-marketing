@@ -183,7 +183,12 @@ export type HomeBlock = z.infer<typeof homeBlockSchema>;
 export const pageSchema = z.object({
   title: z.string().min(1).max(120),
   eyebrow: z.string().max(80).optional(),
-  description: z.string().min(20).max(280).optional(),
+  // Required, not optional. It is the page lede AND the meta description, and
+  // the routes now read it instead of restating it. Optional meant a page
+  // could ship with no meta description at all, or with a hardcoded copy in
+  // the route that drifted from the frontmatter, which is exactly what had
+  // happened on /privacy. Both existing pages already carry one.
+  description: z.string().min(20).max(280),
 });
 export type Page = z.infer<typeof pageSchema>;
 
