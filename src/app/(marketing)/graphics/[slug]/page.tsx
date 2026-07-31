@@ -103,10 +103,15 @@ export default async function GraphicsItemPage(
 
       {/* Lead media is the fold, so it is deliberately outside a <Reveal>: the
           cover is the LCP element here and must not wait on an observer.
-          The video branch stays wired but no entry uses it: next.config.ts
-          declares no media-src, so the CSP falls back to default-src 'self' and
-          a cross-origin source would be blocked at runtime after shipping
-          green. See the note on the video field in src/content/schema.ts. */}
+          The scroll cinematic uses the video branch, because the motion IS the
+          work there and the index card was the only surface showing it: click
+          the one moving card and the detail page answered with a still. Its
+          poster is the same file the cover uses, so the fold still paints that
+          image immediately and the LCP element does not change.
+          Any src here must sit under public/: next.config.ts declares no
+          media-src, so the CSP falls back to default-src 'self' and a
+          cross-origin source would be blocked at runtime after shipping green.
+          See the note on the video field in src/content/schema.ts. */}
       {g.meta.video ? (
         <div className="overflow-hidden rounded-xl border border-line bg-zinc-950">
           <video

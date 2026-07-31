@@ -602,13 +602,21 @@
   }
   /* Cross-route view transitions (experimental.viewTransition, wrapped around
      <main> in the marketing layout). The default UA animation cross-fades the
-     old and new snapshots, which is movement a reader asked not to see. Zero
-     duration on both pseudos leaves the navigation itself untouched: the page
-     still changes, it just changes instantly. This cannot ride the class
-     whitelist above, because the animating things are UA pseudo-elements with
-     no class to name. */
+     old and new snapshots AND tweens a group whose transform, width and height
+     interpolate between the two routes. All of it is movement a reader asked
+     not to see. Zero duration on all three pseudos leaves the navigation
+     itself untouched: the page still changes, it just changes instantly. This
+     cannot ride the class whitelist above, because the animating things are UA
+     pseudo-elements with no class to name.
+     The group needs its own entry and did not have one. Zeroing old and new
+     alone left the transform/width/height tween running at the UA default
+     250ms, confirmed against a live transition. It is invisible today only
+     because <main> is mx-auto max-w-6xl px-6 on every route, so nothing but
+     height differs. Give one route a different width or offset and a
+     reduced-motion reader gets a visible slide with nothing here to stop it. */
   ::view-transition-old(*),
-  ::view-transition-new(*) {
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
     animation-duration: 0s;
   }
 }
