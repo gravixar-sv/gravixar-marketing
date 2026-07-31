@@ -164,9 +164,15 @@ export function Bosun({ sourcePage }: { sourcePage: string }) {
       } else {
         setConsecutiveMisses(0);
       }
-      if (data.offerCapture) {
-        setShowCapture(true);
-        if (outcomeRef.current === "none") outcomeRef.current = "handoff_offered";
+      // Set from THIS turn, not accumulated. The first version only ever set
+      // it true, and the only reset was a successful send, so one early
+      // handoff offer pinned the card to the bottom of the panel for the rest
+      // of the conversation: every good answer after it came with a form
+      // asking for your email. Reset per turn, so the card is present exactly
+      // when the current turn ran out of road.
+      setShowCapture(data.offerCapture === true);
+      if (data.offerCapture && outcomeRef.current === "none") {
+        outcomeRef.current = "handoff_offered";
       }
     } catch {
       // Deterministic tier, so a failure here is the network, not a model. Say
