@@ -6,6 +6,7 @@ import {
   BOOKING,
   buildIcs,
   confirmSchema,
+  isBookingConfigured,
   isValidSlot,
   meetUrl,
   verifyCode,
@@ -29,6 +30,16 @@ export async function POST(req: Request) {
   }
   const { name, email, code, token, startUtc, service, note, website } = parsed.data;
   if (website) return NextResponse.json({ ok: true }); // honeypot
+
+  // 0. Without the secret, verifyCode() cannot distinguish a real token from a
+  // forged one in any meaningful way, so say so plainly instead of returning
+  // bad_code and sending the visitor round the loop again.
+  if (!isBookingConfigured()) {
+    console.error(
+      "[book/confirm] BOOKING_HMAC_SECRET is not set; refusing to confirm.",
+    );
+    return NextResponse.json({ error: "booking_unavailable" }, { status: 503 });
+  }
 
   // 1. Verify the email actually owns the code.
   if (!verifyCode(email, code, token)) {

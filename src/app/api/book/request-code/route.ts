@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 import { checkBotId } from "botid/server";
 import { checkAntiBot } from "@gravixar-sv/core/antibot";
 import { z } from "zod";
-import { issueCode } from "@/lib/booking";
+import { isBookingConfigured, issueCode } from "@/lib/booking";
 import { FROM_EMAIL, getResend } from "@/lib/resend";
 
 export const runtime = "nodejs";
@@ -48,6 +48,16 @@ export async function POST(req: Request) {
   if (!gate.ok) {
     console.warn(`[request-code] anti-bot gate tripped: ${gate.reason}`);
     return NextResponse.json({ ok: true, token: "" });
+  }
+
+  // Refuse rather than issue a code the signature cannot vouch for. Same shape
+  // as the `email_unavailable` 503 below: a missing operator secret disables
+  // the flow, it does not quietly downgrade it.
+  if (!isBookingConfigured()) {
+    console.error(
+      "[request-code] BOOKING_HMAC_SECRET is not set; refusing to issue a code.",
+    );
+    return NextResponse.json({ error: "booking_unavailable" }, { status: 503 });
   }
 
   const { email } = parsed.data;

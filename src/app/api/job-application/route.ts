@@ -89,9 +89,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true });
   }
 
-  // CV: validate + upload server-side to a PRIVATE blob. Type/size are hard
-  // errors (the visitor can fix them); a blob/token failure is non-fatal — the
-  // application still goes through without the CV.
+  // CV: validate + upload server-side to Blob. Type/size are hard errors (the
+  // visitor can fix them); a blob/token failure is non-fatal — the application
+  // still goes through without the CV. NOTE the access mode below: this is NOT
+  // a private blob, whatever the older comments in this repo claimed.
   let cvUrl: string | undefined;
   const cv = form.get("cv");
   if (cv instanceof File && cv.size > 0) {
@@ -105,9 +106,18 @@ export async function POST(req: Request) {
       try {
         const safe = cv.name.replace(/[^a-zA-Z0-9._-]+/g, "-").slice(0, 80);
         const blob = await put(`job-applications/cv/${safe}`, cv, {
-          // Public store: private blobs fail here, so use public with a random
-          // suffix (unguessable URL). HQ still serves it via an owner-gated
-          // download route; the raw URL is never shown in the UI.
+          // PUBLIC, with an unguessable random suffix as the only protection.
+          // HQ's download route gates on the owner and never shows the raw URL,
+          // but the URL itself carries no authentication, so anyone who obtains
+          // it can read the CV indefinitely. privacy.mdx now says exactly this
+          // rather than claiming private storage.
+          //
+          // The previous comment here said private blobs "fail here". That is
+          // out of date: @vercel/blob v2 supports access: "private". Moving to
+          // it is the real fix and is deliberately NOT bundled into this PR,
+          // because it also needs HQ's /api/inbox/leads/[id]/cv route to stream
+          // via get(pathname, { access: "private" }) instead of redirecting to
+          // head().downloadUrl, plus a decision on CVs already stored public.
           access: "public",
           addRandomSuffix: true,
           contentType: cv.type,
