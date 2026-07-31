@@ -9,12 +9,18 @@ import type { EarlyAccessRecord } from "./early-access";
 import type { ServiceInquiryRecord } from "./service-inquiry";
 import type { JobApplicationRecord } from "./job-application";
 import type { BookingRecord } from "./booking";
+import type { ChatMissRecord } from "./chat/scrub";
 
 const LEAD_LOG_PREFIX = "leads/";
 const EARLY_ACCESS_PREFIX = "early-access/";
 const SERVICE_INQUIRY_PREFIX = "service-inquiries/";
 const JOB_APPLICATION_PREFIX = "job-applications/";
 const BOOKING_PREFIX = "bookings/";
+// Bosun's miss log. NOT a transcript: one row per conversation carrying only
+// the questions it could not answer, scrubbed of emails, phone numbers, URLs
+// and long digit runs before the write. See src/lib/chat/scrub.ts for what is
+// deliberately absent, and privacy.mdx for the published promise about it.
+const CHAT_MISS_PREFIX = "chat-misses/";
 
 function monthKey(d = new Date()) {
   return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
@@ -64,6 +70,9 @@ export const appendServiceInquiry = (record: ServiceInquiryRecord) =>
 
 export const appendJobApplication = (record: JobApplicationRecord) =>
   appendJsonl(JOB_APPLICATION_PREFIX, record);
+
+export const appendChatMiss = (record: ChatMissRecord) =>
+  appendJsonl(CHAT_MISS_PREFIX, record);
 
 // ---- Read helpers (admin dashboard) -------------------------------
 

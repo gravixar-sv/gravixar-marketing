@@ -2,6 +2,7 @@ import { ViewTransition } from "react";
 import { Navbar } from "@/components/site/Navbar";
 import { Footer } from "@/components/site/Footer";
 import { DemoBanner } from "@/components/site/DemoBanner";
+import { BosunMount } from "@/components/chat/BosunMount";
 
 // Marketing chrome wrapper. Applied to every page in the (marketing)
 // route group: DemoBanner top, Navbar, content max-w-6xl, Footer.
@@ -39,6 +40,11 @@ export default function MarketingLayout({
         <main className="mx-auto max-w-6xl px-6 pb-24 pt-12 md:pt-16">{children}</main>
       </ViewTransition>
       <Footer />
+      {/* Outside the ViewTransition boundary on purpose: the panel is fixed
+          and route-independent, so snapshotting it would cross-fade an open
+          conversation on every navigation. Renders a closed launcher and
+          nothing else until somebody clicks it. */}
+      <BosunMount />
     </>
   );
 }
