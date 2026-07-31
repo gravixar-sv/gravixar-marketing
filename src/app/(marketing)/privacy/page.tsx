@@ -7,10 +7,15 @@ import { buildMetadata } from "@/lib/seo";
 export const revalidate = 3600;
 
 export async function generateMetadata(): Promise<Metadata> {
+  // Read title and description from the MDX rather than restating them. The
+  // hardcoded copy that used to live here had drifted from the frontmatter it
+  // duplicated, so the page lede and the meta description disagreed, and the
+  // meta description was still written in the first-person plural this repo
+  // does not use. One source removes the whole class.
+  const page = await loadPage("privacy");
   return buildMetadata({
-    title: "Privacy Policy",
-    description:
-      "How Gravixar collects, uses, and protects your data when you contact us, book a call, join the waitlist, or apply for a role.",
+    title: page.meta.title,
+    description: page.meta.description,
     path: "/privacy",
   });
 }
