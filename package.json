@@ -29,7 +29,8 @@
     "typecheck": "tsc --noEmit",
     "validate:content": "tsx scripts/content-validate.ts",
     "seo:draft": "tsx --env-file=.env.local scripts/seo-agent-local.ts",
-    "prebuild": "pnpm run validate:content"
+    "prebuild": "pnpm run validate:content && pnpm run validate:chat",
+    "validate:chat": "tsx scripts/chat-pack-validate.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.92",
