@@ -15,7 +15,8 @@
       "undici@<6.27.0": "^6.27.0",
       "js-yaml@<=4.1.1": "^4.2.0",
       "sharp@<0.35.0": "^0.35.0",
-      "fast-uri@<3.1.4": "^3.1.4"
+      "fast-uri@<3.1.4": "^3.1.4",
+      "socket.io-parser@>=4.0.0 <4.2.7": "^4.2.7"
     },
     "patchedDependencies": {
       "gray-matter@4.0.3": "patches/gray-matter@4.0.3.patch"
