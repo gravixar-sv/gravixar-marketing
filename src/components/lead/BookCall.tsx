@@ -1,16 +1,25 @@
 "use client";
 
 // In-house "book a 30-min call" — replaces the cal.com popup.
-// Step 1: details + service → emailed a verification code.
-// Step 2: enter code + pick a slot → confirm.
+// Slots first, verification second. The grid is the first thing this form
+// shows, because availability is what a visitor is actually deciding on;
+// the old order asked for name, email and an emailed code before showing a
+// single time, which put the flow's heaviest step in front of the question
+// "is there even a slot I can make".
+// Step 1: pick a slot + details → emailed a verification code.
+// Step 2: enter the code → confirm. If the slot was taken or aged out of the
+//         24h lead window in the meantime, the grid refreshes and reappears
+//         on this step for a repick; the emailed code stays valid, so nobody
+//         re-verifies for a collision.
 // Step 3: booked — Meet link shown + calendar invite emailed.
-// Slots render in the visitor's own timezone.
+// Slots render in the visitor's own timezone. Picking a slot holds nothing
+// until confirm, and the copy makes no claim otherwise.
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SERVICE_OPTIONS } from "@/lib/services";
 
 type Slot = { startUtc: string; pktLabel: string };
-type Step = "details" | "verify" | "done";
+type Step = "pick" | "verify" | "done";
 
 const LABEL = "font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500";
 // No focus:outline-none. It was killing the global coral :focus-visible ring
@@ -33,8 +42,67 @@ function fmtLocal(iso: string): string {
   }
 }
 
+function SlotGrid({
+  slots,
+  failed,
+  picked,
+  onPick,
+  onRetry,
+}: {
+  /** null while the first fetch is in flight. */
+  slots: Slot[] | null;
+  /** Last fetch failed. Only shown when there is no usable grid to fall back
+   *  on: "no open slots" is a factual claim, and a network blip must not be
+   *  allowed to make it. */
+  failed: boolean;
+  picked: string;
+  onPick: (startUtc: string) => void;
+  onRetry: () => void;
+}) {
+  if (failed && (slots === null || slots.length === 0)) {
+    return (
+      <p className="mt-2 text-xs text-zinc-500">
+        Couldn&apos;t load the slots.{" "}
+        <button type="button" onClick={onRetry} className="underline underline-offset-2 hover:text-zinc-300">
+          Try again
+        </button>
+      </p>
+    );
+  }
+  if (slots === null) {
+    return <p className="mt-2 text-xs text-zinc-500">Loading slots…</p>;
+  }
+  if (slots.length === 0) {
+    return (
+      <p className="mt-2 text-xs text-zinc-500">
+        No open slots right now. Send a note with the form instead and
+        I&apos;ll find a time.
+      </p>
+    );
+  }
+  return (
+    <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3">
+      {slots.map((s) => (
+        <button
+          type="button"
+          key={s.startUtc}
+          onClick={() => onPick(s.startUtc)}
+          aria-pressed={picked === s.startUtc}
+          className={`rounded-md border px-2 py-2 text-left text-xs transition-colors ${
+            picked === s.startUtc
+              ? "border-brand bg-brand/10 text-brand-soft"
+              : "border-zinc-800 bg-zinc-950/60 text-zinc-300 hover:border-zinc-600"
+          }`}
+        >
+          {fmtLocal(s.startUtc)}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export function BookCall() {
-  const [step, setStep] = useState<Step>("details");
+  const [step, setStep] = useState<Step>("pick");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -49,12 +117,38 @@ export function BookCall() {
 
   const [token, setToken] = useState("");
   const [code, setCode] = useState("");
-  const [slots, setSlots] = useState<Slot[]>([]);
+  const [slots, setSlots] = useState<Slot[] | null>(null);
+  const [slotsFailed, setSlotsFailed] = useState(false);
   const [picked, setPicked] = useState<string>("");
   const [confirmed, setConfirmed] = useState<{ startUtc: string; meetUrl: string } | null>(null);
 
+  // Fetches (or re-fetches) the grid. Failure sets a flag instead of faking
+  // an empty grid: "no open slots" is a claim about availability, and a
+  // network blip is not evidence for it. An already-loaded grid is kept on a
+  // failed refresh; confirm re-validates server-side anyway.
+  async function refreshSlots() {
+    try {
+      const r = await fetch("/api/book/slots");
+      const s = (await r.json()) as { slots?: Slot[] };
+      setSlots(s.slots ?? []);
+      setSlotsFailed(false);
+    } catch {
+      setSlotsFailed(true);
+    }
+  }
+
+  // Slots load on mount, before any detail is asked for.
+  useEffect(() => {
+    void refreshSlots();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   async function sendCode(e: React.FormEvent) {
     e.preventDefault();
+    if (!picked) {
+      setError("Pick a slot first.");
+      return;
+    }
     setBusy(true);
     setError(null);
     try {
@@ -68,9 +162,6 @@ export function BookCall() {
       const data = (await res.json().catch(() => ({}))) as { token?: string; error?: string };
       if (!res.ok) throw new Error(data.error ?? "couldn't send the code");
       setToken(data.token ?? "");
-      // Fetch slots in parallel with the user reading their email.
-      const s = await fetch("/api/book/slots").then((r) => r.json()).catch(() => ({ slots: [] }));
-      setSlots(s.slots ?? []);
       setStep("verify");
     } catch (err) {
       setError(err instanceof Error ? friendly(err.message) : "Something went wrong.");
@@ -109,12 +200,21 @@ export function BookCall() {
         meetUrl?: string;
       };
       if (!res.ok) {
-        if (data.error === "slot_taken") {
-          // refresh slots, ask to repick
-          const s = await fetch("/api/book/slots").then((r) => r.json()).catch(() => ({ slots: [] }));
-          setSlots(s.slots ?? []);
+        if (data.error === "slot_taken" || data.error === "slot_unavailable") {
+          // Refresh the grid and clear the pick; the verify step renders the
+          // grid whenever nothing is picked, so the repick happens in place
+          // and the already-verified code is reused. slot_unavailable gets
+          // the same treatment as slot_taken: a slot ages out of the 24h
+          // lead window while the visitor reads their email, and without a
+          // refresh the stale grid would re-offer times the server has
+          // already stopped honouring, forever.
+          await refreshSlots();
           setPicked("");
-          throw new Error("That slot was just taken. Pick another.");
+          throw new Error(
+            data.error === "slot_taken"
+              ? "That slot was just taken. Pick another."
+              : "That slot is no longer available. Pick another.",
+          );
         }
         throw new Error(data.error ?? "couldn't confirm");
       }
@@ -159,7 +259,7 @@ export function BookCall() {
         Book a call with Qamar
       </h3>
       <p className="mt-1 text-sm text-zinc-400">
-        Confirm your email, pick a slot, get the Meet link. No prep needed.
+        Pick a slot, confirm your email, get the Meet link. No prep needed.
       </p>
 
       {/* honeypot */}
@@ -173,8 +273,18 @@ export function BookCall() {
         aria-hidden
       />
 
-      {step === "details" ? (
+      {step === "pick" ? (
         <form onSubmit={sendCode} className="mt-5 space-y-4">
+          <div>
+            <span className={LABEL}>Pick a slot (your timezone)</span>
+            <SlotGrid
+              slots={slots}
+              failed={slotsFailed}
+              picked={picked}
+              onPick={setPicked}
+              onRetry={() => void refreshSlots()}
+            />
+          </div>
           <label className="block">
             <span className={LABEL}>Your name</span>
             <input className={INPUT} value={name} onChange={(e) => setName(e.target.value)} required minLength={2} />
@@ -204,6 +314,10 @@ export function BookCall() {
               {error}
             </p>
           ) : null}
+          {/* Disabled only while busy, NOT on !picked: a disabled submit is a
+              silent trap for keyboard and screen-reader users (it also eats
+              the Enter key). The !picked case falls through to the guard in
+              sendCode, which announces "Pick a slot first." via role=alert. */}
           <button
             type="submit"
             disabled={busy}
@@ -217,8 +331,37 @@ export function BookCall() {
 
       {step === "verify" ? (
         <form onSubmit={confirm} className="mt-5 space-y-4">
+          {picked ? (
+            <div>
+              {/* "Chosen slot", not "Your slot": nothing is held until
+                  confirm, and a possessive would claim otherwise. */}
+              <span className={LABEL}>Chosen slot</span>
+              <p className="mt-1.5 text-sm text-zinc-100">{fmtLocal(picked)}</p>
+              <button
+                type="button"
+                onClick={() => {
+                  setPicked("");
+                  void refreshSlots();
+                }}
+                className="mt-1 text-xs text-zinc-500 hover:text-zinc-300"
+              >
+                change slot
+              </button>
+            </div>
+          ) : (
+            <div>
+              <span className={LABEL}>Pick a slot (your timezone)</span>
+              <SlotGrid
+                slots={slots}
+                failed={slotsFailed}
+                picked={picked}
+                onPick={setPicked}
+                onRetry={() => void refreshSlots()}
+              />
+            </div>
+          )}
           <div>
-            {/* A real <label>, not a <span>. The details step wraps its inputs
+            {/* A real <label>, not a <span>. The pick step wraps its inputs
                 in labels; this step dropped it, so the one field that arrives
                 by email was announced as an unlabelled text box. */}
             <label className={LABEL} htmlFor="booking-code">
@@ -239,29 +382,6 @@ export function BookCall() {
               required
             />
           </div>
-          <div>
-            <span className={LABEL}>Pick a slot (your timezone)</span>
-            {slots.length === 0 ? (
-              <p className="mt-2 text-xs text-zinc-500">No open slots right now. Email me and I&apos;ll find a time.</p>
-            ) : (
-              <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3">
-                {slots.map((s) => (
-                  <button
-                    type="button"
-                    key={s.startUtc}
-                    onClick={() => setPicked(s.startUtc)}
-                    className={`rounded-md border px-2 py-2 text-left text-xs transition-colors ${
-                      picked === s.startUtc
-                        ? "border-brand bg-brand/10 text-brand-soft"
-                        : "border-zinc-800 bg-zinc-950/60 text-zinc-300 hover:border-zinc-600"
-                    }`}
-                  >
-                    {fmtLocal(s.startUtc)}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
           {/* role="alert" so the failure is announced. Without it a screen
               reader user presses submit, nothing is read, and the form looks
               like it simply did nothing. */}
@@ -281,7 +401,12 @@ export function BookCall() {
             </button>
             <button
               type="button"
-              onClick={() => { setStep("details"); setError(null); setCode(""); }}
+              onClick={() => {
+                setStep("pick");
+                setError(null);
+                setCode("");
+                void refreshSlots();
+              }}
               className="text-xs text-zinc-500 hover:text-zinc-300"
             >
               ← back
