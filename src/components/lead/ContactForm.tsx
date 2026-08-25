@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { cn } from "@/lib/cn";
 import { SERVICE_OPTIONS } from "@/lib/services";
+import { TOOL_OPTIONS } from "@/lib/lead";
+import { TEAM_SIZE_LABELS, teamSizeOptions } from "@/lib/early-access";
 
 type FormState =
   | { kind: "idle" }
@@ -19,11 +21,14 @@ export function ContactForm() {
 
     const form = e.currentTarget;
     const fd = new FormData(form);
+    const tools = fd.getAll("tools").map(String).filter(Boolean);
     const payload = {
       name: String(fd.get("name") ?? ""),
       email: String(fd.get("email") ?? ""),
       company: String(fd.get("company") ?? "") || undefined,
       service: String(fd.get("service") ?? "") || undefined,
+      teamSize: String(fd.get("teamSize") ?? "") || undefined,
+      tools: tools.length > 0 ? tools : undefined,
       message: String(fd.get("message") ?? ""),
       website: String(fd.get("website") ?? ""), // honeypot
       source: "contact-page",
@@ -90,6 +95,40 @@ export function ContactForm() {
           ))}
         </select>
       </label>
+      {/* Optional qualifiers. Deliberately non-gating: no required flags, no
+          extra step. They pre-arm the reply and the call, nothing more. */}
+      <label className="block">
+        <span className="font-mono text-[11px] uppercase tracking-widest text-zinc-400">
+          Team size (optional)
+        </span>
+        <select
+          name="teamSize"
+          defaultValue=""
+          className="mt-2 block w-full rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none transition-colors focus:border-brand"
+        >
+          <option value="">Prefer not to say</option>
+          {teamSizeOptions.map((t) => (
+            <option key={t} value={t}>
+              {TEAM_SIZE_LABELS[t]}
+            </option>
+          ))}
+        </select>
+      </label>
+      <fieldset>
+        <legend className="font-mono text-[11px] uppercase tracking-widest text-zinc-400">
+          What are you running on today? (optional)
+        </legend>
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {TOOL_OPTIONS.map((t) => (
+            <label key={t} className="cursor-pointer">
+              <input type="checkbox" name="tools" value={t} className="peer sr-only" />
+              <span className="inline-block rounded-md border border-zinc-800 bg-zinc-950 px-2.5 py-1.5 text-xs text-zinc-400 transition-colors peer-checked:border-brand peer-checked:bg-brand/10 peer-checked:text-brand-soft peer-focus-visible:border-brand hover:border-zinc-600">
+                {t}
+              </span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
       <Textarea
         label="What's the problem you're solving?"
         name="message"
