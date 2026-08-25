@@ -65,7 +65,15 @@ export const PACK_EXCLUDED: Record<PackKind, readonly string[]> = {
   module: ["runningIn", "publishedAt", "updatedAt", "order", "draft"],
   // cover is image alt text. Alt text has carried identifying detail before,
   // and Bosun has no reason to describe pictures.
-  caseStudy: ["cover", "publishedAt", "draft"],
+  // demo: a link for the page to render. Bosun already routes people to /work
+  // and /demos; pasting raw URLs into chat answers is a different act, and
+  // promoting this to READ should be its own deliberate diff, not a side
+  // effect of adding the field.
+  // testimonial: a consented quote is published for the page it sits on. A
+  // chat answer re-serving a named client's words in whatever context a
+  // visitor conjures is a different act, same instinct as module runningIn,
+  // and clause 6 keeps the client: line as the ceiling.
+  caseStudy: ["cover", "publishedAt", "draft", "demo", "testimonial"],
   page: ["eyebrow"],
 };
 

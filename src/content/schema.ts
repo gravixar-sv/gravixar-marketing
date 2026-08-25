@@ -45,6 +45,32 @@ export const caseStudySchema = z.object({
   approach: z.string().min(1),
   outcome: z.string().min(1),
   metrics: z.array(z.object({ label: z.string(), value: z.string() })).default([]),
+  // Optional link to the matching scene on demo.gravixar.com, and only there.
+  // The regex is the truth rule in code: a published demo link must resolve to
+  // the sample-data demo. Never a client instance (a name is not a screenshot;
+  // client portal screens never leave the building) and never a URL outside
+  // the fleet's control that could rot after publish.
+  demo: z
+    .object({
+      label: z.string().min(1).max(120),
+      href: z
+        .string()
+        .regex(
+          /^https:\/\/demo\.gravixar\.com(\/[a-z0-9-]+)*\/?$/,
+          "case-study demo links must point at demo.gravixar.com",
+        ),
+    })
+    .optional(),
+  // Optional client quote. Ships only with the client's written consent, and
+  // the attribution names them at exactly the level they cleared (role,
+  // company, or full name). Absent renders nothing; a quote is never
+  // paraphrased into existence to fill the slot.
+  testimonial: z
+    .object({
+      quote: z.string().min(10).max(500),
+      attribution: z.string().min(2).max(120),
+    })
+    .optional(),
   stack: z.array(z.string().min(1)).default([]),
   cover: baseImage,
   publishedAt: isoDate,

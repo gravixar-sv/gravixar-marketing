@@ -9,8 +9,8 @@ problem: "The team was running on Dropbox plus local copies on each editor's mac
 approach: "Looked at three real options: a NAS deployed in both Pakistan and UAE (high capex + lifecycle replacements + duplication with existing cloud storage), continuing Dropbox (simple but slow for active production), or LucidLink Filespaces backed by Wasabi for archive. LucidLink behaves like a local drive but streams what you need on demand, which is exactly the shape an editor needs to jump into projects across machines. Ran a one-month pilot, picked the Frankfurt LucidLink region after testing latency, ran workshops, then rolled out one team at a time. Set the operating rule early: keep the active set disciplined, archive everything finished."
 outcome: "80%+ of event delivery now runs through LucidLink. ~1.2 TB active dataset across 3 seats with disciplined pinning. Wasabi handles archive at much lower per-GB cost than Dropbox. The first event after rollout where handoffs happened instantly across machines was the moment adoption clicked. Growing to 5 users as active usage scales past 1.2 TB."
 metrics:
-  - { label: "Active storage", value: "1.2 TB across 3 seats" }
   - { label: "Adoption", value: "80%+ of event delivery" }
+  - { label: "Active storage", value: "1.2 TB across 3 seats" }
   - { label: "Region", value: "LucidLink Frankfurt" }
   - { label: "Cost model", value: "Active LucidLink + Wasabi archive" }
 stack:
