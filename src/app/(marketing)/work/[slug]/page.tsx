@@ -68,6 +68,17 @@ export default async function CaseStudyPage(
           <Section title="Approach" body={cs.meta.approach} />
           <Section title="Outcome" body={cs.meta.outcome} />
 
+          {cs.meta.testimonial ? (
+            <figure className="border-l-2 border-brand/60 pl-5">
+              <blockquote className="text-lg leading-relaxed text-zinc-200">
+                &ldquo;{cs.meta.testimonial.quote}&rdquo;
+              </blockquote>
+              <figcaption className="mt-3 font-mono text-[11px] uppercase tracking-widest text-zinc-500">
+                {cs.meta.testimonial.attribution}
+              </figcaption>
+            </figure>
+          ) : null}
+
           {cs.body.trim().length > 0 ? (
             <div>
               <h2 className="mt-12 text-2xl font-semibold tracking-tight">Notes</h2>
@@ -82,6 +93,21 @@ export default async function CaseStudyPage(
           <Meta label="Client" value={cs.meta.client} />
           <Meta label="Role" value={cs.meta.role} />
           <Meta label="Period" value={cs.meta.period} />
+          {cs.meta.demo ? (
+            <div>
+              <p className="font-mono text-[11px] uppercase tracking-widest text-brand">
+                Related demo
+              </p>
+              <a
+                href={cs.meta.demo.href}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-2 inline-flex items-center gap-1.5 text-sm text-zinc-200 transition-colors hover:text-brand-soft"
+              >
+                {cs.meta.demo.label} <span aria-hidden>↗</span>
+              </a>
+            </div>
+          ) : null}
           {cs.meta.stack.length > 0 ? (
             <div>
               <p className="font-mono text-[11px] uppercase tracking-widest text-brand">
