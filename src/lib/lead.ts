@@ -9,8 +9,9 @@ import { z } from "zod";
 import { teamSizeOptions } from "@/lib/early-access";
 
 // The tools chip row on the contact form. Drawn from the /compare pages plus
-// the stacks that actually show up in inbound notes; free strings on the wire
-// so the list can grow without a schema change.
+// the stacks that actually show up in inbound notes. Free strings on the wire,
+// but leadSchema caps the array (currently 24), so the cap is the real limit
+// on how far this list can grow before a check-everything submission 400s.
 export const TOOL_OPTIONS = [
   "monday.com",
   "Notion",
@@ -41,7 +42,9 @@ export const leadSchema = z.object({
   // form's job is the message, and an interrogation before first contact is
   // the pattern this site deliberately trades against.
   teamSize: z.enum(teamSizeOptions).optional(),
-  tools: z.array(z.string().min(1).max(40)).max(12).optional(),
+  // Cap holds headroom above TOOL_OPTIONS.length (12 today): if the two ever
+  // meet, a visitor who checks every chip gets a 400 and the lead is lost.
+  tools: z.array(z.string().min(1).max(40)).max(24).optional(),
   // honeypot, must be empty. Bots fill every input.
   website: z.string().max(0).optional(),
   // optional, helps qualify
