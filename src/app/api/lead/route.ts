@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { checkBotId } from "botid/server";
 import { randomUUID } from "node:crypto";
 import { leadSchema, type LeadRecord } from "@/lib/lead";
+import { TEAM_SIZE_LABELS } from "@/lib/early-access";
 import { FROM_EMAIL, NOTIFY_EMAIL, getResend } from "@/lib/resend";
 import { appendLead } from "@/lib/blob";
 import LeadInboundEmail from "../../../../emails/LeadInboundEmail";
@@ -67,6 +68,8 @@ export async function POST(req: Request) {
           message: record.message,
           source: record.source,
           receivedAt: record.createdAt,
+          teamSize: record.teamSize ? TEAM_SIZE_LABELS[record.teamSize] : undefined,
+          tools: record.tools,
         }),
       }),
     );

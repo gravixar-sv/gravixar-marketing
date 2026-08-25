@@ -17,6 +17,9 @@ export interface LeadInboundEmailProps {
   message: string;
   source?: string;
   receivedAt: string;
+  /** Human-readable label, e.g. "11 to 50 people". The route maps the enum. */
+  teamSize?: string;
+  tools?: string[];
 }
 
 export default function LeadInboundEmail({
@@ -26,6 +29,8 @@ export default function LeadInboundEmail({
   message,
   source,
   receivedAt,
+  teamSize,
+  tools,
 }: LeadInboundEmailProps) {
   return (
     <Html>
@@ -43,6 +48,18 @@ export default function LeadInboundEmail({
               <>
                 <Text style={label}>Company</Text>
                 <Text style={value}>{company}</Text>
+              </>
+            ) : null}
+            {teamSize ? (
+              <>
+                <Text style={label}>Team size</Text>
+                <Text style={value}>{teamSize}</Text>
+              </>
+            ) : null}
+            {tools && tools.length > 0 ? (
+              <>
+                <Text style={label}>Running on</Text>
+                <Text style={value}>{tools.join(", ")}</Text>
               </>
             ) : null}
             {source ? (
