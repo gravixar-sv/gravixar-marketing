@@ -111,11 +111,39 @@ function sortRoles(roles: PublicJobPosting[]): PublicJobPosting[] {
   );
 }
 
+// A role is live until the END of its validThrough day, so the comparison is
+// strictly-less-than against today in UTC. Dates are YYYY-MM-DD on both sides,
+// which sorts lexicographically, so no parsing is needed.
+//
+// WHY THIS EXISTS. On 2026-09-01 both published roles carried
+// validThrough 2026-07-15 and were still being served with live JobPosting
+// JSON-LD, still listed on /careers, still in sitemap.xml, and still taking
+// applications, 48 days after their own stated expiry. Nothing anywhere in
+// the code looked at validThrough. HQ owns the data and remains the place to
+// close a role properly, but a snapshot that goes stale upstream should not be
+// able to publish an expired JobPosting here: an expired posting served as
+// live structured data is a Google policy problem, and a role that quietly
+// keeps accepting applications is worse than one that is visibly closed.
+//
+// This is the ONE chokepoint, so /careers, /careers/[slug] and sitemap.ts all
+// drop an expired role together. A role with no validThrough is untouched:
+// absent is not expired, and HQ does not require the field.
+function isOpen(role: PublicJobPosting, todayIso: string): boolean {
+  return !role.validThrough || role.validThrough >= todayIso;
+}
+
 /** Public roles for /careers — from HQ's Blob snapshot, else static fallback. */
 export async function getCareersRoles(): Promise<PublicJobPosting[]> {
+  const todayIso = new Date().toISOString().slice(0, 10);
   const snap = await fetchSnapshot();
-  if (snap && snap.length > 0) return sortRoles(snap);
-  return sortRoles(STATIC_JOBS.filter((j) => !j.draft).map(staticToPublic));
+  // Source selection is unchanged, and the expiry filter runs AFTER it, so an
+  // all-expired snapshot renders /careers' "No open roles right now." rather
+  // than falling through to the static list and resurrecting a closed role.
+  const source =
+    snap && snap.length > 0
+      ? snap
+      : STATIC_JOBS.filter((j) => !j.draft).map(staticToPublic);
+  return sortRoles(source.filter((r) => isOpen(r, todayIso)));
 }
 
 export async function getCareersRole(
