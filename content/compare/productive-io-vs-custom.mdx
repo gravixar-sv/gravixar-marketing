@@ -7,12 +7,12 @@ category: "agency operations + project management"
 summary: "Productive.io is fine if you can fit your delivery shape into theirs. The trap is the parts that look configurable but aren't, the parts you don't realize are missing until month four. Here's an honest read on when off-the-shelf wins and when a custom portal is the cheaper long-term call."
 hook: "Productive.io's time tracker is solid. Their client portal is the part most agencies eventually outgrow, and it's the part that's hardest to extend without going around the tool."
 whoForCompetitor: "Pick Productive.io when your delivery shape is genuinely standard (timed engagements, retainer plus project, billable utilization is your headline metric), your team is over 25 people, and you're willing to adapt your workflow to the tool rather than the other way round. Their reporting and time-attribution model is best-in-class for that profile and a custom build can't match it cheaply."
-whoForCustom: "Go custom when your delivery has a state machine you actually care about (review handoffs, scope-locks, audit trails), when AI assist needs to live inside the workflow rather than as a chrome extension, when client-facing surfaces need to look like your brand, or when you're under 25 people and the seat-cost arithmetic stops making sense."
+whoForCustom: "Go custom when your delivery has a state machine you actually care about (review handoffs, scope-locks, audit trails), when AI assist needs to live inside the workflow rather than as a chrome extension, or when client-facing surfaces need to look like your brand. Not on seat cost: their per-seat licence is cheaper than my retainer at any size you are likely to be, so if the licence line is what you are optimizing, this is the wrong page."
 linkedCaseStudy: "bs-hub"
 linkedService: "operations-infrastructure"
 faqs:
   - question: "How much does Productive.io cost compared to a custom portal?"
-    answer: "Productive.io's published pricing is per seat per month, and most agencies land in their Professional or Ultimate tiers. For a 15-person agency that's roughly $9,000 to $14,000 per year depending on tier and add-ons. A custom portal in the bs-hub-shape sits at a one-time build fee plus my published fractional retainer at $3,500 a month, which doesn't scale with seat count. Past about 18 months and 20 seats the math flips in favor of the custom build, and you own the codebase at the end."
+    answer: "Productive.io publishes per-seat monthly pricing. Read off productive.io/pricing on 2026-09-01: Essential $10 a seat, Professional $25 a seat, Ultimate quote-only. For a 15-person agency on Professional that is $375 a month at list, about $4,500 a year before add-ons. I want to be exact about what that means, because this page used to carry a much bigger number and it was wrong. On licence cost alone Productive.io is cheaper than anything I build, and it stays cheaper at every team size an agency in this range actually has. My published fractional retainer is $3,500 a month and a build carries a one-time fee on top of it. What you are paying the difference for is not a cheaper seat. It is a delivery shape that is yours rather than theirs, a client-facing surface you do not have to apologize for, and a codebase you own at the end. If licence cost is the deciding number, buy the licence."
   - question: "Can a custom portal actually replace Productive.io's time tracking?"
     answer: "Yes, but ask whether you need every feature or just the ones your team uses. Most agencies use timesheets, billable utilization, and a margin report. That's a small surface to rebuild and easy to sync to QuickBooks or Xero. What you don't get for free is the multi-currency multi-entity reporting Productive.io ships out of the box, that one is genuinely worth keeping if your shape needs it."
   - question: "What's the biggest hidden cost in Productive.io?"
@@ -22,7 +22,7 @@ faqs:
   - question: "What happens when the agency outgrows the custom build?"
     answer: "Two paths. You either extend it (the bs-hub recipe pattern is built for this, drop in payroll, drop in finance, drop in a sales pipeline) or you migrate to a SaaS once your shape has stabilized enough that an off-the-shelf tool actually fits. Custom builds aren't lock-in if you keep the codebase and the data model is clean."
 publishedAt: "2026-05-04"
-updatedAt: "2026-07-30"
+updatedAt: "2026-09-01"
 ---
 
 ## The honest version
@@ -58,7 +58,7 @@ The recipe is documented and forkable, and the honest measure of it is the code.
 Run this in order:
 
 1. **List the parts of your delivery your client actually sees.** If they're hidden (your team uses Productive.io, your client gets a PDF), Productive.io is fine. If they're visible (the client logs into a portal, reviews work, signs off), the off-the-shelf experience matters and Productive.io probably loses.
-2. **Count seats.** Under 12 seats, custom retainer math beats Productive.io comfortably. Above 25, Productive.io's per-seat model starts winning unless you have other reasons to go custom.
+2. **Count seats, then be honest about which way the number points.** It points at Productive.io. At $25 a seat on Professional, their licence is cheaper than my retainer at every headcount an agency in this range has, and it is not close. Seats are an argument for the tool. What actually moves with headcount is the cost of working around it: the hours your team loses in the gaps, and the Notion docs in step 3. Count those first, and if they come to nothing, buy the licence.
 3. **Audit your Notion docs about your tool.** If you have any, your tool isn't the tool. That's a strong signal for custom.
 4. **Ask if AI assist is going to live inside or outside your workflow.** If outside (a chrome extension), Productive.io is fine. If inside (intake wizards, brief generators, anomaly watch), custom is the only path that doesn't fight the tool.
 

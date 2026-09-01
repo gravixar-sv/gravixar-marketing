@@ -7,8 +7,30 @@ import { ServicesPreview } from "@/components/home/ServicesPreview";
 import { Capabilities } from "@/components/home/Capabilities";
 import { ContactCTA } from "@/components/home/ContactCTA";
 import { Reveal } from "@/components/site/Reveal";
+import type { Metadata } from "next";
+import { buildMetadata } from "@/lib/seo";
 
 export const revalidate = 3600;
+
+// The homepage was the ONLY route on the site with no canonical, no OpenGraph
+// and no Twitter card, because it was the only one that never called
+// buildMetadata: it inherited title + description from the root layout and
+// nothing else. That made the most-shared URL on the site the one that pasted
+// into LinkedIn or Slack as a bare link with no card, and the only page with
+// no self-referencing canonical to absorb the ?utm_* forms it arrives as.
+//
+// `title.absolute` rather than a plain string, because the root layout sets
+// `template: "%s · Gravixar"` (layout.tsx:26) and a plain string would render
+// "Gravixar · ... · Gravixar". The strings are copied verbatim from the root
+// layout's own default + description so this adds a card, not a new claim.
+const HOME_TITLE = "Gravixar · AI-ops platform with a human on every approval";
+const HOME_DESCRIPTION =
+  "Gravixar is an AI-ops platform: portals, intake wizards, and content agents that run your operations with a human on every write. In production before you buy.";
+
+export const metadata: Metadata = {
+  ...buildMetadata({ title: HOME_TITLE, description: HOME_DESCRIPTION, path: "/" }),
+  title: { absolute: HOME_TITLE },
+};
 
 export default async function HomePage() {
   const [hero, proof, services] = await Promise.all([

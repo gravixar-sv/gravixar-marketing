@@ -181,19 +181,28 @@ export function Navbar() {
           ))}
         </nav>
 
-        {/* Right side, CTA on desktop, hamburger on mobile */}
+        {/* Right side, CTA on desktop, hamburger on mobile.
+            ORDER AND EMPHASIS ARE DELIBERATE and were the wrong way round
+            until 2026-09-01: the brand fill sat on "Get early access", a
+            waitlist for the hosted platform that /about states does not exist
+            yet ("It does not exist yet and I am not printing a date for it"),
+            while "Book a call", the only action that can transact today, wore
+            the quiet outline. On every page of the site the loudest control
+            pointed at the one thing nobody can buy. Early access keeps its
+            place in the header because the list is real, but it is secondary
+            until the product it lists for ships. */}
         <div className="flex items-center gap-3">
           <Link
-            href="/contact"
+            href="/early-access"
             className="hidden rounded-md border border-zinc-700 px-3 py-1.5 text-sm text-zinc-200 transition-colors hover:border-brand hover:text-brand-soft md:inline-block"
           >
-            Book a call
+            Get early access
           </Link>
           <Link
-            href="/early-access"
+            href="/contact"
             className="hidden rounded-md bg-brand px-3 py-1.5 text-sm font-medium text-[#0a0a0a] transition-colors hover:bg-brand-soft md:inline-block"
           >
-            Get early access
+            Book a call
           </Link>
           <button
             type="button"
@@ -247,19 +256,22 @@ export function Navbar() {
                 {item.label}
               </Link>
             ))}
-            <Link
-              href="/contact"
-              onClick={() => setMobileOpen(false)}
-              className="mt-2 block rounded-md border border-zinc-700 px-3 py-2.5 text-center text-sm text-zinc-200"
-            >
-              Book a call
-            </Link>
+            {/* Same hierarchy as desktop: the transacting CTA carries the
+                fill. Kept in the same DOM order as the desktop pair so the
+                two never drift apart again. */}
             <Link
               href="/early-access"
               onClick={() => setMobileOpen(false)}
-              className="mt-2 block rounded-md bg-brand px-3 py-2.5 text-center text-sm font-medium text-[#0a0a0a]"
+              className="mt-2 block rounded-md border border-zinc-700 px-3 py-2.5 text-center text-sm text-zinc-200 transition-colors hover:border-brand hover:text-brand-soft"
             >
               Get early access
+            </Link>
+            <Link
+              href="/contact"
+              onClick={() => setMobileOpen(false)}
+              className="mt-2 block rounded-md bg-brand px-3 py-2.5 text-center text-sm font-medium text-[#0a0a0a] transition-colors hover:bg-brand-soft"
+            >
+              Book a call
             </Link>
           </div>
         </div>
