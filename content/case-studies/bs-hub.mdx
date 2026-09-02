@@ -12,8 +12,14 @@ outcome: "Live in production. Onboards new clients in about 10 minutes (was 2-3 
 metrics:
   - { label: "Time to first project activation", value: "~10 min (was 2-3 days)" }
   - { label: "Inquiry funnel states", value: "12, fully audited" }
-  - { label: "System scale (code recount, 2026-07-21)", value: "84 Prisma models, 255 endpoints, 9 crons" }
-  - { label: "Audit pass (2026-07-29)", value: "63 findings, 0 refuted, 87 closed, 252/252 tests" }
+  - label: "System scale"
+    value: "84 Prisma models, 255 endpoints, 9 crons"
+    source: "Direct recount of the bs-hub repository: Prisma schema models, API route handlers, and scheduled jobs."
+    verifiedAt: "2026-07-21"
+  - label: "Audit pass"
+    value: "63 findings, 0 refuted, 87 closed, 252/252 tests"
+    source: "The 14-lane System Audit run against this codebase, with its refutation pass and the test suite result recorded at handover."
+    verifiedAt: "2026-07-29"
   - { label: "Audit retention", value: "7y contract / 1y operational" }
 demo:
   label: "Agency OS · Lattice, sample data, no signup"

@@ -186,9 +186,64 @@ function comparePricingHasSource(
   ];
 }
 
+// CASE-STUDY METRICS PROVENANCE. The homepage carries four numbers, each with
+// a source and a recount date, staleness-gated at 45 and 90 days. The case
+// studies carry 48, and until 2026-09-02 they had neither. Same site, same
+// buyer, and the ungoverned set is twelve times larger and denser.
+//
+// Two rules, deliberately different in severity:
+//
+//   HALF-PROVENANCE FAILS IMMEDIATELY. A row with a source and no date, or a
+//   date and no source, is worse than a bare row: it reads as checked without
+//   being checkable. There is no grace period for that.
+//
+//   BARE ROWS WARN, THEN FAIL FROM A NAMED DATE. They are not an error today
+//   because the provenance for most of them lives with the operator rather
+//   than in the repo, and a rule that forced the field on the day it shipped
+//   would have been satisfied by inventing 48 plausible-sounding sources,
+//   which is the precise defect the field exists to prevent. The date below
+//   is the ratchet: after it, the build stops.
+const METRICS_SOURCE_REQUIRED_FROM = "2026-11-01";
+
+type MetricRow = { label?: unknown; value?: unknown; source?: unknown; verifiedAt?: unknown };
+
+function metricsProvenance(
+  rel: string,
+  data: Record<string, unknown>,
+): { errors: string[]; warnings: string[] } {
+  const errors: string[] = [];
+  const warnings: string[] = [];
+  const rows = data.metrics;
+  if (!Array.isArray(rows)) return { errors, warnings };
+
+  const pastRatchet =
+    new Date().toISOString().slice(0, 10) >= METRICS_SOURCE_REQUIRED_FROM;
+
+  rows.forEach((row: MetricRow, i) => {
+    const hasSource = typeof row.source === "string" && row.source.length > 0;
+    const hasDate = typeof row.verifiedAt === "string" && row.verifiedAt.length > 0;
+    const label = typeof row.label === "string" ? row.label : `metrics[${i}]`;
+
+    if (hasSource !== hasDate) {
+      errors.push(
+        `metrics["${label}"]: has ${hasSource ? "source but no verifiedAt" : "verifiedAt but no source"}. Provenance is both or neither.`,
+      );
+      return;
+    }
+    if (!hasSource) {
+      const msg = `metrics["${label}"]: published number with no source and no verifiedAt.`;
+      if (pastRatchet) errors.push(msg);
+      else warnings.push(msg);
+    }
+  });
+
+  return { errors, warnings };
+}
+
 async function main() {
   let total = 0;
   let failures = 0;
+  let unsourcedMetrics = 0;
 
   for (const { dir, schema, label } of SECTIONS) {
     const sectionDir = path.join(ROOT, dir);
@@ -211,6 +266,18 @@ async function main() {
       }
 
       const { data } = matter(raw);
+
+      const { errors: metricErrors, warnings: metricWarnings } =
+        metricsProvenance(rel, data);
+      if (metricErrors.length > 0) {
+        failures++;
+        console.error(`\n[${label}] ${rel}`);
+        for (const e of metricErrors) console.error(`  - ${e}`);
+      }
+      for (const w of metricWarnings) {
+        unsourcedMetrics++;
+        console.warn(`[${label}] warning: ${rel} ${w} Required from ${METRICS_SOURCE_REQUIRED_FROM}.`);
+      }
 
       const priceIssues = comparePricingHasSource(rel, raw, data);
       if (priceIssues.length > 0) {
@@ -238,6 +305,12 @@ async function main() {
   if (failures > 0) {
     console.error(`\n${failures}/${total} content files failed validation.`);
     process.exit(1);
+  }
+
+  if (unsourcedMetrics > 0) {
+    console.warn(
+      `\n[case-studies] ${unsourcedMetrics} published metric(s) still carry no source or verifiedAt. These become BUILD ERRORS from ${METRICS_SOURCE_REQUIRED_FROM}.`,
+    );
   }
 
   console.log(`OK, ${total} content files validated.`);
