@@ -1,9 +1,11 @@
 import Link from "next/link";
+import { buttonClass } from "@/components/ui/Button";
+import { cn } from "@/lib/cn";
 
 export default function NotFound() {
   return (
     <div className="py-24 text-center">
-      <p className="font-mono text-sm uppercase tracking-widest text-brand">404</p>
+      <p className="font-mono text-eyebrow uppercase text-brand">404</p>
       <h1 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">
         That page doesn&apos;t exist.
       </h1>
@@ -12,7 +14,7 @@ export default function NotFound() {
       </p>
       <Link
         href="/"
-        className="mt-8 inline-block rounded-md bg-brand px-5 py-2.5 text-sm font-medium text-black hover:bg-brand-soft"
+        className={cn("mt-8", buttonClass())}
       >
         Go home
       </Link>

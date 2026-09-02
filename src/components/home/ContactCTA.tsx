@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useRef } from "react";
+import { buttonClass } from "@/components/ui/Button";
+import { cn } from "@/lib/cn";
 
 // Closing CTA panel. The static corner glow is the base layer; on
 // pointer devices a second radial glow tracks the cursor (direct DOM
@@ -39,7 +41,7 @@ export function ContactCTA() {
         }}
       />
       <div className="relative z-10">
-        <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand">
+        <p className="font-mono text-label uppercase text-brand">
           next step
         </p>
         {/* pretty, not the global balance: this is two sentences over three
@@ -56,13 +58,13 @@ export function ContactCTA() {
         <div className="mt-8 flex flex-wrap gap-3">
           <Link
             href="/contact"
-            className="rounded-md bg-brand px-5 py-2.5 text-sm font-medium text-black shadow-lg shadow-brand-deep/20 transition-all hover:bg-brand-soft hover:shadow-xl hover:shadow-brand-deep/30 active:scale-[0.98]"
+            className={buttonClass()}
           >
             Book a call
           </Link>
           <Link
             href="/work"
-            className="group/link rounded-md border border-zinc-700 px-5 py-2.5 text-sm text-zinc-200 transition-all hover:border-brand hover:text-brand-soft active:scale-[0.98]"
+            className={cn("group/link", buttonClass({ variant: "ghost" }))}
           >
             Read what I&apos;ve shipped
             <span className="ml-1 inline-block transition-transform group-hover/link:translate-x-0.5">

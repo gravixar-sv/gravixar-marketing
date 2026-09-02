@@ -52,11 +52,11 @@ function SceneCard({
             <span className="h-2 w-2 rounded-full bg-zinc-700" />
             <span className="h-2 w-2 rounded-full bg-zinc-700" />
             <span className="h-2 w-2 rounded-full bg-zinc-700" />
-            <span className="ml-2 font-mono text-[10px] text-zinc-500">
+            <span className="ml-2 font-mono text-[10px] text-muted">
               demo.gravixar.com/{scene.slug}
             </span>
           </span>
-          <span className="flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.18em] text-zinc-500">
+          <span className="flex items-center gap-1.5 font-mono text-label-xs uppercase text-muted">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400/90" />
             live
           </span>
@@ -77,12 +77,12 @@ function SceneCard({
         <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-2">
           <h3 className="text-lg font-semibold tracking-[-0.015em] text-zinc-100">
             {scene.name}
-            <span className="ml-2 font-mono text-xs font-normal text-zinc-500">
+            <span className="ml-2 font-mono text-xs font-normal text-muted">
               · {scene.brand}
             </span>
           </h3>
           <span
-            className="rounded-full border px-2.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.18em]"
+            className="rounded-full border px-2.5 py-0.5 font-mono text-label-xs uppercase"
             style={{ borderColor: `${scene.accent}40`, color: scene.accent }}
           >
             for {scene.personaLabel}
@@ -92,8 +92,8 @@ function SceneCard({
           {scene.whatItIs}
         </p>
         <div className="mt-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-t border-line-soft pt-3">
-          <p className="text-sm leading-relaxed text-zinc-500">{scene.tryLine}</p>
-          <span className="link-draw inline-flex shrink-0 items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500 group-hover:text-brand">
+          <p className="text-sm leading-relaxed text-muted">{scene.tryLine}</p>
+          <span className="link-draw inline-flex shrink-0 items-center gap-1.5 font-mono text-label-sm uppercase text-muted group-hover:text-brand">
             {scene.openLabel}
             <span aria-hidden className="transition-transform group-hover:translate-x-0.5">
               ↗
@@ -111,7 +111,7 @@ export function Demos() {
     <section>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="max-w-2xl">
-          <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand">
+          <p className="font-mono text-label uppercase text-brand">
             the demos
           </p>
           <h2 className="mt-3 text-3xl font-semibold tracking-[-0.015em] md:text-section">
@@ -122,7 +122,7 @@ export function Demos() {
             in, press the buttons, watch the loop run. No signup.
           </p>
         </div>
-        <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600">
+        <p className="font-mono text-label-sm uppercase text-zinc-400">
           sandbox · nothing is saved
         </p>
       </div>

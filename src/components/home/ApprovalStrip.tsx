@@ -62,7 +62,7 @@ export function ApprovalStrip() {
 
   return (
     <div className="mt-5">
-      <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">
+      <p className="font-mono text-label-sm uppercase text-muted">
         the approval loop
       </p>
 
@@ -82,7 +82,7 @@ export function ApprovalStrip() {
                   labels read in order without the digits. */}
               <span
                 aria-hidden
-                className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600"
+                className="font-mono text-label-sm uppercase text-zinc-400"
               >
                 {step.n}
               </span>
@@ -100,7 +100,7 @@ export function ApprovalStrip() {
                     this strip moves vertically after hydration. */}
                 <span
                   className={`inline-block w-[4ch] transition-colors duration-200 ease-out ${
-                    approved ? "text-emerald-300" : "text-zinc-500"
+                    approved ? "text-emerald-300" : "text-muted"
                   }`}
                 >
                   {approved ? "sent" : "held"}
@@ -161,7 +161,7 @@ export function ApprovalStrip() {
                     <button
                       type="button"
                       onClick={() => setApproved(false)}
-                      className="whitespace-nowrap font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500 transition-colors duration-200 ease-out hover:text-zinc-300"
+                      className="whitespace-nowrap font-mono text-label-sm uppercase text-muted transition-colors duration-200 ease-out hover:text-zinc-300"
                     >
                       {/* Short on screen, complete to a screen reader, and the
                           visible words are the start of the accessible name, so
@@ -197,7 +197,7 @@ export function ApprovalStrip() {
         ))}
       </ol>
 
-      <p className="mt-3 text-[10px] leading-snug text-zinc-500">
+      <p className="mt-3 text-[10px] leading-snug text-muted">
         Illustrative sample data, not a live system.
       </p>
     </div>

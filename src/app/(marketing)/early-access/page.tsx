@@ -68,7 +68,7 @@ export default function EarlyAccessPage() {
       <section className="grid gap-12 lg:grid-cols-12">
         {/* Form column */}
         <div className="lg:col-span-7">
-          <h2 className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand">
+          <h2 className="font-mono text-label uppercase text-brand">
             join the list
           </h2>
           <p className="mt-2 text-sm text-zinc-400">
@@ -86,17 +86,17 @@ export default function EarlyAccessPage() {
             invented numbers attached to an invented date. It now holds counts
             that can be checked. */}
         <aside className="lg:col-span-5">
-          <h2 className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand">
+          <h2 className="font-mono text-label uppercase text-brand">
             what exists today
           </h2>
           <p className="mt-2 text-sm text-zinc-400">
             Counted from the module registry, not projected from a roadmap.
           </p>
-          <div className="mt-6 rounded-xl border border-zinc-800 bg-zinc-950/40 p-5">
+          <div className="mt-6 rounded-xl border border-line bg-zinc-950/40 p-5">
             <dl className="grid grid-cols-2 gap-4">
               {LIBRARY_STATS.map((s) => (
                 <div key={s.key} className="flex flex-col">
-                  <dt className="font-mono text-[10px] uppercase tracking-[0.16em] text-zinc-600">
+                  <dt className="font-mono text-label-sm uppercase text-zinc-400">
                     {s.label}
                   </dt>
                   <dd className="mt-1 font-mono text-xl text-zinc-100">
@@ -106,7 +106,7 @@ export default function EarlyAccessPage() {
               ))}
             </dl>
             {COUNTED_AT ? (
-              <p className="mt-4 border-t border-line-soft pt-3 font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600">
+              <p className="mt-4 border-t border-line-soft pt-3 font-mono text-label-sm uppercase text-zinc-400">
                 counted {COUNTED_AT}
               </p>
             ) : null}
@@ -116,7 +116,7 @@ export default function EarlyAccessPage() {
             module reaches you inside a build, and a build starts with a
             conversation about what you already have.
           </p>
-          <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600">
+          <p className="mt-4 font-mono text-label-sm uppercase text-zinc-400">
             want one in your own build? <Link href="/contact" className="text-brand-soft underline-offset-4 hover:underline">book a call →</Link>
           </p>
         </aside>
@@ -124,7 +124,7 @@ export default function EarlyAccessPage() {
 
       {/* How the library works */}
       <section>
-        <h2 className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand">
+        <h2 className="font-mono text-label uppercase text-brand">
           how the library works
         </h2>
         <div className="mt-6 grid gap-4 md:grid-cols-3">
@@ -133,7 +133,7 @@ export default function EarlyAccessPage() {
               key={step.n}
               className="card-surface rounded-2xl p-6"
             >
-              <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">
+              <p className="font-mono text-label-sm uppercase text-muted">
                 {step.n}
               </p>
               <h3 className="mt-3 text-lg font-medium tracking-[-0.01em] text-zinc-100">
@@ -149,8 +149,8 @@ export default function EarlyAccessPage() {
 
       {/* What you can do now. Was "while you wait", which only makes sense
           under a launch this page no longer claims. */}
-      <section className="rounded-2xl border border-zinc-800 bg-zinc-950/40 p-8 md:p-10">
-        <h2 className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand">
+      <section className="rounded-2xl border border-line bg-zinc-950/40 p-8 md:p-10">
+        <h2 className="font-mono text-label uppercase text-brand">
           what you can do now
         </h2>
         <h3 className="mt-3 max-w-3xl text-2xl font-medium tracking-[-0.015em] md:text-3xl">

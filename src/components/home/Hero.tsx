@@ -5,6 +5,8 @@ import { SITE } from "@/lib/seo";
 import { ApprovalStrip } from "./ApprovalStrip";
 import { StatValue } from "./StatValue";
 import systemStats from "../../../content/data/system-stats.json";
+import { buttonClass } from "@/components/ui/Button";
+import { cn } from "@/lib/cn";
 
 // Live-system signal. These used to be hard-coded here with a comment asking a
 // human to resync them periodically, which is how "automated jobs" sat at 11
@@ -49,7 +51,7 @@ export function Hero({ meta, body }: { meta: HomeBlock; body: string }) {
           {meta.eyebrow ? (
             <div className="hero-enter flex items-center gap-3">
               <span className="inline-block h-1.5 w-1.5 rounded-full bg-brand" />
-              <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand">
+              <p className="font-mono text-label uppercase text-brand">
                 {meta.eyebrow}
               </p>
             </div>
@@ -63,13 +65,13 @@ export function Hero({ meta, body }: { meta: HomeBlock; body: string }) {
           <div className="hero-enter mt-9 flex flex-wrap gap-3 [animation-delay:240ms]">
             <Link
               href="/contact"
-              className="rounded-md bg-brand px-5 py-2.5 text-sm font-medium text-[#0a0a0a] shadow-lg shadow-brand-deep/20 transition-all hover:bg-brand-soft hover:shadow-xl hover:shadow-brand-deep/30 active:scale-[0.98]"
+              className={buttonClass()}
             >
               Book a call
             </Link>
             <Link
               href="/work"
-              className="group rounded-md border border-zinc-700 px-5 py-2.5 text-sm text-zinc-200 transition-all hover:border-brand hover:text-brand-soft active:scale-[0.98]"
+              className={cn("group", buttonClass({ variant: "ghost" }))}
             >
               See what&apos;s running
               <span className="ml-1 inline-block transition-transform group-hover:translate-x-0.5">
@@ -79,7 +81,7 @@ export function Hero({ meta, body }: { meta: HomeBlock; body: string }) {
           </div>
 
           {/* Detail strip, what I do, in mono */}
-          <div className="hero-enter mt-10 flex flex-wrap items-center gap-x-4 gap-y-2 font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500 [animation-delay:320ms]">
+          <div className="hero-enter mt-10 flex flex-wrap items-center gap-x-4 gap-y-2 font-mono text-label-sm uppercase text-muted [animation-delay:320ms]">
             <span className="flex items-center gap-1.5">
               <span className="h-1 w-1 rounded-full bg-zinc-700" />
               operations infrastructure
@@ -118,7 +120,7 @@ function DemoPanel() {
             demo.gravixar.com
           </span>
         </div>
-        <span className="flex items-center gap-1.5 rounded-sm bg-emerald-950/60 px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.18em] text-emerald-300">
+        <span className="flex items-center gap-1.5 rounded-sm bg-emerald-950/60 px-2 py-0.5 font-mono text-label-xs uppercase text-emerald-300">
           <span className="inline-block h-1 w-1 rounded-full bg-emerald-400" />
           live
         </span>
@@ -136,17 +138,17 @@ function DemoPanel() {
       {/* Live system stats */}
       <div className="mt-5 border-t border-line-soft pt-4">
         <div className="flex items-baseline justify-between">
-          <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">
+          <p className="font-mono text-label-sm uppercase text-muted">
             system signal
           </p>
-          <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-zinc-600">
+          <p className="font-mono text-label-xs uppercase text-zinc-400">
             counted {COUNTED_AT}
           </p>
         </div>
         <dl className="mt-3 grid grid-cols-2 gap-3">
           {SYSTEM_STATS.map((s) => (
             <div key={s.key} className="flex flex-col">
-              <dt className="font-mono text-[9px] uppercase tracking-[0.16em] text-zinc-600">
+              <dt className="font-mono text-label-xs uppercase text-zinc-400">
                 {s.label}
               </dt>
               <dd className="mt-1 font-mono text-base text-zinc-100">

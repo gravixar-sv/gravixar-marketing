@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/cn";
+import { buttonClass } from "@/components/ui/Button";
 
 type FormState =
   | { kind: "idle" }
@@ -58,7 +59,7 @@ export function ServiceInquiryForm({ sourcePage, serviceTitle }: Props) {
   if (state.kind === "ok") {
     return (
       <div className="rounded-lg border border-brand-deep/30 bg-brand-deep/5 p-6">
-        <p className="font-mono text-xs uppercase tracking-widest text-brand">
+        <p className="font-mono text-eyebrow uppercase text-brand">
           received
         </p>
         <h3 className="mt-2 text-xl font-semibold tracking-tight">
@@ -112,10 +113,7 @@ export function ServiceInquiryForm({ sourcePage, serviceTitle }: Props) {
       <button
         type="submit"
         disabled={submitting}
-        className={cn(
-          "rounded-md bg-brand px-5 py-2.5 text-sm font-medium text-black transition-colors",
-          submitting ? "cursor-wait opacity-70" : "hover:bg-brand-soft",
-        )}
+        className={cn(buttonClass(), submitting && "cursor-wait")}
       >
         {submitting ? "Sending…" : "Send"}
       </button>
@@ -144,7 +142,7 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="font-mono text-[11px] uppercase tracking-widest text-zinc-400">
+      <span className="font-mono text-label uppercase text-zinc-400">
         {label}
       </span>
       <input
@@ -152,7 +150,7 @@ function Field({
         type={type}
         required={required}
         minLength={minLength}
-        className="mt-2 block w-full rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none transition-colors placeholder:text-zinc-600 focus:border-brand"
+        className="mt-2 block w-full rounded-md border border-line bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none transition-colors placeholder:text-zinc-600 focus:border-brand"
       />
     </label>
   );
@@ -175,7 +173,7 @@ function Textarea({
 }) {
   return (
     <label className="block">
-      <span className="font-mono text-[11px] uppercase tracking-widest text-zinc-400">
+      <span className="font-mono text-label uppercase text-zinc-400">
         {label}
       </span>
       <textarea
@@ -184,7 +182,7 @@ function Textarea({
         minLength={minLength}
         rows={rows}
         placeholder={placeholder}
-        className="mt-2 block w-full rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none transition-colors placeholder:text-zinc-600 focus:border-brand"
+        className="mt-2 block w-full rounded-md border border-line bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none transition-colors placeholder:text-zinc-600 focus:border-brand"
       />
     </label>
   );

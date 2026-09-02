@@ -219,10 +219,10 @@ export function Bosun({ sourcePage }: { sourcePage: string }) {
       role="dialog"
       aria-modal="false"
       aria-label="Ask Bosun, an automated answer panel"
-      className="fixed bottom-5 right-5 z-40 flex h-[min(32rem,calc(100dvh-2.5rem))] w-[min(24rem,calc(100vw-2.5rem))] flex-col overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950 shadow-2xl"
+      className="fixed bottom-5 right-5 z-40 flex h-[min(32rem,calc(100dvh-2.5rem))] w-[min(24rem,calc(100vw-2.5rem))] flex-col overflow-hidden rounded-xl border border-line bg-zinc-950 shadow-2xl"
     >
-      <header className="flex items-center justify-between border-b border-zinc-800 px-4 py-3">
-        <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">
+      <header className="flex items-center justify-between border-b border-line px-4 py-3">
+        <p className="font-mono text-label-sm uppercase text-muted">
           Bosun <span className="text-zinc-600">({meta?.pronunciation ?? "boh-sun"})</span>
         </p>
         <button
@@ -232,7 +232,7 @@ export function Bosun({ sourcePage }: { sourcePage: string }) {
             setOpen(false);
           }}
           aria-label="Close Bosun"
-          className="text-[11px] text-zinc-500 transition-colors duration-200 ease-out hover:text-zinc-300"
+          className="text-[11px] text-muted transition-colors duration-200 ease-out hover:text-zinc-300"
         >
           close
         </button>
@@ -254,11 +254,11 @@ export function Bosun({ sourcePage }: { sourcePage: string }) {
                 <blockquote className="whitespace-pre-line text-[12px] leading-relaxed text-zinc-300">
                   {t.text}
                 </blockquote>
-                <figcaption className="mt-1 font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600">
+                <figcaption className="mt-1 font-mono text-label-sm uppercase text-zinc-400">
                   quoted from{" "}
                   <a
                     href={t.href}
-                    className="text-zinc-500 transition-colors duration-200 ease-out hover:text-brand-soft"
+                    className="text-muted transition-colors duration-200 ease-out hover:text-brand-soft"
                   >
                     {t.href}
                   </a>
@@ -279,7 +279,7 @@ export function Bosun({ sourcePage }: { sourcePage: string }) {
                 key={s}
                 type="button"
                 onClick={() => void send(s)}
-                className="rounded-full border border-zinc-800 px-2.5 py-1 text-[11px] text-zinc-400 transition-colors duration-200 ease-out hover:border-brand hover:text-brand-soft"
+                className="rounded-full border border-line px-2.5 py-1 text-[11px] text-zinc-400 transition-colors duration-200 ease-out hover:border-brand hover:text-brand-soft"
               >
                 {s}
               </button>
@@ -309,7 +309,7 @@ export function Bosun({ sourcePage }: { sourcePage: string }) {
           e.preventDefault();
           void send();
         }}
-        className="flex items-center gap-2 border-t border-zinc-800 px-3 py-3"
+        className="flex items-center gap-2 border-t border-line px-3 py-3"
       >
         <input
           ref={inputRef}
@@ -318,7 +318,7 @@ export function Bosun({ sourcePage }: { sourcePage: string }) {
           maxLength={600}
           placeholder="Ask about the services or the work"
           aria-label="Your question"
-          className="h-8 flex-1 rounded-md border border-zinc-800 bg-transparent px-2 text-[12px] text-zinc-100 outline-none placeholder:text-zinc-600 focus-visible:border-brand"
+          className="h-8 flex-1 rounded-md border border-line bg-transparent px-2 text-[12px] text-zinc-100 outline-none placeholder:text-zinc-600 focus-visible:border-brand"
         />
         <button
           type="submit"
@@ -377,8 +377,8 @@ function CaptureCard({
   }
 
   return (
-    <div className="rounded-lg border border-zinc-800 p-3">
-      <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">
+    <div className="rounded-lg border border-line p-3">
+      <p className="font-mono text-label-sm uppercase text-muted">
         hand it to Qamar
       </p>
       <p className="mt-1 text-[11px] leading-snug text-zinc-400">
@@ -390,7 +390,7 @@ function CaptureCard({
           onChange={(e) => setName(e.target.value)}
           placeholder="Name"
           aria-label="Your name"
-          className="h-8 w-full rounded-md border border-zinc-800 bg-transparent px-2 text-[12px] text-zinc-100 outline-none placeholder:text-zinc-600 focus-visible:border-brand"
+          className="h-8 w-full rounded-md border border-line bg-transparent px-2 text-[12px] text-zinc-100 outline-none placeholder:text-zinc-600 focus-visible:border-brand"
         />
         <input
           value={email}
@@ -398,7 +398,7 @@ function CaptureCard({
           placeholder="Email"
           type="email"
           aria-label="Your email"
-          className="h-8 w-full rounded-md border border-zinc-800 bg-transparent px-2 text-[12px] text-zinc-100 outline-none placeholder:text-zinc-600 focus-visible:border-brand"
+          className="h-8 w-full rounded-md border border-line bg-transparent px-2 text-[12px] text-zinc-100 outline-none placeholder:text-zinc-600 focus-visible:border-brand"
         />
         <textarea
           value={message}
@@ -406,7 +406,7 @@ function CaptureCard({
           rows={3}
           placeholder="What do you need? A sentence or two is enough."
           aria-label="Your message"
-          className="w-full rounded-md border border-zinc-800 bg-transparent px-2 py-1.5 text-[12px] leading-snug text-zinc-100 outline-none placeholder:text-zinc-600 focus-visible:border-brand"
+          className="w-full rounded-md border border-line bg-transparent px-2 py-1.5 text-[12px] leading-snug text-zinc-100 outline-none placeholder:text-zinc-600 focus-visible:border-brand"
         />
       </div>
       <p className="mt-2 font-mono text-[10px] leading-snug text-zinc-600">

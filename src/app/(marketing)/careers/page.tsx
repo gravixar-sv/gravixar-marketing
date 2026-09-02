@@ -26,9 +26,9 @@ export default async function CareersIndexPage() {
       />
 
       {jobs.length === 0 ? (
-        <div className="rounded-xl border border-zinc-800 bg-zinc-950/40 p-8 text-center">
+        <div className="rounded-xl border border-line bg-zinc-950/40 p-8 text-center">
           <p className="text-zinc-300">No open roles right now.</p>
-          <p className="mt-2 text-sm text-zinc-500">
+          <p className="mt-2 text-sm text-muted">
             If you think you should be working with me anyway,{" "}
             <Link
               href="/contact"
@@ -47,7 +47,7 @@ export default async function CareersIndexPage() {
               href={`/careers/${job.slug}`}
               className="card-surface card-hover-glow group rounded-xl p-6"
             >
-              <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500 group-hover:text-brand">
+              <p className="font-mono text-label-sm uppercase text-muted group-hover:text-brand">
                 {job.team} · {employmentLabel(job.employmentType)} ·{" "}
                 {job.location}
               </p>
@@ -57,7 +57,7 @@ export default async function CareersIndexPage() {
               <p className="mt-3 text-sm leading-relaxed text-zinc-400">
                 {job.summary}
               </p>
-              <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600 group-hover:text-brand">
+              <p className="mt-4 font-mono text-label-sm uppercase text-zinc-400 group-hover:text-brand">
                 View role + apply
                 <span className="ml-1 inline-block transition-transform group-hover:translate-x-0.5">
                   →

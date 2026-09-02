@@ -73,7 +73,7 @@ export default async function CaseStudyPage(
               <blockquote className="text-lg leading-relaxed text-zinc-200">
                 &ldquo;{cs.meta.testimonial.quote}&rdquo;
               </blockquote>
-              <figcaption className="mt-3 font-mono text-[11px] uppercase tracking-widest text-zinc-500">
+              <figcaption className="mt-3 font-mono text-label uppercase text-muted">
                 {cs.meta.testimonial.attribution}
               </figcaption>
             </figure>
@@ -95,7 +95,7 @@ export default async function CaseStudyPage(
           <Meta label="Period" value={cs.meta.period} />
           {cs.meta.demo ? (
             <div>
-              <p className="font-mono text-[11px] uppercase tracking-widest text-brand">
+              <p className="font-mono text-label uppercase text-brand">
                 Related demo
               </p>
               <a
@@ -110,14 +110,14 @@ export default async function CaseStudyPage(
           ) : null}
           {cs.meta.stack.length > 0 ? (
             <div>
-              <p className="font-mono text-[11px] uppercase tracking-widest text-brand">
+              <p className="font-mono text-label uppercase text-brand">
                 Stack
               </p>
               <ul className="mt-3 flex flex-wrap gap-1.5">
                 {cs.meta.stack.map((s) => (
                   <li
                     key={s}
-                    className="rounded-sm border border-zinc-800 bg-zinc-900 px-2 py-1 font-mono text-[10px] text-zinc-300"
+                    className="rounded-sm border border-line bg-zinc-900 px-2 py-1 font-mono text-[10px] text-zinc-300"
                   >
                     {s}
                   </li>
@@ -127,13 +127,13 @@ export default async function CaseStudyPage(
           ) : null}
           {cs.meta.metrics.length > 0 ? (
             <div>
-              <p className="font-mono text-[11px] uppercase tracking-widest text-brand">
+              <p className="font-mono text-label uppercase text-brand">
                 Metrics
               </p>
               <dl className="mt-3 space-y-3 text-sm">
                 {cs.meta.metrics.map((m) => (
                   <div key={m.label}>
-                    <dt className="text-zinc-500">{m.label}</dt>
+                    <dt className="text-muted">{m.label}</dt>
                     <dd className="text-zinc-100">{m.value}</dd>
                   </div>
                 ))}
@@ -164,7 +164,7 @@ function Section({ title, body }: { title: string; body: string }) {
 function Meta({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="font-mono text-[11px] uppercase tracking-widest text-brand">
+      <p className="font-mono text-label uppercase text-brand">
         {label}
       </p>
       <p className="mt-2 text-sm text-zinc-200">{value}</p>

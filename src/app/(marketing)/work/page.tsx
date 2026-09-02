@@ -25,7 +25,7 @@ export default async function WorkIndexPage() {
       />
 
       {studies.length === 0 ? (
-        <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-8 text-center">
+        <div className="rounded-lg border border-line bg-zinc-950 p-8 text-center">
           <p className="text-zinc-400">No case studies published yet.</p>
         </div>
       ) : (
@@ -37,7 +37,7 @@ export default async function WorkIndexPage() {
               className="card-surface card-hover-glow group rounded-xl p-6"
             >
               <div className="flex items-baseline justify-between gap-3">
-                <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500 group-hover:text-brand">
+                <p className="font-mono text-label-sm uppercase text-muted group-hover:text-brand">
                   {cs.meta.client}
                 </p>
                 <p className="font-mono text-[10px] text-zinc-600">{cs.meta.period}</p>

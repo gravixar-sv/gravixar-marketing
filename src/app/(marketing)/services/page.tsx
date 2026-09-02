@@ -72,7 +72,7 @@ export default async function ServicesIndexPage() {
 
         return (
           <section key={id}>
-            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand">
+            <p className="font-mono text-label uppercase text-brand">
               {label}
             </p>
             <div className="mt-5 grid gap-4 md:grid-cols-12">
@@ -82,7 +82,7 @@ export default async function ServicesIndexPage() {
                   href={`/services/${s.meta.slug}`}
                   className={`card-surface card-hover-glow group flex flex-col rounded-xl p-6 ${span}`}
                 >
-                  <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500 group-hover:text-brand">
+                  <p className="font-mono text-label-sm uppercase text-muted group-hover:text-brand">
                     {s.meta.bucket}
                   </p>
                   <h2 className="mt-2 text-2xl font-semibold tracking-[-0.015em] text-zinc-100">
@@ -117,7 +117,7 @@ export default async function ServicesIndexPage() {
                     ) : null}
                     {s.meta.proof.length > 0 ? (
                       <p
-                        className={`font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500 group-hover:text-brand ${
+                        className={`font-mono text-label-sm uppercase text-muted group-hover:text-brand ${
                           s.meta.pricing ? "mt-4" : ""
                         }`}
                       >

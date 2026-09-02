@@ -29,7 +29,7 @@ export function Loop() {
           sits in a narrower column where it reads as annotation. */}
       <div className="grid gap-8 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] md:items-end">
         <div>
-          <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand">
+          <p className="font-mono text-label uppercase text-brand">
             how it works
           </p>
           <h2 className="mt-3 max-w-[13ch] text-4xl font-semibold leading-[1.0] tracking-[-0.025em] md:text-[2.75rem] lg:text-statement">
@@ -65,7 +65,7 @@ export function Loop() {
                 aria-hidden
                 className="absolute left-0 top-0 hidden h-[11px] w-[11px] rounded-full border border-brand/60 bg-[#0a0a0a] md:block"
               />
-              <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600">
+              <p className="font-mono text-label-sm uppercase text-zinc-400">
                 {step.n}
               </p>
               <h3 className="mt-2 text-lg font-semibold tracking-[-0.01em] text-zinc-100">

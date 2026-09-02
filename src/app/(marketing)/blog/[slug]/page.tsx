@@ -46,13 +46,13 @@ export default async function BlogPostPage(
         updatedAt={post.meta.updatedAt}
         author={SITE.author}
       />
-      <header className="border-b border-zinc-900 pb-8">
+      <header className="border-b border-line-soft pb-8">
         <div className="flex items-baseline gap-4">
-          <p className="font-mono text-[11px] uppercase tracking-widest text-zinc-500">
+          <p className="font-mono text-label uppercase text-muted">
             {post.meta.publishedAt}
           </p>
           {post.meta.aiAssisted ? (
-            <p className="font-mono text-[10px] uppercase tracking-widest text-brand-deep">
+            <p className="font-mono text-label-sm uppercase text-brand-deep">
               ai-assisted, human-edited
             </p>
           ) : null}
@@ -66,7 +66,7 @@ export default async function BlogPostPage(
             {post.meta.tags.map((t) => (
               <li
                 key={t}
-                className="rounded-sm border border-zinc-800 bg-zinc-900 px-1.5 py-0.5 font-mono text-[10px] text-zinc-400"
+                className="rounded-sm border border-line bg-zinc-900 px-1.5 py-0.5 font-mono text-[10px] text-zinc-400"
               >
                 {t}
               </li>
@@ -79,7 +79,7 @@ export default async function BlogPostPage(
         <MDX source={post.body} />
       </div>
 
-      <footer className="mt-16 border-t border-zinc-900 pt-6">
+      <footer className="mt-16 border-t border-line-soft pt-6">
         <Link href="/blog" className="text-sm text-brand-soft hover:underline">
           ← All writing
         </Link>

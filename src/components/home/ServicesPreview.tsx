@@ -68,7 +68,7 @@ export function ServicesPreview({ services }: { services: Service[] }) {
   const bands = toBands(services);
   return (
     <section>
-      <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand">
+      <p className="font-mono text-label uppercase text-brand">
         what i do
       </p>
       <h2 className="mt-3 text-3xl font-semibold tracking-[-0.015em] md:text-section">
@@ -105,7 +105,7 @@ export function ServicesPreview({ services }: { services: Service[] }) {
                   className={`card-surface card-hover-glow group flex flex-col rounded-xl p-6 active:scale-[0.99] ${span}`}
                 >
                   <div className="flex items-baseline justify-between">
-                    <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500 group-hover:text-brand">
+                    <p className="font-mono text-label-sm uppercase text-muted group-hover:text-brand">
                       {service.bucket}
                     </p>
                     <span className="font-mono text-[10px] text-zinc-700">
@@ -119,7 +119,7 @@ export function ServicesPreview({ services }: { services: Service[] }) {
                     {service.tagline}
                   </p>
                   {service.deliverables.length > 0 ? (
-                    <ul className="mt-5 space-y-1.5 text-xs text-zinc-500">
+                    <ul className="mt-5 space-y-1.5 text-xs text-muted">
                       {service.deliverables
                         .slice(0, DELIVERABLES_SHOWN)
                         .map((d) => (
@@ -135,7 +135,7 @@ export function ServicesPreview({ services }: { services: Service[] }) {
                   {/* self-start, because the card is a flex column and a
                       stretched item would draw the link-draw underline across
                       the whole card instead of under the two words. */}
-                  <span className="link-draw mt-6 self-start font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600 group-hover:text-brand">
+                  <span className="link-draw mt-6 self-start font-mono text-label-sm uppercase text-zinc-400 group-hover:text-brand">
                     learn more
                   </span>
                 </Link>

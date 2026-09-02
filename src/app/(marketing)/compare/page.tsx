@@ -30,7 +30,7 @@ export default async function CompareIndexPage() {
             href={`/compare/${c.meta.slug}`}
             className="card-surface card-hover-glow group rounded-xl p-6"
           >
-            <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500 group-hover:text-brand">
+            <p className="font-mono text-label-sm uppercase text-muted group-hover:text-brand">
               {c.meta.competitor} vs custom
             </p>
             <h2 className="mt-2 text-xl font-semibold tracking-[-0.015em] text-zinc-100 md:text-2xl">
@@ -39,7 +39,7 @@ export default async function CompareIndexPage() {
             <p className="mt-3 text-sm leading-relaxed text-zinc-400">
               {c.meta.summary}
             </p>
-            <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600 group-hover:text-brand">
+            <p className="mt-4 font-mono text-label-sm uppercase text-zinc-400 group-hover:text-brand">
               {c.meta.category}
               <span className="ml-1 inline-block transition-transform group-hover:translate-x-0.5">→</span>
             </p>

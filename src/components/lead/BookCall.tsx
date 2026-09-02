@@ -17,16 +17,18 @@
 
 import { useEffect, useState } from "react";
 import { SERVICE_OPTIONS } from "@/lib/services";
+import { buttonClass } from "@/components/ui/Button";
+import { cn } from "@/lib/cn";
 
 type Slot = { startUtc: string; pktLabel: string };
 type Step = "pick" | "verify" | "done";
 
-const LABEL = "font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500";
+const LABEL = "font-mono text-label-sm uppercase text-muted";
 // No focus:outline-none. It was killing the global coral :focus-visible ring
 // that globals.css sets deliberately, leaving a border tint as the only focus
 // signal, which is colour alone and fails a keyboard user outright.
 const INPUT =
-  "mt-1.5 w-full rounded-md border border-zinc-800 bg-zinc-950/60 px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 focus:border-brand/50";
+  "mt-1.5 w-full rounded-md border border-line bg-zinc-950/60 px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 focus:border-brand/50";
 
 function fmtLocal(iso: string): string {
   try {
@@ -61,7 +63,7 @@ function SlotGrid({
 }) {
   if (failed && (slots === null || slots.length === 0)) {
     return (
-      <p className="mt-2 text-xs text-zinc-500">
+      <p className="mt-2 text-xs text-muted">
         Couldn&apos;t load the slots.{" "}
         <button type="button" onClick={onRetry} className="underline underline-offset-2 hover:text-zinc-300">
           Try again
@@ -70,11 +72,11 @@ function SlotGrid({
     );
   }
   if (slots === null) {
-    return <p className="mt-2 text-xs text-zinc-500">Loading slots…</p>;
+    return <p className="mt-2 text-xs text-muted">Loading slots…</p>;
   }
   if (slots.length === 0) {
     return (
-      <p className="mt-2 text-xs text-zinc-500">
+      <p className="mt-2 text-xs text-muted">
         No open slots right now. Send a note with the form instead and
         I&apos;ll find a time.
       </p>
@@ -91,7 +93,7 @@ function SlotGrid({
           className={`rounded-md border px-2 py-2 text-left text-xs transition-colors ${
             picked === s.startUtc
               ? "border-brand bg-brand/10 text-brand-soft"
-              : "border-zinc-800 bg-zinc-950/60 text-zinc-300 hover:border-zinc-600"
+              : "border-line bg-zinc-950/60 text-zinc-300 hover:border-zinc-600"
           }`}
         >
           {fmtLocal(s.startUtc)}
@@ -231,7 +233,7 @@ export function BookCall() {
   if (step === "done" && confirmed) {
     return (
       <div className="rounded-xl border border-brand-deep/30 bg-brand-deep/5 p-6">
-        <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-brand">booked</p>
+        <p className="font-mono text-label-sm uppercase text-brand">booked</p>
         <h3 className="mt-1 text-lg font-medium tracking-[-0.01em] text-zinc-100">
           You&apos;re set for {fmtLocal(confirmed.startUtc)}.
         </h3>
@@ -242,7 +244,7 @@ export function BookCall() {
           href={confirmed.meetUrl}
           rel="noreferrer"
           target="_blank"
-          className="mt-3 inline-flex items-center gap-2 rounded-md bg-brand px-4 py-2 text-sm font-medium text-[#0a0a0a] transition-colors hover:bg-brand-soft"
+          className={cn("mt-3", buttonClass({ size: "md" }))}
         >
           Open Google Meet <span aria-hidden>↗</span>
         </a>
@@ -251,8 +253,8 @@ export function BookCall() {
   }
 
   return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-950/40 p-6">
-      <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-brand">
+    <div className="rounded-xl border border-line bg-zinc-950/40 p-6">
+      <p className="font-mono text-label-sm uppercase text-brand">
         30 min · google meet
       </p>
       <h3 className="mt-1 text-base font-medium tracking-[-0.01em] text-zinc-100">
@@ -321,7 +323,7 @@ export function BookCall() {
           <button
             type="submit"
             disabled={busy}
-            className="inline-flex items-center gap-2 rounded-md bg-brand px-4 py-2.5 text-sm font-medium text-[#0a0a0a] transition-colors hover:bg-brand-soft disabled:opacity-50"
+            className={buttonClass({ size: "md" })}
           >
             {busy ? "Sending…" : "Send verification code"}
             <span aria-hidden>→</span>
@@ -343,7 +345,7 @@ export function BookCall() {
                   setPicked("");
                   void refreshSlots();
                 }}
-                className="mt-1 text-xs text-zinc-500 hover:text-zinc-300"
+                className="mt-1 text-xs text-muted hover:text-zinc-300"
               >
                 change slot
               </button>
@@ -394,7 +396,7 @@ export function BookCall() {
             <button
               type="submit"
               disabled={busy || !picked || code.length !== 6}
-              className="inline-flex items-center gap-2 rounded-md bg-brand px-4 py-2.5 text-sm font-medium text-[#0a0a0a] transition-colors hover:bg-brand-soft disabled:opacity-50"
+              className={buttonClass({ size: "md" })}
             >
               {busy ? "Confirming…" : "Confirm call"}
               <span aria-hidden>→</span>
@@ -407,7 +409,7 @@ export function BookCall() {
                 setCode("");
                 void refreshSlots();
               }}
-              className="text-xs text-zinc-500 hover:text-zinc-300"
+              className="text-xs text-muted hover:text-zinc-300"
             >
               ← back
             </button>

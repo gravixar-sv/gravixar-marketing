@@ -8,10 +8,10 @@ import { MDXRemote, type MDXRemoteProps } from "next-mdx-remote/rsc";
 import type { ComponentProps } from "react";
 
 function H1(props: ComponentProps<"h1">) {
-  return <h1 className="text-4xl font-semibold tracking-tight md:text-5xl" {...props} />;
+  return <h1 className="text-4xl font-semibold tracking-tight md:text-page" {...props} />;
 }
 function H2(props: ComponentProps<"h2">) {
-  return <h2 className="mt-12 text-2xl font-semibold tracking-tight md:text-3xl" {...props} />;
+  return <h2 className="mt-12 text-2xl font-semibold tracking-tight md:text-subsection" {...props} />;
 }
 function H3(props: ComponentProps<"h3">) {
   return <h3 className="mt-8 text-xl font-semibold tracking-tight" {...props} />;
