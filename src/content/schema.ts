@@ -67,7 +67,38 @@ export const caseStudySchema = z.object({
   problem: z.string().min(1),
   approach: z.string().min(1),
   outcome: z.string().min(1),
-  metrics: z.array(z.object({ label: z.string(), value: z.string() })).default([]),
+  // The densest published numbers on the site, and until 2026-09-02 the least
+  // governed: 48 rows across 8 studies carrying label and value and nothing
+  // else, while the FOUR homepage stats next door require source + verifiedAt
+  // and expire on a clock. That asymmetry is the shape that produced two false
+  // published claims on 2026-07-31.
+  //
+  // `source` and `verifiedAt` are optional in the TYPE but not in practice.
+  // scripts/content-validate.ts enforces two things the type cannot:
+  //   1. BOTH OR NEITHER. A row with a source and no date, or a date and no
+  //      source, fails immediately. Half-provenance is worse than none because
+  //      it looks checked.
+  //   2. A DATED RATCHET. Rows with neither warn now and FAIL from the date
+  //      named in that file, so this cannot sit half-adopted indefinitely.
+  //
+  // They are not required today for one honest reason: the provenance for most
+  // of these rows lives with the operator, not in the repo, and a schema that
+  // forced the field immediately would have been satisfied by inventing 48
+  // plausible sources. That is the exact defect this field exists to prevent.
+  //
+  // Several labels currently smuggle a date inside the label string, e.g.
+  // "System scale (code recount, 2026-07-21)". That is the workaround this
+  // pair replaces; move the date into verifiedAt when backfilling.
+  metrics: z
+    .array(
+      z.object({
+        label: z.string(),
+        value: z.string(),
+        source: z.string().min(10).optional(),
+        verifiedAt: isoDate.optional(),
+      }),
+    )
+    .default([]),
   // Optional link to the matching scene on demo.gravixar.com, and only there.
   // The regex is the truth rule in code: a published demo link must resolve to
   // the sample-data demo. Never a client instance (a name is not a screenshot;
