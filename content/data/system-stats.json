@@ -4,29 +4,29 @@
       "key": "modules-built",
       "label": "modules built",
       "value": "24",
-      "source": "brain/_meta/module-health.json summary.total, the canonical module registry (18 production, 1 beta, 5 internal)",
-      "verifiedAt": "2026-07-30"
+      "source": "brain/_meta/module-health.json summary.total, the canonical module registry, regenerated 2026-08-31 (18 production, 1 beta, 5 internal)",
+      "verifiedAt": "2026-09-01"
     },
     {
       "key": "modules-reused",
       "label": "reused across products",
       "value": "13",
-      "source": "brain/_meta/module-health.json summary.byVerdict, shared (9) plus extract (4)",
-      "verifiedAt": "2026-07-30"
+      "source": "brain/_meta/module-health.json summary.byVerdict, shared (9) plus extract (4), regenerated 2026-08-31",
+      "verifiedAt": "2026-09-01"
     },
     {
       "key": "automated-jobs",
       "label": "automated jobs in HQ",
-      "value": "17",
-      "source": "gravixar-hq vercel.ts crons array (11 entries) plus gravixar-hq .github/workflows on.schedule triggers (6 workflows)",
-      "verifiedAt": "2026-07-30"
+      "value": "19",
+      "source": "gravixar-hq vercel.ts crons array (13 entries over 12 distinct endpoints, since review-digest runs on two schedules) plus gravixar-hq .github/workflows on.schedule triggers (6 workflows: blob-mirror, brain-daily, brain-weekly, db-snapshot, eval-candidate-assess, schema-drift). Was 17 at the 2026-07-30 count; two cron entries were added since.",
+      "verifiedAt": "2026-09-01"
     },
     {
       "key": "engagements-demos",
       "label": "live engagements / demos",
       "value": "4 / 5",
-      "source": "engagements: brain/projects.config.json, category client-engagement with lifecycle active (bs-hub, beeline-medical, carttix, broomstick); a fifth, shafatmotion, is delivered and wound-down so it is not counted as live. demos: the 5 playground scenes in gravixar-sv/gravixar-demo. The previous value of 9 counted published case studies plus managed-services retainers, a different unit than the label implied.",
-      "verifiedAt": "2026-07-30"
+      "source": "engagements: brain/projects.config.json, category client-engagement with lifecycle active (bs-hub, beeline-medical, carttix, broomstick). TWO are deliberately excluded so this reads low rather than high: shafatmotion is delivered and wound down, and ace-of-maids, added since the last count, has an approved app build but has not started it and its CRM row still reads LEAD, so it is not yet a live engagement. Promote it to 5 on the day the build starts. demos: the 5 scenes at demo.gravixar.com, each HEAD-checked 200 on 2026-09-01; a sixth slug in the demo repo's local scenes.ts, verus, returns 404 in production and is not counted.",
+      "verifiedAt": "2026-09-01"
     }
   ]
 }

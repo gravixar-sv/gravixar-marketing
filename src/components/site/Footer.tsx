@@ -33,6 +33,10 @@ export function Footer() {
           <ul className="mt-4 space-y-2.5 text-zinc-400">
             <li><Link href="/services" className="hover:text-brand-soft">Services</Link></li>
             <li><Link href="/work" className="hover:text-brand-soft">Work</Link></li>
+            {/* /compare was reachable only from the navbar's "More" dropdown
+                and from nothing else on the site, which made five
+                highest-commercial-intent pages effectively orphaned. */}
+            <li><Link href="/compare" className="hover:text-brand-soft">Compare</Link></li>
             <li><Link href="/graphics" className="hover:text-brand-soft">Graphics</Link></li>
             <li><Link href="/blog" className="hover:text-brand-soft">Writing</Link></li>
             <li><Link href="/about" className="hover:text-brand-soft">About</Link></li>

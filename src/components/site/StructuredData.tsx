@@ -16,48 +16,90 @@ function ScriptLd({ data, id }: { data: AnyJson; id: string }) {
   );
 }
 
+// Stable @ids so the three nodes are one graph rather than three unrelated
+// assertions. A consumer that reads Person can now follow worksFor to the same
+// Organization node the WebSite publishes, instead of reconciling three
+// inline copies of the same name by string match.
+const PERSON_ID = `${SITE.url}/about#person`;
+const ORG_ID = `${SITE.url}#organization`;
+
+// EVERY entry here must link BACK to gravixar.com. An unreciprocated sameAs is
+// an unverifiable assertion, which is the same defect class as an unsourced
+// number, so the bar for adding one is the same: go and check.
+//   - LinkedIn profile: the operator's, trailing slash matching Footer.tsx.
+//   - GitHub org: public, and github.com/gravixar-sv carries gravixar.com in
+//     its profile link (checked 2026-09-01, HTTP 200 + reciprocal link).
+//   - Instagram: the site already links it from the footer on all 60 pages,
+//     so omitting it here made the machine-readable identity narrower than
+//     the human-readable one. If the footer link goes, this goes with it.
+// NOT added: the LinkedIn company Page (blocked from automated verification
+// by HTTP 999, so unconfirmed) and X/@gravixar (no account confirmed to
+// exist). Neither is worth an unverifiable entry.
+const PROFILES = [
+  "https://www.linkedin.com/in/qamarabbas/",
+  "https://github.com/gravixar-sv",
+  "https://www.instagram.com/qabbas4/",
+];
+
 /** Person + Organization + WebSite, global, render in root layout. */
 export function StructuredDataGlobal() {
   const person = {
     "@context": "https://schema.org",
     "@type": "Person",
+    "@id": PERSON_ID,
     name: SITE.author,
+    givenName: "Qamar",
+    familyName: "Abbas",
     url: SITE.url,
+    mainEntityOfPage: `${SITE.url}/about`,
     email: "gravixar@gmail.com",
     jobTitle: "AI-augmented operations consultant",
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "Islamabad",
+      addressCountry: "PK",
+    },
+    knowsAbout: [
+      "Operations infrastructure",
+      "Client portals",
+      "Workflow automation",
+      "AI tooling with human approval",
+      "Agency operations",
+    ],
     description:
       "Builds operations infrastructure, brand work, and AI tooling for teams that want what they're buying running before the contract.",
-    worksFor: {
-      "@type": "Organization",
-      name: SITE.name,
-      url: SITE.url,
-    },
-    sameAs: ["https://www.linkedin.com/in/qamarabbas"],
+    worksFor: { "@id": ORG_ID },
+    sameAs: PROFILES,
   };
 
   const organization = {
     "@context": "https://schema.org",
     "@type": "Organization",
+    "@id": ORG_ID,
     name: SITE.name,
     url: SITE.url,
     logo: `${SITE.url}/logos/gravixar-wordmark.png`,
-    founder: { "@type": "Person", name: SITE.author },
+    // 2013 is the founding year published on the LinkedIn company Page and in
+    // the Gravixar position on the operator's profile. Not a new claim.
+    foundingDate: "2013",
+    founder: { "@id": PERSON_ID },
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "Islamabad",
+      addressCountry: "PK",
+    },
     description: SITE.tagline,
-    sameAs: [
-      "https://www.linkedin.com/in/qamarabbas",
-      // Add more as they go live: company LinkedIn page, GitHub, X/Twitter.
-      // "https://twitter.com/gravixar",
-      // "https://github.com/gravixar-sv",
-    ],
+    sameAs: PROFILES,
   };
 
   const website = {
     "@context": "https://schema.org",
     "@type": "WebSite",
+    "@id": `${SITE.url}#website`,
     name: SITE.name,
     url: SITE.url,
     description: SITE.tagline,
-    publisher: { "@type": "Organization", name: SITE.name },
+    publisher: { "@id": ORG_ID },
   };
 
   return (

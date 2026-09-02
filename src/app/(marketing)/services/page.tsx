@@ -97,14 +97,35 @@ export default async function ServicesIndexPage() {
                   <p className="mt-3 max-w-[54ch] text-sm leading-relaxed text-zinc-400">
                     {s.meta.tagline}
                   </p>
-                  {s.meta.proof.length > 0 ? (
-                    // mt-auto, because a row's cards stretch to the tallest
-                    // card and the proof count is the row's shared baseline.
-                    <p className="mt-auto pt-5 font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600 group-hover:text-brand">
-                      {s.meta.proof.length} proof{s.meta.proof.length > 1 ? "s" : ""}
-                      <span className="ml-1 inline-block transition-transform group-hover:translate-x-0.5">→</span>
-                    </p>
-                  ) : null}
+                  {/* Price sits ABOVE the proof row, inside the mt-auto block,
+                      so the proof count stays the row's shared baseline and
+                      the card with no pricing still bottoms out level.
+
+                      Rendered VERBATIM, never truncated. Four of the six
+                      services deliberately answer with a shape rather than a
+                      number ("Project-based, typically 4-10 weeks"), and
+                      clipping that to a first clause would turn an honest
+                      hedge into a hidden price. Two carry a real figure and
+                      those are the ones this fixes: "From $2,500" was
+                      published on 2026-08-25 so a buyer could see it, and
+                      until now the page where buyers CHOOSE showed none of
+                      it. A price is the only line on the card that lets
+                      someone rule themselves in or out without a click. */}
+                  <div className="mt-auto pt-5">
+                    {s.meta.pricing ? (
+                      <p className="text-sm leading-relaxed text-zinc-300">{s.meta.pricing}</p>
+                    ) : null}
+                    {s.meta.proof.length > 0 ? (
+                      <p
+                        className={`font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500 group-hover:text-brand ${
+                          s.meta.pricing ? "mt-4" : ""
+                        }`}
+                      >
+                        {s.meta.proof.length} proof{s.meta.proof.length > 1 ? "s" : ""}
+                        <span className="ml-1 inline-block transition-transform group-hover:translate-x-0.5">→</span>
+                      </p>
+                    ) : null}
+                  </div>
                 </Link>
               ))}
             </div>
