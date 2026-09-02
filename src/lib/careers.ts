@@ -66,7 +66,24 @@ async function fetchSnapshot(): Promise<PublicJobPosting[] | null> {
     });
     const match = found.blobs.find((b) => b.pathname === SNAPSHOT_KEY);
     if (!match) return null;
-    const res = await fetch(match.url, { cache: "no-store" });
+    // `next: { revalidate }` rather than `cache: "no-store"`, and the
+    // difference is not a preference, it is the difference between a 404 and
+    // a 500 on every unknown careers slug.
+    //
+    // /careers/[slug] declares `revalidate = 3600`, so Next renders it as a
+    // static or ISR page. A `no-store` fetch inside that render is an opt out
+    // of caching entirely, which Next reports as "Page changed from static to
+    // dynamic at runtime" and serves as a 500. It never fired before
+    // 2026-09-02 only because generateStaticParams listed every live slug, so
+    // every real page was built ahead of time and no request ever took the
+    // runtime path. An unknown slug already 500'd instead of 404ing; nobody
+    // had asked for one. Gating expired roles out of generateStaticParams
+    // moved two real, indexed URLs onto that same broken path.
+    //
+    // 300s keeps the HQ-publishes-a-role story intact: a new posting still
+    // appears within five minutes without a deploy, which is what the
+    // no-store was reaching for, and the page stays statically renderable.
+    const res = await fetch(match.url, { next: { revalidate: 300 } });
     if (!res.ok) return null;
     const data = (await res.json()) as Snapshot;
     return Array.isArray(data.postings) ? data.postings : null;
