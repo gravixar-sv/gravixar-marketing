@@ -93,6 +93,7 @@ export async function POST(req: Request) {
   // errors (the visitor can fix them); a blob/token failure is non-fatal — the
   // application still goes through without the CV.
   let cvUrl: string | undefined;
+  let cvError: string | undefined;
   const cv = form.get("cv");
   if (cv instanceof File && cv.size > 0) {
     if (!(CV_CONTENT_TYPES as readonly string[]).includes(cv.type)) {
@@ -127,7 +128,15 @@ export async function POST(req: Request) {
         });
         cvUrl = blob.url;
       } catch (err) {
-        console.error("[job-application] CV upload failed:", err);
+        // SWALLOWED ON PURPOSE, so an applicant never loses a completed form
+        // to a storage fault. But it was swallowed SILENTLY until 2026-09-02,
+        // and that is the part that was wrong: cvUrl simply stayed undefined,
+        // the application was stored and emailed as normal, and a failed
+        // upload looked exactly like an applicant who chose not to attach a
+        // CV. Vercel's runtime errors show this firing on production from
+        // 2026-08-23 to at least 2026-09-01.
+        cvError = err instanceof Error ? err.message : String(err);
+        console.error(`[job-application] done: CV UPLOAD FAILED ${cvError}`);
       }
     }
   }
@@ -150,7 +159,7 @@ export async function POST(req: Request) {
         from: FROM_EMAIL,
         to: NOTIFY_EMAIL,
         replyTo: record.email,
-        subject: `Job application — ${record.sourcePage} — ${record.name}${record.company ? ` (${record.company})` : ""}`,
+        subject: `${cvError ? "[CV UPLOAD FAILED] " : ""}Job application: ${record.sourcePage}: ${record.name}${record.company ? ` (${record.company})` : ""}`,
         react: JobApplicationEmail({
           name: record.name,
           email: record.email,
