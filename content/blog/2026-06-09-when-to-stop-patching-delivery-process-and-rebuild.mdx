@@ -2,6 +2,7 @@
 title: "When to Stop Patching Your Delivery Process and Rebuild It From Scratch"
 slug: "when-to-stop-patching-delivery-process-and-rebuild"
 excerpt: "Patching a broken delivery process feels productive until you have 15 patches and no process. Here is how I decide when incremental fixes stop working and a clean rebuild is the right call."
+metaDescription: "Four signals I watch before rebuilding: nobody can run it from docs, exceptions outnumber steps, a workaround tool went load-bearing, onboarding dread."
 publishedAt: "2026-06-09"
 tags: ["operations", "ops-infrastructure", "agency-ops"]
 draft: false
@@ -26,11 +27,11 @@ That is a fragile system disguised as a mature one.
 
 ## The Four Signals I Actually Watch For
 
-**New people cannot run the process without shadowing.** If someone competent cannot follow your delivery process from documentation alone on day three, the process is not documented — it is institutionalized knowledge. That is fine when you are a solo operator. It becomes a ceiling the moment you try to scale or hand off.
+**New people cannot run the process without shadowing.** If someone competent cannot follow your delivery process from documentation alone on day three, the process is not documented, it is institutionalized knowledge. That is fine when you are a solo operator. It becomes a ceiling the moment you try to scale or hand off.
 
 **You are explaining exceptions more than running steps.** When a weekly check-in with a client spends more time on "here is why this works differently for you" than on actual delivery updates, the exception has eaten the rule. Count the exceptions in one month. If they outnumber the standard cases, you do not have a standard.
 
-**A tool is holding the process together.** I have seen this in my own agency portal work. A spreadsheet becomes the source of truth because the actual system has too many gaps. The spreadsheet is not the problem — the gaps it is covering are. When a workaround tool becomes load-bearing, you have already rebuilt the process informally. Formalizing it is just honesty.
+**A tool is holding the process together.** I have seen this in my own agency portal work. A spreadsheet becomes the source of truth because the actual system has too many gaps. The spreadsheet is not the problem. The gaps it is covering are. When a workaround tool becomes load-bearing, you have already rebuilt the process informally. Formalizing it is just honesty.
 
 **You dread onboarding a new client because of the setup overhead.** This one is practical and underrated. Dread is data. If adding a new client means 90 minutes of manual configuration, copying folders, setting permissions, and sending three orientation emails, that overhead compounds. At 10 active clients it is annoying. At 20 it is a constraint on revenue.
 
@@ -52,7 +53,7 @@ The worst time to rebuild is during a capacity crunch. The second-worst time is 
 
 Parallel running sounds expensive. It is less expensive than discovering that your rebuilt process has a gap when a client is waiting on a deliverable.
 
-I rebuilt the core delivery workflow in my agency portal twice in four years. The first time I waited too long and did it under pressure. The second time I did it proactively when I hit signal three above — a spreadsheet had become the actual source of truth — and it took six weeks instead of three months.
+I rebuilt the core delivery workflow in my agency portal twice in four years. The first time I waited too long and did it under pressure. The second time I did it proactively when I hit signal three above, a spreadsheet had become the actual source of truth, and it took six weeks instead of three months.
 
 ## One Thing I Am Confident About
 

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MDX } from "@/content/mdx";
-import { StructuredDataBlogPost } from "@/components/site/StructuredData";
+import { StructuredDataBlogPost, StructuredDataBreadcrumb } from "@/components/site/StructuredData";
 import { loadBlogPosts } from "@/content/loaders";
 import { buildMetadata, SITE } from "@/lib/seo";
 
@@ -22,9 +22,12 @@ export async function generateMetadata(
   if (!post) return { title: "Not found" };
   return buildMetadata({
     title: post.meta.title,
-    description: post.meta.excerpt,
+    description: post.meta.metaDescription ?? post.meta.excerpt,
     path: `/blog/${slug}`,
     ogImage: post.meta.cover?.src,
+    ogType: "article",
+    publishedTime: post.meta.publishedAt,
+    modifiedTime: post.meta.updatedAt ?? post.meta.publishedAt,
   });
 }
 
@@ -45,6 +48,22 @@ export default async function BlogPostPage(
         publishedAt={post.meta.publishedAt}
         updatedAt={post.meta.updatedAt}
         author={SITE.author}
+        // Falls back to the same /api/og card the page's own og:image points
+        // at, so `image` is never empty even for a post with no cover.
+        image={
+          post.meta.cover?.src ??
+          `/api/og?title=${encodeURIComponent(post.meta.title)}`
+        }
+      />
+      {/* Blog posts were the ONLY detail route with no BreadcrumbList; every
+          other one (services, work, compare, modules, graphics, careers) has
+          carried the three-item shape since it shipped. */}
+      <StructuredDataBreadcrumb
+        items={[
+          { name: "Home", url: SITE.url },
+          { name: "Writing", url: `${SITE.url}/blog` },
+          { name: post.meta.title, url: `${SITE.url}/blog/${slug}` },
+        ]}
       />
       <header className="border-b border-line-soft pb-8">
         <div className="flex items-baseline gap-4">

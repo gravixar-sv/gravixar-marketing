@@ -3,6 +3,7 @@ title: "Multi-currency finance core"
 slug: "multi-currency-finance"
 category: "finance"
 summary: "Every monetary row stores native amount + native currency + an FxRateSnapshot foreign key. Reports compute against the snapshot, never live FX. A regenerated report from yesterday matches the original row-for-row."
+metaDescription: "Every monetary row stores native amount, currency and an FX rate snapshot, so reports recompute against the snapshot and reproduce row for row."
 runningIn:
   - { client: "Healthcare ops platform", productSlug: "beeline" }
 stack:

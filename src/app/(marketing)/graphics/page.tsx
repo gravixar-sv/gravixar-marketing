@@ -19,7 +19,7 @@ export const revalidate = 3600;
 export const metadata: Metadata = buildMetadata({
   title: "Brand and visual work, a capability showcase",
   description:
-    "Identity, interface, motion, web, and print work, with every piece labeled as client work, self-directed, or concept. What I can build in visual systems, shown built.",
+    "Identity, interface, motion, web and print, every piece labeled client work, self-directed or concept. What I build in visual systems, shown built.",
   path: "/graphics",
 });
 

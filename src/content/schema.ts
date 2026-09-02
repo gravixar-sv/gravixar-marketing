@@ -20,10 +20,32 @@ const baseImage = z.object({
   height: z.number().int().positive().optional(),
 });
 
+// The <meta name="description"> a page serves, capped where search engines
+// actually truncate. Optional, and when it is absent generateMetadata falls
+// back to the page's lede exactly as before, so nothing regresses.
+//
+// It exists because ALL 44 detail pages served a description over 160
+// characters, 164 to 313, for one structural reason: no schema had a
+// description field, so every generateMetadata reused the lede verbatim. A
+// lede is written to be read on the page under a heading; a meta description
+// is written to survive truncation in a result row. Same facts, different
+// job, and one field cannot do both.
+//
+// max(160) is the whole point: over-length is now a BUILD FAILURE through the
+// existing prebuild validator rather than something a reviewer has to notice,
+// so this class of defect cannot come back. min(70) stops a one-word stub
+// counting as done.
+//
+// A metaDescription must be a COMPRESSION of what the page already says. It
+// is a published surface like any other, so it may not introduce a claim the
+// page does not make.
+const metaDescription = z.string().min(70).max(160).optional();
+
 export const blogPostSchema = z.object({
   title: z.string().min(3).max(120),
   slug,
   excerpt: z.string().min(20).max(280),
+  metaDescription,
   publishedAt: isoDate,
   updatedAt: isoDate.optional(),
   tags: z.array(z.string().min(1)).default([]),
@@ -41,6 +63,7 @@ export const caseStudySchema = z.object({
   role: z.string().min(1),
   period: z.string().min(1), // free-form e.g. "Jan 2025 – present"
   summary: z.string().min(20).max(320),
+  metaDescription,
   problem: z.string().min(1),
   approach: z.string().min(1),
   outcome: z.string().min(1),
@@ -95,6 +118,7 @@ export const serviceSchema = z.object({
   // index in an array, so adding a sixth service can't silently break a grid.
   track: z.enum(["build", "ongoing", "maintain"]).default("build"),
   tagline: z.string().min(20).max(200),
+  metaDescription,
   deliverables: z.array(z.string().min(1)).min(1),
   // links to live proof, case studies, live demos, public artifacts
   proof: z
@@ -156,6 +180,7 @@ export const graphicsItemSchema = z.object({
   // image and no sentence makes the reader open the piece to learn whether
   // it is worth opening.
   summary: z.string().min(20).max(280),
+  metaDescription,
   tools: z.array(z.string().min(1)).default([]),
   cover: baseImage,
   gallery: z.array(baseImage).default([]),
@@ -229,11 +254,38 @@ export const compareSchema = z.object({
   competitorUrl: z.string().url().optional(),
   category: z.string().min(1).max(80), // "agency PM", "accounting workflow", "video-team storage"
   summary: z.string().min(20).max(320),
+  metaDescription,
   hook: z.string().min(10).max(240), // the one named opinion the AI Overview can't summarize away
   whoForCompetitor: z.string().min(10), // "pick the off-the-shelf tool when..."
   whoForCustom: z.string().min(10), // "go custom when..."
   linkedCaseStudy: slug.optional(),
   linkedService: slug.optional(),
+  // Provenance for anything this page asserts about a COMPETITOR. Optional in
+  // the schema, but scripts/content-validate.ts makes it mandatory the moment
+  // a dollar figure appears anywhere in the file, so a priced claim cannot
+  // ship without a URL and a date beside it.
+  //
+  // This exists because of a specific failure. Until 2026-09-01
+  // productive-io-vs-custom.mdx published "roughly $9,000 to $14,000 per year"
+  // for a 15-person agency against a real published rate of $25 a seat, which
+  // is $4,500. The page overstated a named competitor's cost by two to three
+  // times, in an argument for us, and nothing could catch it: the homepage
+  // stats carry source + verifiedAt and are staleness-gated, and this schema
+  // had no provenance field at all.
+  //
+  // Competitor pricing also MOVES, which is why verifiedAt is required rather
+  // than nice to have. A figure that was true in May is a falsehood in
+  // November and the page gives the reader no way to know which they are
+  // looking at.
+  sources: z
+    .array(
+      z.object({
+        claim: z.string().min(5).max(200),
+        url: z.string().url(),
+        verifiedAt: isoDate,
+      }),
+    )
+    .optional(),
   faqs: z
     .array(
       z.object({
@@ -268,6 +320,7 @@ export const moduleSchema = z.object({
   slug,
   category: moduleCategory,
   summary: z.string().min(20).max(280),
+  metaDescription,
   // Where this module is running today, with linked product slug.
   runningIn: z
     .array(

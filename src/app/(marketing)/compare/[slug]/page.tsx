@@ -27,7 +27,7 @@ export async function generateMetadata(
   if (!c) return { title: "Not found" };
   return buildMetadata({
     title: c.meta.title,
-    description: c.meta.summary,
+    description: c.meta.metaDescription ?? c.meta.summary,
     path: `/compare/${slug}`,
     ogKind: "comparison",
   });

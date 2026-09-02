@@ -26,9 +26,11 @@ export async function generateMetadata(
   if (!cs) return { title: "Not found" };
   return buildMetadata({
     title: cs.meta.title,
-    description: cs.meta.summary,
+    description: cs.meta.metaDescription ?? cs.meta.summary,
     path: `/work/${slug}`,
     ogImage: cs.meta.cover.src,
+    ogType: "article",
+    publishedTime: cs.meta.publishedAt,
   });
 }
 
@@ -48,6 +50,7 @@ export default async function CaseStudyPage(
         url={`${SITE.url}/work/${slug}`}
         publishedAt={cs.meta.publishedAt}
         author={SITE.author}
+        image={cs.meta.cover.src}
       />
       <StructuredDataBreadcrumb
         items={[

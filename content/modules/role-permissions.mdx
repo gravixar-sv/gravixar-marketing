@@ -3,6 +3,7 @@ title: "Role hierarchy + permission guards"
 slug: "role-permissions"
 category: "auth"
 summary: "STAFF < TEAM_LEAD < MANAGER < ADMIN role ladder plus an isSuperAdmin tier, with requireAuth, requireRole, requireSuperAdmin, and target-guard helpers that make permission errors loud and uniform."
+metaDescription: "A STAFF to ADMIN role ladder plus a super-admin tier, with requireAuth, requireRole and target guards that throw a typed AuthError, never a silent denial."
 runningIn:
   - { client: "Agency portal", productSlug: "bs-hub" }
   - { client: "Healthcare ops platform", productSlug: "beeline" }
