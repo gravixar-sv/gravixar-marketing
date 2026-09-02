@@ -72,7 +72,29 @@ function SlotGrid({
     );
   }
   if (slots === null) {
-    return <p className="mt-2 text-xs text-muted">Loading slots…</p>;
+    return (
+      <>
+        {/* SERVER-RENDERED FALLBACK. This branch is what the server emits, so
+            with JavaScript off or a bundle that never loads, "Loading slots…"
+            was the final state of the page: a message describing a fetch that
+            will never be attempted, above two forms whose submits are
+            preventDefault'd and whose inputs carry no name attributes, so
+            every path on /contact was dead and none of them looked it.
+            A noscript block cannot be styled away by the same failure that
+            caused it, so it is the one thing guaranteed to reach that
+            visitor. */}
+        <noscript>
+          <p className="mt-2 text-sm text-zinc-300">
+            Picking a time needs JavaScript, which is not running here. Email{" "}
+            <a className="text-brand-soft underline" href="mailto:gravixar@gmail.com?subject=Book%20a%20call">
+              gravixar@gmail.com
+            </a>{" "}
+            with a couple of times that suit you and I will confirm one.
+          </p>
+        </noscript>
+        <p className="mt-2 text-xs text-muted">Loading slots…</p>
+      </>
+    );
   }
   if (slots.length === 0) {
     return (

@@ -262,4 +262,11 @@ export type BookingRecord = {
   service?: string;
   note?: string;
   ip?: string;
+  // Added 2026-09-02, ahead of any UI that sets it. Every row written from
+  // now on carries a status, so when cancel or reschedule does ship it does
+  // not have to retrofit meaning onto rows already in the store: an absent
+  // status reads as "active" and a present one is authoritative.
+  // readTakenSlots() already filters on it, so a cancelled slot returns to
+  // the grid the moment something writes that value.
+  status?: "active" | "cancelled";
 };

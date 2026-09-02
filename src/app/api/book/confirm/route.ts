@@ -12,7 +12,7 @@ import {
   verifyCode,
   type BookingRecord,
 } from "@/lib/booking";
-import { appendBooking, readTakenSlots } from "@/lib/blob";
+import { appendBooking, claimSlot } from "@/lib/blob";
 import { FROM_EMAIL, NOTIFY_EMAIL, getResend } from "@/lib/resend";
 
 export const runtime = "nodejs";
@@ -50,12 +50,14 @@ export async function POST(req: Request) {
   if (!isValidSlot(startUtc)) {
     return NextResponse.json({ error: "slot_unavailable" }, { status: 409 });
   }
-  const taken = await readTakenSlots().catch((): string[] => []);
-  if (taken.includes(startUtc)) {
-    return NextResponse.json({ error: "slot_taken" }, { status: 409 });
-  }
-
-  // 3. Persist.
+  // 3. Build the record, then CLAIM the slot with it. The check-and-write
+  // that used to live here (readTakenSlots, inspect the array, append) held
+  // nothing between the two awaits, so two confirms could interleave and both
+  // succeed, and because the append rewrites the whole month document the
+  // loser's row could be erased entirely, re-opening the slot and leaving a
+  // confirmed visitor on no record. claimSlot() cannot express that: the
+  // store rejects a second write to the same key, so the collision is
+  // resolved by the store rather than by timing.
   const record: BookingRecord = {
     id: `bk_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
     createdAt: new Date().toISOString(),
@@ -72,12 +74,26 @@ export async function POST(req: Request) {
   // system, on no calendar, and in no inbox. Nobody would find out until the
   // meeting did not happen. Storage is the booking; if it did not land, say so
   // and let them try again or use the contact form.
+  const claimed = await claimSlot(record);
+  if (!claimed) {
+    // Either someone got there first or the store refused the write. Both
+    // resolve the same way from here, and deliberately so: the caller
+    // refreshes the grid and picks again. Guessing "probably free" would be
+    // the fail-open an availability check must never do.
+    console.warn(`[book/confirm] slot not claimed: ${startUtc}`);
+    return NextResponse.json({ error: "slot_taken" }, { status: 409 });
+  }
+
+  // The month JSONL is the operator's and HQ's copy, and it is now SECONDARY:
+  // the claim above already holds the slot and carries the whole record, so
+  // losing a line here cannot re-open a booked slot. Still surfaced, because
+  // a booking missing from the inbox is a real problem, just no longer a
+  // correctness one.
   try {
     const stored = await appendBooking(record);
     if (!stored) throw new Error("blob unavailable");
   } catch (err) {
-    console.error("[book/confirm] booking NOT stored, refusing to confirm:", err);
-    return NextResponse.json({ error: "booking_not_stored" }, { status: 503 });
+    console.error("[book/confirm] claimed but not appended to the month log:", err);
   }
 
   // 4. Notify both parties (best-effort) with the Meet link + .ics.

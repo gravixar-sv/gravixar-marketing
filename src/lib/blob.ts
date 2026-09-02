@@ -129,14 +129,96 @@ export function currentMonthKey() {
 export const appendBooking = (record: BookingRecord) =>
   appendJsonl(BOOKING_PREFIX, record);
 
+// One blob per slot, and the SLOT is the unit of storage. This is the whole
+// concurrency story for booking, and it replaces a read-then-write that had
+// two failure modes rather than one.
+//
+// The old shape: confirm/route.ts called readTakenSlots(), checked the array,
+// then called appendBooking(). Nothing held anything between those two awaits.
+//   1. Two confirms for the same slot could interleave between the check and
+//      the write, so both passed and both persisted. Two strangers, one Meet
+//      room, same minute.
+//   2. WORSE, and the reason this needed changing rather than locking: the
+//      write underneath is appendJsonl, which reads the whole month document
+//      and PUTs it back. Two concurrent confirms that both read the same
+//      `existing` text produce a last-writer-wins overwrite, so the loser's
+//      booking is erased from the file. That also removes it from
+//      readTakenSlots(), which re-opens the slot, leaving a visitor who was
+//      told they were booked on no record anywhere.
+//
+// The fix is not a lock, because there is nothing here to lock with. It is to
+// make the collision impossible to express: `allowOverwrite` is left OFF, so
+// the store itself rejects the second write to the same key. Timing stops
+// mattering. The claim carries the full record, so a slot that is taken and a
+// booking that exists are the same fact rather than two facts that can drift.
+//
+// The month JSONL is still written, because HQ and the operator read it, but
+// it is now a SECONDARY copy. If it loses a line the slot stays claimed.
+const SLOT_PREFIX = "bookings/slots/";
+
+const slotKey = (startUtc: string) =>
+  `${SLOT_PREFIX}${startUtc.replace(/[:.]/g, "-")}.json`;
+
+/**
+ * Atomically claim a slot. Resolves the stored record on success, or null if
+ * the slot was already claimed by someone else.
+ */
+export async function claimSlot(
+  record: BookingRecord,
+): Promise<BookingRecord | null> {
+  if (!env.BLOB_READ_WRITE_TOKEN) return null;
+  try {
+    await put(slotKey(record.startUtc), JSON.stringify(record), {
+      access: "public",
+      addRandomSuffix: false,
+      // NOT set to true, deliberately. This is the entire mechanism: a second
+      // write to an existing key throws, and that throw IS the collision
+      // being detected by the store instead of by us.
+      allowOverwrite: false,
+      contentType: "application/json",
+      token: env.BLOB_READ_WRITE_TOKEN,
+    });
+    return record;
+  } catch {
+    // Already claimed. Deliberately not distinguished from a transport fault:
+    // the caller's only correct response to either is to refuse the booking
+    // and refresh the grid, and guessing which one happened would be the
+    // fail-open that the availability check must never do.
+    return null;
+  }
+}
+
 // Taken slot start-times across this month + next (the booking horizon
 // can cross a month boundary). Used to filter the available slots.
 export async function readTakenSlots(): Promise<string[]> {
-  const now = new Date();
-  const next = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
-  const months = [monthKey(now), monthKey(next)];
-  const rows = (
-    await Promise.all(months.map((m) => readJsonl<BookingRecord>(BOOKING_PREFIX, m)))
-  ).flat();
-  return rows.map((r) => r.startUtc);
+  if (!env.BLOB_READ_WRITE_TOKEN) return [];
+
+  // Claim markers are authoritative, because they are what a confirm actually
+  // competes for. Reading them also drops the month-boundary special case the
+  // JSONL version needed: one prefix covers the whole horizon.
+  const claims = await list({
+    prefix: SLOT_PREFIX,
+    token: env.BLOB_READ_WRITE_TOKEN,
+  });
+
+  const rows = await Promise.all(
+    claims.blobs.map(async (b) => {
+      try {
+        const res = await fetch(b.url, { cache: "no-store" });
+        if (!res.ok) return null;
+        return (await res.json()) as BookingRecord;
+      } catch {
+        return null;
+      }
+    }),
+  );
+
+  return rows
+    .filter((r): r is BookingRecord => r !== null)
+    // An absent status means active; only an explicit "cancelled" frees the
+    // slot. Nothing writes that value yet, so this is inert today and the
+    // behaviour is unchanged, but a cancel flow will not need to touch this
+    // function to work.
+    .filter((r) => r.status !== "cancelled")
+    .map((r) => r.startUtc);
 }
