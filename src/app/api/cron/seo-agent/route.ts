@@ -10,6 +10,25 @@
 // original Blob + email-with-inline-MDX flow. Removes the need for a
 // manual paste-into-repo step once the token is configured, but keeps
 // the agent working in environments without write access.
+//
+// OBSERVABILITY, added 2026-09-02 after this cron produced NOTHING for two
+// months without anyone noticing. The last autonomous draft commit was
+// 2026-07-03; the schedule is Tue and Fri, so roughly seventeen runs went by
+// in silence. The reason was structural: this handler had no try/catch at
+// all, so anything generateDraft() threw (a missing or rejected
+// ANTHROPIC_API_KEY, a rate limit, a provider timeout, or simply exceeding
+// the 120s maxDuration) killed the request before the only email in the file
+// could be sent. Success emailed. Failure said nothing, to anyone.
+//
+// Two changes fix that, and the second is the one that matters:
+//   1. every run logs one result line, so success and failure are
+//      distinguishable in the Vercel log without opening a body;
+//   2. failure EMAILS, on the same address success uses, and returns 500 so
+//      the invocation is marked failed in the cron dashboard rather than
+//      counting as a green run that happened to do nothing.
+//
+// Fail-open still holds: this route breaking never affects a visitor. It is
+// the operator who was being failed openly, which is a different thing.
 
 import { NextResponse } from "next/server";
 import { put } from "@vercel/blob";
@@ -39,6 +58,21 @@ export async function GET(req: Request) {
     }
   }
 
+  try {
+    return await run(req);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error(`[seo-agent] done: FAILED ${message}`);
+    await sendFailureNotification(message).catch((notifyErr) => {
+      // A failure to report a failure is the worst case, so it gets its own
+      // line rather than being swallowed into the same catch.
+      console.error("[seo-agent] could not send failure email:", notifyErr);
+    });
+    return NextResponse.json({ ok: false, error: "draft_failed", message }, { status: 500 });
+  }
+}
+
+async function run(req: Request) {
   // Optional topic seed for manual runs: hq sends ?topic=... so the
   // operator can draft a specific angle (e.g. a Trend Brief content
   // signal) instead of letting the agent pick. Scheduled runs omit it.
@@ -73,6 +107,7 @@ export async function GET(req: Request) {
         date,
         mdx,
       });
+      console.log(`[seo-agent] done: mode=repo slug=${draft.slug} sha=${commitResult.commitSha}`);
       return NextResponse.json({
         ok: true,
         mode: "repo",
@@ -84,13 +119,14 @@ export async function GET(req: Request) {
       });
     }
 
-    // Repo commit failed — log and fall through to blob fallback so
+    // Repo commit failed, so log it and fall through to blob fallback so
     // we don't lose the draft entirely.
     console.error("[seo-agent] repo commit failed, falling back to blob:", commitResult.error);
   }
 
   // Legacy / fallback mode: write to Blob + email the MDX inline.
   if (!env.BLOB_READ_WRITE_TOKEN) {
+    console.error("[seo-agent] done: FAILED no write target configured");
     return NextResponse.json(
       { error: "no_write_target", message: "Neither MARKETING_GH_TOKEN nor BLOB_READ_WRITE_TOKEN is set." },
       { status: 500 },
@@ -116,6 +152,7 @@ export async function GET(req: Request) {
     mdx,
   });
 
+  console.log(`[seo-agent] done: mode=blob slug=${draft.slug} key=${key}`);
   return NextResponse.json({
     ok: true,
     mode: "blob",
@@ -190,5 +227,35 @@ async function sendNotification(args: NotificationArgs): Promise<void> {
     to: NOTIFY_EMAIL,
     subject,
     text: lines.join("\n"),
+  });
+}
+
+// Sent on the same address as a success, on purpose. A separate "alerts"
+// channel is one more thing to remember to read; this lands in the inbox that
+// already expects a message from this cron twice a week, so its ABSENCE is
+// what should look wrong, not its arrival.
+async function sendFailureNotification(message: string): Promise<void> {
+  const resend = getResend();
+  if (!resend) return;
+
+  await resend.emails.send({
+    from: FROM_EMAIL,
+    to: NOTIFY_EMAIL,
+    subject: "[gravixar] SEO agent FAILED to produce a draft",
+    text: [
+      "The SEO agent cron ran and did not produce a draft.",
+      "",
+      `Error: ${message}`,
+      "",
+      "Most likely causes, in the order worth checking:",
+      "  1. ANTHROPIC_API_KEY missing, rejected, or out of quota.",
+      "  2. The run exceeded maxDuration (120s) and was killed mid-generation.",
+      "  3. MARKETING_GH_TOKEN expired, which drops the run to the blob",
+      "     fallback rather than failing, so check the mode on recent runs too.",
+      "",
+      "Vercel logs: filter for `[seo-agent] done:`. Every run emits exactly",
+      "one of those lines now, so a missing line means the function never",
+      "reached the end at all.",
+    ].join("\n"),
   });
 }
