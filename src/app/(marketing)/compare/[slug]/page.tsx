@@ -93,7 +93,7 @@ export default async function ComparePage(
           <Meta label="Competitor" value={c.meta.competitor} />
           <Meta label="Category" value={c.meta.category} />
           <div>
-            <p className="font-mono text-[11px] uppercase tracking-widest text-brand">
+            <p className="font-mono text-label uppercase text-brand">
               when to pick {c.meta.competitor}
             </p>
             <p className="mt-2 text-sm leading-relaxed text-zinc-300">
@@ -101,7 +101,7 @@ export default async function ComparePage(
             </p>
           </div>
           <div>
-            <p className="font-mono text-[11px] uppercase tracking-widest text-brand">
+            <p className="font-mono text-label uppercase text-brand">
               when to go custom
             </p>
             <p className="mt-2 text-sm leading-relaxed text-zinc-300">
@@ -111,7 +111,7 @@ export default async function ComparePage(
 
           {c.meta.linkedCaseStudy || c.meta.linkedService ? (
             <div>
-              <p className="font-mono text-[11px] uppercase tracking-widest text-brand">
+              <p className="font-mono text-label uppercase text-brand">
                 related
               </p>
               <ul className="mt-3 space-y-2 text-sm">
@@ -149,7 +149,7 @@ export default async function ComparePage(
 function Meta({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="font-mono text-[11px] uppercase tracking-widest text-brand">
+      <p className="font-mono text-label uppercase text-brand">
         {label}
       </p>
       <p className="mt-2 text-sm text-zinc-200">{value}</p>

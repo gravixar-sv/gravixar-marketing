@@ -39,7 +39,7 @@ const ORIGIN: Record<
   },
   concept: {
     label: "concept, unbuilt",
-    className: "border-line-soft text-zinc-500",
+    className: "border-line-soft text-muted",
   },
 };
 
@@ -67,7 +67,7 @@ export function OriginChip({ origin }: { origin: GraphicsItem["origin"] }) {
   const { label, className } = ORIGIN[origin];
   return (
     <span
-      className={`shrink-0 rounded-full border px-2.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.18em] ${className}`}
+      className={`shrink-0 rounded-full border px-2.5 py-0.5 font-mono text-label-xs uppercase ${className}`}
     >
       {label}
     </span>

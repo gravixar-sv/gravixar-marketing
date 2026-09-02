@@ -8,13 +8,13 @@ export function PageHeader({
   lede?: string;
 }) {
   return (
-    <header className="border-b border-zinc-900 pb-10">
+    <header className="border-b border-line-soft pb-10">
       {eyebrow ? (
-        <p className="font-mono text-xs uppercase tracking-widest text-brand">
+        <p className="font-mono text-eyebrow uppercase text-brand">
           {eyebrow}
         </p>
       ) : null}
-      <h1 className="mt-3 text-4xl font-semibold tracking-tight md:text-5xl">
+      <h1 className="mt-3 text-4xl font-semibold tracking-tight md:text-page">
         {title}
       </h1>
       {lede ? (

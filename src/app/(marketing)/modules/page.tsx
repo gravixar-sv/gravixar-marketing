@@ -42,7 +42,7 @@ export default async function ModulesIndexPage() {
 
       {Object.entries(groups).map(([category, items]) => (
         <section key={category}>
-          <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand">
+          <p className="font-mono text-label uppercase text-brand">
             {CATEGORY_LABELS[category] ?? category}
           </p>
           <div className="mt-5 grid gap-4 md:grid-cols-2">
@@ -63,7 +63,7 @@ export default async function ModulesIndexPage() {
                 <p className="mt-3 text-sm leading-relaxed text-zinc-400">
                   {m.meta.summary}
                 </p>
-                <div className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-2 font-mono text-[10px] uppercase tracking-[0.16em] text-zinc-600">
+                <div className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-2 font-mono text-label-sm uppercase text-zinc-400">
                   <span className="flex items-center gap-1.5">
                     <span className="h-1 w-1 rounded-full bg-brand" />
                     running in

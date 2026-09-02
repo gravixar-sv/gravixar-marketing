@@ -14,6 +14,7 @@ import {
   jobDescriptionHtml,
 } from "@/lib/careers";
 import { buildMetadata, SITE } from "@/lib/seo";
+import { buttonClass } from "@/components/ui/Button";
 
 // Read HQ's published snapshot; re-fetch every 5 min. New roles not pre-built
 // at deploy time render on demand (dynamicParams defaults to true).
@@ -83,7 +84,7 @@ export default async function CareerPage({
         <PageHeader eyebrow={job.team} title={job.title} lede={job.summary} />
         <a
           href="#apply"
-          className="inline-flex items-center justify-center gap-2 rounded-md bg-brand px-6 py-3 text-sm font-semibold text-black transition-colors hover:bg-brand-soft"
+          className={buttonClass({ size: "lg" })}
         >
           Apply now
           <span aria-hidden>↓</span>
@@ -109,7 +110,7 @@ export default async function CareerPage({
               <Meta label="compensation" value={job.compensation} />
             ) : null}
           </dl>
-          <p className="text-sm text-zinc-500">
+          <p className="text-sm text-muted">
             Not quite the right role but think you should be working with me?{" "}
             <Link
               href="/contact"
@@ -132,7 +133,7 @@ export default async function CareerPage({
         />
         <div className="relative z-10 grid gap-10 md:grid-cols-2 md:items-start">
           <div>
-            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand">
+            <p className="font-mono text-label uppercase text-brand">
               apply
             </p>
             <h2 className="mt-3 text-3xl font-semibold tracking-[-0.015em] md:text-4xl">
@@ -158,7 +159,7 @@ export default async function CareerPage({
 function Section({ title, items }: { title: string; items: string[] }) {
   return (
     <div>
-      <h2 className="font-mono text-[11px] uppercase tracking-widest text-brand">
+      <h2 className="font-mono text-label uppercase text-brand">
         {title}
       </h2>
       <ul className="mt-3 space-y-2 text-sm text-zinc-300">
@@ -176,7 +177,7 @@ function Section({ title, items }: { title: string; items: string[] }) {
 function Meta({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <dt className="font-mono text-[11px] uppercase tracking-widest text-brand">
+      <dt className="font-mono text-label uppercase text-brand">
         {label}
       </dt>
       <dd className="mt-1 text-sm text-zinc-300">{value}</dd>

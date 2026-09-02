@@ -63,7 +63,7 @@ const GROUPS: CapabilityGroup[] = [
 export function Capabilities() {
   return (
     <section>
-      <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand">
+      <p className="font-mono text-label uppercase text-brand">
         capabilities &amp; integrations
       </p>
       {/* Reference rank, held in lockstep with Proof's h2: unprefixed 24px at
@@ -85,7 +85,7 @@ export function Capabilities() {
           carries a bottom rule so the stack closes instead of trailing off.
           The rules take border-line rather than border-line-soft on purpose:
           with the box gone they are the only structure left, so they enclose
-          rather than merely separate. The chips keep border-zinc-800, which is
+          rather than merely separate. The chips keep border-line, which is
           a solid chip outline against their own fill, not a hairline rank. */}
       <div className="mt-10">
         {GROUPS.map((group, i) => (
@@ -96,10 +96,10 @@ export function Capabilities() {
             }`}
           >
             <div>
-              <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">
+              <p className="font-mono text-label-sm uppercase text-muted">
                 {group.label}
               </p>
-              <p className="mt-2 text-sm leading-relaxed text-zinc-500">
+              <p className="mt-2 text-sm leading-relaxed text-muted">
                 {group.note}
               </p>
             </div>
@@ -107,7 +107,7 @@ export function Capabilities() {
               {group.items.map((item) => (
                 <li
                   key={item}
-                  className="rounded-sm border border-zinc-800 bg-zinc-900/60 px-2.5 py-1 font-mono text-[11px] text-zinc-300"
+                  className="rounded-sm border border-line bg-zinc-900/60 px-2.5 py-1 font-mono text-[11px] text-zinc-300"
                 >
                   {item}
                 </li>

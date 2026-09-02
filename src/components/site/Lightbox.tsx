@@ -198,7 +198,7 @@ export function Lightbox({
         {frame ? (
           <div className="flex flex-col">
             <div className="flex items-center justify-between gap-4 border-b border-line-soft px-4 py-3">
-              <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-400">
+              <p className="font-mono text-label-sm uppercase text-zinc-400">
                 frame {(index ?? 0) + 1} / {count}
               </p>
               <div className="flex items-center gap-1.5">

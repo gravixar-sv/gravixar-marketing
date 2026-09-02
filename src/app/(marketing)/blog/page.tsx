@@ -24,7 +24,7 @@ export default async function BlogIndexPage() {
       />
 
       {posts.length === 0 ? (
-        <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-8 text-center">
+        <div className="rounded-lg border border-line bg-zinc-950 p-8 text-center">
           <p className="text-zinc-400">No posts published yet. The agent is warming up.</p>
         </div>
       ) : (
@@ -36,11 +36,11 @@ export default async function BlogIndexPage() {
                 className="group block py-6 transition-colors"
               >
                 <div className="flex items-baseline justify-between gap-3">
-                  <p className="font-mono text-[10px] uppercase tracking-widest text-zinc-500">
+                  <p className="font-mono text-label-sm uppercase text-muted">
                     {p.meta.publishedAt}
                   </p>
                   {p.meta.aiAssisted ? (
-                    <p className="font-mono text-[10px] uppercase tracking-widest text-brand-deep">
+                    <p className="font-mono text-label-sm uppercase text-brand-deep">
                       ai-assisted, human-edited
                     </p>
                   ) : null}
@@ -54,7 +54,7 @@ export default async function BlogIndexPage() {
                     {p.meta.tags.map((t) => (
                       <li
                         key={t}
-                        className="rounded-sm border border-zinc-800 bg-zinc-900 px-1.5 py-0.5 font-mono text-[10px] text-zinc-400"
+                        className="rounded-sm border border-line bg-zinc-900 px-1.5 py-0.5 font-mono text-[10px] text-zinc-400"
                       >
                         {t}
                       </li>

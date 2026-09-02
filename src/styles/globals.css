@@ -3,6 +3,11 @@
 @theme {
   --color-bg: #0a0a0a;
   --color-fg: #fafafa;
+  /* Adopted 2026-09-02. This token had ZERO consumers for four months while
+     `text-zinc-500`, which is the same #71717a, was hardcoded at 47 call
+     sites. A token nobody calls is not a token, it is a comment. All 47 now
+     read `text-muted`, so the value has one definition and changing the muted
+     tier is one edit rather than a find-and-replace. */
   --color-muted: #71717a;
 
   /* Brand coral-orange, softer than pure red, plays beside the logo's red square */
@@ -15,7 +20,26 @@
      (section frames, panel edges), --color-line-soft for anything that only
      separates inside an enclosure (row rules, list dividers). Deliberately
      unrelated to the .card-surface / .live-panel inset rings below, which are
-     elevation tiers, not hairlines. */
+     elevation tiers, not hairlines.
+
+     ADOPTION, and an honest note about it. Until 2026-09-02 this pair was 26%
+     adopted: 18 uses against 51 of `border-zinc-800` / `border-zinc-900`, so
+     the hierarchy this comment describes was enforced almost nowhere and the
+     two systems produced visually indistinguishable results. The 45 plain
+     forms were swept onto the tokens (zinc-800 composites to #27272a against
+     --color-line's #262626, zinc-900 to #18181b against --color-line-soft's
+     #1a1a1a, so the sweep is value-preserving to the eye). What that sweep
+     did NOT do is verify that each site is on the semantically correct tier;
+     it mapped by weight, which is where those sites already sat. Treat the
+     container-vs-divider rule as the intent to hold new code to, not as
+     something already audited across the site.
+
+     FIVE call sites are deliberately still on zinc, and should stay: the
+     alpha-modified forms (`border-zinc-800/80`, `border-zinc-900/80`).
+     Stacking a modifier on an already-translucent token compounds alpha, and
+     on the sticky navbar, which is `bg-[#0a0a0a]/80` with a backdrop blur, a
+     white-alpha hairline composites over whatever scrolls beneath it while a
+     dark zinc one does not. That is a behaviour difference, not a shade. */
   --color-line: rgba(250, 250, 250, 0.1);
   --color-line-soft: rgba(250, 250, 250, 0.05);
 
@@ -32,9 +56,21 @@
      flattened them into one. Each rank has exactly one consumer:
        display    -> Hero h1, the only rank-1 on the site
        statement  -> Loop h2, the second peak, deliberately near the Hero
+       page       -> the h1 of every page that is not the homepage, which is
+                     PageHeader plus the MDX h1 that long-form bodies emit
        section    -> the act-opener h2s
-       subsection -> the Problem / Approach / Outcome headings on a case study
+       subsection -> the Problem / Approach / Outcome headings on a case
+                     study, and the MDX h2 inside any long-form body
        reference  -> Proof + Capabilities h2, the quietest headings
+
+     `page` was added 2026-09-02 and is the one rank that did NOT exist when
+     this block was written. It is not a new size: PageHeader and mdx.tsx were
+     already shipping `text-4xl md:text-5xl`, an unnamed 48px sitting between
+     statement and section, on more pages than any named rank reached. The
+     claim above that each rank has exactly one consumer was true only on the
+     homepage; everywhere else the ad-hoc sizes this table exists to abolish
+     were still in place. Naming it changes nothing visually and makes the
+     table describe the whole site rather than one page of it.
      Line heights ship with each rank so a rank swap does not silently fall
      back to `normal`; call sites can still override with leading-*.
 
@@ -56,12 +92,44 @@
   --text-display--line-height: 1.04;
   --text-statement: 3.25rem;
   --text-statement--line-height: 1.06;
+  --text-page: 3rem;
+  --text-page--line-height: 1.1;
   --text-section: 2.25rem;
   --text-section--line-height: 1.12;
   --text-subsection: 1.75rem;
   --text-subsection--line-height: 1.2;
   --text-reference: 1.5rem;
   --text-reference--line-height: 1.3;
+
+  /* Label ranks, the same idea as the heading ranks above applied to the mono
+     uppercase eyebrow, which is the MOST repeated element on the site: 108
+     call sites, four times more than every heading combined. Before these
+     existed it carried NINE uncoordinated variants, five sizes crossed with
+     three trackings, and the split was visible rather than subtle: 41 of the
+     108 shipped `tracking-widest` (0.1em) against 66 at 0.18em, nearly double.
+     That is the exact failure the heading block below describes and fixes, on
+     the element where it happens most often, so the fix is the same one.
+
+     Named by job, like the heading ranks:
+       eyebrow   -> the page or panel eyebrow, one per surface (PageHeader,
+                    the form success headings, the /contact section heads)
+       label     -> section and card labels
+       label-sm  -> inline meta, card footer rows, nav counters
+       label-xs  -> the quietest rank, the stat-card labels
+
+     Tracking is deliberately CONSTANT at 0.18em across all four rather than
+     graduated by size. These are one register, not four, and 0.18em is both
+     the plurality (66 of 108) and the value the 11px rank already used at 24
+     call sites, so it is the settled look rather than a new one. Size alone
+     separates the ranks; colour and weight do the rest at the call site. */
+  --text-eyebrow: 0.75rem;
+  --text-eyebrow--letter-spacing: 0.18em;
+  --text-label: 0.6875rem;
+  --text-label--letter-spacing: 0.18em;
+  --text-label-sm: 0.625rem;
+  --text-label-sm--letter-spacing: 0.18em;
+  --text-label-xs: 0.5625rem;
+  --text-label-xs--letter-spacing: 0.18em;
 
   /* Motion: strong custom curves. Never raw linear / ease-in-out on UI. */
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);

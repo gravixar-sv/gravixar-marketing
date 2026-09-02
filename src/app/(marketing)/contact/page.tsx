@@ -22,7 +22,7 @@ export default function ContactPage() {
 
       <div className="grid gap-10 md:grid-cols-2">
         <section>
-          <h2 className="font-mono text-xs uppercase tracking-widest text-brand">
+          <h2 className="font-mono text-eyebrow uppercase text-brand">
             send a note
           </h2>
           <p className="mt-2 text-sm text-zinc-400">
@@ -35,7 +35,7 @@ export default function ContactPage() {
         </section>
 
         <section>
-          <h2 className="font-mono text-xs uppercase tracking-widest text-brand">
+          <h2 className="font-mono text-eyebrow uppercase text-brand">
             book a 30-min call
           </h2>
           <p className="mt-2 text-sm text-zinc-400">

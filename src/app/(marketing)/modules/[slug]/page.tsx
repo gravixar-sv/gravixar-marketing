@@ -62,7 +62,7 @@ export default async function ModulePage(
 
         <aside className="space-y-8">
           <div>
-            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand">
+            <p className="font-mono text-label uppercase text-brand">
               running in
             </p>
             <ul className="mt-3 space-y-2 text-sm">
@@ -85,7 +85,7 @@ export default async function ModulePage(
 
           {m.meta.stack.length > 0 ? (
             <div>
-              <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand">
+              <p className="font-mono text-label uppercase text-brand">
                 stack
               </p>
               <ul className="mt-3 flex flex-wrap gap-1.5">
@@ -102,7 +102,7 @@ export default async function ModulePage(
           ) : null}
 
           <div>
-            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand">
+            <p className="font-mono text-label uppercase text-brand">
               browse
             </p>
             <Link

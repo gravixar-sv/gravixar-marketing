@@ -6,7 +6,7 @@ export function Proof({ meta, body }: { meta: HomeBlock; body: string }) {
   return (
     <section>
       {meta.eyebrow ? (
-        <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand">
+        <p className="font-mono text-label uppercase text-brand">
           {meta.eyebrow}
         </p>
       ) : null}

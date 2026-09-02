@@ -86,14 +86,14 @@ export default async function GraphicsItemPage(
           and flattening provenance into that string would render it as a
           footnote. It is the header's second fact, so it sits on the same row as
           kind and year. Weights match PageHeader exactly. */}
-      <header className="border-b border-zinc-900 pb-10">
+      <header className="border-b border-line-soft pb-10">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-          <p className="font-mono text-xs uppercase tracking-widest text-brand">
+          <p className="font-mono text-eyebrow uppercase text-brand">
             {KIND_LABELS[g.meta.kind]} · {g.meta.year}
           </p>
           <OriginChip origin={g.meta.origin} />
         </div>
-        <h1 className="mt-3 text-4xl font-semibold tracking-tight md:text-5xl">
+        <h1 className="mt-3 text-4xl font-semibold tracking-tight md:text-page">
           {g.meta.title}
         </h1>
         <p className="mt-4 max-w-2xl text-lg leading-relaxed text-zinc-400">
@@ -192,7 +192,7 @@ export default async function GraphicsItemPage(
           <aside className="grid gap-8 border-t border-line-soft pt-10 md:grid-cols-3">
             {g.meta.tools.length > 0 ? (
               <div>
-                <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand">
+                <p className="font-mono text-label uppercase text-brand">
                   tools
                 </p>
                 <ul className="mt-3 flex flex-wrap gap-1.5">
@@ -209,7 +209,7 @@ export default async function GraphicsItemPage(
             ) : null}
             {g.meta.processNote ? (
               <div className="md:col-span-2">
-                <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand">
+                <p className="font-mono text-label uppercase text-brand">
                   process
                 </p>
                 <p className="mt-3 text-sm leading-relaxed text-zinc-300">
@@ -224,7 +224,7 @@ export default async function GraphicsItemPage(
       <div>
         <Link
           href="/graphics"
-          className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-400 transition-colors hover:text-brand"
+          className="font-mono text-label-sm uppercase text-zinc-400 transition-colors hover:text-brand"
         >
           ← Back to the showcase
         </Link>

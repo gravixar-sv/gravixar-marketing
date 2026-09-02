@@ -13,6 +13,8 @@ import {
   List,
   X,
 } from "@phosphor-icons/react";
+import { buttonClass } from "@/components/ui/Button";
+import { cn } from "@/lib/cn";
 
 // Top-level entries: the primary buyer flow. Three items, plus the
 // "More" dropdown for secondary discovery, plus the persistent CTA.
@@ -100,7 +102,7 @@ export function Navbar() {
             priority
             className="h-7 w-auto md:h-8"
           />
-          <span className="hidden font-mono text-[10px] uppercase tracking-[0.18em] text-brand md:inline">
+          <span className="hidden font-mono text-label-sm uppercase text-brand md:inline">
             ai-ops platform
           </span>
         </Link>
@@ -160,7 +162,7 @@ export function Navbar() {
                       <span className="text-sm font-medium text-zinc-100">
                         {label}
                       </span>
-                      <span className="text-xs leading-snug text-zinc-500">
+                      <span className="text-xs leading-snug text-muted">
                         {description}
                       </span>
                     </span>
@@ -194,13 +196,13 @@ export function Navbar() {
         <div className="flex items-center gap-3">
           <Link
             href="/early-access"
-            className="hidden rounded-md border border-zinc-700 px-3 py-1.5 text-sm text-zinc-200 transition-colors hover:border-brand hover:text-brand-soft md:inline-block"
+            className={cn("hidden md:inline-flex", buttonClass({ variant: "ghost", size: "sm" }))}
           >
             Get early access
           </Link>
           <Link
             href="/contact"
-            className="hidden rounded-md bg-brand px-3 py-1.5 text-sm font-medium text-[#0a0a0a] transition-colors hover:bg-brand-soft md:inline-block"
+            className={cn("hidden md:inline-flex", buttonClass({ size: "sm" }))}
           >
             Book a call
           </Link>
@@ -209,7 +211,7 @@ export function Navbar() {
             onClick={() => setMobileOpen((v) => !v)}
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileOpen}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-zinc-800 text-zinc-300 transition-colors hover:border-brand hover:text-brand-soft md:hidden"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-line text-zinc-300 transition-colors hover:border-brand hover:text-brand-soft md:hidden"
           >
             {mobileOpen ? <X size={18} /> : <List size={18} />}
           </button>
@@ -241,7 +243,7 @@ export function Navbar() {
                 <Icon size={16} className="mt-1 text-brand" />
                 <span className="flex flex-col">
                   <span className="text-sm text-zinc-200">{label}</span>
-                  <span className="text-xs text-zinc-500">{description}</span>
+                  <span className="text-xs text-muted">{description}</span>
                 </span>
               </Link>
             ))}
@@ -262,14 +264,14 @@ export function Navbar() {
             <Link
               href="/early-access"
               onClick={() => setMobileOpen(false)}
-              className="mt-2 block rounded-md border border-zinc-700 px-3 py-2.5 text-center text-sm text-zinc-200 transition-colors hover:border-brand hover:text-brand-soft"
+              className={cn("mt-2 w-full", buttonClass({ variant: "ghost", size: "md" }))}
             >
               Get early access
             </Link>
             <Link
               href="/contact"
               onClick={() => setMobileOpen(false)}
-              className="mt-2 block rounded-md bg-brand px-3 py-2.5 text-center text-sm font-medium text-[#0a0a0a] transition-colors hover:bg-brand-soft"
+              className={cn("mt-2 w-full", buttonClass({ size: "md" }))}
             >
               Book a call
             </Link>

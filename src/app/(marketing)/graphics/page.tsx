@@ -118,13 +118,13 @@ export default async function GraphicsIndexPage() {
             <div className="mt-7 flex flex-wrap gap-x-6 gap-y-3">
               <Link
                 href="/services/brand-visuals"
-                className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-400 transition-colors hover:text-brand"
+                className="font-mono text-label-sm uppercase text-zinc-400 transition-colors hover:text-brand"
               >
                 Brand and visuals, the scope →
               </Link>
               <Link
                 href="/work"
-                className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-400 transition-colors hover:text-brand"
+                className="font-mono text-label-sm uppercase text-zinc-400 transition-colors hover:text-brand"
               >
                 Case studies →
               </Link>
@@ -135,7 +135,7 @@ export default async function GraphicsIndexPage() {
         <div>
           {/* Counted from the loader, so the page cannot oversell itself as the
               list grows or thins. */}
-          <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-2 font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600">
+          <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-2 font-mono text-label-sm uppercase text-zinc-400">
             <p>
               {items.length} {items.length === 1 ? "piece" : "pieces"} published
             </p>
@@ -222,7 +222,7 @@ export default async function GraphicsIndexPage() {
                     </div>
                     <div className="p-5">
                       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-                        <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500 group-hover:text-brand">
+                        <p className="font-mono text-label-sm uppercase text-muted group-hover:text-brand">
                           {KIND_LABELS[g.meta.kind]} · {g.meta.year}
                         </p>
                         <OriginChip origin={g.meta.origin} />
