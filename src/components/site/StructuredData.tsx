@@ -23,6 +23,13 @@ function ScriptLd({ data, id }: { data: AnyJson; id: string }) {
 const PERSON_ID = `${SITE.url}/about#person`;
 const ORG_ID = `${SITE.url}#organization`;
 
+// Google wants an ABSOLUTE url on `image`, and covers arrive in two shapes:
+// a repo-relative path like /covers/x.png, or the dynamic card endpoint
+// /api/og?title=..., which is also relative. Neither is usable as-is.
+function absolute(src: string): string {
+  return /^https?:\/\//.test(src) ? src : new URL(src, SITE.url).toString();
+}
+
 // EVERY entry here must link BACK to gravixar.com. An unreciprocated sameAs is
 // an unverifiable assertion, which is the same defect class as an unsourced
 // number, so the bar for adding one is the same: go and check.
@@ -144,12 +151,14 @@ export function StructuredDataCaseStudy({
   url,
   publishedAt,
   author,
+  image,
 }: {
   title: string;
   description: string;
   url: string;
   publishedAt: string;
   author: string;
+  image?: string;
 }) {
   const article = {
     "@context": "https://schema.org",
@@ -157,6 +166,10 @@ export function StructuredDataCaseStudy({
     headline: title,
     description,
     url,
+    // Without `image` an Article is not eligible for a rich result carrying a
+    // thumbnail. Every case study already REQUIRES a cover in frontmatter, so
+    // the asset existed and was simply never passed through to the schema.
+    ...(image ? { image: [absolute(image)] } : {}),
     datePublished: publishedAt,
     author: { "@type": "Person", name: author },
     publisher: {
@@ -215,6 +228,7 @@ export function StructuredDataBlogPost({
   publishedAt,
   updatedAt,
   author,
+  image,
 }: {
   title: string;
   description: string;
@@ -222,6 +236,7 @@ export function StructuredDataBlogPost({
   publishedAt: string;
   updatedAt?: string;
   author: string;
+  image?: string;
 }) {
   const post = {
     "@context": "https://schema.org",
@@ -229,6 +244,10 @@ export function StructuredDataBlogPost({
     headline: title,
     description,
     url,
+    // Same reason as Article above. A blog post's cover is optional in
+    // frontmatter, so the call site falls back to the /api/og card, which is
+    // the image the page's own OpenGraph tag already points at.
+    ...(image ? { image: [absolute(image)] } : {}),
     datePublished: publishedAt,
     dateModified: updatedAt ?? publishedAt,
     author: { "@type": "Person", name: author },

@@ -3,6 +3,7 @@ title: "Daily security-watch cron"
 slug: "security-watch-cron"
 category: "audit"
 summary: "Sweeps the audit log nightly for anomalies (mass-signup spikes, DELETE bursts, lockout cascades, classifier blackouts, stuck inquiries) and emails admins when something trips. Quiet when nothing is wrong."
+metaDescription: "Nightly sweep of the audit log for signup spikes, DELETE bursts and lockout cascades. It emails admins when something trips, silent otherwise."
 runningIn:
   - { client: "Agency portal", productSlug: "bs-hub" }
 stack:

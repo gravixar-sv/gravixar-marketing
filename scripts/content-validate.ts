@@ -9,6 +9,11 @@
 // Also validates content/data/system-stats.json, which is not an MDX
 // section, and enforces a staleness gate on it: numbers on the homepage
 // expire, so an un-recounted stat warns at 45 days and fails at 90.
+//
+// And enforces the em-dash ban, which until 2026-09-02 lived only in
+// CLAUDE.md and was therefore enforced by whoever remembered it. It leaked:
+// 34 em-dashes were live across 8 pages on the day this check was written.
+// A rule a build cannot check is a preference.
 
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -124,6 +129,63 @@ async function validateSystemStats(): Promise<number> {
   return expired > 0 ? 1 : 0;
 }
 
+// EM-DASH BAN. The rule is "no em-dashes in marketing copy", and the reason is
+// that it reads as an LLM tell. It applies to frontmatter and body alike,
+// because both are published: a summary becomes a meta description, a title
+// becomes a <title>.
+//
+// U+2014 only. The en-dash (U+2013) is deliberately NOT banned; it has
+// legitimate uses in ranges ("4-10 weeks" is usually written with a hyphen
+// here, but a date range is not the tell the rule is aimed at).
+//
+// SCOPE NOTE, worth keeping: this covers content/ only. The two /careers
+// pages are the worst offenders on the live site and are fed from a snapshot
+// HQ publishes, so they never pass through this file. Fixing those means
+// fixing them in HQ, or checking the snapshot at the ingest boundary in
+// src/lib/careers.ts. Neither is in scope here, and pretending otherwise by
+// only checking what is easy to reach would make this look complete when it
+// is not.
+// Written as an escape rather than the literal character on purpose, so this
+// file can state the rule without breaking its own rule.
+const EM_DASH = "\u2014";
+
+function emDashHits(raw: string): { line: number; text: string }[] {
+  const hits: { line: number; text: string }[] = [];
+  raw.split(/\r?\n/).forEach((line, i) => {
+    if (line.includes(EM_DASH)) {
+      hits.push({ line: i + 1, text: line.trim().slice(0, 120) });
+    }
+  });
+  return hits;
+}
+
+// PRICED CLAIMS ABOUT A COMPETITOR NEED A SOURCE. Scoped to content/compare,
+// because that is where this site talks about other people's pricing and
+// where it got a figure wrong: productive-io-vs-custom.mdx published a
+// competitor cost two to three times the real published rate until
+// 2026-09-01, and no build step could have caught it.
+//
+// The gate is deliberately blunt. It does not try to map each figure to a
+// specific source entry, because a regex cannot tell which of five dollar
+// amounts a given URL backs. It asserts the weaker but checkable thing: if
+// this page states a price at all, it must carry at least one source with a
+// URL and a verifiedAt. That turns "did anyone check this" from a question
+// a reviewer has to remember into one the build answers.
+function comparePricingHasSource(
+  rel: string,
+  raw: string,
+  data: Record<string, unknown>,
+): string[] {
+  if (!rel.replace(/\\/g, "/").startsWith("compare/")) return [];
+  const priced = /\x24\d/.test(raw);
+  if (!priced) return [];
+  const sources = data.sources;
+  if (Array.isArray(sources) && sources.length > 0) return [];
+  return [
+    "states a price but has no `sources` entry. Add sources: [{ claim, url, verifiedAt }] naming where the figure was read.",
+  ];
+}
+
 async function main() {
   let total = 0;
   let failures = 0;
@@ -136,7 +198,28 @@ async function main() {
       if (inDrafts(rel)) continue;
       total++;
       const raw = await fs.readFile(file, "utf-8");
+
+      const dashes = emDashHits(raw);
+      if (dashes.length > 0) {
+        failures++;
+        console.error(`
+[${label}] ${rel}`);
+        for (const d of dashes) {
+          console.error(`  - line ${d.line}: em-dash. Use a comma, a period or a colon.`);
+          console.error(`      ${d.text}`);
+        }
+      }
+
       const { data } = matter(raw);
+
+      const priceIssues = comparePricingHasSource(rel, raw, data);
+      if (priceIssues.length > 0) {
+        failures++;
+        console.error(`
+[${label}] ${rel}`);
+        for (const issue of priceIssues) console.error(`  - ${issue}`);
+      }
+
       const result = schema.safeParse(data);
       if (!result.success) {
         failures++;

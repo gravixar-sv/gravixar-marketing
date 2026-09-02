@@ -37,7 +37,7 @@ export async function generateMetadata(
     // summary, not "kind · year": the description is what a search result and a
     // share card read out, and a taxonomy pair says nothing about the piece.
     title: g.meta.title,
-    description: g.meta.summary,
+    description: g.meta.metaDescription ?? g.meta.summary,
     path: `/graphics/${slug}`,
     // No ogImage: fall through to the branded /api/og card, as every case
     // study does. A real cover is the wrong share image here. One is WebP,

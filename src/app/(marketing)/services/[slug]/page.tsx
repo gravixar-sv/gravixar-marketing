@@ -27,7 +27,7 @@ export async function generateMetadata(
   if (!s) return { title: "Not found" };
   return buildMetadata({
     title: s.meta.title,
-    description: s.meta.tagline,
+    description: s.meta.metaDescription ?? s.meta.tagline,
     path: `/services/${slug}`,
   });
 }

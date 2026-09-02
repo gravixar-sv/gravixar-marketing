@@ -9,7 +9,7 @@ export const revalidate = 3600;
 export const metadata: Metadata = buildMetadata({
   title: "Live demos: five working apps you can click through",
   description:
-    "demo.gravixar.com runs five live scenes, one per buyer: a creative-agency operating system, a supervised AI-agent console, a solo-founder cockpit, a brand agent for DTC, and a medical billing and credentialing portal. Real apps with sample data, no signup.",
+    "Five live scenes at demo.gravixar.com, one per buyer: agency operating system, AI-agent console, founder cockpit, brand agent, billing portal. No signup.",
   path: "/demos",
 });
 

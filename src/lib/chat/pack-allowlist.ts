@@ -52,17 +52,40 @@ export const PACK_READ: Record<PackKind, readonly string[]> = {
  * Considered and deliberately withheld. Each one has a reason, because a
  * silent exclusion is indistinguishable from an oversight six months later.
  */
+// metaDescription is EXCLUDED on every kind that has one, for one reason that
+// applies identically across all of them: it is a lossy compression of the
+// lede field sitting directly above it, written to survive truncation in a
+// search result row. Bosun already reads the full lede (summary / excerpt /
+// tagline), so promoting this would hand it a second, shorter, worse phrasing
+// of a fact it already has, and give it two strings to stitch together where
+// one is more accurate. Withheld as redundant rather than as unsafe: it
+// carries no claim the page does not already make, by schema contract.
+//
+// `sources` is excluded for a different reason. It is provenance FOR the
+// page's own priced claims: a URL and a date that let a reader check a figure
+// where it sits. A chat answer reciting a competitor's price list, detached
+// from the argument and the verifiedAt that bounds it, is exactly how a stale
+// number gets repeated as current.
 export const PACK_EXCLUDED: Record<PackKind, readonly string[]> = {
   // proof/order/updatedAt: sort keys and a citation list. Bosun already links
   // to the service page, so the citation list would only give it more strings
   // to stitch together.
-  service: ["proof", "order", "updatedAt"],
-  compare: ["competitorUrl", "linkedCaseStudy", "linkedService", "publishedAt", "updatedAt", "draft"],
+  service: ["proof", "order", "updatedAt", "metaDescription"],
+  compare: [
+    "competitorUrl",
+    "linkedCaseStudy",
+    "linkedService",
+    "publishedAt",
+    "updatedAt",
+    "draft",
+    "metaDescription",
+    "sources",
+  ],
   // runningIn carries a `client` string per entry. The module pages publish it,
   // but a chat answer that volunteers who runs what is a different act from a
   // reader finding it on a page, and clause 6 says the case study `client:`
   // line is the ceiling. Withheld.
-  module: ["runningIn", "publishedAt", "updatedAt", "order", "draft"],
+  module: ["runningIn", "publishedAt", "updatedAt", "order", "draft", "metaDescription"],
   // cover is image alt text. Alt text has carried identifying detail before,
   // and Bosun has no reason to describe pictures.
   // demo: a link for the page to render. Bosun already routes people to /work
@@ -73,7 +96,7 @@ export const PACK_EXCLUDED: Record<PackKind, readonly string[]> = {
   // chat answer re-serving a named client's words in whatever context a
   // visitor conjures is a different act, same instinct as module runningIn,
   // and clause 6 keeps the client: line as the ceiling.
-  caseStudy: ["cover", "publishedAt", "draft", "demo", "testimonial"],
+  caseStudy: ["cover", "publishedAt", "draft", "demo", "testimonial", "metaDescription"],
   page: ["eyebrow"],
 };
 

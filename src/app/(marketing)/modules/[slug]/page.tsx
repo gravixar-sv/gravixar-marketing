@@ -24,7 +24,7 @@ export async function generateMetadata(
   if (!m) return { title: "Not found" };
   return buildMetadata({
     title: `${m.meta.title}, module`,
-    description: m.meta.summary,
+    description: m.meta.metaDescription ?? m.meta.summary,
     path: `/modules/${slug}`,
     ogKind: "module",
   });

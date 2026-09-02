@@ -19,7 +19,7 @@ import systemStats from "../../../../content/data/system-stats.json";
 export const metadata: Metadata = buildMetadata({
   title: "Early access to the module library",
   description:
-    "Modules from the library run in production inside real builds today. A hosted account where you rent one by the month does not exist yet. Join the list to hear when it does.",
+    "The modules run in production inside real builds today. A hosted account you rent by the month does not exist yet. Join the list to hear when it does.",
   path: "/early-access",
 });
 
