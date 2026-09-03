@@ -25,11 +25,11 @@ export const RADAR_QUERIES = [
 export const signalSchema = z.object({
   signal: z
     .string()
-    .describe("What changed — one concrete line, no hedging."),
+    .describe("What changed, in one concrete line, no hedging."),
   why: z
     .string()
     .describe(
-      "Why it matters to Gravixar — tied to a specific service or segment (operations infrastructure, AI tooling, brand & visuals, or recurring revenue model).",
+      "Why it matters to Gravixar, tied to a specific service or segment (operations infrastructure, AI tooling, brand & visuals, or recurring revenue model).",
     ),
   action: z
     .enum(["content-angle", "offer-pricing", "watch"])
@@ -48,7 +48,7 @@ export const briefSchema = z.object({
     .array(signalSchema)
     .min(2)
     .max(6)
-    .describe("Ranked by relevance to Gravixar — most actionable first."),
+    .describe("Ranked by relevance to Gravixar, most actionable first."),
   summary: z
     .string()
     .describe(
@@ -82,7 +82,7 @@ Gravixar's service lines for context:
 1. Operations infrastructure: client portals, delivery governance, approval flows, audit trails.
 2. AI tooling: agents, intake wizards, content pipelines, always human-in-the-loop.
 3. Brand & visuals: AI-generated brand assets, motion review, Amazon A+ workflows.
-4. Recurring retainer: Support/Evolution on every build — the target revenue model.
+4. Recurring retainer: Support/Evolution on every build, the target revenue model.
 `;
 
 export async function generateBrief({
@@ -101,7 +101,7 @@ ${RADAR_QUERIES.map((q, i) => `${i + 1}. ${q}`).join("\n")}
 ${
   previousSummary
     ? `Previous run summary (avoid repeating signals unless materially updated):\n${previousSummary}\n`
-    : "First run — no prior summary to avoid."
+    : "First run, no prior summary to avoid."
 }
 
 Produce a ranked Trend Brief with 3-5 signals. Most actionable to Gravixar goes first.
@@ -128,7 +128,7 @@ export function briefToMarkdown(brief: TrendBrief, runDate: string): string {
   const signals = brief.signals
     .map(
       (s, i) => `
-## Signal ${i + 1} — ${s.action === "content-angle" ? "Content angle" : s.action === "offer-pricing" ? "Offer / pricing" : "Watch"}
+## Signal ${i + 1}: ${s.action === "content-angle" ? "Content angle" : s.action === "offer-pricing" ? "Offer / pricing" : "Watch"}
 
 **${s.signal}**
 
@@ -144,7 +144,7 @@ runDate: "${runDate}"
 signalCount: ${brief.signals.length}
 ---
 
-# Trend Brief — ${runDate}
+# Trend Brief ${runDate}
 
 ${brief.summary}
 

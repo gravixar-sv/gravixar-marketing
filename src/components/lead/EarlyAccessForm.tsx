@@ -113,7 +113,7 @@ export function EarlyAccessForm() {
         <Select
           label="Team size"
           name="teamSize"
-          placeholder="—"
+          placeholder="Select one"
           options={teamSizeOptions.map((v) => ({
             value: v,
             label: TEAM_SIZE_LABELS[v],
@@ -122,7 +122,7 @@ export function EarlyAccessForm() {
         <Select
           label="Timeline"
           name="timeline"
-          placeholder="—"
+          placeholder="Select one"
           options={timelineOptions.map((v) => ({
             value: v,
             label: TIMELINE_LABELS[v],

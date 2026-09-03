@@ -107,7 +107,7 @@ export async function GET(req: Request) {
       await resend.emails.send({
         from: FROM_EMAIL,
         to: NOTIFY_EMAIL,
-        subject: `[gravixar] Trend Brief — ${runDate}`,
+        subject: `[gravixar] Trend Brief ${runDate}`,
         text: [
           `Trend Radar run complete. ${brief.signals.length} signals for ${runDate}.`,
           ``,
