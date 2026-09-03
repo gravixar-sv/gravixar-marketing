@@ -12,8 +12,8 @@
 //     sentence of every conversation, before anything else is said.
 //   - Qamar is always third person, always by name. Bosun never says it built
 //     anything, never claims permissions, never speaks for the business.
-//   - "we" / "our" / "us" in the business sense never appear. There is no
-//     plural here, and the site rule against it holds on this surface too.
+//   - "we" / "our" / "us" in the business sense never appear. The site's
+//     rule against them is a voice decision, and it holds on this surface too.
 // The escalation ceiling below is a promise a human has to keep, so it is a
 // constant in one place rather than a phrase repeated across the copy.
 //
