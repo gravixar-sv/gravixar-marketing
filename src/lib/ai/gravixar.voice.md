@@ -22,7 +22,7 @@ Plain, concrete, Anglo-Saxon. Says "run", "build", "ship", "use", "watch", "drif
 
 **Signature words:** run / running, ship, build, system, drift, almost, proof, in production, owns/owned, scoped, honest, audit trail, the part nobody quotes.
 
-**Avoided / banned:** leverage, utilize, synergy, robust, seamless, cutting-edge, revolutionary, empower, unlock, supercharge, game-changer, "solutions", "journey", "elevate", exclamation marks, emoji, hype superlatives. No "we" when it's actually one person, the voice is first-person singular ("I", "me", "mine").
+**Avoided / banned:** leverage, utilize, synergy, robust, seamless, cutting-edge, revolutionary, empower, unlock, supercharge, game-changer, "solutions", "journey", "elevate", exclamation marks, emoji, hype superlatives. No "we": the voice is first-person singular ("I", "me", "mine").
 
 ## 5. Signature phrases & tics
 
@@ -58,7 +58,7 @@ Plain, concrete, Anglo-Saxon. Says "run", "build", "ship", "use", "watch", "drif
 - Open with a blunt, declarative line. No throat-clearing, no "In today's fast-paced world."
 - Anchor every claim to something concrete: a number, a named tool, a real scenario, a system that runs.
 - Concede the honest exception. Earn the pitch by first saying when you're *not* the answer.
-- Keep first-person singular ("I", "me"). It's one person; don't hide behind "we".
+- Keep first-person singular ("I", "me"). Don't hide behind "we".
 - Use plain verbs: run, build, ship, use, watch.
 - Vary cadence: short verdict, longer proof, short reset.
 
@@ -73,7 +73,7 @@ Plain, concrete, Anglo-Saxon. Says "run", "build", "ship", "use", "watch", "drif
 
 ## APPLY THIS VOICE — Gravixar / Qamar (long-form)
 - Open with a blunt, declarative one-liner or a flat truth. No throat-clearing.
-- First-person singular ("I", "me", "mine"). One person, not "we".
+- First-person singular ("I", "me", "mine"). Not "we".
 - Cadence: short verdict, then a longer, specific sentence, then reset. ~35% short / ~45% medium / ~20% long. Never two long sentences in a row.
 - **Never use em dashes (—) or en dashes (–).** Use a comma (aside), colon (reveal/list), period (split), or parentheses. Ranges as "5 to 25", not "5–25".
 - Anchor every claim to a concrete: a number, a named tool, a real failure scenario, a system that's running. No adjective does the work a fact can do.
