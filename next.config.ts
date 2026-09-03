@@ -83,6 +83,15 @@ const nextConfig: NextConfig = {
         destination: "https://gravixar.com/:path*",
         permanent: true,
       },
+      // Retired 2026-09-02. /work/healthcare-billing-credentialing and
+      // /work/beeline were the SAME engagement published as two clients,
+      // carrying identical figures (250 clients, 2,042 panels, 83,665 OIG
+      // rows). Operator confirmed they are both Beeline. The two pages were
+      // not contradictory, they described the same boundary from two sides,
+      // so the surviving page absorbs the no-PHI posture rather than dropping
+      // it. 301 because the retired URL has been live and indexed since
+      // 2026-06-26.
+      { source: "/work/healthcare-billing-credentialing", destination: "/work/beeline", permanent: true },
       { source: "/services/operations", destination: "/services/operations-infrastructure", permanent: true },
       { source: "/services/ai", destination: "/services/ai-tooling", permanent: true },
       { source: "/services/brand", destination: "/services/brand-visuals", permanent: true },
