@@ -144,7 +144,7 @@ export async function publishUrls(
   const sa = loadCredentials();
   if (!sa) {
     console.warn(
-      "[indexing] GOOGLE_INDEXING_CREDENTIALS unset/invalid — skipping.",
+      "[indexing] GOOGLE_INDEXING_CREDENTIALS unset/invalid, skipping.",
     );
     return [];
   }

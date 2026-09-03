@@ -1,4 +1,4 @@
-# Voice DNA — Gravixar / Qamar
+# Voice DNA: Gravixar / Qamar
 
 > Captured: 2026-05-30 · Register(s): long-form (site copy, blog, service pages)
 > Sources: About page, "Agency ops is not a software problem" blog post, Fractional AI Ops Lead service page, homepage hero (gravixar.com)
@@ -71,7 +71,7 @@ Plain, concrete, Anglo-Saxon. Says "run", "build", "ship", "use", "watch", "drif
 
 ---
 
-## APPLY THIS VOICE — Gravixar / Qamar (long-form)
+## APPLY THIS VOICE: Gravixar / Qamar (long-form)
 - Open with a blunt, declarative one-liner or a flat truth. No throat-clearing.
 - First-person singular ("I", "me", "mine"). Not "we".
 - Cadence: short verdict, then a longer, specific sentence, then reset. ~35% short / ~45% medium / ~20% long. Never two long sentences in a row.

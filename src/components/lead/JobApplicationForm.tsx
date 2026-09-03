@@ -227,7 +227,7 @@ export function JobApplicationForm({
           Links (optional)
         </span>
         <p className="mt-1 text-xs text-zinc-600">
-          LinkedIn, portfolio, online CV, GitHub, socials — paste any, no
+          LinkedIn, portfolio, online CV, GitHub, socials. Paste any, no
           https:// needed.
         </p>
         <div className="mt-2 space-y-2">
@@ -266,7 +266,7 @@ export function JobApplicationForm({
         ) : null}
       </div>
       <FileField
-        label="CV — PDF or Word, optional (max 4 MB)"
+        label="CV, PDF or Word, optional (max 4 MB)"
         name="cv"
         accept={CV_ACCEPT}
       />

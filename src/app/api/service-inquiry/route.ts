@@ -69,7 +69,7 @@ export async function POST(req: Request) {
         from: FROM_EMAIL,
         to: NOTIFY_EMAIL,
         replyTo: record.email,
-        subject: `Service inquiry — ${record.sourcePage} — ${record.name}${record.company ? ` (${record.company})` : ""}`,
+        subject: `Service inquiry: ${record.sourcePage}, ${record.name}${record.company ? ` (${record.company})` : ""}`,
         react: ServiceInquiryEmail({
           name: record.name,
           email: record.email,

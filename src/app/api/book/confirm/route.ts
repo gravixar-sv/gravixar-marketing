@@ -105,7 +105,7 @@ export async function POST(req: Request) {
     name,
     email,
     meetUrl: link,
-    summary: "Gravixar — project call with Qamar",
+    summary: "Gravixar: project call with Qamar",
     description: `30-minute call.\nJoin: ${link}\n${service ? `Topic: ${service}\n` : ""}${note ? `Notes: ${note}` : ""}`,
   });
   const icsAttachment = [
@@ -128,7 +128,7 @@ export async function POST(req: Request) {
           ``,
           `${service ? `Topic: ${service}\n` : ""}The calendar invite is attached. See you then.`,
           ``,
-          `— Gravixar`,
+          `Gravixar`,
         ].join("\n"),
         attachments: icsAttachment,
       });
@@ -141,8 +141,8 @@ export async function POST(req: Request) {
           `Name:   ${name}`,
           `Email:  ${email}`,
           `When:   ${whenPretty}`,
-          `Service:${service ?? "—"}`,
-          `Note:   ${note ?? "—"}`,
+          `Service:${service ?? "not specified"}`,
+          `Note:   ${note ?? "none"}`,
           `Meet:   ${link}`,
         ].join("\n"),
         attachments: icsAttachment,
