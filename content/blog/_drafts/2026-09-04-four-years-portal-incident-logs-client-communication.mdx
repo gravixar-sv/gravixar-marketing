@@ -1,0 +1,65 @@
+---
+title: "What Four Years of Portal Incident Logs Actually Taught Me About Client Communication"
+slug: "four-years-portal-incident-logs-client-communication"
+excerpt: "I have kept a running log of every delivery failure in my agency portal since 2021. The pattern that shows up most is not a software bug. It is a communication gap that the software made invisible."
+publishedAt: "2026-09-04"
+tags: ["agency-ops", "client-portals", "ops-infrastructure"]
+draft: true
+aiAssisted: true
+---
+
+## The Log Started as a Debugging Habit
+
+In early 2021 I added a simple incident log to the agency portal I manage. Plain table, five columns: date, project, what failed, how I found out, how I fixed it. I expected it to surface software bugs. After four years and roughly 340 entries, the bugs are a minority.
+
+About 60% of entries trace back to a communication problem — not a broken webhook, not a missing file, not a misconfigured status field. A message sent to the wrong person. A status that read "delivered" when the client meant "delivered but not reviewed." A deadline clarified in a Slack thread that never made it into the portal.
+
+That gap between what the system recorded and what the client understood is where most of my actual problems lived.
+
+## What "Delivered" Actually Means Depends on Who You Ask
+
+The portal uses a handful of status labels: Draft, In Review, Delivered, Approved, Archived. I designed those labels. They made sense to me.
+
+About eighteen months in, I started noticing that clients would mark something Approved before they had actually reviewed it. They were using Approved the way you click "I agree" on a terms page — to move past the step, not to signal genuine sign-off.
+
+I also noticed the reverse: clients who sat on Delivered for two weeks because they thought Delivered meant "waiting on something from us," not "this is yours to review now."
+
+The status labels were doing real work inside my internal workflow. They were doing almost no useful work for the client. The portal looked like a communication tool. It was actually an internal tracker that clients had view access to.
+
+## The Fix Was Not a UI Change
+
+My first instinct was to rename the statuses. More descriptive labels, tooltip explanations, maybe a color-coded guide in the onboarding email. I spent a few hours on it. It helped a little. The incident log kept filling up.
+
+What actually moved the number was adding a triggered email at each status change. Not a notification that says "your project status has been updated." A short, plain-English message written for that specific transition.
+
+When something moves to Delivered, the email says: this is now in your hands. Here is what I need from you and by when. If I don't hear back by [date], I'll follow up.
+
+When something moves to In Review, the email says: I'm looking at this now. Expect feedback within [X] business days.
+
+Those emails are not automated in any sophisticated sense. I wrote templates. The portal triggers them. I review and send them manually for anything over a certain contract value. For smaller recurring work, they go out automatically, and I spot-check the log weekly.
+
+## The Second Pattern: Clients Who Stop Logging In
+
+The incident log has a sub-category I started tracking in year two: client disengagement. A client who was logging in twice a week suddenly stops. Not because the project ended. Because something in the last interaction left them uncertain, and they defaulted to silence.
+
+This one took me longest to see because the portal's own data masked it. Active sessions were up. But I was the one creating most of the activity — uploading files, moving statuses, leaving comments. The client's last login was three weeks ago.
+
+Now I run a simple query every Monday morning: any project where the client has not logged in for ten or more days while the status is not Archived. Takes about ninety seconds. Surfaces two or three projects per week that need a direct message from me, not a portal notification.
+
+That query has caught problems early more times than I can count. A client who had a billing dispute with their finance team and went quiet. A client whose internal contact left the company and nobody told me. A client who thought the project was on hold because I hadn't replied to a comment they left in a system I don't check daily.
+
+## What the Log Is Actually For
+
+I don't use the incident log to punish myself or to build a case against specific clients. I use it to find where my system has a structural assumption that doesn't hold in production.
+
+For four years that has meant: my status labels mean something different to me than to the client. My portal does not distinguish between "delivered and waiting on client" and "delivered and stalled because of me." My automated notifications tell clients that something happened but not what they should do next.
+
+Every one of those is a design failure, not a client failure. The log forces me to see it that way.
+
+## The One Rule I Would Give Anyone Running a Client-Facing Tool
+
+If you are logging incidents at all, log who found out about the problem first. Was it you, the client, or a third party?
+
+In year one, clients found out first about 40% of the time. By year four, that number is under 10%. That shift is the only metric I actually care about when I evaluate whether the portal is working.
+
+A client should never learn about a delivery problem before I do. If they do, it means my system is not watching the right things. The incident log is how I know which things those are.
