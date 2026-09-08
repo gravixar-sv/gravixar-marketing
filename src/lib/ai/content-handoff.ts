@@ -15,9 +15,8 @@
 // - Fail-open. A handoff failure must never lose the brief that already
 //   stored successfully. The caller treats this as best-effort.
 
-import { loadBlogPosts } from "@/content/loaders";
 import { commitFileToMain } from "@/lib/ai/repo-commit";
-import { draftToMdx, generateDraft } from "@/lib/ai/seo-agent";
+import { collectDraftContext, draftToMdx, generateDraft } from "@/lib/ai/seo-agent";
 import type { TrendBrief, TrendSignal } from "@/lib/ai/trend-radar";
 
 export type HandoffResult =
@@ -59,14 +58,11 @@ export async function handoffTopContentAngle({
   }
 
   try {
-    const posts = await loadBlogPosts({ includeDrafts: true });
-    const recentTitles = posts.slice(0, 10).map((p) => p.meta.title);
-    const knownTags = Array.from(new Set(posts.flatMap((p) => p.meta.tags)));
+    const context = await collectDraftContext();
 
     const draft = await generateDraft({
       topicSeed: buildTopicSeed(signal),
-      recentTitles,
-      knownTags,
+      ...context,
     });
 
     const mdx = draftToMdx(draft, date);

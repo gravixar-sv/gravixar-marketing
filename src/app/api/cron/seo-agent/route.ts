@@ -33,9 +33,8 @@
 import { NextResponse } from "next/server";
 import { put } from "@vercel/blob";
 import { env } from "@/lib/env";
-import { loadBlogPosts } from "@/content/loaders";
 import { commitFileToMain } from "@/lib/ai/repo-commit";
-import { draftToMdx, generateDraft } from "@/lib/ai/seo-agent";
+import { collectDraftContext, draftToMdx, generateDraft } from "@/lib/ai/seo-agent";
 import { FROM_EMAIL, NOTIFY_EMAIL, getResend } from "@/lib/resend";
 
 export const runtime = "nodejs";
@@ -79,11 +78,11 @@ async function run(req: Request) {
   const topicSeed =
     new URL(req.url).searchParams.get("topic")?.trim() || undefined;
 
-  const posts = await loadBlogPosts({ includeDrafts: true });
-  const recentTitles = posts.slice(0, 10).map((p) => p.meta.title);
-  const knownTags = Array.from(new Set(posts.flatMap((p) => p.meta.tags)));
+  // Recent titles, the tag taxonomy, the link targets and the engagement
+  // facts, all read off the published content rather than restated here.
+  const context = await collectDraftContext();
 
-  const draft = await generateDraft({ topicSeed, recentTitles, knownTags });
+  const draft = await generateDraft({ topicSeed, ...context });
   const date = new Date().toISOString().slice(0, 10);
   const mdx = draftToMdx(draft, date);
 
