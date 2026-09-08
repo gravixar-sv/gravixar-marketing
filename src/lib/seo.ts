@@ -38,12 +38,18 @@ export function buildMetadata({
   ogType = "website",
   publishedTime,
   modifiedTime,
+  noindex = false,
 }: {
   title: string;
   description: string;
   path?: string;
   ogImage?: string;
   ogKind?: string;
+  // Crawlable but not a destination. `follow` stays on, so a page opted out
+  // here still passes authority to the posts it links. The only caller today
+  // is a blog tag hub that is either thin or a near-duplicate of /blog; see
+  // lib/blog-tags.ts. Defaulted, so the other 19 call sites are unchanged.
+  noindex?: boolean;
   // "article" for anything dated and authored: blog posts and case studies.
   // Every page emitted "website" until 2026-09-02, including all 19 of them,
   // so no article on the site declared itself as one or carried its dates in
@@ -88,6 +94,6 @@ export function buildMetadata({
       description,
       images: [og],
     },
-    robots: { index: true, follow: true },
+    robots: { index: !noindex, follow: true },
   };
 }
