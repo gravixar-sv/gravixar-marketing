@@ -1,0 +1,74 @@
+---
+title: "If someone else holds your registrar login, you do not own your website"
+slug: "someone-else-holds-your-registrar-login"
+excerpt: "Your website is at least four separate accounts, and they fail independently. I write down which ones exist and whose name each is in before a contract gets signed, because after it is signed the same list reads as a concession."
+metaDescription: "A website is four accounts that fail independently. Write down whose name each is in before signing, not after, when the same list reads as a concession."
+publishedAt: "2026-09-08"
+tags: ["agency-ops", "ops-infrastructure", "operations"]
+draft: true
+aiAssisted: true
+---
+
+## The question nobody asks until it is expensive
+
+The website works. The email works. Somebody built it, somebody keeps it running, and nobody has thought about where the accounts underneath it live since the week it launched.
+
+Then the arrangement ends. Sometimes badly, more often just because the work finished. And the question finally arrives: who can actually log in and move this?
+
+I have watched that go both ways. The difference was never the contract. It was whether anybody had written down, before the work started, which accounts existed and whose name each one was in.
+
+## Four accounts, and they are not the same account
+
+People say "my website" as though it is one thing you own. It is at least four, and they fail independently.
+
+**The registrar.** Where the domain itself is registered. This is the one that matters most and the one most often held by whoever set it up. If you cannot log in here, you cannot move your site anywhere, and you cannot prove the domain is yours to anybody who asks.
+
+**DNS.** Where the domain points. Frequently the registrar, frequently not. A site can move without DNS changing, and DNS can move without the registrar changing, which is exactly why people assume they hold both when they hold one.
+
+**The host.** Where the code and the database actually run. The easiest of the four to replace, and the one everybody worries about first.
+
+**The mailbox.** Where your email lives. Quietly the worst of the four to lose, because it is where every password reset for the other three gets sent.
+
+Losing the host costs you a migration. Losing the registrar and the mailbox together costs you the ability to prove you are you.
+
+## Why the list gets written before the contract
+
+On a retainer I take, [the first artefact is a written list of those accounts](/services/managed-services). Registrar, DNS, host, mailbox, each recorded with the name it is actually held in. Not the name it ought to be in. The name it is in.
+
+Some of them arrive in my name, because that is how they arrived. A previous developer set them up, or somebody asked me to buy the domain on day one and nobody revisited it since. The list says so plainly, and the route back to the client is written next to it.
+
+Before signing rather than after, for one reason. After signing, the same list reads as a concession, and the conversation gets careful. Before signing it is just information, and it takes five minutes.
+
+## The row that makes the list worth having
+
+Writing this down forces me to state which accounts I hold that I probably should not.
+
+That is the point of it. A list that records only the tidy cases is a marketing document. The value sits in the row that says: this one is in my name, here is what moving it to yours would take. If nobody writes that row, the arrangement was never a decision anybody made. It is just what happened, and it stays that way until the day it becomes a problem, which is always the worst available day.
+
+## Owning an account and being able to use it are different
+
+A client who owns all four accounts and cannot operate any of them is better off than one who owns none. Not by as much as they expect.
+
+The gap is the record. Knowing you hold the DNS account is not the same as knowing why a record was changed in March, who asked for it, and what it replaced. On the systems I run, that history is not in my head or in an email thread. Tasks, approvals, permissions and [an audit row on every change](/modules/audit-log-restore) all live in the operations platform, and the reasoning behind each judgement call gets written down as it is made.
+
+That record is not a deliverable anybody receives. It is the thing that makes somebody other than me able to pick the work up at all, which is a different and more useful property than a password.
+
+## The ending that should be ordinary
+
+[One site I built ended at handoff](/work/motion-design-portfolio). Code and hosting signed over, the client fully independent, no retainer afterwards. That was the correct ending for that project and I would take the same shape again tomorrow.
+
+I raise it because the account list is what makes that ending cheap. Where the record of who holds what already exists, a handoff is an afternoon. Where it does not, a handoff becomes an archaeology project, and archaeology projects are how relationships that ended perfectly well turn sour six weeks later.
+
+## What to actually do about it
+
+You do not need to renegotiate anything to find out where you stand. Open a document and answer four questions.
+
+Who can log into the registrar today, without asking anybody? Where do the DNS records live, and is that the same account or a different one? Who holds the hosting account, and is billing on their card or yours? And if you lost access to your email tomorrow, which of the other three could you recover?
+
+If you cannot answer one of them, that is not a crisis. It is a task. Ask the person who built the site, in writing, and keep the reply. The asking is the whole exercise, because a vendor who answers in a day is telling you something real, and so is one who does not.
+
+## The opinion
+
+I do not think most of these situations are anybody acting badly. Almost every one I have seen came from a good week years earlier, when moving fast mattered more than recording who bought what.
+
+But an arrangement nobody chose is still an arrangement you are living inside. Write the four rows down. If the answers are fine, you spent five minutes. If one of them is not, you have found it on a calm Tuesday rather than in the middle of a migration, and that difference is worth considerably more than five minutes.
