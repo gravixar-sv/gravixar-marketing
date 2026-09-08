@@ -1,0 +1,71 @@
+---
+title: "Onboarding a New Contractor Without a Runbook Is a Bet You Will Lose"
+slug: "onboarding-contractor-without-runbook"
+excerpt: "Every time I hand off work without a written runbook, I pay for it in correction cycles. Here is what I actually put in mine and why informal walkthroughs do not substitute for documentation."
+publishedAt: "2026-09-08"
+tags: ["agency-ops", "ops-infrastructure", "operations"]
+draft: true
+aiAssisted: true
+---
+
+## The Informal Walkthrough Is Not a System
+
+I brought on a contractor last quarter to handle a specific slice of delivery work on my agency portal. Two hours of screen share, a Loom recording, access to the relevant Notion sections. I thought that was sufficient.
+
+Three weeks later I was correcting the same category of mistake for the fourth time. Not because the contractor was careless. Because I had described a process rather than documented one.
+
+There is a difference. A description covers the happy path. A runbook covers what to do when the happy path breaks.
+
+## What a Runbook Actually Is
+
+I use the term loosely but specifically: a runbook is a document someone can follow to complete a repeatable task correctly, without asking me a single question.
+
+That last clause is the test. If they have to ask me something to complete the task, the runbook failed. Not the contractor. The runbook.
+
+Mine are not beautiful. They live in Notion. They have a consistent structure: context at the top, step-by-step procedure in the middle, known failure modes and their fixes at the bottom. No prose paragraphs explaining why we do things a certain way — that goes in a separate decision log if it matters at all.
+
+## The Specific Sections I Always Include
+
+**Trigger condition.** What causes this task to start? Not "when there is new work" but the exact signal. An email from a specific address, a card moving to a specific column in Linear, a webhook firing. If the trigger is ambiguous, the task will start at the wrong time or not at all.
+
+**Inputs.** What does the person need before they begin? Files, credentials, a prior output from another task. I list these explicitly. Missing inputs cause mid-task interruptions, which are worse than not starting.
+
+**Steps.** Numbered, not bulleted. Order matters. Each step is one discrete action. "Log in and navigate to the client folder" is two actions. Split them.
+
+**Decision points.** Places where the path branches. "If the file is missing, do X. If the file is present but has no approval stamp, do Y." This is the section most informal walkthroughs skip entirely and the section that generates 80 percent of the questions I used to field.
+
+**Known failure modes.** I keep a short list of things that have actually gone wrong on this task before. Not hypothetical risks — actual past failures. The contractor can pattern-match against them rather than escalating every anomaly.
+
+**Completion signal.** What does done look like? A Slack message, a card moved to a new column, a file uploaded to a specific directory. Completion criteria that are implicit lead to work that is done in one person's view and not done in another's.
+
+## Why I Resisted This for Too Long
+
+Writing runbooks takes time upfront, and when I am in delivery mode that time feels expensive. I kept telling myself the work was not yet stable enough to document — I would write the runbook once the process settled.
+
+That reasoning is backward. The process settles because you document it. Undocumented processes do not stabilize on their own; they drift. Every person who follows them informally introduces slight variations, and those variations compound.
+
+On my credentialing platform, I have tasks that have been stable for fourteen months. They are stable because they are documented. When I updated the underlying workflow, I updated the runbook and the task stayed stable through the change. Without the document, that transition would have been chaotic.
+
+## The Onboarding Sequence I Use Now
+
+Day one: I give the contractor read access to the relevant runbooks and nothing else. I ask them to read and mark any step that is unclear. This surfaces gaps in the documentation before any work starts.
+
+Day two: They shadow me through one complete execution of the task while I narrate against the runbook. We are checking whether the document matches reality, not training through osmosis.
+
+First independent execution: I review the output against the completion signal before anything ships. Not because I distrust them — because this is the check that confirms the runbook is sufficient, not just that this particular person can figure it out.
+
+After three clean independent executions, I hand it off fully. If I am correcting work after that point, I treat it as a runbook failure and update the document first.
+
+## The Measurement That Changed My Behavior
+
+I started tracking a simple number: questions per task. For any recurring task handled by a contractor, how many times did they need to ask me something to complete it?
+
+A mature runbook should produce zero questions on known task types. A runbook under two months old might produce one or two. If I am fielding three or more questions per execution, I rewrite the relevant section immediately.
+
+This turned documentation from a virtue I believed in abstractly into something I maintained because I could see its effect on my own time.
+
+## The Point
+
+Informal walkthroughs transfer enthusiasm and general direction. They do not transfer a process. If you are onboarding contractors and relying on Loom recordings and screen shares, you are not building a system — you are building a dependency on yourself that defeats the purpose of hiring someone.
+
+Write the runbook before you bring the person on. It forces you to think through the failure modes while you still have the context. And it gives the contractor something to hold you accountable to, which is the part most people do not expect: a good runbook protects them as much as it protects you.
