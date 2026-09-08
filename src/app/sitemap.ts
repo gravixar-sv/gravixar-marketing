@@ -8,18 +8,21 @@ import {
   loadServices,
 } from "@/content/loaders";
 import { SITE } from "@/lib/seo";
+import { loadTagHubs } from "@/lib/blog-tags";
 import { getCareersRoles } from "@/lib/careers";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [services, posts, studies, graphics, compares, modules, careers] = await Promise.all([
-    loadServices(),
-    loadBlogPosts(),
-    loadCaseStudies(),
-    loadGraphics(),
-    loadCompares(),
-    loadModules(),
-    getCareersRoles(),
-  ]);
+  const [services, posts, studies, graphics, compares, modules, careers, tagHubs] =
+    await Promise.all([
+      loadServices(),
+      loadBlogPosts(),
+      loadCaseStudies(),
+      loadGraphics(),
+      loadCompares(),
+      loadModules(),
+      getCareersRoles(),
+      loadTagHubs(),
+    ]);
 
   const url = (path: string) => `${SITE.url}${path}`;
   const staticRoutes = [
@@ -52,6 +55,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: url(`/blog/${p.meta.slug}`),
       lastModified: new Date(p.meta.publishedAt),
     })),
+    // Only the hubs that are a genuine subset of the blog. The rest are served
+    // noindex, and listing a noindex URL here asks a crawler to fetch a page
+    // in order to be told not to keep it. lastModified is the newest post in
+    // the tag, which is the only thing about a hub that actually changes.
+    ...tagHubs
+      .filter((h) => h.indexable)
+      .map((h) => ({
+        url: url(`/blog/tag/${h.slug}`),
+        lastModified: new Date(
+          h.posts.reduce(
+            (latest, p) => (p.meta.publishedAt > latest ? p.meta.publishedAt : latest),
+            h.posts[0]?.meta.publishedAt ?? "1970-01-01",
+          ),
+        ),
+      })),
     ...graphics.map((g) => ({ url: url(`/graphics/${g.meta.slug}`), lastModified: new Date() })),
     ...compares.map((c) => ({
       url: url(`/compare/${c.meta.slug}`),

@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { MDX } from "@/content/mdx";
 import { StructuredDataBlogPost, StructuredDataBreadcrumb } from "@/components/site/StructuredData";
 import { loadBlogPosts } from "@/content/loaders";
+import { tagSlug } from "@/lib/blog-tags";
 import { buildMetadata, SITE } from "@/lib/seo";
 
 export const revalidate = 1800;
@@ -80,14 +81,19 @@ export default async function BlogPostPage(
           {post.meta.title}
         </h1>
         <p className="mt-3 text-zinc-400">{post.meta.excerpt}</p>
+        {/* Linked since 2026-09-08. These rendered as inert chips for as long
+            as the blog existed, so the taxonomy the SEO agent maintains
+            produced no route and no internal link from any post. */}
         {post.meta.tags.length > 0 ? (
           <ul className="mt-5 flex flex-wrap gap-1.5">
             {post.meta.tags.map((t) => (
-              <li
-                key={t}
-                className="rounded-sm border border-line bg-zinc-900 px-1.5 py-0.5 font-mono text-[10px] text-zinc-400"
-              >
-                {t}
+              <li key={t}>
+                <Link
+                  href={`/blog/tag/${tagSlug(t)}`}
+                  className="block rounded-sm border border-line bg-zinc-900 px-1.5 py-0.5 font-mono text-[10px] text-zinc-400 transition-colors hover:border-brand-deep hover:text-brand-soft"
+                >
+                  {t}
+                </Link>
               </li>
             ))}
           </ul>
