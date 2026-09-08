@@ -38,8 +38,8 @@ importers:
         specifier: ^5.2.8
         version: 5.2.8
       '@gravixar-sv/core':
-        specifier: ^0.7.0
-        version: 0.7.0(@simplewebauthn/server@13.3.2)(@vercel/blob@2.5.0)(bcryptjs@3.0.3)(eslint-config-next@16.2.10(@typescript-eslint/parser@8.62.1(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3))(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3))(eslint@9.39.4(jiti@2.7.0))(next@16.2.11(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@types/node@24.13.2)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(otplib@13.4.1)(qrcode@1.5.4)(resend@6.16.0(@react-email/render@2.0.9(react-dom@19.2.7(react@19.2.7))(react@19.2.7)))
+        specifier: ^0.8.1
+        version: 0.8.1(@simplewebauthn/server@13.3.2)(@vercel/blob@2.5.0)(bcryptjs@3.0.3)(eslint-config-next@16.2.10(@typescript-eslint/parser@8.62.1(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3))(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3))(eslint@9.39.4(jiti@2.7.0))(next@16.2.11(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@types/node@24.13.2)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(otplib@13.4.1)(qrcode@1.5.4)(resend@6.16.0(@react-email/render@2.0.9(react-dom@19.2.7(react@19.2.7))(react@19.2.7)))
       '@mdx-js/react':
         specifier: ^3.1.1
         version: 3.1.1(@types/react@19.2.17)(react@19.2.7)
@@ -448,8 +448,8 @@ packages:
   '@fontsource-variable/mona-sans@5.2.8':
     resolution: {integrity: sha512-8OWdTcP8KvRxkU1Skkk+tX3D5XHN9buejxSDwrT7teRfGnpKBYxQUApV/+zS8TzeHiSU8H5Tc0HfBr57ahgcvA==}
 
-  '@gravixar-sv/core@0.7.0':
-    resolution: {integrity: sha512-EbClxxFeCPckjb/vw8PPQ+eJRVlVwcgdPMx1PBhsUKmDvxFSd+ChfGB9/X/mM3t6bnK+2tYWPMPbRkV4vmoSHw==, tarball: https://npm.pkg.github.com/download/@gravixar-sv/core/0.7.0/7c37db28abc53ea88763a3247e89e6967b9d11d3}
+  '@gravixar-sv/core@0.8.1':
+    resolution: {integrity: sha512-pbo/37IQFYSXg7xc2U/hxHBssmGvMIGiEZ3ZquDHfFMKfXEGcwOIPRwkIYThBw/wc6gdqwHlGJuUXDJtM2vfoQ==, tarball: https://npm.pkg.github.com/download/@gravixar-sv/core/0.8.1/86f0787c62b53544cecb6a4df5d228b861f08a56}
     peerDependencies:
       '@simplewebauthn/server': ^13.3.1
       '@vercel/blob': ^2.4.0
@@ -460,19 +460,6 @@ packages:
       otplib: ^13.4.1
       qrcode: ^1.5.4
       resend: ^6.12.4
-    peerDependenciesMeta:
-      '@simplewebauthn/server':
-        optional: true
-      '@vercel/blob':
-        optional: true
-      bcryptjs:
-        optional: true
-      otplib:
-        optional: true
-      qrcode:
-        optional: true
-      resend:
-        optional: true
 
   '@hexagon/base64@1.1.28':
     resolution: {integrity: sha512-lhqDEAvWixy3bZ+UOYbPwUbBkwBq5C1LAJ/xPC8Oi+lL54oyakv/npbA0aU2hgCsx/1NUd4IBvV03+aUBWxerw==}
@@ -3778,21 +3765,19 @@ snapshots:
 
   '@fontsource-variable/mona-sans@5.2.8': {}
 
-  '@gravixar-sv/core@0.7.0(@simplewebauthn/server@13.3.2)(@vercel/blob@2.5.0)(bcryptjs@3.0.3)(eslint-config-next@16.2.10(@typescript-eslint/parser@8.62.1(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3))(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3))(eslint@9.39.4(jiti@2.7.0))(next@16.2.11(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@types/node@24.13.2)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(otplib@13.4.1)(qrcode@1.5.4)(resend@6.16.0(@react-email/render@2.0.9(react-dom@19.2.7(react@19.2.7))(react@19.2.7)))':
+  '@gravixar-sv/core@0.8.1(@simplewebauthn/server@13.3.2)(@vercel/blob@2.5.0)(bcryptjs@3.0.3)(eslint-config-next@16.2.10(@typescript-eslint/parser@8.62.1(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3))(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3))(eslint@9.39.4(jiti@2.7.0))(next@16.2.11(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@types/node@24.13.2)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(otplib@13.4.1)(qrcode@1.5.4)(resend@6.16.0(@react-email/render@2.0.9(react-dom@19.2.7(react@19.2.7))(react@19.2.7)))':
     dependencies:
-      eslint: 9.39.4(jiti@2.7.0)
-      eslint-config-next: 16.2.10(@typescript-eslint/parser@8.62.1(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3))(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3)
-      next: 16.2.11(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@types/node@24.13.2)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-    optionalDependencies:
       '@simplewebauthn/server': 13.3.2
       '@vercel/blob': 2.5.0
       bcryptjs: 3.0.3
+      eslint: 9.39.4(jiti@2.7.0)
+      eslint-config-next: 16.2.10(@typescript-eslint/parser@8.62.1(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3))(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3)
+      next: 16.2.11(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@types/node@24.13.2)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       otplib: 13.4.1
       qrcode: 1.5.4
       resend: 6.16.0(@react-email/render@2.0.9(react-dom@19.2.7(react@19.2.7))(react@19.2.7))
 
-  '@hexagon/base64@1.1.28':
-    optional: true
+  '@hexagon/base64@1.1.28': {}
 
   '@humanfs/core@0.19.2':
     dependencies:
@@ -3936,8 +3921,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@levischuck/tiny-cbor@0.2.11':
-    optional: true
+  '@levischuck/tiny-cbor@0.2.11': {}
 
   '@mdx-js/mdx@3.1.1':
     dependencies:
@@ -4012,8 +3996,7 @@ snapshots:
   '@next/swc-win32-x64-msvc@16.2.11':
     optional: true
 
-  '@noble/hashes@2.2.0':
-    optional: true
+  '@noble/hashes@2.2.0': {}
 
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
@@ -4094,45 +4077,38 @@ snapshots:
 
   '@opentelemetry/api@1.9.1': {}
 
-  '@otplib/core@13.4.1':
-    optional: true
+  '@otplib/core@13.4.1': {}
 
   '@otplib/hotp@13.4.1':
     dependencies:
       '@otplib/core': 13.4.1
       '@otplib/uri': 13.4.1
-    optional: true
 
   '@otplib/plugin-base32-scure@13.4.1':
     dependencies:
       '@otplib/core': 13.4.1
       '@scure/base': 2.2.0
-    optional: true
 
   '@otplib/plugin-crypto-noble@13.4.1':
     dependencies:
       '@noble/hashes': 2.2.0
       '@otplib/core': 13.4.1
-    optional: true
 
   '@otplib/totp@13.4.1':
     dependencies:
       '@otplib/core': 13.4.1
       '@otplib/hotp': 13.4.1
       '@otplib/uri': 13.4.1
-    optional: true
 
   '@otplib/uri@13.4.1':
     dependencies:
       '@otplib/core': 13.4.1
-    optional: true
 
   '@peculiar/asn1-android@2.8.0':
     dependencies:
       '@peculiar/asn1-schema': 2.8.0
       asn1js: 3.0.10
       tslib: 2.8.1
-    optional: true
 
   '@peculiar/asn1-cms@2.8.0':
     dependencies:
@@ -4141,7 +4117,6 @@ snapshots:
       '@peculiar/asn1-x509-attr': 2.8.0
       asn1js: 3.0.10
       tslib: 2.8.1
-    optional: true
 
   '@peculiar/asn1-csr@2.8.0':
     dependencies:
@@ -4149,7 +4124,6 @@ snapshots:
       '@peculiar/asn1-x509': 2.8.0
       asn1js: 3.0.10
       tslib: 2.8.1
-    optional: true
 
   '@peculiar/asn1-ecc@2.8.0':
     dependencies:
@@ -4157,7 +4131,6 @@ snapshots:
       '@peculiar/asn1-x509': 2.8.0
       asn1js: 3.0.10
       tslib: 2.8.1
-    optional: true
 
   '@peculiar/asn1-pfx@2.8.0':
     dependencies:
@@ -4167,7 +4140,6 @@ snapshots:
       '@peculiar/asn1-schema': 2.8.0
       asn1js: 3.0.10
       tslib: 2.8.1
-    optional: true
 
   '@peculiar/asn1-pkcs8@2.8.0':
     dependencies:
@@ -4175,7 +4147,6 @@ snapshots:
       '@peculiar/asn1-x509': 2.8.0
       asn1js: 3.0.10
       tslib: 2.8.1
-    optional: true
 
   '@peculiar/asn1-pkcs9@2.8.0':
     dependencies:
@@ -4187,7 +4158,6 @@ snapshots:
       '@peculiar/asn1-x509-attr': 2.8.0
       asn1js: 3.0.10
       tslib: 2.8.1
-    optional: true
 
   '@peculiar/asn1-rsa@2.8.0':
     dependencies:
@@ -4195,14 +4165,12 @@ snapshots:
       '@peculiar/asn1-x509': 2.8.0
       asn1js: 3.0.10
       tslib: 2.8.1
-    optional: true
 
   '@peculiar/asn1-schema@2.8.0':
     dependencies:
       '@peculiar/utils': 2.0.3
       asn1js: 3.0.10
       tslib: 2.8.1
-    optional: true
 
   '@peculiar/asn1-x509-attr@2.8.0':
     dependencies:
@@ -4210,7 +4178,6 @@ snapshots:
       '@peculiar/asn1-x509': 2.8.0
       asn1js: 3.0.10
       tslib: 2.8.1
-    optional: true
 
   '@peculiar/asn1-x509@2.8.0':
     dependencies:
@@ -4218,12 +4185,10 @@ snapshots:
       '@peculiar/utils': 2.0.3
       asn1js: 3.0.10
       tslib: 2.8.1
-    optional: true
 
   '@peculiar/utils@2.0.3':
     dependencies:
       tslib: 2.8.1
-    optional: true
 
   '@peculiar/x509@1.14.3':
     dependencies:
@@ -4238,7 +4203,6 @@ snapshots:
       reflect-metadata: 0.2.2
       tslib: 2.8.1
       tsyringe: 4.10.0
-    optional: true
 
   '@phosphor-icons/react@2.1.10(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
     dependencies:
@@ -4254,8 +4218,7 @@ snapshots:
 
   '@rtsao/scc@1.1.0': {}
 
-  '@scure/base@2.2.0':
-    optional: true
+  '@scure/base@2.2.0': {}
 
   '@selderee/plugin-htmlparser2@0.11.0':
     dependencies:
@@ -4272,7 +4235,6 @@ snapshots:
       '@peculiar/asn1-schema': 2.8.0
       '@peculiar/asn1-x509': 2.8.0
       '@peculiar/x509': 1.14.3
-    optional: true
 
   '@socket.io/component-emitter@3.1.2': {}
 
@@ -4657,8 +4619,7 @@ snapshots:
       json-schema-traverse: 1.0.0
       require-from-string: 2.0.2
 
-  ansi-regex@5.0.1:
-    optional: true
+  ansi-regex@5.0.1: {}
 
   ansi-styles@4.3.0:
     dependencies:
@@ -4740,7 +4701,6 @@ snapshots:
       pvtsutils: 1.3.6
       pvutils: 1.1.5
       tslib: 2.8.1
-    optional: true
 
   ast-types-flow@0.0.8: {}
 
@@ -4777,8 +4737,7 @@ snapshots:
 
   baseline-browser-mapping@2.11.20: {}
 
-  bcryptjs@3.0.3:
-    optional: true
+  bcryptjs@3.0.3: {}
 
   before-after-hook@4.0.0: {}
 
@@ -4827,8 +4786,7 @@ snapshots:
 
   callsites@3.1.0: {}
 
-  camelcase@5.3.1:
-    optional: true
+  camelcase@5.3.1: {}
 
   caniuse-lite@1.0.30001800: {}
 
@@ -4866,7 +4824,6 @@ snapshots:
       string-width: 4.2.3
       strip-ansi: 6.0.1
       wrap-ansi: 6.2.0
-    optional: true
 
   clsx@2.1.1: {}
 
@@ -4954,8 +4911,7 @@ snapshots:
     dependencies:
       ms: 2.1.3
 
-  decamelize@1.2.0:
-    optional: true
+  decamelize@1.2.0: {}
 
   decode-named-character-reference@1.3.0:
     dependencies:
@@ -4985,8 +4941,7 @@ snapshots:
     dependencies:
       dequal: 2.0.3
 
-  dijkstrajs@1.0.3:
-    optional: true
+  dijkstrajs@1.0.3: {}
 
   doctrine@2.1.0:
     dependencies:
@@ -5022,8 +4977,7 @@ snapshots:
 
   electron-to-chromium@1.5.420: {}
 
-  emoji-regex@8.0.0:
-    optional: true
+  emoji-regex@8.0.0: {}
 
   emoji-regex@9.2.2: {}
 
@@ -5509,7 +5463,6 @@ snapshots:
     dependencies:
       locate-path: 5.0.0
       path-exists: 4.0.0
-    optional: true
 
   find-up@5.0.0:
     dependencies:
@@ -5550,8 +5503,7 @@ snapshots:
 
   gensync@1.0.0-beta.2: {}
 
-  get-caller-file@2.0.5:
-    optional: true
+  get-caller-file@2.0.5: {}
 
   get-intrinsic@1.3.0:
     dependencies:
@@ -5795,8 +5747,7 @@ snapshots:
     dependencies:
       call-bound: 1.0.4
 
-  is-fullwidth-code-point@3.0.0:
-    optional: true
+  is-fullwidth-code-point@3.0.0: {}
 
   is-generator-function@1.1.2:
     dependencies:
@@ -5997,7 +5948,6 @@ snapshots:
   locate-path@5.0.0:
     dependencies:
       p-locate: 4.1.0
-    optional: true
 
   locate-path@6.0.0:
     dependencies:
@@ -6512,7 +6462,6 @@ snapshots:
       '@otplib/plugin-crypto-noble': 13.4.1
       '@otplib/totp': 13.4.1
       '@otplib/uri': 13.4.1
-    optional: true
 
   own-keys@1.0.1:
     dependencies:
@@ -6523,7 +6472,6 @@ snapshots:
   p-limit@2.3.0:
     dependencies:
       p-try: 2.2.0
-    optional: true
 
   p-limit@3.1.0:
     dependencies:
@@ -6532,14 +6480,12 @@ snapshots:
   p-locate@4.1.0:
     dependencies:
       p-limit: 2.3.0
-    optional: true
 
   p-locate@5.0.0:
     dependencies:
       p-limit: 3.1.0
 
-  p-try@2.2.0:
-    optional: true
+  p-try@2.2.0: {}
 
   parent-module@1.0.1:
     dependencies:
@@ -6585,8 +6531,7 @@ snapshots:
 
   picospinner@3.0.0: {}
 
-  pngjs@5.0.0:
-    optional: true
+  pngjs@5.0.0: {}
 
   possible-typed-array-names@1.1.0: {}
 
@@ -6626,17 +6571,14 @@ snapshots:
   pvtsutils@1.3.6:
     dependencies:
       tslib: 2.8.1
-    optional: true
 
-  pvutils@1.1.5:
-    optional: true
+  pvutils@1.1.5: {}
 
   qrcode@1.5.4:
     dependencies:
       dijkstrajs: 1.0.3
       pngjs: 5.0.0
       yargs: 15.4.1
-    optional: true
 
   queue-microtask@1.2.3: {}
 
@@ -6711,8 +6653,7 @@ snapshots:
       unified: 11.0.5
       vfile: 6.0.3
 
-  reflect-metadata@0.2.2:
-    optional: true
+  reflect-metadata@0.2.2: {}
 
   reflect.getprototypeof@1.0.10:
     dependencies:
@@ -6766,13 +6707,11 @@ snapshots:
       unified: 11.0.5
       vfile: 6.0.3
 
-  require-directory@2.1.1:
-    optional: true
+  require-directory@2.1.1: {}
 
   require-from-string@2.0.2: {}
 
-  require-main-filename@2.0.0:
-    optional: true
+  require-main-filename@2.0.0: {}
 
   resend@6.16.0(@react-email/render@2.0.9(react-dom@19.2.7(react@19.2.7))(react@19.2.7)):
     dependencies:
@@ -6836,8 +6775,7 @@ snapshots:
 
   semver@7.8.5: {}
 
-  set-blocking@2.0.0:
-    optional: true
+  set-blocking@2.0.0: {}
 
   set-function-length@1.2.2:
     dependencies:
@@ -6986,7 +6924,6 @@ snapshots:
       emoji-regex: 8.0.0
       is-fullwidth-code-point: 3.0.0
       strip-ansi: 6.0.1
-    optional: true
 
   string.prototype.includes@2.0.1:
     dependencies:
@@ -7047,7 +6984,6 @@ snapshots:
   strip-ansi@6.0.1:
     dependencies:
       ansi-regex: 5.0.1
-    optional: true
 
   strip-bom-string@1.0.0: {}
 
@@ -7128,8 +7064,7 @@ snapshots:
       minimist: 1.2.8
       strip-bom: 3.0.0
 
-  tslib@1.14.1:
-    optional: true
+  tslib@1.14.1: {}
 
   tslib@2.8.1: {}
 
@@ -7142,7 +7077,6 @@ snapshots:
   tsyringe@4.10.0:
     dependencies:
       tslib: 1.14.1
-    optional: true
 
   type-check@0.4.0:
     dependencies:
@@ -7343,8 +7277,7 @@ snapshots:
       is-weakmap: 2.0.2
       is-weakset: 2.0.4
 
-  which-module@2.0.1:
-    optional: true
+  which-module@2.0.1: {}
 
   which-typed-array@1.1.22:
     dependencies:
@@ -7367,7 +7300,6 @@ snapshots:
       ansi-styles: 4.3.0
       string-width: 4.2.3
       strip-ansi: 6.0.1
-    optional: true
 
   ws@8.21.0: {}
 
@@ -7380,8 +7312,7 @@ snapshots:
     dependencies:
       os-paths: 4.4.0
 
-  y18n@4.0.3:
-    optional: true
+  y18n@4.0.3: {}
 
   yallist@3.1.1: {}
 
@@ -7391,7 +7322,6 @@ snapshots:
     dependencies:
       camelcase: 5.3.1
       decamelize: 1.2.0
-    optional: true
 
   yargs@15.4.1:
     dependencies:
@@ -7406,7 +7336,6 @@ snapshots:
       which-module: 2.0.1
       y18n: 4.0.3
       yargs-parser: 18.1.3
-    optional: true
 
   yocto-queue@0.1.0: {}
 
