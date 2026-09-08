@@ -14,23 +14,26 @@
 
 import fs from "node:fs/promises";
 import path from "node:path";
-import { loadBlogPosts } from "../src/content/loaders.js";
-import { draftToMdx, generateDraft } from "../src/lib/ai/seo-agent.js";
+import {
+  collectDraftContext,
+  draftToMdx,
+  generateDraft,
+} from "../src/lib/ai/seo-agent.js";
 
 async function main() {
   const topicSeed = process.argv.slice(2).join(" ") || undefined;
 
-  const posts = await loadBlogPosts({ includeDrafts: true });
-  const recentTitles = posts.slice(0, 10).map((p) => p.meta.title);
-  const knownTags = Array.from(new Set(posts.flatMap((p) => p.meta.tags)));
+  const context = await collectDraftContext();
 
   console.log("Generating draft via Anthropic via AI Gateway…");
   if (topicSeed) console.log(`  topic seed: ${topicSeed}`);
-  console.log(`  ${recentTitles.length} recent titles in context`);
-  console.log(`  ${knownTags.length} existing tags in taxonomy`);
+  console.log(`  ${context.recentTitles.length} recent titles in context`);
+  console.log(`  ${context.knownTags.length} existing tags in taxonomy`);
+  console.log(`  ${context.linkTargets.length} internal link targets offered`);
+  console.log(`  ${context.engagementFacts.length} engagement facts quoted from case studies`);
 
   const start = Date.now();
-  const draft = await generateDraft({ topicSeed, recentTitles, knownTags });
+  const draft = await generateDraft({ topicSeed, ...context });
   const elapsed = ((Date.now() - start) / 1000).toFixed(1);
   console.log(`  done in ${elapsed}s`);
 
