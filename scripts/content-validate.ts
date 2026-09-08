@@ -365,6 +365,88 @@ async function validateSrcDashes(): Promise<number> {
   return badFiles > 0 ? 1 : 0;
 }
 
+// DRAFT AUDIT, warn-only. Added 2026-09-08.
+//
+// Everything above this line stops at the `_drafts/` boundary, and the two
+// drafts sitting in the folder on the day this was written show what grew in
+// the gap: 8 em-dashes between them, 0 internal links, and no
+// metaDescription on either. Nothing was broken. Nothing was reported
+// either, so the cost only appeared when a human opened the file to promote
+// it and found an edit waiting.
+//
+// WHY THIS WARNS AND NEVER FAILS. The SEO agent commits drafts straight to
+// the default branch. A gate that failed on a draft would hand an unattended
+// cron the ability to break the production build twice a week, which trades
+// a small editing cost for an outage. A draft is also, by definition,
+// unfinished: judging it by the standard for published work is the wrong
+// question. The right one is "what will promotion cost", and that is a
+// number worth printing before anyone opens the file.
+//
+// The real fix is upstream, in the generator's prompt (src/lib/ai/seo-agent.ts).
+// This is the measurement that says whether the fix took.
+const MIN_INTERNAL_LINKS = 2;
+
+async function auditDrafts(): Promise<void> {
+  const rows: { rel: string; issues: string[] }[] = [];
+
+  for (const { dir, schema } of SECTIONS) {
+    for (const file of await walk(path.join(ROOT, dir))) {
+      const rel = path.relative(ROOT, file);
+      if (!inDrafts(rel)) continue;
+
+      const raw = await fs.readFile(file, "utf-8");
+      const { data, content } = matter(raw);
+      const issues: string[] = [];
+
+      const dashes = emDashHits(raw);
+      const firstDash = dashes[0];
+      if (firstDash) {
+        issues.push(
+          `${dashes.length} em-dash(es), first at line ${firstDash.line}. The build rejects these at promotion.`,
+        );
+      }
+
+      // Frontmatter links do not count: this is asking whether the prose
+      // leads anywhere, and a cover image URL does not.
+      const links = (content.match(/\]\(\//g) ?? []).length;
+      if (links < MIN_INTERNAL_LINKS) {
+        issues.push(
+          `${links} internal link(s), want at least ${MIN_INTERNAL_LINKS}. A post that links nowhere is a dead end for a reader and a crawler.`,
+        );
+      }
+
+      if (typeof data.metaDescription !== "string" || data.metaDescription.length === 0) {
+        issues.push(
+          "no metaDescription, so the page would serve `excerpt` (up to 280 chars) as its search description, truncated.",
+        );
+      }
+
+      // Schema problems are reported, not enforced. A draft is allowed to be
+      // mid-flight; the point is to say what promotion will demand.
+      const result = schema.safeParse({ ...data, draft: false });
+      if (!result.success) {
+        for (const issue of result.error.issues) {
+          issues.push(
+            `schema: ${issue.path.join(".") || "(root)"}: ${issue.message}`,
+          );
+        }
+      }
+
+      if (issues.length > 0) rows.push({ rel, issues });
+    }
+  }
+
+  if (rows.length === 0) return;
+
+  console.warn(
+    `\n[drafts] ${rows.length} draft(s) carry edits that promotion will require. Warnings only, the build is unaffected.`,
+  );
+  for (const { rel, issues } of rows) {
+    console.warn(`[drafts] ${rel}`);
+    for (const i of issues) console.warn(`  - ${i}`);
+  }
+}
+
 async function main() {
   let total = 0;
   let failures = 0;
@@ -441,6 +523,10 @@ async function main() {
       `\n[case-studies] ${unsourcedMetrics} published metric(s) still carry no source or verifiedAt. These become BUILD ERRORS from ${METRICS_SOURCE_REQUIRED_FROM}.`,
     );
   }
+
+  // Last, and after the exit above: a passing build should still say what
+  // the drafts folder is holding.
+  await auditDrafts();
 
   console.log(`OK, ${total} content files validated.`);
 }
