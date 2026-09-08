@@ -11,13 +11,13 @@ aiAssisted: true
 
 ## The Setup
 
-About eight months ago I automated the last mile of a recurring deliverable in my agency portal. The pipeline assembled the output, ran a formatting check, generated a summary, and dropped everything into the client's delivery folder with a notification. No manual step. I was proud of it.
+About eight months ago I automated the last mile of a recurring deliverable in my [agency portal](/work/bs-hub). The pipeline assembled the output, ran a formatting check, generated a summary, and dropped everything into the client's delivery folder with a notification. No manual step. I was proud of it.
 
 It worked cleanly for six weeks. Then it delivered a report with the wrong client's project name in the header, pulled from a stale variable in a template I'd updated but not propagated correctly. The client noticed before I did. They were polite about it. I was not polite to myself.
 
 ## What I Changed and Why
 
-I added a single checkpoint: before the final notification fires, the pipeline pauses and flags the item in my ops dashboard as "pending human review." I get a summary card showing the output filename, the client it's going to, the template version it used, and three fields from the generated content. I click Approve or flag it for correction. The whole review takes under ninety seconds on a clean deliverable.
+I added a single checkpoint: before the final notification fires, the pipeline pauses and [flags the item](/modules/review-state-machine) in my ops dashboard as "pending human review." I get a summary card showing the output filename, the client it's going to, the template version it used, and three fields from the generated content. I click Approve or flag it for correction. The whole review takes under ninety seconds on a clean deliverable.
 
 That's it. One gate. The rest of the automation is untouched.
 
@@ -62,6 +62,6 @@ I don't re-read the full deliverable at this stage. That's the output review's j
 
 I think a lot of ops builders, including me for a while, treat automation as a finish line. You build the pipeline, you test it, you ship it, and then you move on. But a pipeline that runs unsupervised in client-facing work is not finished, it's unmanaged.
 
-Adding a checkpoint is not an admission that the automation failed. It's a design decision that places human judgment at the highest-stakes moment: when work leaves your hands and enters a client's.
+Adding a checkpoint is not an admission that the automation failed. It's a [design decision](/services/ai-tooling) that places human judgment at the highest-stakes moment: when work leaves your hands and enters a client's.
 
 I'd rather spend ninety seconds on a review than thirty minutes on an apology email. The math isn't close.

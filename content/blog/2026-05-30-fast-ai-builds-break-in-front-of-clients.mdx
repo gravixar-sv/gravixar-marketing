@@ -15,7 +15,7 @@ I am not going to compete on that, because the thing that breaks an AI build is 
 
 ## A real failure mode
 
-Here is the shape of it. An agency stands up an AI intake tool. A prospect fills out a form, the model reads it, classifies the lead, and routes it to the right person. In the demo it is magic. The founder pastes in three sample inquiries and all three land correctly. Contract signed, live in two weeks, exactly as promised.
+Here is the shape of it. An agency stands up an [AI intake tool](/modules/ai-intake-wizard). A prospect fills out a form, the model reads it, classifies the lead, and routes it to the right person. In the demo it is magic. The founder pastes in three sample inquiries and all three land correctly. Contract signed, live in two weeks, exactly as promised.
 
 Then a real inquiry comes in that does not look like the samples. It is half a sentence and a budget number, or it is three paragraphs about a problem that spans two service lines, or it is a current client asking for something new through the new-business form. The model does what models do with ambiguous input: it picks something. It routes the lead. It does it confidently. And it is wrong.
 
@@ -29,7 +29,7 @@ The hard part of an AI build is not the happy path. The model gives you the happ
 
 - **Exception handling.** What does the system do when it is not sure? A real build has a confidence floor, and below it the lead goes to a human, not to a guess.
 - **A human in the loop where it matters.** Not on everything, that is just a slow tool. On the decisions that are expensive to get wrong, and only those.
-- **An audit trail.** When a lead lands in the wrong place, you need to be able to ask the system why it decided that, and get an actual answer. "The model said so" is not an answer you can fix.
+- **[An audit trail](/modules/audit-log-restore).** When a lead lands in the wrong place, you need to be able to ask the system why it decided that, and get an actual answer. "The model said so" is not an answer you can fix.
 - **A way to watch for drift.** The inputs change. The questions people ask in June are not the questions they asked in March. Something has to notice that the classifier is slowly getting worse before a client does.
 
 None of that fits in the two-week story. All of it is the actual product.
@@ -42,4 +42,4 @@ This is slower to ship. It is also the difference between a tool that demos well
 
 If your AI build is going to touch a client, the question is not how fast it goes live. It is what it does on the day the input is weird, because that day is coming. Build for that day, and the speed takes care of itself.
 
-If you want the version of this that you can poke at, the intake and the audit trail are running in the demo at **demo.gravixar.com**, and the ops layer behind it is the work at **/services/operations-infrastructure**.
+If you want the version of this that you can poke at, the intake and the audit trail are running in the [demo](https://demo.gravixar.com), and the ops layer behind it is the work at [operations infrastructure](/services/operations-infrastructure).
