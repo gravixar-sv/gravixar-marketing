@@ -447,6 +447,51 @@ async function auditDrafts(): Promise<void> {
   }
 }
 
+// TAG HUBS NEAR THE EDGE, warn-only. Added 2026-09-08.
+//
+// A tag hub is indexed when it holds at least TAG_HUB_MIN_POSTS and at most
+// TAG_HUB_MAX_SHARE of the published corpus. Both bounds are ratios against a
+// number that moves every time a post ships, so a hub can cross one without
+// anybody touching the tag: publishing a post tagged `operations` took that
+// hub from 8 of 12 to 9 of 13, which is 69.2% against a 70% ceiling.
+//
+// The crossing itself is the rule working. Doing it silently is not. A page
+// that enters the index and then leaves it is worse than one that never
+// entered, and the build is the only thing present at the moment it happens.
+//
+// Same shape as the two gates above it: warn while there is still room to
+// decide, rather than announce the fact afterwards.
+const TAG_EDGE_MARGIN = 0.05;
+
+async function auditTagHubs(): Promise<void> {
+  const { loadTagHubs, TAG_HUB_MIN_POSTS, TAG_HUB_MAX_SHARE } = await import(
+    "../src/lib/blog-tags.js"
+  );
+  const hubs = await loadTagHubs();
+  const total = new Set(hubs.flatMap((h) => h.posts.map((p) => p.meta.slug))).size;
+  if (total === 0) return;
+
+  for (const hub of hubs) {
+    const share = hub.posts.length / total;
+    const pct = `${hub.posts.length}/${total}, ${(share * 100).toFixed(1)}%`;
+
+    if (hub.indexable && share > TAG_HUB_MAX_SHARE - TAG_EDGE_MARGIN) {
+      console.warn(
+        `[tags] warning: /blog/tag/${hub.slug} is indexed at ${pct} and the ceiling is ${(TAG_HUB_MAX_SHARE * 100).toFixed(0)}%. One more post tagged "${hub.tag}", with none elsewhere, drops it out of the index.`,
+      );
+    } else if (!hub.indexable && hub.posts.length >= TAG_HUB_MIN_POSTS &&
+               share <= TAG_HUB_MAX_SHARE + TAG_EDGE_MARGIN) {
+      console.warn(
+        `[tags] warning: /blog/tag/${hub.slug} is noindex at ${pct}, just over the ${(TAG_HUB_MAX_SHARE * 100).toFixed(0)}% ceiling. A post that does NOT carry "${hub.tag}" brings it into the index.`,
+      );
+    } else if (!hub.indexable && hub.posts.length === TAG_HUB_MIN_POSTS - 1) {
+      console.warn(
+        `[tags] warning: /blog/tag/${hub.slug} is noindex at ${pct}, one post short of the ${TAG_HUB_MIN_POSTS}-post floor.`,
+      );
+    }
+  }
+}
+
 async function main() {
   let total = 0;
   let failures = 0;
@@ -527,6 +572,7 @@ async function main() {
   // Last, and after the exit above: a passing build should still say what
   // the drafts folder is holding.
   await auditDrafts();
+  await auditTagHubs();
 
   console.log(`OK, ${total} content files validated.`);
 }
