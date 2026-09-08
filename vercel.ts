@@ -8,9 +8,22 @@ export const config: VercelConfig = {
   buildCommand: "pnpm build",
   installCommand: "pnpm install --frozen-lockfile",
   crons: [
-    // SEO agent: drafts a blog post twice a week into Vercel Blob.
+    // SEO agent: drafts a blog post once a week, Tuesday 14:00 UTC.
     // Email notification fires; nothing publishes until I git-commit it.
-    { path: "/api/cron/seo-agent", schedule: "0 14 * * 2,5" },
+    //
+    // Was Tuesday AND Friday until 2026-09-08. A second generator now runs
+    // on Friday, a scheduled Claude Code agent on the operator's machine
+    // that writes the draft with the whole repo and the brain in context,
+    // so it can check every figure against the case study or ledger it came
+    // from. Leaving both at full rate would push three drafts a week into a
+    // queue whose bottleneck was never generation: 8 posts published in June,
+    // 1 in August, with this cron producing throughout.
+    //
+    // This one stays as the reliable floor rather than being retired. It runs
+    // in the cloud whether or not any machine is switched on, and the failure
+    // this pipeline actually had was going silent for two months. The Friday
+    // agent is the better writer; this is the one that always turns up.
+    { path: "/api/cron/seo-agent", schedule: "0 14 * * 2" },
     // Trend Radar: biweekly market scan on the 1st and 15th at 10:00 UTC.
     // Produces a ranked Trend Brief (3-5 signals) committed to Blob.
     // Human triages each signal; nothing auto-acts.
