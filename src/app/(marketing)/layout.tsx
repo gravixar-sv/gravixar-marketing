@@ -19,12 +19,26 @@ import { BosunMount } from "@/components/chat/BosunMount";
 // interpolate position and slide content that is supposed to be static.
 // Only the content region should cross-fade. Do not hoist this.
 //
-// UPGRADE FOOTGUN, worth knowing before a Next bump: the flag is
-// experimental.viewTransition in next.config.ts, and the import resolves
-// because Next aliases react to its vendored build and ships a
-// react/experimental triple-slash reference in dist/types.d.ts. Stable react
-// does not export ViewTransition. If a future Next drops either, this import
-// fails typecheck, which is a loud build failure rather than a silent one.
+// UPGRADE FOOTGUN — THIS FIRED ON 2026-09-09, and the note was half right.
+//
+// It predicted that a Next bump could break this, and that the failure would
+// be loud rather than silent. Both held. What it got wrong was WHICH half
+// would go: the prediction was that the react/experimental types reference
+// would disappear and this import would fail. Instead Next 16.3.4 kept the
+// types reference and removed the CONFIG FLAG, so the build failed in
+// next.config.ts (TS2353 + an "Unrecognized key(s)" validator warning) and
+// this import never moved.
+//
+// The feature survived the flag's removal. Verified by building with the flag
+// gone: all 78 static pages prerender, which is impossible if <ViewTransition>
+// were undefined — React throws "Element type is invalid" at prerender for
+// every page under this layout. The import still resolves because Next
+// continues to alias react to its vendored build and ship the
+// react/experimental triple-slash reference in dist/types.d.ts.
+//
+// So the standing risk is unchanged and still loud: if a future Next drops the
+// types reference, this import fails typecheck. Stable react does not export
+// ViewTransition.
 // Reduced motion is handled in globals.css, on the ::view-transition-* pseudos.
 
 export default function MarketingLayout({
