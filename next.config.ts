@@ -42,17 +42,25 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     serverActions: { bodySizeLimit: "5mb" },
-    // Same-document view transitions for client-side navigation. The CSS-only
-    // @view-transition rule is not an option here: it only fires cross-document,
-    // and the App Router navigates in-document, so it would animate nothing.
-    // Checked before enabling: this flag does NOT move the app onto the
-    // experimental React channel (needs-experimental-react.js gates that on
-    // taint, transitionIndicator and gestureTransition, not on this), and the
-    // flag alone is inert. It emits nothing until something wraps a subtree,
-    // which is exactly one place: <main> in the marketing layout. See the
-    // comment there for why the placement is load-bearing, and globals.css for
-    // the reduced-motion guard.
-    viewTransition: true,
+    // NO viewTransition FLAG HERE ANY MORE, and that is deliberate.
+    //
+    // Next 16.3.4 REMOVED `experimental.viewTransition`. It is rejected twice
+    // over: the config validator warns "Unrecognized key(s) in object:
+    // 'viewTransition' at experimental", and the type fails the build with
+    // TS2353. So it cannot simply be left in place.
+    //
+    // The feature itself did NOT go away. Verified on 2026-09-09 by removing
+    // the flag and building: all 78 static pages prerender, which they could
+    // not do if <ViewTransition> had become undefined — React throws
+    // "Element type is invalid" on an undefined component, at prerender, for
+    // every page under the marketing layout. The component still resolves
+    // because Next continues to ship the `react/experimental` triple-slash
+    // reference in dist/types.d.ts and aliases react to its vendored build.
+    //
+    // Same-document view transitions therefore still work, now without a flag.
+    // Do not re-add it. The wrapper placement in the marketing layout is the
+    // load-bearing part — see the comment there — and reduced motion is
+    // handled in globals.css on the ::view-transition-* pseudos.
   },
   async headers() {
     return [{ source: "/:path*", headers: SECURITY_HEADERS }];
