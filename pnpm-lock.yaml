@@ -56,9 +56,6 @@ importers:
       '@vercel/blob':
         specifier: ^2.5.0
         version: 2.5.0
-      '@vercel/config':
-        specifier: ^0.5.5
-        version: 0.5.5
       '@vercel/speed-insights':
         specifier: ^2.0.0
         version: 2.0.0(next@16.3.4(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@types/node@24.13.2)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)
@@ -117,6 +114,9 @@ importers:
       '@types/react-dom':
         specifier: ^19.2.3
         version: 19.2.3(@types/react@19.2.17)
+      '@vercel/config':
+        specifier: ^0.7.0
+        version: 0.7.0
       eslint:
         specifier: ^9.39.4
         version: 9.39.4(jiti@2.7.0)
@@ -1258,8 +1258,8 @@ packages:
     resolution: {integrity: sha512-kQF8LGie/Hbdq9/psJxLE7owRTcqMQMhgybU04gCeR7cbQAr5t8OrjefDNColJv1QSSucFt4pLwRiARVmlOnug==}
     engines: {node: '>= 18'}
 
-  '@vercel/config@0.5.5':
-    resolution: {integrity: sha512-U0QX7p08vgk8D47HI74wYyRuDJ2IYHbFQyfVdwO81Xchjp5CsV58/xhkV4EAXXj4NuLuELBwdPDa6oOdCYvEhg==}
+  '@vercel/config@0.7.0':
+    resolution: {integrity: sha512-aWwF0zTnkfgn0t9/7inwyEjyY781thrgFe0PTaVwdyy0vmxZB+FF44EYIKKmUyIF6hv7HqgOSU7T0KZRnQZPWA==}
     hasBin: true
 
   '@vercel/oidc@3.2.0':
@@ -1270,8 +1270,8 @@ packages:
     resolution: {integrity: sha512-r00laGW6Pv778RoR6M2NxX91ycSj+PBwVo+fOb9Bif+F0IyUKt25zrvBzfEzQpeAzbqOgPZyQibEWDdDFApd+A==}
     engines: {node: '>= 20'}
 
-  '@vercel/routing-utils@6.4.0':
-    resolution: {integrity: sha512-SnL/449ftNIDt1cB/oDqFmdZWywckNA6Q/S3WuzzsxBdE9DxmNn498qMKRtgx0W6EW3Mm/wVmg7aNJrfElMBTA==}
+  '@vercel/routing-utils@6.5.0':
+    resolution: {integrity: sha512-2PXgATJyJYEaIuDEhljZ+sfOfJEsBl6OEzD+jHhy6NAb0k2mHdbTjcK3zTBNnYq0nebrXpq5ZGiwOxBFoUwB3A==}
 
   '@vercel/speed-insights@2.0.0':
     resolution: {integrity: sha512-jwkNcrTeafWxjmWq4AHBaptSqZiJkYU5adLC9QBSqeim0GcqDMgN5Ievh8OG1rJ6W3A4l1oiP7qr9CWxGuzu3w==}
@@ -4591,9 +4591,9 @@ snapshots:
     dependencies:
       execa: 5.1.1
 
-  '@vercel/config@0.5.5':
+  '@vercel/config@0.7.0':
     dependencies:
-      '@vercel/routing-utils': 6.4.0
+      '@vercel/routing-utils': 6.5.0
       pretty-cache-header: 1.0.0
       zod: 3.25.76
 
@@ -4605,7 +4605,7 @@ snapshots:
       '@vercel/cli-exec': 1.0.0
       jose: 5.10.0
 
-  '@vercel/routing-utils@6.4.0':
+  '@vercel/routing-utils@6.5.0':
     dependencies:
       path-to-regexp: 6.3.0
       path-to-regexp-updated: path-to-regexp@6.3.0
