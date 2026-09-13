@@ -1,0 +1,62 @@
+---
+title: "A WFH check-in has to come to the person, or nobody fills it in"
+slug: "wfh-check-in-has-to-come-to-the-person"
+excerpt: "Every hybrid team asks who is in today. A check-in only survives if it meets people at the door of a tool they already open, asks once a day, and costs one tap. The rest is the system's job."
+metaDescription: "A WFH check-in survives when it asks at the door of a tool people already open, once a day, in one tap, and only of the people it describes."
+publishedAt: "2026-09-11"
+tags: ["agency-ops", "ops-infrastructure"]
+draft: true
+aiAssisted: true
+---
+
+## The question every hybrid team already asks
+
+Who is in today? A team that splits its week between an office, home, and client sites asks that every morning. Somebody posts it in the group chat. Some people answer. The ones who do not are usually the ones you needed.
+
+A presence tracker is supposed to fix that, and the usual version fails in a predictable way. It is a place you have to go: a page, a form, a separate app, a spreadsheet with a column per day. Recording where you are is nobody's job, so it becomes nobody's habit, and the data goes stale without anyone deciding it should.
+
+My opinion is simple. A check-in has to come to the person. If answering costs more than one tap, it will not get answered, and a tracker with gaps is worse than no tracker at all, because a manager reads the gap as information.
+
+## Ask at the door
+
+The version I build does not live on its own page. [The check-in prompts on the first portal pageview of the day](/modules/daily-checkin), the moment someone opens the system they were going to open anyway. Three choices: office, home, or out in the field. One tap and it is gone until tomorrow.
+
+That placement is the whole design. It does not rely on anybody remembering. The question sits between a person and their work for exactly as long as it takes to answer it.
+
+I will concede the obvious objection. A prompt in front of the portal is a small imposition, and on one of the portals I run it is a hard gate: you check in before you get in. For a team that plans its week around who is where, I think that is the right trade. For a team that does not, it is friction with nothing on the other side, and I would not build it.
+
+## One row per person per day
+
+The second decision lives in the database, and nobody using the portal ever sees it. There is exactly one status per person per day, enforced by a unique constraint rather than by the interface being careful.
+
+That matters more than it sounds. People double-click. People open the portal on a laptop and then again on a phone. People start the day at the office and leave for a client meeting after lunch. If each of those produced a new record, the manager's view would need rules about which record wins, and those rules would be wrong on some day nobody tested.
+
+With one row, changing your status is an update, not an append. Tap office, change your mind, tap field. The day still holds one answer, and it is the latest one.
+
+## Only ask the people it describes
+
+On one portal I built, the prompt was written for staff. When an external partner role was added later, partners started seeing it too, and a partner was asked where they were working from today by a company they do not work for.
+
+The fix was one line: treat partners as external, the same as clients. The lesson is bigger than the line. A presence prompt shown to the wrong person is not neutral. It tells them the system does not know who they are, and if they tap anything just to make it go away, it puts a junk answer into data somebody else will read.
+
+## Whose midnight
+
+A "day" sounds like the least ambiguous thing in a system. It is not. A date keyed to UTC starts at five in the morning in Pakistan. For a team working Pakistan hours that mostly holds, because nobody is at a desk at five.
+
+Put one person in a timezone behind UTC and it breaks quietly. Their late-evening login lands on tomorrow's date, they check in for a day that has not started, and the next morning the system believes they already answered.
+
+I have built this both ways. The version I would build again takes its calendar from the business's own timezone, not from the server's clock. It is a small helper, and it removes a class of bug that only ever shows up for whoever sits furthest from the server.
+
+## Keep it in one place
+
+The last rule is one I learned by removing something. That same agency portal used to carry a separate work-from-home toggle on its own page, writing to its own table, next to the daily check-in writing to another. Two places to record the same fact about the same person on the same day. The page was retired. The check-in stayed.
+
+It is the argument I make about [two systems that both own the same record](/blog/hidden-cost-of-syncing-two-systems-same-data), at a smaller size. When presence lives in one tool, leave in another, and projects in a third, a manager reconciles three answers to "are they around on Thursday" by hand. On [the operating system I built for a marketing and creative agency](/work/agency-operations-platform), leave and work-from-home sit in the same portal as the work itself, so presence is not a separate tool nobody opens.
+
+## What to take from it
+
+If you run a hybrid team and the morning chat thread works, keep it. I mean that. A thread everyone answers beats a tracker half the team ignores.
+
+If it does not work, do not go shopping for a presence app. Put one question at the door of the tool your team already opens. Allow one answer a day that can be changed. Show it only to the people it describes, and decide whose midnight you mean before the first person works late from somewhere else.
+
+The data is only ever as honest as it was cheap to give.
