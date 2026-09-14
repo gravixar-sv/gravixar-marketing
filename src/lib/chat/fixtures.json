@@ -37,7 +37,8 @@
 
   { "input": "how much does the fractional AI ops lead cost?", "expect": "answer", "detail": "service:fractional-ai-ops-lead", "why": "The most commercially important question on the site, answered from published pricing verbatim." },
   { "input": "what does managed services include", "expect": "answer", "detail": "service:managed-services", "why": "Deliverables are published as a list and are repeated, not summarised." },
-  { "input": "what is a system audit", "expect": "answer", "detail": "service:system-audit", "why": "The newest service, and the one a matcher is most likely to miss." },
+  { "input": "what is the AI code confidence review", "expect": "answer", "detail": "service:system-audit", "why": "Sold under this name since 2026-09-14, with the slug kept as system-audit so links and HQ lead tags hold. A buyer asks by the name on the page, not the slug." },
+  { "input": "how much is the ops leak audit", "expect": "answer", "detail": "service:ops-leak-audit", "why": "The front door since 2026-09-14. The first price a stranger is sent to has to come back verbatim." },
   { "input": "tell me about operations infrastructure", "expect": "answer", "detail": "service:operations-infrastructure", "why": "Phrased as a request rather than a question, which the aliases have to cover." },
 
   { "input": "book a call", "expect": "route", "detail": "booking", "why": "The highest-value routing template, and it reuses the booking flow that already exists." },
@@ -51,7 +52,7 @@
   { "input": "How can you help me?", "expect": "route", "detail": "capability", "why": "The commonest opening question anywhere. It landed as a MISS, so Bosun said it had nothing published and offered a human, about its own job." },
   { "input": "what can you do", "expect": "route", "detail": "capability", "why": "Worked before only because the old regex happened to enumerate this exact phrasing." },
   { "input": "where do I start", "expect": "route", "detail": "capability", "why": "Same intent, no shared words with any of the phrasings the old regex listed." },
-  { "input": "hi, what does a system audit include?", "expect": "answer", "detail": "service:system-audit", "why": "A greeting PREFIX must not swallow the real question. The smalltalk match is anchored to whole short messages for exactly this." },
+  { "input": "hi, what does the ops leak audit include?", "expect": "answer", "detail": "service:ops-leak-audit", "why": "A greeting PREFIX must not swallow the real question. The smalltalk match is anchored to whole short messages for exactly this. Moved from the system audit to the Ops Leak Audit on 2026-09-14, when that became the suggestion chip." },
 
   { "input": "asdfgh qwerty", "expect": "refusal", "detail": "off_topic", "why": "Garbage input must land somewhere deliberate rather than in the matcher." },
   { "input": "", "expect": "miss", "why": "Empty input must not throw, and must not be treated as a question." }

@@ -62,12 +62,15 @@ export function Hero({ meta, body }: { meta: HomeBlock; body: string }) {
           <div className="hero-enter mt-6 max-w-xl text-lg leading-relaxed text-zinc-300 [animation-delay:160ms]">
             <MDX source={body} />
           </div>
+          {/* The fill sits on the diagnostic since 2026-09-14, same reasoning as
+              the header: a published price is a smaller first step for a
+              stranger than a call. Booking stays one click away in the header. */}
           <div className="hero-enter mt-9 flex flex-wrap gap-3 [animation-delay:240ms]">
             <Link
-              href="/contact"
+              href="/services/ops-leak-audit"
               className={buttonClass()}
             >
-              Book a call
+              Start with the Ops Leak Audit
             </Link>
             <Link
               href="/work"
@@ -84,12 +87,12 @@ export function Hero({ meta, body }: { meta: HomeBlock; body: string }) {
           <div className="hero-enter mt-10 flex flex-wrap items-center gap-x-4 gap-y-2 font-mono text-label-sm uppercase text-muted [animation-delay:320ms]">
             <span className="flex items-center gap-1.5">
               <span className="h-1 w-1 rounded-full bg-zinc-700" />
-              operations infrastructure
+              ops leak audit
             </span>
             <span className="text-zinc-700">·</span>
-            <span>ai tooling</span>
+            <span>operations infrastructure</span>
             <span className="text-zinc-700">·</span>
-            <span>brand &amp; visuals</span>
+            <span>ai tooling</span>
             <span className="text-zinc-700">·</span>
             <span className="text-zinc-400">this site runs its own ai agents</span>
           </div>

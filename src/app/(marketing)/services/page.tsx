@@ -3,40 +3,49 @@ import Link from "next/link";
 import { PageHeader } from "@/components/site/PageHeader";
 import { ContactCTA } from "@/components/home/ContactCTA";
 import { loadServices } from "@/content/loaders";
+import { separatorBefore } from "@/lib/prose";
 import { buildMetadata } from "@/lib/seo";
 
 export const revalidate = 3600;
 
-// Describes the three tracks, not the services inside them, because the list
-// of services keeps growing and a description that enumerates them goes stale
-// on the next one. Tracks change when the shape of the business changes.
+// Describes the tracks, not the services inside them, because the list of
+// services keeps growing and a description that enumerates them goes stale on
+// the next one. Tracks change when the shape of the business changes, and it
+// changed on 2026-09-14: a fixed-price diagnostic became the first step.
 export const metadata: Metadata = buildMetadata({
-  title: "Operations infrastructure, AI tooling, audits, brand work",
+  title: "Ops leak audit, operations infrastructure, AI tooling, code review",
   description:
-    "Three tracks: systems I build, an audit and a retainer that keep them honest after they ship, and client sites, hosting and email I keep running.",
+    "Start with a fixed-price diagnostic. Then systems I build, and a code review and a retainer that keep them honest after they ship.",
   path: "/services",
 });
 
 // Every track, in render order, each label echoing one clause of the h1 so the
 // heading works as this page's table of contents. The order is ascending
-// commitment: a project that ends, a system I keep honest after it ships, a
-// site I keep running for as long as you want it up. A service's `track`
-// decides which row it lands in, so nothing here has to know how many services
-// exist, and an empty track renders nothing. The homepage leaves its
-// equivalent bands unlabeled and lets spacing carry the split; the index
-// labels them because /modules labels its groups, and because on the page
-// where someone is choosing, "is this a project or a commitment" is the
-// question to answer before the click.
+// commitment: a diagnostic with a fixed price, a project that ends, a system I
+// keep honest after it ships, a site I keep running for as long as you want it
+// up. A service's `track` decides which row it lands in, so nothing here has to
+// know how many services exist, and an empty track renders nothing. The
+// homepage leaves its equivalent bands unlabeled and lets spacing carry the
+// split; the index labels them because /modules labels its groups, and because
+// on the page where someone is choosing, "is this a project or a commitment" is
+// the question to answer before the click.
+//
+// "maintain" stays in the list with no card in it today (managed services moved
+// to the existing-clients line), so a future maintain offer for everyone
+// renders without anyone remembering to put the row back. The h1 names only the
+// rows that render; add its clause back if that happens.
 //
 // THIS LIST IS THE WHOLE FILTER, and it fails quiet. A service whose track is
 // not named below matches no row, so it renders nowhere and raises nothing: no
 // build error, no empty state, just a page one service short. Widening
 // serviceSchema.track means adding a row here in the same commit.
 const TRACKS = [
+  { id: "start", label: "where to start" },
   { id: "build", label: "what i build" },
   { id: "ongoing", label: "what i keep honest" },
   { id: "maintain", label: "what i keep running" },
 ] as const;
+
 
 // A track's cards each span 12 / (services in that track), so every row fills
 // completely and no count leaves an orphan. 12 divides by 1, 2, 3, 4, 6 and
@@ -55,14 +64,18 @@ const TRACK_SPAN: Record<number, string> = {
 };
 
 export default async function ServicesIndexPage() {
-  const services = await loadServices();
+  const all = await loadServices();
+  // The grid is the menu for a stranger. Existing-clients offers keep their
+  // pages and get one line under the grid instead of a card in it.
+  const services = all.filter((s) => s.meta.audience === "everyone");
+  const forExistingClients = all.filter((s) => s.meta.audience === "existing-clients");
 
   return (
     <div className="space-y-16">
       <PageHeader
         eyebrow="services"
-        title="What I build, what I keep honest after it ships, and what I keep running."
-        lede="Pick the one that maps to your problem. Each page links to the proof: a case study, a live demo, or a system running in production."
+        title="Where to start, what I build, and what I keep honest after it ships."
+        lede="Start with the Ops Leak Audit if you are not sure what you need. Each page links to the proof: a case study, a live demo, or a system running in production."
       />
 
       {TRACKS.map(({ id, label }) => {
@@ -101,16 +114,13 @@ export default async function ServicesIndexPage() {
                       so the proof count stays the row's shared baseline and
                       the card with no pricing still bottoms out level.
 
-                      Rendered VERBATIM, never truncated. Four of the six
-                      services deliberately answer with a shape rather than a
-                      number ("Project-based, typically 4-10 weeks"), and
-                      clipping that to a first clause would turn an honest
-                      hedge into a hidden price. Two carry a real figure and
-                      those are the ones this fixes: "From $2,500" was
-                      published on 2026-08-25 so a buyer could see it, and
-                      until now the page where buyers CHOOSE showed none of
-                      it. A price is the only line on the card that lets
-                      someone rule themselves in or out without a click. */}
+                      Rendered VERBATIM, never truncated. As of 2026-09-14 four
+                      of the five cards carry a real figure and one (AI
+                      Tooling) still answers with a shape, and clipping any of
+                      them to a first clause would turn an honest hedge into a
+                      hidden price or a range into a single number. A price is
+                      the only line on the card that lets someone rule
+                      themselves in or out without a click. */}
                   <div className="mt-auto pt-5">
                     {s.meta.pricing ? (
                       <p className="text-sm leading-relaxed text-zinc-300">{s.meta.pricing}</p>
@@ -132,6 +142,26 @@ export default async function ServicesIndexPage() {
           </section>
         );
       })}
+
+      {forExistingClients.length > 0 ? (
+        <p className="max-w-2xl text-sm leading-relaxed text-zinc-400">
+          <span className="font-mono text-label-sm uppercase text-muted">
+            also available to existing clients
+          </span>{" "}
+          {forExistingClients.map((s, i) => (
+            <span key={s.meta.slug}>
+              {separatorBefore(i, forExistingClients.length)}
+              <Link
+                href={`/services/${s.meta.slug}`}
+                className="text-brand-soft underline-offset-4 hover:underline"
+              >
+                {s.meta.title}
+              </Link>
+            </span>
+          ))}
+          .
+        </p>
+      ) : null}
 
       <ContactCTA />
     </div>

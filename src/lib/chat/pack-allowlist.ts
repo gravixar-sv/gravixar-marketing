@@ -70,7 +70,11 @@ export const PACK_EXCLUDED: Record<PackKind, readonly string[]> = {
   // proof/order/updatedAt: sort keys and a citation list. Bosun already links
   // to the service page, so the citation list would only give it more strings
   // to stitch together.
-  service: ["proof", "order", "updatedAt", "metaDescription"],
+  // audience: a listing decision, not a fact about the offer. Which services
+  // sit on the menu for existing clients only is said once, in the overview
+  // constant in gate.ts, where a reviewer reads it as a sentence rather than
+  // Bosun reciting an enum value.
+  service: ["proof", "order", "updatedAt", "metaDescription", "audience"],
   compare: [
     "competitorUrl",
     "linkedCaseStudy",

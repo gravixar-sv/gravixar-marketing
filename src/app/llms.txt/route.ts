@@ -40,10 +40,17 @@ export const revalidate = 3600;
 // it: the failure mode to avoid is a new track rendering on the site while
 // this manifest still tells a crawler there are only two.
 const TRACK_CLAUSE: Record<Service["track"], string> = {
+  start: "A fixed-price diagnostic to start with",
   build: "Projects with an end",
   ongoing: "Ongoing engagements, kept honest after a build ships",
   maintain: "Managed retainers, kept running month to month",
 };
+
+// A crawler quoting this file should not present an existing-clients offer as
+// one a stranger can buy, so the title carries the qualifier wherever it is
+// listed. The page itself is still live and still in the sitemap.
+const listedTitle = (s: Service) =>
+  s.audience === "existing-clients" ? `${s.title} (for existing clients)` : s.title;
 
 export async function GET() {
   const [services, studies, compares, modules, graphics] = await Promise.all([
@@ -65,9 +72,9 @@ export async function GET() {
   const byTrack = new Map<Service["track"], string[]>();
   for (const s of services) {
     const titles = byTrack.get(s.meta.track);
-    if (titles) titles.push(s.meta.title);
+    if (titles) titles.push(listedTitle(s.meta));
     else {
-      byTrack.set(s.meta.track, [s.meta.title]);
+      byTrack.set(s.meta.track, [listedTitle(s.meta)]);
       trackOrder.push(s.meta.track);
     }
   }
@@ -105,7 +112,7 @@ export async function GET() {
   lines.push("");
   for (const s of services) {
     lines.push(
-      `- [${s.meta.title}](${url(`/services/${s.meta.slug}`)}): ${s.meta.tagline}`,
+      `- [${listedTitle(s.meta)}](${url(`/services/${s.meta.slug}`)}): ${s.meta.tagline}`,
     );
   }
   lines.push("");

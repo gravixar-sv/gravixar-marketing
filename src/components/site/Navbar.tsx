@@ -9,6 +9,7 @@ import {
   Scales,
   Palette,
   NotePencil,
+  Hourglass,
   CaretDown,
   List,
   X,
@@ -51,6 +52,14 @@ const MORE = [
     label: "Writing",
     description: "Notes from the field, AI-drafted then approved",
     Icon: NotePencil,
+  },
+  // Moved here from a header button on 2026-09-14 (see the CTA comment below).
+  // The list is real, so it stays one click from every page.
+  {
+    href: "/early-access",
+    label: "Early access",
+    description: "Waitlist for the hosted modules, no date printed",
+    Icon: Hourglass,
   },
 ] as const;
 
@@ -184,27 +193,31 @@ export function Navbar() {
         </nav>
 
         {/* Right side, CTA on desktop, hamburger on mobile.
-            ORDER AND EMPHASIS ARE DELIBERATE and were the wrong way round
-            until 2026-09-01: the brand fill sat on "Get early access", a
-            waitlist for the hosted platform that /about states does not exist
-            yet ("It does not exist yet and I am not printing a date for it"),
-            while "Book a call", the only action that can transact today, wore
-            the quiet outline. On every page of the site the loudest control
-            pointed at the one thing nobody can buy. Early access keeps its
-            place in the header because the list is real, but it is secondary
-            until the product it lists for ships. */}
+            ORDER AND EMPHASIS ARE DELIBERATE. Until 2026-09-01 the brand fill
+            sat on "Get early access", a waitlist for a hosted platform that
+            does not exist yet, while "Book a call" wore the quiet outline: the
+            loudest control on every page pointed at the one thing nobody can
+            buy. That fix put the fill on booking, the only action that could
+            transact.
+            On 2026-09-14 the fill moved again, to the Ops Leak Audit: a fixed
+            price on a page a stranger can read and act on without a call,
+            which makes it both transactable and a lower first step than a call
+            with someone they have never heard of. "Book a call" keeps its
+            outline beside it (Bosun's booking answer points at this button, so
+            it has to stay in the header), and early access moved into More so
+            the bar holds two buttons rather than three. */}
         <div className="flex items-center gap-3">
           <Link
-            href="/early-access"
+            href="/contact"
             className={cn("hidden md:inline-flex", buttonClass({ variant: "ghost", size: "sm" }))}
           >
-            Get early access
+            Book a call
           </Link>
           <Link
-            href="/contact"
+            href="/services/ops-leak-audit"
             className={cn("hidden md:inline-flex", buttonClass({ size: "sm" }))}
           >
-            Book a call
+            Ops Leak Audit
           </Link>
           <button
             type="button"
@@ -258,22 +271,22 @@ export function Navbar() {
                 {item.label}
               </Link>
             ))}
-            {/* Same hierarchy as desktop: the transacting CTA carries the
-                fill. Kept in the same DOM order as the desktop pair so the
-                two never drift apart again. */}
-            <Link
-              href="/early-access"
-              onClick={() => setMobileOpen(false)}
-              className={cn("mt-2 w-full", buttonClass({ variant: "ghost", size: "md" }))}
-            >
-              Get early access
-            </Link>
+            {/* Same hierarchy as desktop: the first step carries the fill.
+                Kept in the same DOM order as the desktop pair so the two never
+                drift apart again. */}
             <Link
               href="/contact"
               onClick={() => setMobileOpen(false)}
-              className={cn("mt-2 w-full", buttonClass({ size: "md" }))}
+              className={cn("mt-2 w-full", buttonClass({ variant: "ghost", size: "md" }))}
             >
               Book a call
+            </Link>
+            <Link
+              href="/services/ops-leak-audit"
+              onClick={() => setMobileOpen(false)}
+              className={cn("mt-2 w-full", buttonClass({ size: "md" }))}
+            >
+              Ops Leak Audit
             </Link>
           </div>
         </div>

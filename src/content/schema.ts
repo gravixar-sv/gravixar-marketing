@@ -138,8 +138,9 @@ export const serviceSchema = z.object({
   title: z.string().min(3).max(80),
   slug,
   bucket: serviceBucket,
-  // Which tier of engagement this is. Three of them, because they are
-  // genuinely different commitments, not three labels for one thing:
+  // Which tier of engagement this is. Four of them, because they are
+  // genuinely different commitments, not four labels for one thing:
+  //   start   = the fixed-price diagnostic that comes before any build
   //   build   = scoped work with an end date, delivered and handed over
   //   ongoing = a retainer where I am the one making the calls, AI ops or audit
   //   maintain = a managed retainer, someone else's stack kept running
@@ -147,7 +148,16 @@ export const serviceSchema = z.object({
   // 12 / (services in its own track), so a row always fills exactly and never
   // leaves an orphan. The span comes from what a service IS, not from its
   // index in an array, so adding a sixth service can't silently break a grid.
-  track: z.enum(["build", "ongoing", "maintain"]).default("build"),
+  // `start` was added 2026-09-14, when a stranger's first step moved from
+  // "book a call" to a diagnostic they can buy at a published price.
+  track: z.enum(["start", "build", "ongoing", "maintain"]).default("build"),
+  // Who the offer is on the menu for. "existing-clients" keeps the page live
+  // and sellable, but takes the card off the /services grid and the homepage
+  // menu and leaves one line naming it instead. Added 2026-09-14 for brand work
+  // and managed hosting: both are real revenue, and as cards beside the
+  // systems work they made the site read as a general studio, which capped
+  // what the systems work could be priced at.
+  audience: z.enum(["everyone", "existing-clients"]).default("everyone"),
   tagline: z.string().min(20).max(200),
   metaDescription,
   deliverables: z.array(z.string().min(1)).min(1),

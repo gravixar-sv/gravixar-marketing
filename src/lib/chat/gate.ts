@@ -174,8 +174,12 @@ const ROUTE_BOOKING =
 export const ROUTE_COPY = {
   booking:
     "Booking is on the site: pick a slot, confirm the email is yours, and it lands in both calendars with a Meet link. The Book a call button in the header is the whole flow.",
+  // Hand-typed, so it goes stale when the menu moves. Last moved 2026-09-14:
+  // the Ops Leak Audit became the first step, System Audit is sold as the AI
+  // Code Confidence Review, and brand work and managed services went on the
+  // menu for existing clients only.
   overview:
-    "Six services across three tracks. Build: operations infrastructure, AI tooling, brand and visuals. Ongoing: a fractional AI ops lead, and a system audit. Maintain: managed services. Ask what any of them includes and I will quote the page.",
+    "Start with the Ops Leak Audit, a fixed-price diagnostic. Build: operations infrastructure and AI tooling. Ongoing: a fractional AI ops lead, and the AI Code Confidence Review. For existing clients: brand and visuals, and managed services. Ask what any of them includes and I will quote the page.",
   contact: `Leave your details and Qamar replies ${RESPONSE_CEILING}.`,
 } as const;
 

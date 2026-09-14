@@ -137,14 +137,33 @@ export default async function ServicePage(
             <p className="font-mono text-label uppercase text-brand">
               next step
             </p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-[-0.015em] md:text-4xl">
-              Tell me about your {s.meta.title.toLowerCase()} problem.
-            </h2>
-            <p className="mt-4 text-zinc-400">
-              Lands in my HQ inbox tagged with this page, so when I reply I
-              already know which service we&apos;re talking about. Replies
-              within 24 hours.
-            </p>
+            {/* The start track is bought, not discussed, so its closing panel
+                asks for what the scope needs rather than for "your problem".
+                "Tell me about your ops leak audit problem" was also simply
+                not a sentence. */}
+            {s.meta.track === "start" ? (
+              <>
+                <h2 className="mt-3 text-3xl font-semibold tracking-[-0.015em] md:text-4xl">
+                  Start the {s.meta.title}.
+                </h2>
+                <p className="mt-4 text-zinc-400">
+                  Tell me the size of the team and the tools it runs on. It
+                  lands in my HQ inbox tagged with this page, and I reply
+                  within 24 hours to confirm the scope and a start date.
+                </p>
+              </>
+            ) : (
+              <>
+                <h2 className="mt-3 text-3xl font-semibold tracking-[-0.015em] md:text-4xl">
+                  Tell me about your {s.meta.title.toLowerCase()} problem.
+                </h2>
+                <p className="mt-4 text-zinc-400">
+                  Lands in my HQ inbox tagged with this page, so when I reply I
+                  already know which service we&apos;re talking about. Replies
+                  within 24 hours.
+                </p>
+              </>
+            )}
             <p className="mt-6 text-sm text-muted">
               Prefer a call?{" "}
               <Link

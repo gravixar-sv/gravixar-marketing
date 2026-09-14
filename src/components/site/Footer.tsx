@@ -47,6 +47,7 @@ export function Footer() {
         <div className="text-sm">
           <p className="font-mono text-label uppercase text-brand">Get in touch</p>
           <ul className="mt-4 space-y-2.5 text-zinc-400">
+            <li><Link href="/services/ops-leak-audit" className="hover:text-brand-soft">Ops Leak Audit</Link></li>
             <li><Link href="/contact" className="hover:text-brand-soft">Book a call</Link></li>
             <li>
               <a href="mailto:gravixar@gmail.com" className="hover:text-brand-soft">
