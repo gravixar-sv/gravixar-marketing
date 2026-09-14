@@ -205,17 +205,24 @@ export function Navbar() {
             with someone they have never heard of. "Book a call" keeps its
             outline beside it (Bosun's booking answer points at this button, so
             it has to stay in the header), and early access moved into More so
-            the bar holds two buttons rather than three. */}
+            the bar holds two buttons rather than three.
+            CLASS ORDER IS LOAD-BEARING. `cn` is tailwind-merge, which settles a
+            conflict by keeping the LAST class, and buttonClass's base carries
+            `inline-flex`. Written as cn("hidden md:inline-flex", buttonClass())
+            the base's `inline-flex` beat `hidden`, so both buttons rendered on
+            phones beside the hamburger, each wrapped onto two lines. Found on a
+            375px check of the live site on 2026-09-14; the old pair had the
+            same bug. The responsive override goes last. */}
         <div className="flex items-center gap-3">
           <Link
             href="/contact"
-            className={cn("hidden md:inline-flex", buttonClass({ variant: "ghost", size: "sm" }))}
+            className={cn(buttonClass({ variant: "ghost", size: "sm" }), "hidden md:inline-flex")}
           >
             Book a call
           </Link>
           <Link
             href="/services/ops-leak-audit"
-            className={cn("hidden md:inline-flex", buttonClass({ size: "sm" }))}
+            className={cn(buttonClass({ size: "sm" }), "hidden md:inline-flex")}
           >
             Ops Leak Audit
           </Link>
