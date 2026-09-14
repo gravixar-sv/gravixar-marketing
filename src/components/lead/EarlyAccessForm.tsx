@@ -11,6 +11,7 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/cn";
+import { sourceTag } from "@/lib/source-tag";
 import { buttonClass } from "@/components/ui/Button";
 import {
   interestOptions,
@@ -43,7 +44,7 @@ export function EarlyAccessForm() {
       teamSize: String(fd.get("teamSize") ?? "") || undefined,
       timeline: String(fd.get("timeline") ?? "") || undefined,
       need: String(fd.get("need") ?? "") || undefined,
-      source: "early-access-page",
+      source: sourceTag("early-access-page"),
       website: String(fd.get("website") ?? ""), // honeypot
     };
 

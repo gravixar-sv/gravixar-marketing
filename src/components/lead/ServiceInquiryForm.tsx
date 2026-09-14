@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/cn";
+import { sourceTag } from "@/lib/source-tag";
 import { buttonClass } from "@/components/ui/Button";
 
 type FormState =
@@ -33,7 +34,7 @@ export function ServiceInquiryForm({ sourcePage, serviceTitle }: Props) {
       message: String(fd.get("message") ?? ""),
       sourcePage,
       website: String(fd.get("website") ?? ""), // honeypot
-      source: "service-page",
+      source: sourceTag("service-page"),
     };
 
     try {

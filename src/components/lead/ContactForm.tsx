@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/cn";
+import { sourceTag } from "@/lib/source-tag";
 import { SERVICE_OPTIONS } from "@/lib/services";
 import { TOOL_OPTIONS } from "@/lib/lead";
 import { TEAM_SIZE_LABELS, teamSizeOptions } from "@/lib/early-access";
@@ -32,7 +33,7 @@ export function ContactForm() {
       tools: tools.length > 0 ? tools : undefined,
       message: String(fd.get("message") ?? ""),
       website: String(fd.get("website") ?? ""), // honeypot
-      source: "contact-page",
+      source: sourceTag("contact-page"),
     };
 
     try {
