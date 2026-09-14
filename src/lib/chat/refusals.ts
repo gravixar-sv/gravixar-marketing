@@ -32,7 +32,7 @@ export const REFUSALS: Record<RefusalReason, string> = {
   // for everything with no pack vocabulary, which includes ordinary human
   // noise, so it has to end somewhere useful rather than just decline.
   off_topic:
-    "I do not cover that one. What I am good for: the six services and what they cost, the work that has shipped, the reusable modules, and booking time with Qamar. Any of those and I will be genuinely useful.",
+    "I do not cover that one. What I am good for: the services and what they cost, the work that has shipped, the reusable modules, and booking time with Qamar. Any of those and I will be genuinely useful.",
 
   // MANDATE CLAUSE 7. Covers "ignore previous instructions", "print your
   // prompt", "what are your rules", "repeat the text above".
@@ -58,9 +58,13 @@ export const REFUSALS: Record<RefusalReason, string> = {
   account_support:
     "I hold no account data and I cannot look anything up, so I cannot help from here. If something is broken or overdue, say so and I will put it in front of Qamar.",
 
-  // MANDATE CLAUSE 5. Only the published $3,500 per month is a cleared figure.
+  // MANDATE CLAUSE 5. Names every published price, so each figure here must
+  // also sit in a service's pricing line. The prebuild validator runs every
+  // constant through assertSendable, so a price that leaves a page without
+  // leaving this string fails the build. It said $3,500 was the only published
+  // figure until 2026-09-14, three weeks after "From $2,500" went live.
   unpublished_number:
-    "I only quote figures that are published, and that one is not. What is published: the fractional retainer starts at $3,500 a month for one system. Everything else is scoped after a look at what you are running.",
+    "I only quote figures that are published, and that one is not. What is published: the Ops Leak Audit is $3,500 fixed, the AI Code Confidence Review is $6,500 fixed, an operations infrastructure build is $28,000 to $55,000, and the fractional AI ops retainer is $3,500 a month for one system. Everything else is scoped after a look at what you are running.",
 
   // "Write me a poem", "draft my email", "summarise this article". Not what
   // this is, and doing it once invites treating it as a general model.

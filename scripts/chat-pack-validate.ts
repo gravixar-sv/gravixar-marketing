@@ -143,6 +143,14 @@ async function main() {
     /\bI\s+(built|build|made|make|run|ran|shipped|ship|deliver|delivered|maintain|own|manage)\b/i;
 
   for (const [name, text] of OWN_WORDS) {
+    // The outgoing filter over Bosun's own constants, not only over fixture
+    // results. A constant no fixture reaches (unpublished_number, today) was
+    // otherwise never checked, and it is the one that names every price.
+    try {
+      assertSendable(text, pack);
+    } catch (err) {
+      failures.push(`  constant ${name}\n    ${(err as Error).message}`);
+    }
     if (PLURAL.test(text)) {
       failures.push(
         `  constant ${name}\n    uses first person plural, which this site does not: ${text.slice(0, 90)}`,

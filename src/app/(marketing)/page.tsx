@@ -74,9 +74,11 @@ export default async function HomePage() {
       </Reveal>
       {/* The offer act is one section. Managed website retainers used to hang
           below the menu as a hand-written block, demoted to a subsection
-          because they were not a service file. They are one now, on the
-          maintain track, so the menu renders them as card 06 on their own
-          full-width band and there is nothing left to nest. */}
+          because they were not a service file. They are one now, and since
+          2026-09-14 they and brand work carry audience "existing-clients", so
+          ServicesPreview names both on one line under the bands instead of as
+          cards. The line comes from frontmatter, so there is still nothing
+          hand-written to nest here. */}
       <Reveal className="mt-28 md:mt-36">
         <ServicesPreview services={services.map((s) => s.meta)} />
       </Reveal>

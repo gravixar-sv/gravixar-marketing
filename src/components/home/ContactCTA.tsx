@@ -51,22 +51,28 @@ export function ContactCTA() {
           Bring me a real operations problem. I&apos;ll show you the system before
           you sign anything.
         </h2>
+        {/* Two real next steps, the diagnostic first (2026-09-14). "Read what
+            I've shipped" left this panel then: by the time someone reaches the
+            closing ask they have scrolled past the proof, and the nav carries
+            Work on every page. */}
         <p className="mt-4 max-w-2xl text-zinc-400">
-          30-minute discovery call. If we&apos;re not a fit, you walk with notes
-          you can use anyway.
+          The Ops Leak Audit is the fixed-price first step: I count the hours
+          your tools cost your team and price the fix. Rather talk first? A
+          30-minute call works too, and if we&apos;re not a fit, you walk with
+          notes you can use anyway.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           <Link
-            href="/contact"
+            href="/services/ops-leak-audit"
             className={buttonClass()}
           >
-            Book a call
+            Start with the Ops Leak Audit
           </Link>
           <Link
-            href="/work"
+            href="/contact"
             className={cn("group/link", buttonClass({ variant: "ghost" }))}
           >
-            Read what I&apos;ve shipped
+            Book a call
             <span className="ml-1 inline-block transition-transform group-hover/link:translate-x-0.5">
               →
             </span>

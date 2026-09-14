@@ -53,7 +53,7 @@ export const IDENTITY_ANSWER =
  */
 export const OPENERS: Record<string, string> = {
   "/": "You are on the front page. Ask about the services, what has been built, or how an engagement actually starts.",
-  "/services": "Six services across three tracks: build, ongoing, maintain. Ask what any of them includes, or what it costs.",
+  "/services": "The Ops Leak Audit is the first step, then builds and ongoing work. Ask what any service includes, or what it costs.",
   "/work": "These are real engagements. Ask what was built, what broke, or what a comparable job would involve.",
   "/compare": "This page is the honest read on one tool versus a custom build. Ask about cost, migration, or when to stay put.",
   "/demos": "Five working demos, sample data, no sign-in. Ask which one is closest to your setup.",
@@ -87,7 +87,7 @@ export const GREETING =
 export const CAPABILITY = [
   "Here is what I can actually do:",
   "",
-  "- Tell you what any of the six services includes, and what it costs",
+  "- Tell you what any service includes, and what it costs",
   "- Show you what was built for a comparable client, and what broke",
   "- Check whether a module already covers what you need",
   "- Compare a tool you run now against a custom build",
@@ -109,7 +109,7 @@ export const THANKS =
 export const SUGGESTIONS: readonly string[] = [
   "What do you do?",
   "What does the fractional AI ops lead cost?",
-  "What does a system audit include?",
+  "What does the Ops Leak Audit include?",
   "Book a call",
 ] as const;
 

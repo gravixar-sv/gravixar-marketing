@@ -144,7 +144,7 @@ export function ApprovalStrip() {
                           // status as the real badge 200px above it.
                           "border-emerald-500/25 text-emerald-300"
                         : // Zinc at rest, coral on interaction. Resting coral on
-                          // this fold belongs to "Book a call"; the real
+                          // this fold belongs to the hero's primary action; the real
                           // secondary action next to it is a zinc outline that
                           // earns coral on hover. A control inside an
                           // illustrative panel must not outrank either, so it
