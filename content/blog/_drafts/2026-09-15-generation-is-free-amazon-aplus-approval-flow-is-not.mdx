@@ -1,0 +1,73 @@
+---
+title: "Generation Is Free Now. The Amazon A+ Approval Flow Is Not."
+slug: "generation-is-free-amazon-aplus-approval-flow-is-not"
+excerpt: "Pricing for AI image and video generation dropped again in H1 2026. Anyone can generate fifty brand images in ten minutes. The hard part is getting the right one approved, versioned, and live without brand drift."
+metaDescription: "AI image generation is becoming a commodity. The real cost is the approval, versioning, and governance layer that gets assets live without brand drift."
+publishedAt: "2026-09-15"
+tags: ["agency-ops", "ai-governance", "ops-infrastructure", "brand-visuals"]
+draft: true
+aiAssisted: true
+---
+
+## The generation layer is now a cost of entry
+
+Pricing for AI image and video generation dropped again in H1 2026. Midjourney, Runway, and a handful of newer entrants competed on output volume, and the result is predictable: generating assets is cheap, fast, and getting cheaper.
+
+That is not the interesting part.
+
+The interesting part is what brands are still failing at after generation gets cheap: getting assets approved, tracked, and live without brand drift. That problem did not get cheaper. It did not get faster. If anything, cheap generation made it worse, because now the bottleneck is obvious.
+
+## Fifty images in ten minutes solves the wrong problem
+
+Here is a concrete example from an Amazon A+ workflow.
+
+A DTC brand selling skincare wants to refresh four product detail pages. They open a generation tool, describe the look, and have fifty lifestyle images in about ten minutes. The images look good. Some of them look great.
+
+Then the real work starts.
+
+The brand manager picks eight candidates. The creative lead flags two for off-brand color grading. Legal needs to review one image that shows skin texture, because claims compliance applies to visuals on Amazon, not just copy. The account manager uploads the approved set to Seller Central, but uses a filename convention that does not match the live module structure. One image goes to the wrong slot. Nobody notices for three days, until a customer service ticket comes in.
+
+Total generation time: ten minutes. Total time from generation to correctly live assets: six days.
+
+The generation tool did not cause that. The missing workflow did.
+
+## What the workflow layer actually contains
+
+A governed brand asset workflow for a DTC or Amazon seller is not complicated, but it has distinct steps that each need a home:
+
+- **Selection and shortlisting.** Someone picks candidates from the generated set. That decision needs a record, not a Slack thread.
+- **Brand review.** A designated reviewer checks color, typography, and image treatment against the brand guide. Not a vibe check: a checklist with a pass/fail state.
+- **Compliance or legal gate.** For regulated categories on Amazon, this is not optional. The gate needs a timestamp and a reviewer name.
+- **Version control.** The approved image needs a canonical filename and a record of which version replaced what.
+- **Upload governance.** The person pushing assets to Seller Central needs to know which file goes to which module, and the system should make it hard to get that wrong.
+- **Audit trail.** If a brand drift complaint comes in six months later, you need to know who approved what and when.
+
+None of those steps are technically hard. All of them get skipped when the team treats generation as the whole job.
+
+## The ops layer is the actual product
+
+I build [brand and visuals workflows](/services/brand-visuals) around this reality: generation is the commodity input, and governance is the deliverable. A client who can prompt Midjourney does not need me to generate images. They need a system that routes candidates through review states, locks approved versions, and creates an audit trail that survives a personnel change.
+
+That is the same principle behind the [review state machine module](/modules/review-state-machine) I use in client portals: content moves through defined states, each state has an owner, and nothing advances without a recorded action. Applied to brand assets, it means an image cannot go from "generated" to "live" without passing through "reviewed" and "approved" with named owners on both.
+
+The clients who figure this out stop asking how to generate better images. They start asking how to make the approval step fast without making it skippable. Those are different questions, and the second one is worth paying for.
+
+## Why cheap generation makes the governance problem worse
+
+When generation costs time and money, teams are selective about what enters the review queue. When generation is cheap, teams flood the queue with candidates because generation is trivially easy. The review step, which was already the bottleneck, gets more inputs without getting more capacity.
+
+I wrote about this pattern in the context of parallel AI review: [volume is the failure mode](/blog/parallel-ai-review-finds-too-much). The same dynamic applies here. You do not solve a review bottleneck by generating faster. You solve it by designing the review step to be structured, fast, and non-skippable.
+
+## What I would build for an Amazon A+ workflow today
+
+If I were designing this from scratch for a DTC brand managing multiple ASINs:
+
+1. A generation intake form that captures the ASIN, the module slot, and the brief before a single image is generated. This forces clarity before volume.
+2. A shortlist state where the requester marks candidates. Reviewers only see shortlisted images, not the full generation output.
+3. A two-stage review: brand review first, compliance gate second if the category requires it. Each stage has a named owner and a deadline.
+4. A version register: approved images get a canonical ID that maps to the module slot. The upload step reads from the register, not from a folder of files.
+5. An audit log that records every state change, with timestamps and user IDs.
+
+That system is not complicated to build. It is not glamorous. But it is the thing that makes cheap generation actually usable at scale, and it is the thing that a prompt cannot replace.
+
+Generation is free now. The workflow that governs what gets live is not. That is where the margin lives, and that is what I build.
