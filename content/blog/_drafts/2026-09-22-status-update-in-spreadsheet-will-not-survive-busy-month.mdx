@@ -1,0 +1,70 @@
+---
+title: "The Status Update That Lives in a Spreadsheet Will Not Survive a Busy Month"
+slug: "status-update-in-spreadsheet-will-not-survive-busy-month"
+excerpt: "A shared spreadsheet feels like a system until the team gets busy. Then it becomes the thing nobody updates, and the client hears about it first."
+metaDescription: "Shared spreadsheets fall apart as status trackers when teams get busy. Here is why the mechanism fails and what to build instead."
+publishedAt: "2026-09-22"
+tags: ["ops-infrastructure", "agency-ops", "client-portals", "operations"]
+draft: true
+aiAssisted: true
+---
+
+## The spreadsheet looks like a system. It is not.
+
+Every small agency I have worked with starts in the same place: a shared Google Sheet with columns for project, status, owner, due date, and last update. Sometimes there is conditional formatting. Sometimes a color legend. It looks like a dashboard.
+
+It is not a dashboard. It is a document that depends on someone's memory to stay accurate.
+
+The distinction matters because those two things fail at different rates. A document fails the moment the person who was going to update it got pulled into something else. A system fails only when the logic underneath it breaks.
+
+## Why spreadsheets degrade on schedule
+
+The degradation follows a predictable path. In week one, someone updates the sheet. In week two, they update it when they remember. By week four, the only person still updating it is the one who built it. By month two, the "Last Updated" column is a graveyard of optimistic dates.
+
+This is not a discipline problem. It is a friction problem.
+
+A status update only happens when the person doing it has clear reason to stop their current work, open a different tab, find the right row, type a value, and save. That sequence has to compete with actual work. When the team is under-capacity, there is time. When the team is busy, that sequence loses every time.
+
+The updates that do get made tend to be the easy ones: "In Progress" stays "In Progress." The hard update, the one that says "blocked" or "slipped to next week," is the one that requires a conversation, so it waits. By the time it gets written down, the client has already noticed.
+
+## What a real-time status mechanism looks like
+
+A status that updates automatically is not magic. It is just a different attachment point.
+
+Instead of asking a person to remember to update a row, you build the update into an action the person was already going to take. A task moved to "Review" in a project board triggers a status change. A file uploaded to a delivery folder sets the milestone to "Delivered." An approval recorded in the system marks the phase complete.
+
+None of those require extra steps. The update is a side effect of work that already happened.
+
+This is the core idea behind the [Ops Leak Audit](/services/ops-leak-audit): find the places where information lives in a person's head instead of a system, and attach it to a durable trigger instead. The spreadsheet is usually the first thing that comes up.
+
+## The client-visibility gap
+
+When status lives in a spreadsheet that the team barely opens, the client gets one of two things: nothing, or a status email written from memory at the end of the week.
+
+Neither is accurate. The email is a reconstruction. The reconstruction smooths over the blocked task, the slipped date, the unresolved dependency. Not because anyone is dishonest, but because the writer does not have the actual log in front of them.
+
+A client portal built around live project state solves this without adding work. The client sees what the system knows, not what someone remembered to type. This is what I built into the [agency operations platform](/work/agency-operations-platform) that is currently in daily use: the status the client sees is the same record the team is working from, not a summary written afterward.
+
+When those two things are the same record, you stop writing status emails. The email becomes a notification: "Your project moved to review, here is the link."
+
+## The cost of a delayed bad update
+
+There is a specific failure I see often. The team knows a delivery is going to slip. They know it on Tuesday. They update the spreadsheet on Friday, or they do not update it at all, and the client finds out on Monday when the deliverable does not arrive.
+
+The slip itself is usually recoverable. A two-day slip with three days of warning is a conversation. A two-day slip discovered at the deadline is a trust problem.
+
+The spreadsheet does not cause the slip. But it removes the friction from delaying the disclosure. A system with a review state machine and a visible timeline creates the opposite pressure: the blocked status is already in the record, so the conversation happens earlier.
+
+If you want to see how that state machine is structured at the module level, [the review state machine module](/modules/review-state-machine) shows the logic.
+
+## When to stop patching the sheet
+
+The usual response to a degraded spreadsheet is to add more structure: more columns, a dropdown for status, a formula that flags overdue rows. I have done this. It buys a few weeks.
+
+The right question is whether the spreadsheet is the right tool for the job, or whether it was just the tool that was available when the team was small.
+
+At a handful of projects, a sheet is fine. Once you have multiple clients running simultaneously, with different phases, different owners, and different communication expectations, the sheet is not keeping up. The team is spending time maintaining the sheet instead of the work.
+
+That is the signal. Not "the sheet is messy." The signal is "we are doing work to keep the sheet accurate instead of using it to know what is happening."
+
+When you hit that point, the answer is a purpose-built structure, not a more elaborate spreadsheet.
