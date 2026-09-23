@@ -4,37 +4,37 @@ slug: "function-point-vs-custom"
 competitor: "Function Point"
 competitorUrl: "https://functionpoint.com"
 category: "agency operations + project management"
-summary: "Function Point is one of the more opinionated agency PM tools, a strong fit for agencies whose shape matches the opinion. Most agencies discover the mismatch about four months in. Here's where the seams show up and what custom actually solves."
+summary: "Function Point assumes every agency works the same way. If yours does, it is a strong pick. Most agencies find out around month four that theirs does not. Here is where it pinches, and what a custom build fixes."
 metaDescription: "Function Point's reporting is strong for a standard agency shape. I map where it flattens review states, client surfaces and AI, and when custom wins."
 hook: "Function Point models your delivery as if every agency does retainers and projects the same way. They don't. The custom-build conversation is almost always about the parts of your shape Function Point flattens."
 whoForCompetitor: "Pick Function Point when your delivery is straight-down-the-middle agency: discovery, proposal, project kickoff, invoiced retainer plus billable hours, monthly P&L per client. If your shape fits that mold and you're 15+ people, Function Point's reporting and resourcing tools save you from building yourself."
-whoForCustom: "Go custom when your delivery has anything off-pattern: hybrid retainer models, multi-stage review handoffs that matter to clients, AI in the workflow, scope-lock semantics that need to be enforced not just tracked, or branded client-facing surfaces. Also when you're under 15 people and the seat-cost math is hostile."
+whoForCustom: "Go custom when your delivery has anything off-pattern: hybrid retainer models, review handoffs in several stages that matter to clients, AI in the workflow, scope that has to stay locked once agreed rather than just noted, or client-facing pages in your own brand. Also when you're under 15 people and per-seat pricing works against you."
 linkedCaseStudy: "bs-hub"
 linkedService: "operations-infrastructure"
 faqs:
   - question: "How is Function Point different from Productive.io?"
-    answer: "Function Point is more opinionated about agency delivery shape. Productive.io is more configurable but less prescriptive. If your shape genuinely matches Function Point's, it's faster to onboard and gets you to clean reporting quicker. If your shape doesn't match, the configuration ceiling hits sooner than Productive.io's."
-  - question: "Can Function Point handle a custom review state machine?"
-    answer: "Not really. Their workflow concept is task-status-based, which works for linear progressions but doesn't model state transitions with side effects (audit rows, notification cascades, scope-lock semantics). If your review process is the part of delivery that matters to your clients, Function Point will feel thin."
+    answer: "Function Point is more opinionated about agency delivery shape. Productive.io is more configurable but less prescriptive. If your shape really matches Function Point's, it's faster to onboard and gets you to clean reporting quicker. If your shape doesn't match, the configuration ceiling hits sooner than Productive.io's."
+  - question: "Can Function Point handle a custom sign-off flow?"
+    answer: "Not really. Their workflow is built on task statuses, which works for work that moves in a straight line but not for steps that set things off when they change (a record of the change, a chain of notifications, locking the scope). If your review process is the part of delivery that matters to your clients, Function Point will feel thin."
   - question: "What's the upgrade path from Function Point to a custom portal?"
-    answer: "Cleaner than you'd expect. Their data model is reasonable and their CSV exports are honest. The migration looks like: lift clients, projects, time entries, invoices into the new schema, build a state machine over the workflow, layer AI on the joints where humans were paying tax. Not trivial but not a nightmare. I've seen this migration done in six to ten weeks."
+    answer: "Cleaner than you'd expect. Their data model is reasonable and their CSV exports are honest. The migration looks like: lift clients, projects, time entries, invoices into the new schema, write the rules for each step of the workflow, then add AI at the handoffs where people were losing the most time. Not trivial but not a nightmare. I've seen this migration done in six to ten weeks."
   - question: "Does a custom portal need to replicate Function Point's reporting?"
     answer: "Only the parts you actually use. Most agencies use a margin-per-client report, a utilization report, and an aging-receivables report. Three reports is a small surface. The dashboards that look impressive in the Function Point demo don't usually map to actual decisions."
   - question: "How long is the typical custom build for an agency Function Point's size?"
-    answer: "For a 15 to 25 person agency, four to ten weeks to a working portal handling live client work. Then twelve months of evolution rather than rebuild. The bs-hub recipe gets you there because the parts already exist and already run: a code recount on 2026-07-21 measured 84 database models, 255 endpoints and 9 scheduled jobs in that one codebase. The work is shaping that to your delivery, not inventing it."
+    answer: "For a 15 to 25 person agency, four to ten weeks to a working portal handling live client work. Then twelve months of evolution rather than rebuild. The agency portal I built gets you there, because the parts already exist and already run: a code recount on 21 July 2026 measured 84 database models, 255 endpoints and 9 scheduled jobs in that one codebase. The work is shaping that to your delivery, not inventing it."
 publishedAt: "2026-05-04"
 updatedAt: "2026-07-30"
 ---
 
 ## The honest version
 
-Function Point has a clear thesis: every agency runs the same shape under the marketing copy. Discovery, proposal, kickoff, project, invoice. They've built a strong tool around that thesis, and if your agency genuinely runs that shape, Function Point will get you to clean reporting faster than a custom build.
+Function Point has a clear thesis: every agency runs the same shape under the marketing copy. Discovery, proposal, kickoff, project, invoice. They've built a strong tool around that thesis, and if your agency really runs that shape, Function Point will get you to clean reporting faster than a custom build.
 
 The problem is the thesis is wrong for most agencies under 25 people. The shape is more idiosyncratic than the marketing materials admit. By month four you've either bent your delivery to fit the tool or you're maintaining Notion docs to cover the parts the tool flattens. Both options are expensive in different ways.
 
 ## Where Function Point wins
 
-Their reporting is genuinely good for the standard agency shape. Margin per client, utilization across team, billable-versus-non-billable, retainer drawdown. If those are the metrics you ship to your board, Function Point gets you there in a quarter.
+Their reporting is good for the standard agency shape. Margin per client, utilization across team, billable-versus-non-billable, retainer drawdown. If those are the metrics you ship to your board, Function Point gets you there in a quarter.
 
 Their resourcing tool (who's working on what next week, who's overcommitted) is a real piece of work. Building it from scratch is expensive and most agencies don't need it badly enough to justify the build.
 
@@ -42,9 +42,9 @@ Onboarding velocity is fast if your shape matches. Two weeks of admin work and y
 
 ## Where Function Point breaks
 
-State transitions are flat. Their workflow is "task changes status," not "deliverable transitions through review states with side effects." If your review process is the part of delivery your clients see (and it usually is), Function Point's model is thin. You'll end up emailing PDFs around because the in-tool review surface doesn't carry the weight.
+Every step is the same kind of step. Their workflow is "a task changes status," not "a deliverable moves through review, and each move sets off the right next thing." If your review process is the part of delivery your clients see (and it usually is), Function Point's model is thin. You'll end up emailing PDFs around because the in-tool review surface doesn't carry the weight.
 
-Configurability ceilings hit early. Custom fields exist. Custom workflow logic doesn't. Anything multi-step or with conditional branching pushes you to Zapier, which then becomes another tool to maintain.
+You hit the limits of the settings early. Custom fields exist. Custom workflow logic doesn't. Anything multi-step or with conditional branching pushes you to Zapier, which then becomes another tool to maintain.
 
 Client-facing surfaces are utilitarian. They look like Function Point. If your brand promise includes the client experience, this is a real cost. The agencies I work with usually start the custom-build conversation when their CEO sees a competitor's branded portal and asks why theirs looks like a SaaS.
 
@@ -52,13 +52,13 @@ No serious story for AI in the workflow. Not a knock specifically, the whole cat
 
 ## What custom looks like for an agency this size
 
-[The agency portal I built for a 4-year client](/work/bs-hub) is a working example. Twelve-state inquiry funnel with hard transitions. Review state machine on every deliverable, draft to internal-approved to client-approved with a revision-requested branch back into the loop. Two-tier audit retention, contract rows live seven years, operational rows live one. AI threaded into intake (adaptive questions, brand brief from the client's website), per-task AI briefs auto-generated from scope, daily security-watch cron sweeping for anomalies. Branded all the way through.
+[The agency portal I built for a 4-year client](/work/bs-hub) is a working example. Every inquiry moves through 12 fixed steps. Every deliverable goes through sign-off, from draft to internal approval to client approval, and loops back when the client asks for changes. Changes to contracts are kept for seven years, everyday changes for one. AI runs inside the intake (follow-up questions, a brand brief from the client's website), writes a brief for each task from the agreed scope, and a nightly check emails the admins when something looks wrong. Branded all the way through.
 
-That system is larger than the feature list makes it sound. When I had the repo count itself on 2026-07-21 it came back with 84 database models, 255 endpoints and 9 scheduled jobs, all documented and forkable. When I build for the next agency, I work down that surface and decide what to keep, drop, or customize. The unit of work is a slice of something already running, not a blank page.
+That system is larger than the feature list makes it sound. When I had the code counted on 21 July 2026 it came back with 84 database models, 255 endpoints and 9 scheduled jobs, all documented and ready to reuse. When I build for the next agency, I work down that surface and decide what to keep, drop, or customize. The unit of work is a slice of something already running, not a blank page.
 
 Onboarding is the other place it lands. Getting a new client activated on that portal takes about ten minutes, replacing the two to three days of back-and-forth email it used to take.
 
-The point of the custom build isn't to outdo Function Point on reporting. It's to win the parts Function Point flattens, the client experience, the review state machine, the AI assist that lives inside rather than alongside.
+The point of the custom build isn't to outdo Function Point on reporting. It's to win the parts Function Point flattens: the client experience, the sign-off flow, and AI that works inside the process rather than alongside it.
 
 ## How to decide
 

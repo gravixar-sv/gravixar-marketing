@@ -17,28 +17,41 @@ export const KIND_LABELS: Record<GraphicsItem["kind"], string> = {
   print: "print and deck",
 };
 
+// The same label at the start of a line, where it reads as a caption
+// ("Motion design · 2026") rather than mid-sentence.
+export function kindLabel(kind: GraphicsItem["kind"]): string {
+  const label = KIND_LABELS[kind];
+  return label.charAt(0).toUpperCase() + label.slice(1);
+}
+
 // Provenance, rendered as a category and not as a caveat. The three do carry
 // different evidential weight, and showing that is the honest move: a client
 // commission is someone else betting money on the work, self-directed work
 // proves the capability without that bet, a concept proves neither. Weight is
 // carried by text and border brightness only.
 //
-// No coral in here. Coral marks a section start or a pointer state on this
-// site, and a provenance label is neither.
+// No coral in here. Coral marks a human decision on this site (the primary
+// action, an approval, the active route), and a provenance label is none of
+// those.
+//
+// Sans, sentence case, plain words. It used to be tracked uppercase mono
+// ("SELF-DIRECTED, OWN BRAND"), which is the retired 10px terminal label the
+// identity page describes, and "self-directed" is a term a buyer has to
+// translate. Provenance is a label written for people, not machine output.
 const ORIGIN: Record<
   GraphicsItem["origin"],
   { label: string; className: string }
 > = {
   client: {
-    label: "client commission",
-    className: "border-zinc-500/70 bg-zinc-800/70 text-zinc-100",
+    label: "Client work",
+    className: "border-ink-500/70 bg-ink-800/70 text-ink-100",
   },
   "self-directed": {
-    label: "self-directed, own brand",
-    className: "border-line bg-zinc-900/70 text-zinc-300",
+    label: "My own brand",
+    className: "border-line bg-ink-900/70 text-ink-300",
   },
   concept: {
-    label: "concept, unbuilt",
+    label: "Concept, not built",
     className: "border-line-soft text-muted",
   },
 };
@@ -67,7 +80,7 @@ export function OriginChip({ origin }: { origin: GraphicsItem["origin"] }) {
   const { label, className } = ORIGIN[origin];
   return (
     <span
-      className={`shrink-0 rounded-full border px-2.5 py-0.5 font-mono text-label-xs uppercase ${className}`}
+      className={`shrink-0 rounded-full border px-2.5 py-0.5 text-caption ${className}`}
     >
       {label}
     </span>

@@ -1,17 +1,19 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
+import { ViewTransition } from "react";
 import { PageHeader } from "@/components/site/PageHeader";
 import { ContactCTA } from "@/components/home/ContactCTA";
 import { Reveal } from "@/components/site/Reveal";
 import {
   fitsInsideCell,
-  KIND_LABELS,
+  kindLabel,
   OriginChip,
 } from "@/components/site/GraphicsMeta";
 import { GraphicsCardPreview } from "@/components/site/GraphicsCardPreview";
 import { StructuredDataBreadcrumb } from "@/components/site/StructuredData";
-import { loadGraphics } from "@/content/loaders";
+import { loadGraphics, type Loaded } from "@/content/loaders";
+import type { GraphicsItem } from "@/content/schema";
 import { buildMetadata, SITE } from "@/lib/seo";
 
 export const revalidate = 3600;
@@ -19,7 +21,7 @@ export const revalidate = 3600;
 export const metadata: Metadata = buildMetadata({
   title: "Brand and visual work, a capability showcase",
   description:
-    "Identity, interface, motion, web and print, every piece labeled client work, self-directed or concept. What I build in visual systems, shown built.",
+    "Identity, interface, motion, web and print, every piece labeled client work, my own brand or concept. What I build in visual systems, shown built.",
   path: "/graphics",
 });
 
@@ -80,8 +82,11 @@ function packRows(
 export default async function GraphicsIndexPage() {
   const items = await loadGraphics();
   const rowSpans = packRows(items);
+  const leadOut = rowSpans[0] === true;
+  const offset = leadOut ? 1 : 0;
+  const rest = items.slice(offset);
   return (
-    <div className="space-y-16">
+    <div>
       <StructuredDataBreadcrumb
         items={[
           { name: "Home", url: SITE.url },
@@ -95,158 +100,178 @@ export default async function GraphicsIndexPage() {
           needs answered before commissioning visual work. The origin label on
           every card is what keeps the two apart. */}
       <PageHeader
-        eyebrow="capability showcase"
+        eyebrow="Capability showcase"
         title="Visual work, labeled for what it is."
-        lede="A capability showcase, not a client roster. Every piece says where it came from: client work, self-directed work on one of my own brands, or a concept. The list is short today and grows as client work clears."
-      />
+        lede="Not a client list. Each piece says where it came from: work for a client, work for one of my own brands, or a concept. The list is short for now and grows as client work is cleared to show."
+      >
+        {items.length > 0 ? (
+          // Counted from the loader, so the page cannot oversell itself as the
+          // list grows or thins. The old second phrase ("origin labeled on
+          // every piece") said the headline a third time.
+          <p className="text-caption text-ink-500">
+            {items.length} {items.length === 1 ? "piece" : "pieces"} published
+          </p>
+        ) : null}
+      </PageHeader>
 
       {items.length === 0 ? (
         // Still reachable: a draft-only or cleared-out state renders here. An
         // empty state that only says "coming soon" is a dead end, so it names
         // why the showcase is thin and hands the reader the two pages that do
         // carry the work today.
-        <Reveal className="reveal-quiet">
-          <div className="card-surface rounded-xl p-8 md:p-10">
-            <p className="text-lg text-zinc-200">
+        <Reveal className="reveal-quiet mt-12">
+          <div className="card-surface rounded-2xl p-8 md:p-10">
+            <p className="text-lg text-ink-200">
               Nothing published in the showcase yet.
             </p>
-            <p className="mt-3 max-w-xl leading-relaxed text-zinc-400">
+            <p className="mt-3 max-w-xl leading-relaxed text-ink-400">
               The brand and visual work sits inside the builds it was made for.
               This page fills in as pieces get cut loose from those builds, each
               one labeled for what it is.
             </p>
-            <div className="mt-7 flex flex-wrap gap-x-6 gap-y-3">
-              <Link
-                href="/services/brand-visuals"
-                className="font-mono text-label-sm uppercase text-zinc-400 transition-colors hover:text-brand"
-              >
-                Brand and visuals, the scope →
+            <div className="mt-7 flex flex-wrap gap-x-6 gap-y-3 text-[0.9375rem]">
+              <Link href="/services/brand-visuals" className="link-quiet">
+                The brand and visuals service
               </Link>
-              <Link
-                href="/work"
-                className="font-mono text-label-sm uppercase text-zinc-400 transition-colors hover:text-brand"
-              >
-                Case studies →
+              <Link href="/work" className="link-quiet">
+                Case studies
               </Link>
             </div>
           </div>
         </Reveal>
       ) : (
-        <div>
-          {/* Counted from the loader, so the page cannot oversell itself as the
-              list grows or thins. */}
-          <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-2 font-mono text-label-sm uppercase text-zinc-400">
-            <p>
-              {items.length} {items.length === 1 ? "piece" : "pieces"} published
-            </p>
-            <p>origin labeled on every piece</p>
-          </div>
-
-          {/* Two columns, and a featured piece leads full width. Same shape as
-              DemoGrid on the homepage: it gives the lineup a hierarchy and
-              breaks the orphan half-row an odd count leaves behind. Which cards
-              widen comes from packRows above, which places them the way the
-              browser will. The span and the crop are literal class strings,
-              never interpolated, because Tailwind v4 generates utilities by
-              scanning source text and an interpolated class name compiles to
-              nothing at all. */}
-          <Reveal>
-            <div className="reveal-stagger mt-5 grid gap-5 md:grid-cols-2">
-              {items.map((g, i) => {
-                const featured = g.meta.featured;
-                const wide = rowSpans[i] ?? featured;
-                // A cover is either a wide capture or a mark. object-cover on a
-                // square mark crops the mark, so the asset decides its own fit
-                // from the width and height its frontmatter already declares.
-                // Same call Clients.tsx makes for the logo marquee.
-                const fitInside = fitsInsideCell(g.meta.cover);
-                return (
-                  <Link
-                    key={g.meta.slug}
-                    href={`/graphics/${g.meta.slug}`}
-                    className={`card-surface card-hover-glow group block overflow-hidden rounded-xl active:scale-[0.99] ${
-                      wide ? "md:col-span-2" : ""
-                    }`}
-                  >
-                    <div
-                      // Three aspects, not two, because width alone would make
-                      // a widened plain card look like a second lead. Featured
-                      // is the tall 16/9 band; a plain card widened only to
-                      // close a hole takes 21/9, the same width at half the
-                      // height, so the row fills without the rank moving.
-                      // Literal strings: an interpolated class is never
-                      // generated by Tailwind's source scan.
-                      className={`relative overflow-hidden border-b border-line-soft bg-zinc-900 ${
-                        featured
-                          ? "aspect-[16/9]"
-                          : wide
-                            ? "aspect-[21/9]"
-                            : "aspect-[4/3]"
-                      }`}
-                    >
-                      {/* A piece whose subject is motion gets to move here.
-                          The preview swaps the cover image for a muted loop
-                          that starts itself once the card is on screen and
-                          never runs for a reader who asked for reduced motion.
-                          It degrades to the same frame either way: the poster
-                          is server-rendered, so the still cover is what a card
-                          shows before, and instead of, anything playing. */}
-                      {g.meta.preview ? (
-                        <GraphicsCardPreview
-                          src={g.meta.preview.src}
-                          poster={g.meta.preview.poster}
-                          label={g.meta.cover.alt}
-                          className={`transition-transform duration-500 ease-out group-hover:scale-[1.02] ${
-                            fitInside
-                              ? "object-contain p-10 md:p-16"
-                              : "object-cover"
-                          }`}
-                        />
-                      ) : (
-                        <Image
-                          src={g.meta.cover.src}
-                          alt={g.meta.cover.alt}
-                          fill
-                          sizes={
-                            wide
-                              ? "(min-width: 768px) 1152px, 100vw"
-                              : "(min-width: 768px) 50vw, 100vw"
-                          }
-                          className={`transition-transform duration-500 ease-out group-hover:scale-[1.02] ${
-                            fitInside
-                              ? "object-contain p-10 md:p-16"
-                              : "object-cover"
-                          }`}
-                        />
-                      )}
-                    </div>
-                    <div className="p-5">
-                      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-                        <p className="font-mono text-label-sm uppercase text-muted group-hover:text-brand">
-                          {KIND_LABELS[g.meta.kind]} · {g.meta.year}
-                        </p>
-                        <OriginChip origin={g.meta.origin} />
-                      </div>
-                      <h2
-                        className={`mt-3 font-semibold tracking-[-0.015em] text-zinc-100 ${
-                          featured ? "text-xl md:text-2xl" : "text-lg"
-                        }`}
-                      >
-                        {g.meta.title}
-                      </h2>
-                      <p className="mt-2 max-w-2xl text-sm leading-relaxed text-zinc-400">
-                        {g.meta.summary}
-                      </p>
-                    </div>
-                  </Link>
-                );
-              })}
+        // Two columns, and a featured piece leads full width. Which cards
+        // widen comes from packRows above, which places them the way the
+        // browser will. The span and the crop are literal class strings,
+        // never interpolated, because Tailwind v4 generates utilities by
+        // scanning source text and an interpolated class name compiles to
+        // nothing at all.
+        //
+        // The media sits in a lit product frame (.frame-lit) and the words sit
+        // on the ground below it, not inside a second box. The frame carries a
+        // shared-element name, so the cover grows into the detail page's lead
+        // media on navigation instead of the page cross-fading.
+        //
+        // A lead card that fills its own row sits OUTSIDE the <Reveal>: it is
+        // in the fold and its cover is the LCP candidate, so it must never
+        // render part-faded while a scroll timeline waits for the reader.
+        // Splitting after a full-width row cannot disturb packRows, because
+        // that row closes (col is back at 0) before the next card is placed.
+        <>
+          {leadOut && items[0] ? (
+            <div className="mt-12 grid md:mt-16 md:grid-cols-2">
+              <GraphicsCard g={items[0]} wide priority />
             </div>
-          </Reveal>
-        </div>
+          ) : null}
+          {rest.length > 0 ? (
+            <Reveal className={leadOut ? "mt-14 md:mt-20" : "mt-12 md:mt-16"}>
+              <div className="reveal-stagger grid gap-x-6 gap-y-14 md:grid-cols-2">
+                {rest.map((g, j) => (
+                  <GraphicsCard
+                    key={g.meta.slug}
+                    g={g}
+                    wide={rowSpans[j + offset] ?? g.meta.featured}
+                  />
+                ))}
+              </div>
+            </Reveal>
+          ) : null}
+        </>
       )}
 
-      <ContactCTA />
+      <div className="mt-20 md:mt-28">
+        <ContactCTA />
+      </div>
     </div>
+  );
+}
+
+// One showcase card: the cover in a lit frame, the words on the ground below.
+function GraphicsCard({
+  g,
+  wide,
+  priority = false,
+}: {
+  g: Loaded<GraphicsItem>;
+  wide: boolean;
+  priority?: boolean;
+}) {
+  const featured = g.meta.featured;
+  // A cover is either a wide capture or a mark. object-cover on a
+  // square mark crops the mark, so the asset decides its own fit
+  // from the width and height its frontmatter already declares.
+  const fitInside = fitsInsideCell(g.meta.cover);
+  const mediaClass = `transition-transform duration-700 ease-out-expo group-hover:scale-[1.02] ${
+    fitInside ? "object-contain p-10 md:p-16" : "object-cover"
+  }`;
+  return (
+    <Link
+      href={`/graphics/${g.meta.slug}`}
+      className={`group block ${wide ? "md:col-span-2" : ""}`}
+    >
+      <ViewTransition name={`gfx-${g.meta.slug}`} share="morph-media" default="none">
+        <div
+          // Three aspects, not two, because width alone would make
+          // a widened plain card look like a second lead. Featured
+          // is the tall 16/9 band; a plain card widened only to
+          // close a hole takes 21/9, the same width at half the
+          // height, so the row fills without the rank moving.
+          className={`frame-lit relative overflow-hidden rounded-2xl ${
+            featured
+              ? "aspect-[16/9]"
+              : wide
+                ? "aspect-[4/3] md:aspect-[21/9]"
+                : "aspect-[4/3]"
+          }`}
+        >
+          {/* A piece whose subject is motion gets to move here.
+              The preview swaps the cover image for a muted clip
+              that plays once each time the card scrolls into view
+              and never runs for a reader who asked for reduced motion.
+              It degrades to the same frame either way: the poster
+              is server-rendered, so the still cover is what a card
+              shows before, and instead of, anything playing. */}
+          {g.meta.preview ? (
+            <GraphicsCardPreview
+              src={g.meta.preview.src}
+              poster={g.meta.preview.poster}
+              label={g.meta.cover.alt}
+              className={mediaClass}
+            />
+          ) : (
+            <Image
+              src={g.meta.cover.src}
+              alt={g.meta.cover.alt}
+              fill
+              sizes={
+                wide
+                  ? "(min-width: 768px) 1104px, 100vw"
+                  : "(min-width: 768px) 540px, 100vw"
+              }
+              priority={priority}
+              className={mediaClass}
+            />
+          )}
+        </div>
+      </ViewTransition>
+      <div className="mt-5">
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+          <p className="text-caption text-ink-500">
+            {kindLabel(g.meta.kind)} · {g.meta.year}
+          </p>
+          <OriginChip origin={g.meta.origin} />
+        </div>
+        <h2
+          className={`mt-2.5 max-w-[34ch] font-semibold text-ink-100 transition-colors group-hover:text-ink-50 ${
+            featured ? "text-subsection" : "text-reference"
+          }`}
+        >
+          {g.meta.title}
+        </h2>
+        <p className="mt-2.5 max-w-[62ch] text-[0.9375rem] leading-relaxed text-ink-400">
+          {g.meta.summary}
+        </p>
+      </div>
+    </Link>
   );
 }

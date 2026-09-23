@@ -1,0 +1,51 @@
+/* The closing panel paints its own surface, which hides the body's grain, so
+   the grain is laid back on top of the ember light. Same tile and the same
+   .04 ceiling as body in globals.css: a background image, not a filter, so it
+   is rasterised once and never repaints on scroll. Nothing here moves, so
+   there is no reduced-motion case. */
+.grain {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 .96 0 0 0 0 .9 0 0 0 .04 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* The portrait is a daylight studio shot on a pale grey wall. Set into a dark
+   panel as-is it would be the brightest thing on the page, so it is taken to
+   grey, pulled down, and warmed so it sits in the same ember light as the
+   panel. The crop is a static scale on the image (not a transition), so it is
+   not motion either.
+   Phones: a 64px square, cropped tight to the face.
+   md and up: a 4:5 figure, head and shoulders, whose foot dissolves into the
+   panel (the same mask as the .dissolve utility, which cannot take a
+   breakpoint variant) so it reads as a person in the room, not a thumbnail. */
+.portrait {
+  filter: grayscale(1) contrast(1.12) brightness(0.78);
+  object-position: 55% 22%;
+  scale: 1.55;
+  transform-origin: 55% 26%;
+}
+.warm {
+  background: rgb(255 190 150);
+  mix-blend-mode: multiply;
+  opacity: 0.38;
+}
+.vignette {
+  background:
+    radial-gradient(75% 70% at 52% 38%, transparent 45%, rgb(17 15 13 / 0.72) 100%),
+    linear-gradient(to top, rgb(17 15 13 / 0.55), transparent 45%);
+}
+
+@media (min-width: 48rem) {
+  .frame {
+    -webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent);
+    mask-image: linear-gradient(to bottom, #000 70%, transparent);
+  }
+  .portrait {
+    object-position: 56% 0%;
+    scale: 1.12;
+    transform-origin: 56% 0%;
+  }
+  .vignette {
+    background:
+      radial-gradient(90% 75% at 55% 32%, transparent 50%, rgb(17 15 13 / 0.6) 100%),
+      linear-gradient(to top, rgb(17 15 13 / 0.5), transparent 40%);
+  }
+}

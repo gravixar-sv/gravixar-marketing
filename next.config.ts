@@ -42,6 +42,15 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     serverActions: { bodySizeLimit: "5mb" },
+    // OFF on purpose. Next 16.3 turns the Turbopack file-system cache on for
+    // `next build`, and Vercel restores .next/cache between builds. On
+    // 2026-09-23 the redesign's preview (PR #166) shipped the NEW markup with
+    // the OLD globals.css: the stylesheet came out of the restored cache from
+    // main's last build (Hubot Sans, #0a0a0a) although the commit held the new
+    // file, while a clean local build of the same commit was correct. Merged
+    // like that, production would have rendered new pages on old tokens. A
+    // slower build is the right trade for a stylesheet that matches the commit.
+    turbopackFileSystemCacheForBuild: false,
     // NO viewTransition FLAG HERE ANY MORE, and that is deliberate.
     //
     // Next 16.3.4 REMOVED `experimental.viewTransition`. It is rejected twice

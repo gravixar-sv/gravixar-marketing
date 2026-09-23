@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PageHeader } from "@/components/site/PageHeader";
+import { Reveal } from "@/components/site/Reveal";
 import { ContactCTA } from "@/components/home/ContactCTA";
+import { FrontDoor } from "@/components/services/FrontDoor";
+import { TRACK_LABEL, type Track } from "@/components/services/model";
+import { ServiceRow } from "@/components/services/ServiceRow";
 import { loadServices } from "@/content/loaders";
 import { separatorBefore } from "@/lib/prose";
 import { buildMetadata } from "@/lib/seo";
@@ -11,150 +15,88 @@ export const revalidate = 3600;
 // Describes the tracks, not the services inside them, because the list of
 // services keeps growing and a description that enumerates them goes stale on
 // the next one. Tracks change when the shape of the business changes, and it
-// changed on 2026-09-14: a fixed-price diagnostic became the first step.
+// changed on 2026-09-14: a fixed-price audit became the first step.
 export const metadata: Metadata = buildMetadata({
   title: "Ops leak audit, operations infrastructure, AI tooling, code review",
   description:
-    "Start with a fixed-price diagnostic. Then systems I build, and a code review and a retainer that keep them honest after they ship.",
+    "Start with a fixed-price audit of where your team's hours go. Then I build the fix, and check that it holds after launch.",
   path: "/services",
 });
 
-// Every track, in render order, each label echoing one clause of the h1 so the
-// heading works as this page's table of contents. The order is ascending
-// commitment: a diagnostic with a fixed price, a project that ends, a system I
-// keep honest after it ships, a site I keep running for as long as you want it
-// up. A service's `track` decides which row it lands in, so nothing here has to
-// know how many services exist, and an empty track renders nothing. The
-// homepage leaves its equivalent bands unlabeled and lets spacing carry the
-// split; the index labels them because /modules labels its groups, and because
-// on the page where someone is choosing, "is this a project or a commitment" is
-// the question to answer before the click.
+// The menu tracks after the front door, in ascending commitment: a project
+// that ends, a system I keep checking after it ships, a site I keep running.
+// A service's `track` decides which group it lands in, so nothing here has to
+// know how many services exist, and an empty track renders nothing.
 //
-// "maintain" stays in the list with no card in it today (managed services moved
+// "maintain" stays in the list with nothing in it today (managed services moved
 // to the existing-clients line), so a future maintain offer for everyone
-// renders without anyone remembering to put the row back. The h1 names only the
-// rows that render; add its clause back if that happens.
+// renders without anyone remembering to put the group back.
 //
 // THIS LIST IS THE WHOLE FILTER, and it fails quiet. A service whose track is
-// not named below matches no row, so it renders nowhere and raises nothing: no
-// build error, no empty state, just a page one service short. Widening
-// serviceSchema.track means adding a row here in the same commit.
-const TRACKS = [
-  { id: "start", label: "where to start" },
-  { id: "build", label: "what i build" },
-  { id: "ongoing", label: "what i keep honest" },
-  { id: "maintain", label: "what i keep running" },
-] as const;
-
-
-// A track's cards each span 12 / (services in that track), so every row fills
-// completely and no count leaves an orphan. 12 divides by 1, 2, 3, 4, 6 and
-// 12, which covers any realistic service count. This is a lookup rather than
-// `md:col-span-${12 / count}` because Tailwind only generates classes it can
-// read as literal strings in the source; an interpolated one compiles to
-// nothing and the card silently loses its span. A count 12 cannot divide
-// (5, 7, 8...) falls back to thirds and wraps, which is ugly but not broken.
-const TRACK_SPAN: Record<number, string> = {
-  1: "md:col-span-12",
-  2: "md:col-span-6",
-  3: "md:col-span-4",
-  4: "md:col-span-3",
-  6: "md:col-span-2",
-  12: "md:col-span-1",
-};
+// not named here (or "start", which renders as the front door) matches no
+// group, so it renders nowhere and raises nothing. Widening
+// serviceSchema.track means adding it here in the same commit.
+const MENU_TRACKS: Track[] = ["build", "ongoing", "maintain"];
 
 export default async function ServicesIndexPage() {
   const all = await loadServices();
-  // The grid is the menu for a stranger. Existing-clients offers keep their
-  // pages and get one line under the grid instead of a card in it.
+  // The menu is for a stranger. Existing-clients offers keep their pages and
+  // get one sentence under the menu instead of a row in it.
   const services = all.filter((s) => s.meta.audience === "everyone");
   const forExistingClients = all.filter((s) => s.meta.audience === "existing-clients");
+  const frontDoor = services.filter((s) => s.meta.track === "start");
 
   return (
-    <div className="space-y-16">
+    <div>
       <PageHeader
-        eyebrow="services"
-        title="Where to start, what I build, and what I keep honest after it ships."
-        lede="Start with the Ops Leak Audit if you are not sure what you need. Each page links to the proof: a case study, a live demo, or a system running in production."
+        eyebrow="Services"
+        title="Start with the numbers. Then decide what to build."
+        lede="Not sure what you need? The audit below is the first step, at a fixed price. Every service links to proof you can check: a case study, a live demo, or a system running today."
       />
 
-      {TRACKS.map(({ id, label }) => {
-        const inTrack = services.filter((s) => s.meta.track === id);
+      {frontDoor.length > 0 ? (
+        <div className="mt-12 space-y-6 md:mt-16">
+          {frontDoor.map((s) => (
+            <FrontDoor key={s.meta.slug} meta={s.meta} />
+          ))}
+        </div>
+      ) : null}
+
+      {MENU_TRACKS.map((track) => {
+        const inTrack = services.filter((s) => s.meta.track === track);
         if (inTrack.length === 0) return null;
-        const span = TRACK_SPAN[inTrack.length] ?? "md:col-span-4";
-
         return (
-          <section key={id}>
-            <p className="font-mono text-label uppercase text-brand">
-              {label}
-            </p>
-            <div className="mt-5 grid gap-4 md:grid-cols-12">
-              {inTrack.map((s) => (
-                <Link
-                  key={s.meta.slug}
-                  href={`/services/${s.meta.slug}`}
-                  className={`card-surface card-hover-glow group flex flex-col rounded-xl p-6 ${span}`}
-                >
-                  <p className="font-mono text-label-sm uppercase text-muted group-hover:text-brand">
-                    {s.meta.bucket}
-                  </p>
-                  <h2 className="mt-2 text-2xl font-semibold tracking-[-0.015em] text-zinc-100">
-                    {s.meta.title}
-                  </h2>
-                  {/* Measured, not free. A third of the row is ~34 characters a
-                      line and a half is ~55, both fine, but a lone service in
-                      its own track spans all 12 and an uncapped tagline would
-                      cross 110 characters, which is a line nobody tracks back
-                      from. The cap costs the halves about four characters and
-                      makes any span readable. */}
-                  <p className="mt-3 max-w-[54ch] text-sm leading-relaxed text-zinc-400">
-                    {s.meta.tagline}
-                  </p>
-                  {/* Price sits ABOVE the proof row, inside the mt-auto block,
-                      so the proof count stays the row's shared baseline and
-                      the card with no pricing still bottoms out level.
-
-                      Rendered VERBATIM, never truncated. As of 2026-09-14 four
-                      of the five cards carry a real figure and one (AI
-                      Tooling) still answers with a shape, and clipping any of
-                      them to a first clause would turn an honest hedge into a
-                      hidden price or a range into a single number. A price is
-                      the only line on the card that lets someone rule
-                      themselves in or out without a click. */}
-                  <div className="mt-auto pt-5">
-                    {s.meta.pricing ? (
-                      <p className="text-sm leading-relaxed text-zinc-300">{s.meta.pricing}</p>
-                    ) : null}
-                    {s.meta.proof.length > 0 ? (
-                      <p
-                        className={`font-mono text-label-sm uppercase text-muted group-hover:text-brand ${
-                          s.meta.pricing ? "mt-4" : ""
-                        }`}
-                      >
-                        {s.meta.proof.length} proof{s.meta.proof.length > 1 ? "s" : ""}
-                        <span className="ml-1 inline-block transition-transform group-hover:translate-x-0.5">→</span>
-                      </p>
-                    ) : null}
-                  </div>
-                </Link>
-              ))}
-            </div>
+          <section key={track} aria-labelledby={`track-${track}`} className="mt-20 md:mt-28">
+            {/* A label-sized h2: it opts out of the global display width and
+                tracking, which only suit headings at display sizes. */}
+            <h2
+              id={`track-${track}`}
+              className="text-caption font-medium tracking-normal text-ink-400 [font-stretch:100%]"
+            >
+              {TRACK_LABEL[track]}
+            </h2>
+            <Reveal className="reveal-quiet">
+              <div className="mt-3 border-t border-line">
+                <div className="reveal-stagger divide-y divide-line-soft">
+                  {inTrack.map((s) => (
+                    <div key={s.meta.slug}>
+                      <ServiceRow meta={s.meta} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </Reveal>
           </section>
         );
       })}
 
       {forExistingClients.length > 0 ? (
-        <p className="max-w-2xl text-sm leading-relaxed text-zinc-400">
-          <span className="font-mono text-label-sm uppercase text-muted">
-            also available to existing clients
-          </span>{" "}
+        <p className="mt-16 max-w-2xl text-[0.9375rem] leading-relaxed text-ink-400 md:mt-20">
+          Clients I already work with can also add{" "}
           {forExistingClients.map((s, i) => (
             <span key={s.meta.slug}>
               {separatorBefore(i, forExistingClients.length)}
-              <Link
-                href={`/services/${s.meta.slug}`}
-                className="text-brand-soft underline-offset-4 hover:underline"
-              >
+              <Link href={`/services/${s.meta.slug}`} className="link-quiet">
                 {s.meta.title}
               </Link>
             </span>
@@ -163,7 +105,9 @@ export default async function ServicesIndexPage() {
         </p>
       ) : null}
 
-      <ContactCTA />
+      <div className="mt-24 md:mt-32">
+        <ContactCTA />
+      </div>
     </div>
   );
 }

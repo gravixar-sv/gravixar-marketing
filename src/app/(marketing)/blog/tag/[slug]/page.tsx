@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/site/PageHeader";
 import { PostList } from "@/components/site/PostList";
+import { ContactCTA } from "@/components/home/ContactCTA";
 import { StructuredDataBreadcrumb } from "@/components/site/StructuredData";
+import { TopicNav } from "@/components/content/TopicNav";
+import { tagIndex } from "@/components/content/blog";
+import { loadBlogPosts } from "@/content/loaders";
 import { loadTagHub, loadTagHubs } from "@/lib/blog-tags";
 import { buildMetadata, SITE } from "@/lib/seo";
 
@@ -31,17 +34,22 @@ export async function generateMetadata(
   });
 }
 
+// Same shape as /blog on purpose: the topics row with this hub current, a lead,
+// then rows. The "Other topics" footer that used to close this page is gone,
+// because the topics row at the top already offers every sibling.
 export default async function BlogTagPage(
   { params }: { params: Promise<{ slug: string }> },
 ) {
   const { slug } = await params;
-  const hub = await loadTagHub(slug);
+  const [hub, hubs, posts] = await Promise.all([
+    loadTagHub(slug),
+    loadTagHubs(),
+    loadBlogPosts(),
+  ]);
   if (!hub) notFound();
 
-  const others = (await loadTagHubs()).filter((h) => h.slug !== hub.slug);
-
   return (
-    <div className="space-y-16">
+    <div>
       <StructuredDataBreadcrumb
         items={[
           { name: "Home", url: SITE.url },
@@ -50,40 +58,27 @@ export default async function BlogTagPage(
         ]}
       />
       <PageHeader
-        eyebrow={`writing · ${hub.tag}`}
+        eyebrow="Writing"
+        eyebrowHref="/blog"
         title={hub.label}
         lede={hub.description}
-      />
+      >
+        <TopicNav hubs={hubs} total={posts.length} current={hub.slug} />
+      </PageHeader>
 
-      {/* Tags repeat on every card here, so they are dropped from the rows and
-          the sibling tags are offered once, at the bottom, instead. */}
-      <PostList
-        posts={hub.posts}
-        showTags={false}
-        emptyMessage="Nothing tagged this yet."
-      />
+      <div className="mt-12 md:mt-16">
+        <PostList
+          posts={hub.posts}
+          tags={tagIndex(hubs, posts.length)}
+          hideTag={hub.slug}
+          lead={hub.posts.length > 2}
+          emptyMessage="Nothing filed under this topic yet."
+        />
+      </div>
 
-      <footer className="border-t border-line-soft pt-6">
-        <p className="font-mono text-label-sm uppercase text-muted">Other topics</p>
-        <ul className="mt-3 flex flex-wrap gap-1.5">
-          {others.map((h) => (
-            <li key={h.slug}>
-              <Link
-                href={`/blog/tag/${h.slug}`}
-                className="block rounded-sm border border-line bg-zinc-900 px-1.5 py-0.5 font-mono text-[10px] text-zinc-400 transition-colors hover:border-brand-deep hover:text-brand-soft"
-              >
-                {h.tag}
-              </Link>
-            </li>
-          ))}
-        </ul>
-        <Link
-          href="/blog"
-          className="mt-6 inline-block text-sm text-brand-soft hover:underline"
-        >
-          ← All writing
-        </Link>
-      </footer>
+      <div className="mt-20 md:mt-28">
+        <ContactCTA />
+      </div>
     </div>
   );
 }

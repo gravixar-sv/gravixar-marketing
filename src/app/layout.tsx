@@ -1,7 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import { Geist_Mono } from "next/font/google";
-import "@fontsource-variable/hubot-sans";
-import "@fontsource-variable/mona-sans";
+import { Geist_Mono, Newsreader } from "next/font/google";
+// Mona Sans with its width axis (wght 200-900, wdth 75-125), so display sizes
+// can run slightly condensed. Hubot Sans was retired 2026-09-23: its capital
+// I carries slab serifs, which read as a fallback glyph in every first-person
+// heading on a site written as "I".
+import "@fontsource-variable/mona-sans/wdth.css";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { StructuredDataGlobal } from "@/components/site/StructuredData";
@@ -12,20 +15,30 @@ import "@/styles/globals.css";
 // (DemoBanner, Navbar, Footer, main wrapper) lives in (marketing)/layout.tsx
 // so admin and other non-marketing routes don't inherit it.
 //
-// Display + body type is Hubot Sans + Mona Sans (GitHub's open variable
-// grotesks), self-hosted via @fontsource-variable and consumed by the
-// Tailwind theme as --font-display / --font-sans. Mono stays Geist Mono
-// (next/font self-hosts it) for field labels, numerals, and status pills.
+// Three voices, one job each: Mona Sans is the brand (self-hosted via
+// @fontsource-variable), Geist Mono is machine output (URLs, timestamps,
+// status), and Newsreader italic is the human voice, used for one phrase per
+// page at most. next/font self-hosts the two Google faces.
 const geistMono = Geist_Mono({
   subsets: ["latin"],
   variable: "--font-geist-mono",
   display: "swap",
 });
+const newsreader = Newsreader({
+  subsets: ["latin"],
+  style: ["italic"],
+  weight: ["400"],
+  variable: "--font-newsreader",
+  display: "swap",
+  // Not preloaded: it is an accent, never the LCP text, and most routes set
+  // at most one phrase in it.
+  preload: false,
+});
 
 export const metadata: Metadata = {
-  title: { default: `${SITE.name} · AI-ops platform with a human on every approval`, template: `%s · ${SITE.name}` },
+  title: { default: `${SITE.name} · The AI-ops platform that asks before it acts`, template: `%s · ${SITE.name}` },
   description:
-    "Gravixar is an AI-ops platform: portals, intake wizards, and content agents that run your operations with a human on every write. In production before you buy.",
+    "Client portals, intake forms, and AI that drafts the work, with a person approving every action before it happens. See each one running before you buy.",
   metadataBase: new URL(SITE.url),
   applicationName: SITE.name,
   authors: [{ name: SITE.author, url: SITE.url }],
@@ -36,7 +49,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0a0a0a",
+  themeColor: "#0c0a09",
   width: "device-width",
   initialScale: 1,
 };
@@ -47,14 +60,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
+    // Smooth scrolling lives in globals.css behind prefers-reduced-motion.
+    // data-scroll-behavior tells Next 16 to suspend it during route changes,
+    // so a navigation from a scrolled page never animates the jump to top.
     <html
       lang="en"
-      className={`${geistMono.variable} scroll-smooth`}
+      className={`${geistMono.variable} ${newsreader.variable}`}
+      data-scroll-behavior="smooth"
     >
       <head>
         <StructuredDataGlobal />
       </head>
-      <body className="bg-[#0a0a0a] text-[#fafafa]">
+      <body className="text-fg">
         {children}
         <Analytics />
         <SpeedInsights />

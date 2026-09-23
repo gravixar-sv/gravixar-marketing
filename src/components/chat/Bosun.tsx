@@ -202,13 +202,20 @@ export function Bosun({ sourcePage }: { sourcePage: string }) {
 
   if (!open) {
     return (
+      // Below md the launcher is a small "Ask" pill that fades in only after
+      // the fold has scrolled away (.bosun-launcher in globals.css): the old
+      // full-width pill sat on top of the hero's primary button. No coral dot:
+      // Bosun is the machine, and coral marks a human decision. Solid, not
+      // frosted: glass is not part of this system.
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="fixed bottom-5 right-5 z-40 inline-flex h-10 items-center gap-2 rounded-full border border-zinc-700 bg-zinc-950/90 px-4 text-[12px] font-medium text-zinc-100 backdrop-blur transition-colors duration-200 ease-out hover:border-brand hover:text-brand-soft"
+        aria-label="Ask Bosun"
+        className="bosun-launcher fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-4 z-40 inline-flex h-11 items-center justify-center gap-2 rounded-full border border-line-strong bg-ink-900 px-4 text-[0.8125rem] font-medium text-ink-100 shadow-[0_12px_30px_-12px_rgb(0_0_0/0.8)] transition-[border-color,background-color,scale] duration-200 ease-spring hover:border-ink-400/60 hover:bg-ink-800 active:scale-[0.96] md:bottom-6 md:right-6 md:h-10"
       >
-        <span aria-hidden className="size-1.5 rounded-full bg-brand" />
-        Ask Bosun
+        <span aria-hidden className="size-1.5 rounded-full bg-ink-300" />
+        <span aria-hidden className="md:hidden">Ask</span>
+        <span aria-hidden className="hidden md:inline">Ask Bosun</span>
       </button>
     );
   }
@@ -219,11 +226,11 @@ export function Bosun({ sourcePage }: { sourcePage: string }) {
       role="dialog"
       aria-modal="false"
       aria-label="Ask Bosun, an automated answer panel"
-      className="fixed bottom-5 right-5 z-40 flex h-[min(32rem,calc(100dvh-2.5rem))] w-[min(24rem,calc(100vw-2.5rem))] flex-col overflow-hidden rounded-xl border border-line bg-zinc-950 shadow-2xl"
+      className="pop-in panel-lit fixed bottom-4 right-4 z-40 flex h-[min(34rem,calc(100dvh-2rem))] w-[min(24rem,calc(100vw-2rem))] flex-col overflow-hidden rounded-2xl md:bottom-6 md:right-6"
     >
       <header className="flex items-center justify-between border-b border-line px-4 py-3">
         <p className="font-mono text-label-sm uppercase text-muted">
-          Bosun <span className="text-zinc-600">({meta?.pronunciation ?? "boh-sun"})</span>
+          Bosun <span className="text-ink-500">({meta?.pronunciation ?? "boh-sun"})</span>
         </p>
         <button
           type="button"
@@ -232,7 +239,7 @@ export function Bosun({ sourcePage }: { sourcePage: string }) {
             setOpen(false);
           }}
           aria-label="Close Bosun"
-          className="text-[11px] text-muted transition-colors duration-200 ease-out hover:text-zinc-300"
+          className="text-[0.75rem] text-muted transition-colors duration-200 ease-out hover:text-ink-300"
         >
           close
         </button>
@@ -242,7 +249,7 @@ export function Bosun({ sourcePage }: { sourcePage: string }) {
         {turns.map((t, i) => (
           <div key={i} className={t.role === "visitor" ? "text-right" : ""}>
             {t.role === "visitor" ? (
-              <p className="inline-block max-w-[85%] rounded-lg bg-zinc-800 px-3 py-2 text-left text-[12px] leading-snug text-zinc-100">
+              <p className="inline-block max-w-[85%] rounded-lg bg-ink-800 px-3 py-2 text-left text-[0.8125rem] leading-snug text-ink-100">
                 {t.text}
               </p>
             ) : t.quoted ? (
@@ -250,28 +257,28 @@ export function Bosun({ sourcePage }: { sourcePage: string }) {
               // Qamar, so published copy repeated flat would have Bosun saying
               // "I" about work it did not do. The rule reads on screen: indented
               // and sourced is a quotation, plain text is Bosun.
-              <figure className="border-l border-zinc-700 pl-3">
-                <blockquote className="whitespace-pre-line text-[12px] leading-relaxed text-zinc-300">
+              <figure className="border-l border-ink-700 pl-3">
+                <blockquote className="whitespace-pre-line text-[0.8125rem] leading-relaxed text-ink-300">
                   {t.text}
                 </blockquote>
-                <figcaption className="mt-1 font-mono text-label-sm uppercase text-zinc-400">
+                <figcaption className="mt-1 font-mono text-label-sm uppercase text-ink-400">
                   quoted from{" "}
                   <a
                     href={t.href}
-                    className="text-muted transition-colors duration-200 ease-out hover:text-brand-soft"
+                    className="text-muted transition-colors duration-200 ease-out hover:text-ink-50"
                   >
                     {t.href}
                   </a>
                 </figcaption>
               </figure>
             ) : (
-              <p className="whitespace-pre-line text-[12px] leading-relaxed text-zinc-300">
+              <p className="whitespace-pre-line text-[0.8125rem] leading-relaxed text-ink-300">
                 {t.text}
               </p>
             )}
           </div>
         ))}
-        {busy ? <p className="text-[11px] text-zinc-600">thinking</p> : null}
+        {busy ? <p className="text-[0.75rem] text-ink-500">thinking</p> : null}
         {showSuggestions && meta?.suggestions?.length && !busy ? (
           <div className="flex flex-wrap gap-1.5 pt-1">
             {meta.suggestions.map((s) => (
@@ -279,7 +286,7 @@ export function Bosun({ sourcePage }: { sourcePage: string }) {
                 key={s}
                 type="button"
                 onClick={() => void send(s)}
-                className="rounded-full border border-line px-2.5 py-1 text-[11px] text-zinc-400 transition-colors duration-200 ease-out hover:border-brand hover:text-brand-soft"
+                className="rounded-full border border-line px-2.5 py-1 text-[0.75rem] text-ink-400 transition-colors duration-200 ease-out hover:border-line-strong hover:text-ink-50"
               >
                 {s}
               </button>
@@ -316,14 +323,14 @@ export function Bosun({ sourcePage }: { sourcePage: string }) {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           maxLength={600}
-          placeholder="Ask about the services or the work"
+          placeholder="Ask what a service costs or what has been built"
           aria-label="Your question"
-          className="h-8 flex-1 rounded-md border border-line bg-transparent px-2 text-[12px] text-zinc-100 outline-none placeholder:text-zinc-600 focus-visible:border-brand"
+          className="h-10 flex-1 rounded-lg border border-line bg-ink-950/60 px-3 text-base text-ink-100 transition-colors placeholder:text-ink-500 focus:border-ink-400/70 md:h-9 md:text-[0.8125rem]"
         />
         <button
           type="submit"
           disabled={busy || !input.trim()}
-          className="h-8 rounded-md border border-zinc-700 px-3 text-[11px] font-medium text-zinc-100 transition-colors duration-200 ease-out hover:border-brand hover:text-brand-soft disabled:opacity-40"
+          className="h-10 rounded-lg bg-brand px-3.5 text-[0.8125rem] font-medium text-bg transition-[background-color,scale] duration-200 ease-spring hover:bg-brand-soft active:scale-[0.96] disabled:bg-ink-800 disabled:text-ink-500 md:h-9"
         >
           send
         </button>
@@ -377,11 +384,11 @@ function CaptureCard({
   }
 
   return (
-    <div className="rounded-lg border border-line p-3">
+    <div className="rounded-xl border border-line bg-ink-950/40 p-3.5">
       <p className="font-mono text-label-sm uppercase text-muted">
         hand it to Qamar
       </p>
-      <p className="mt-1 text-[11px] leading-snug text-zinc-400">
+      <p className="mt-1 text-[0.75rem] leading-snug text-ink-400">
         Nothing is sent until you press the button, and this is exactly what goes.
       </p>
       <div className="mt-2 space-y-2">
@@ -390,7 +397,7 @@ function CaptureCard({
           onChange={(e) => setName(e.target.value)}
           placeholder="Name"
           aria-label="Your name"
-          className="h-8 w-full rounded-md border border-line bg-transparent px-2 text-[12px] text-zinc-100 outline-none placeholder:text-zinc-600 focus-visible:border-brand"
+          className="h-10 w-full rounded-lg border border-line bg-ink-950/60 px-3 text-base text-ink-100 transition-colors placeholder:text-ink-500 focus:border-ink-400/70 md:h-9 md:text-[0.8125rem]"
         />
         <input
           value={email}
@@ -398,7 +405,7 @@ function CaptureCard({
           placeholder="Email"
           type="email"
           aria-label="Your email"
-          className="h-8 w-full rounded-md border border-line bg-transparent px-2 text-[12px] text-zinc-100 outline-none placeholder:text-zinc-600 focus-visible:border-brand"
+          className="h-10 w-full rounded-lg border border-line bg-ink-950/60 px-3 text-base text-ink-100 transition-colors placeholder:text-ink-500 focus:border-ink-400/70 md:h-9 md:text-[0.8125rem]"
         />
         <textarea
           value={message}
@@ -406,14 +413,14 @@ function CaptureCard({
           rows={3}
           placeholder="What do you need? A sentence or two is enough."
           aria-label="Your message"
-          className="w-full rounded-md border border-line bg-transparent px-2 py-1.5 text-[12px] leading-snug text-zinc-100 outline-none placeholder:text-zinc-600 focus-visible:border-brand"
+          className="w-full rounded-lg border border-line bg-ink-950/60 px-3 py-2 text-base leading-snug text-ink-100 transition-colors placeholder:text-ink-500 focus:border-ink-400/70 md:text-[0.8125rem]"
         />
       </div>
-      <p className="mt-2 font-mono text-[10px] leading-snug text-zinc-600">
+      <p className="mt-2 font-mono text-[0.6875rem] leading-snug text-ink-500">
         sending: name, email, your message, and this page ({sourcePage})
       </p>
       {state === "error" ? (
-        <p className="mt-1 text-[11px] text-red-400">
+        <p className="mt-1 text-[0.75rem] text-danger">
           That did not send. The contact form still works.
         </p>
       ) : null}
@@ -421,7 +428,7 @@ function CaptureCard({
         type="button"
         onClick={() => void submit()}
         disabled={!ready || state === "sending"}
-        className="mt-2 h-8 w-full rounded-md border border-zinc-700 text-[11px] font-medium text-zinc-100 transition-colors duration-200 ease-out hover:border-brand hover:text-brand-soft disabled:opacity-40"
+        className="mt-2 h-8 w-full rounded-md border border-ink-700 text-[0.75rem] font-medium text-ink-100 transition-colors duration-200 ease-out hover:border-line-strong hover:text-ink-50 disabled:opacity-40"
       >
         {state === "sending" ? "sending" : "send to Qamar"}
       </button>

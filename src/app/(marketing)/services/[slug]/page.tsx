@@ -2,13 +2,23 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/site/PageHeader";
+import { Reveal } from "@/components/site/Reveal";
 import { MDX } from "@/content/mdx";
-import { ServiceInquiryForm } from "@/components/lead/ServiceInquiryForm";
+import { Arrow, buttonClass } from "@/components/ui/Button";
 import {
   StructuredDataBreadcrumb,
   StructuredDataService,
 } from "@/components/site/StructuredData";
-import { loadServices } from "@/content/loaders";
+import { extractPairings, splitAtMarkers } from "@/components/services/body";
+import { DemoFigure, hasDemoFigure } from "@/components/services/DemoFigure";
+import { FactsLedger, ledgerFor } from "@/components/services/FactsLedger";
+import { GalleryFigure, galleryPlacementFor } from "@/components/services/GalleryFigure";
+import { primaryCta, termsFor, TRACK_LABEL } from "@/components/services/model";
+import { ServiceAside } from "@/components/services/ServiceAside";
+import { ServiceClosing } from "@/components/services/ServiceClosing";
+import { TermsStrip } from "@/components/services/TermsStrip";
+import { loadGraphics, loadServices } from "@/content/loaders";
+import { cn } from "@/lib/cn";
 import { buildMetadata, SITE } from "@/lib/seo";
 
 export const revalidate = 3600;
@@ -32,6 +42,16 @@ export async function generateMetadata(
   });
 }
 
+// The detail template is built around the decision, in reading order:
+//   1. the headline, the one-line promise, and the deal (price, scope,
+//      timeline) with the primary action, all above the fold on any screen;
+//   2. the article in a reading column, with a spec aside beside it: the
+//      proof, what it pairs with, then a small sticky deal card. MDX comment
+//      markers place a facts ledger, a real demo screenshot, or a piece from
+//      the gallery between runs of prose (see splitAtMarkers);
+//   3. the closing panel (#start), where the header's button lands.
+// Before this, the $3,500 front door showed its price at the bottom of the
+// aside on desktop and after the whole article on a phone.
 export default async function ServicePage(
   { params }: { params: Promise<{ slug: string }> },
 ) {
@@ -40,8 +60,32 @@ export default async function ServicePage(
   const s = services.find((x) => x.meta.slug === slug);
   if (!s) notFound();
 
+  const { body, pairings } = extractPairings(s.body);
+  const ledger = ledgerFor(slug, body);
+  // A published /graphics piece, only for pages that name one. Loaded, not
+  // hardcoded, so an unpublished or renamed piece drops the figure.
+  const placement = galleryPlacementFor(slug);
+  const galleryPiece = placement
+    ? (await loadGraphics()).find((g) => g.meta.slug === placement.piece)?.meta
+    : undefined;
+  // Only markers this page can fill are split out; any other comment stays in
+  // the MDX, where it renders nothing.
+  const markers = [
+    ...(ledger ? ["facts-ledger"] : []),
+    ...(hasDemoFigure(slug) ? ["demo-shot"] : []),
+    ...(galleryPiece ? ["gallery-shot"] : []),
+  ];
+  const parts = splitAtMarkers(body, markers);
+  const terms = termsFor(s.meta);
+  // The back link names where the page sits on /services. The two
+  // existing-clients offers are not in a menu group there, only in the
+  // sentence under it, so they say that instead of a group the index never
+  // shows. The hidden prefix makes the link's name say where it goes.
+  const group =
+    s.meta.audience === "existing-clients" ? "For existing clients" : TRACK_LABEL[s.meta.track];
+
   return (
-    <div className="space-y-16">
+    <div>
       <StructuredDataService
         name={s.meta.title}
         description={s.meta.tagline}
@@ -54,133 +98,80 @@ export default async function ServicePage(
           { name: s.meta.title, url: `${SITE.url}/services/${slug}` },
         ]}
       />
-      <PageHeader
-        eyebrow={s.meta.bucket}
-        title={s.meta.title}
-        lede={s.meta.tagline}
-      />
 
-      <div className="grid gap-12 md:grid-cols-3">
-        <article className="prose-invert md:col-span-2">
-          <MDX source={s.body} />
+      <PageHeader
+        eyebrow={
+          <>
+            <span className="sr-only">All services, </span>
+            {group}
+          </>
+        }
+        eyebrowHref="/services"
+        title={s.meta.title}
+        titleTransition={`svc-${slug}`}
+        lede={s.meta.tagline}
+      >
+        <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between lg:gap-14">
+          <TermsStrip terms={terms} className="lg:max-w-[46rem] lg:flex-1" />
+          <div className="flex flex-col gap-3 sm:flex-row lg:shrink-0">
+            <a href="#start" className={cn(buttonClass(), "group w-full sm:w-auto")}>
+              {primaryCta(s.meta)}
+              <Arrow />
+            </a>
+            {/* From lg the navbar carries "Book a call" directly above this
+                row, so the page's own copy is for phones and tablets, where
+                the navbar folds into the menu (its button is
+                `hidden lg:inline-flex`). Class order matters: lg:hidden goes
+                after buttonClass's inline-flex. */}
+            <Link
+              href="/contact"
+              className={cn(buttonClass({ variant: "ghost" }), "w-full sm:w-auto lg:hidden")}
+            >
+              Book a call
+            </Link>
+          </div>
+        </div>
+      </PageHeader>
+
+      <div className="mt-14 grid gap-16 md:mt-20 md:grid-cols-12 md:gap-x-10 lg:gap-x-16">
+        <article className="min-w-0 max-w-[68ch] md:col-span-7">
+          {parts.map((part, i) => {
+            if (part.kind === "mdx") return <MDX key={i} source={part.source} />;
+            if (part.name === "facts-ledger" && ledger) {
+              return (
+                <Reveal key={i} className="reveal-quiet">
+                  <FactsLedger caption={ledger.caption} groups={ledger.groups} />
+                </Reveal>
+              );
+            }
+            if (part.name === "demo-shot") {
+              return (
+                <Reveal key={i}>
+                  <DemoFigure slug={slug} />
+                </Reveal>
+              );
+            }
+            if (part.name === "gallery-shot" && galleryPiece && placement) {
+              return (
+                <Reveal key={i}>
+                  <GalleryFigure piece={galleryPiece} label={placement.label} />
+                </Reveal>
+              );
+            }
+            return null;
+          })}
         </article>
 
-        <aside className="space-y-8">
-          <div>
-            <h2 className="font-mono text-label uppercase text-brand">
-              what you get
-            </h2>
-            <ul className="mt-3 space-y-2 text-sm text-zinc-300">
-              {s.meta.deliverables.map((d) => (
-                <li key={d} className="flex gap-2">
-                  <span className="text-brand-deep">→</span>
-                  <span>{d}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {s.meta.proof.length > 0 ? (
-            <div>
-              <h2 className="font-mono text-label uppercase text-brand">
-                proof
-              </h2>
-              <ul className="mt-3 space-y-2 text-sm">
-                {s.meta.proof.map((p) => {
-                  const isExternal = p.kind === "external" || p.href.startsWith("http");
-                  return (
-                    <li key={p.href}>
-                      {isExternal ? (
-                        <a
-                          href={p.href}
-                          rel="noreferrer"
-                          className="text-brand-soft underline-offset-4 hover:underline"
-                        >
-                          {p.label} ↗
-                        </a>
-                      ) : (
-                        <Link
-                          href={p.href}
-                          className="text-brand-soft underline-offset-4 hover:underline"
-                        >
-                          {p.label} →
-                        </Link>
-                      )}
-                      <span className="ml-2 font-mono text-label-sm uppercase text-muted">
-                        {p.kind}
-                      </span>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          ) : null}
-
-          {s.meta.pricing ? (
-            <div>
-              <h2 className="font-mono text-label uppercase text-brand">
-                pricing
-              </h2>
-              <p className="mt-3 text-sm text-zinc-300">{s.meta.pricing}</p>
-            </div>
-          ) : null}
-        </aside>
+        <ServiceAside
+          meta={s.meta}
+          pairings={pairings}
+          className="md:col-span-5 lg:col-span-4 lg:col-start-9"
+        />
       </div>
 
-      <section className="live-panel relative overflow-hidden rounded-2xl p-8 md:p-12">
-        <div
-          aria-hidden
-          className="bg-brand-glow pointer-events-none absolute inset-0 -z-0 opacity-60"
-        />
-        <div className="relative z-10 grid gap-10 md:grid-cols-2 md:items-start">
-          <div>
-            <p className="font-mono text-label uppercase text-brand">
-              next step
-            </p>
-            {/* The start track is bought, not discussed, so its closing panel
-                asks for what the scope needs rather than for "your problem".
-                "Tell me about your ops leak audit problem" was also simply
-                not a sentence. */}
-            {s.meta.track === "start" ? (
-              <>
-                <h2 className="mt-3 text-3xl font-semibold tracking-[-0.015em] md:text-4xl">
-                  Start the {s.meta.title}.
-                </h2>
-                <p className="mt-4 text-zinc-400">
-                  Tell me the size of the team and the tools it runs on. It
-                  lands in my HQ inbox tagged with this page, and I reply
-                  within 24 hours to confirm the scope and a start date.
-                </p>
-              </>
-            ) : (
-              <>
-                <h2 className="mt-3 text-3xl font-semibold tracking-[-0.015em] md:text-4xl">
-                  Tell me about your {s.meta.title.toLowerCase()} problem.
-                </h2>
-                <p className="mt-4 text-zinc-400">
-                  Lands in my HQ inbox tagged with this page, so when I reply I
-                  already know which service we&apos;re talking about. Replies
-                  within 24 hours.
-                </p>
-              </>
-            )}
-            <p className="mt-6 text-sm text-muted">
-              Prefer a call?{" "}
-              <Link
-                href="/contact"
-                className="text-brand-soft underline underline-offset-4 hover:text-brand"
-              >
-                Book 30 minutes
-              </Link>
-              .
-            </p>
-          </div>
-          <ServiceInquiryForm
-            sourcePage={`/services/${slug}`}
-            serviceTitle={s.meta.title}
-          />
-        </div>
-      </section>
+      <div className="mt-24 md:mt-32">
+        <ServiceClosing meta={s.meta} sourcePage={`/services/${slug}`} />
+      </div>
     </div>
   );
 }

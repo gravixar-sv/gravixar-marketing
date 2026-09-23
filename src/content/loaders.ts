@@ -121,9 +121,16 @@ export async function loadCaseStudies({
     },
     { includeDrafts },
   );
+  // Curated order first (lower `order` leads), then newest first for anything
+  // without one.
+  const rank = (o: number | undefined) => (o === undefined ? Number.MAX_SAFE_INTEGER : o);
   return items
     .filter((i) => includeDrafts || !i.meta.draft)
-    .sort((a, b) => b.meta.publishedAt.localeCompare(a.meta.publishedAt));
+    .sort(
+      (a, b) =>
+        rank(a.meta.order) - rank(b.meta.order) ||
+        b.meta.publishedAt.localeCompare(a.meta.publishedAt),
+    );
 }
 
 export async function loadModules({

@@ -1,0 +1,33 @@
+/* Editorial rows on /work: the row's top hairline brightens and draws in
+   from the left when the reader points at it, then eases back. Transform
+   only, gated to real pointers so a tap never leaves it stuck. */
+.row::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -1px;
+  height: 1px;
+  background: var(--color-ink-300);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 220ms var(--ease-exit);
+  pointer-events: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .row:hover::before {
+    transform: scaleX(1);
+    transition: transform 520ms var(--ease-out-expo);
+  }
+}
+.row:focus-visible::before {
+  transform: scaleX(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .row::before,
+  .row:hover::before {
+    transition: none;
+  }
+}

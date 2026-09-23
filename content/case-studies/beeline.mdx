@@ -1,14 +1,27 @@
 ---
-title: "Healthcare credentialing and finance platform, live with 2,042 payer panels"
+title: "Healthcare credentialing, moved out of a color-coded workbook"
 slug: "beeline"
 client: "Healthcare credentialing and billing company"
 role: "Solo build, architecture, engineering, AI integration, brand"
-period: "Live in production since June 2026"
-summary: "Healthcare operations platform, live on the client's own domain since June 2026 with 250 clients and 2,042 credentialing panels. One identity and audit boundary across staff, ops admin, and external-payer surfaces. HIPAA-aware wrapper on every Claude call, and a reproducible multi-currency finance engine."
+period: "Live since June 2026"
+summary: "Before a provider can bill an insurer, the insurer has to approve them. This company tracked those approvals in a workbook. Since June 2026, 250 clients and 2,042 applications sit in one system, and the team can see which wait on them and which wait on the insurer. Patient data stays out by design."
 metaDescription: "250 clients and 2,042 credentialing panels in production since June 2026, with a HIPAA guardrail on every Claude call and reproducible multi-currency finance."
-problem: "Credentialing is where a growing practice group quietly loses money, and it was living in a workbook. One row per provider per payer, a color for status, a date somebody typed by hand. Nobody could answer the two questions that decide the month: which applications are sitting with the team, and which are sitting with the payer. Follow-ups happened when someone remembered. Around that sat the usual SaaS-stitch problem, separate tools for records, billing, comms and compliance, where the handoffs between systems generate the errors and the compliance tool is the one nobody opens. Currency reality is messy on top of it: the company payrolls in PKR, invoices in USD, and both sides have to reconcile without time-machine bugs. AI is high-leverage in ops work (intake, summarization, anomaly watch) but poses real PHI risk if dropped in casually. None of the off-the-shelf tools solve all of it at once."
-approach: "The first architectural decision was a boundary: PHI does not live in this portal, by design, and the guardrails below are what enforce that rather than merely documenting it. Inside that boundary the unit of work is a panel: one client, one payer, one application. Everything hangs off that. Status axes are derived from the panel's own status rather than typed a second time, a payer directory carries a per-payer SLA that sets chase cadence, reminder ladders run per credential type, and each person gets a my-day list, most overdue first, instead of a shared sheet. Exclusion screening runs daily against the real OIG LEIE file, 83,665 rows, and notifies admins on any exclusion or possible match. Two-tier audit retention (CONTRACT 7y for finance, credentials, payroll and payments, OPERATIONAL 1y for leave, WFH and notifications) maps directly onto HIPAA-style requirements. The HIPAA boundary is enforced two ways: a phiSniffer.ts regex pass on every free-text input pre-persistence, and a withHipaaGuardrail() wrapper that prepends the PHI stop-clause to every Claude system prompt, with prompt caching on by default. Direct @anthropic-ai/sdk imports outside the wrapper are bugs, by convention. Multi-currency is reproducible by design: every monetary row stores native amount, native currency and an FxRateSnapshot foreign key, so reports compute convertedAmount = nativeAmount * snapshotRate and never live FX, which makes audit reproduction trivial. The salary engine is pure (decimal.js precision, fast-check property tests) and the Net→Gross solver uses bisection rather than Newton damping, after a counterexample where a CONSOLIDATED structure plus a bonus-induced slab transition broke a Newton step by about 10k PKR."
-outcome: "Live in production on the client's own domain since June 2026, run daily by five credentialing users. 250 clients, 2,042 panels, 13,702 timeline events and 589 application references sit in one system instead of a workbook, and the module now answers questions the workbook could not: 125 panels waiting on the team against 1,560 waiting on payers, 147 carve-out gaps of which 21 are live (a provider effective on a payer's medical network with no behavioral panel behind it, so those claims are denying today and the denials read as billing errors), payer-directory coverage of active panels up from 34% to 66%, and a follow-up queue that went from nothing to roughly 60 due per day across 1,066 panels. Exclusion screening runs daily against the OIG LEIE, 83,665 rows. The test suite went from 185 to 448 vitest tests across three sessions in July 2026, and the 26 credentials that were sitting in clear text on production are now zero."
+problem: |
+  Before a provider can bill an insurer, the insurer has to approve them. That approval is credentialing, and each one, one client on one insurer, is called a panel. It is where a growing practice group quietly loses money, and here it lived in a workbook: one row per provider per insurer, a color for status, a date somebody typed by hand. Nobody could answer the two questions that decide the month: which applications are waiting on the team, and which are waiting on the insurer. Follow-ups happened when someone remembered.
+
+  Around that sat separate tools for records, billing, messages, and compliance, where the handoffs caused the errors and the compliance tool was the one nobody opened. Money was messy too: staff are paid in Pakistani rupees, invoices go out in US dollars, and both sides have to add up. AI could save real time here, but dropped in carelessly it puts patient data at risk.
+approach: |
+  The first decision was a boundary: patient data does not live in this system, and the code enforces that, not a policy document. Every free-text box is checked for patient details before anything is saved, and every AI request carries a standing instruction to keep them out.
+
+  Inside that boundary the unit of work is simple: one client, one insurer, one application. Status is worked out from the application itself, never typed twice. Each insurer has its own follow-up timetable, and each person starts the day with their own list, most overdue first, instead of a shared sheet.
+
+  Every morning the system screens against the US government's list of excluded providers, all 83,665 rows, and flags any possible match. Every amount of money is stored with the exchange rate it was recorded at, so a report run again later matches the original line for line. Finance and credential records are kept for 7 years, everyday records for 1.
+outcome: |
+  Live on the client's own domain since June 2026, used every day by five credentialing staff. By the end of July 2026 it held 250 clients and 2,042 applications, with 13,702 logged events behind them, in one system instead of a workbook.
+
+  And it answers questions the workbook never could. At the end of July 2026, 125 applications were waiting on the team and 1,560 on insurers. 147 coverage gaps had turned up, and 21 were active then: the provider is approved on an insurer's medical side but not its behavioral health side, so those claims were being denied, and the denials looked like billing errors.
+
+  By then the insurer directory covered 66% of active applications, up from 34%, and the follow-up list had gone from nothing to about 60 due a day. Tests went from 185 to 448 in July 2026, and the 26 passwords and codes that sat unencrypted on the live system were all encrypted.
 metrics:
   - label: "Production scale"
     value: "250 clients, 2,042 credentialing panels"
@@ -18,8 +31,8 @@ metrics:
     value: "13,702 timeline events, 589 application references"
     source: "gravixar-hq brain/projects/beeline-medical.md, production data as of 2026-07-29, cross-checked against the infra ledger entry beeline-domain-golive-2026-06-22."
     verifiedAt: "2026-07-29"
-  - label: "Payer-directory coverage"
-    value: "34% to 66% of active panels"
+  - label: "Insurer directory"
+    value: "66% of active panels, up from 34%"
     source: "gravixar-hq brain/projects/beeline-medical.md, production data as of 2026-07-29, cross-checked against the infra ledger entry beeline-domain-golive-2026-06-22."
     verifiedAt: "2026-07-29"
   - label: "Follow-up queue"
@@ -30,7 +43,7 @@ metrics:
     value: "125 panels, against 1,560 on payers"
     source: "gravixar-hq brain/projects/beeline-medical.md, production data as of 2026-07-29, cross-checked against the infra ledger entry beeline-domain-golive-2026-06-22."
     verifiedAt: "2026-07-29"
-  - label: "Carve-out gaps"
+  - label: "Coverage gaps"
     value: "147 found, 21 denying claims today"
     source: "gravixar-hq brain/projects/beeline-medical.md, production data as of 2026-07-29, cross-checked against the infra ledger entry beeline-domain-golive-2026-06-22."
     verifiedAt: "2026-07-29"
@@ -59,63 +72,69 @@ demo:
   href: "https://demo.gravixar.com/care-ledger"
 stack:
   - "Next.js 16 App Router"
-  - "Prisma 7 (multi-file schema) + Supabase Postgres"
+  - "Prisma 7 + Supabase Postgres"
   - "NextAuth v5 (JWT credentials)"
-  - "Anthropic Claude (Sonnet + Haiku) via HIPAA-guardrailed wrapper"
-  - "AES-GCM credential vault (audited reveal)"
-  - "decimal.js + fast-check (vitest property tests)"
-  - "React-PDF (invoice rendering)"
-  - "Zoom (meetings + telephony events)"
+  - "Anthropic Claude (Sonnet + Haiku)"
+  - "AES-GCM credential vault"
+  - "decimal.js + fast-check"
+  - "React-PDF"
+  - "Zoom"
   - "Resend + react-email"
-  - "Open Exchange Rates (FX snapshots)"
+  - "Open Exchange Rates"
   - "Vercel Cron + Supabase Storage"
 cover:
   src: "/clients/beeline.png"
   alt: "Beeline logo"
 publishedAt: "2026-05-04"
 draft: false
+order: 2
+homeLine: "2,042 insurance panels moved out of a workbook, and the team can now see what waits on them and what waits on insurers."
 ---
 
 ## What's running today
 
-Credentialing is the spine. A panel is one client on one payer, and 2,042 of them are live across 250 clients, with 13,702 timeline events and 589 application references behind them. Five credentialing staff work out of it daily on the client's own domain.
+Credentialing is the spine. A panel is one client on one insurer, which is one application, and everything in the module hangs off it. Five credentialing staff work out of it daily, on the client's own domain.
 
-Getting there was not a data problem, it was an adoption problem, and a production probe made that concrete: 0 of 1,066 panels had a follow-up date, no client was assigned to a named owner, and there were no payer contacts on file. The module held the authoritative data and nobody's day started in it. The fix was not more fields. Each person got a `my-day` list, most overdue first, with an inline log that reschedules the row and clears it, which is the sticky note the team lead can also see. A call kit puts the payer line, the portal, the reference number, the SLA and the last three touches on one screen, so a chase call takes one tab instead of six. Payer availability is modeled per payer and per state, so an application that is doomed before it is filed can be caught before it is filed. Exclusion screening runs itself every morning against the real OIG LEIE file, 83,665 rows.
+Getting there was not a data problem, it was an adoption problem, and a check against the live data made that concrete: 0 of 1,066 panels had a follow-up date, no client was assigned to a named owner, and there were no insurer contacts on file. The module held the right data and nobody's day started in it.
 
-Around that sits the daily ops layer, which was built first: a WFH/Office/Field check-in that auto-prompts on the first portal pageview of the Karachi calendar day, leave through a multi-state machine (annual / sick / unpaid / parental / bereavement, with pro-rated annual leave for new joiners and atomic balance updates inside a Prisma transaction), credential tracking with 90/60/30/7-day expiry alerts (NPI / state license / DEA / board cert / CAQH / UK GMC / other), teammate invites with role + region + department, and a superadmin Activity feed with allowlist-gated one-click restore on UPDATE rows. Every reminder fire writes a `CredentialReminderLog` row, so nothing double-sends.
+The fix was not more fields. Each person got a "my day" list, most overdue first, with an inline log that reschedules the row and clears it: the sticky note the team lead can also see.
 
-The finance module is the part I am most pleased with. An 18-model schema, a salary engine with property tests (1000-iteration round-trip, EXEMPT regime, `bonusTaxedAsSalary=false`, GROSS_AGREED bonus invariance), an expense ledger with team-scoped RBAC plus FX snapshots plus Supabase Storage receipts, employee CRUD that creates User + EmployeeFinanceProfile + invite email in one shot, a payroll run generator that feeds the salary engine for every active employee and is idempotent on DRAFT regenerate, bonuses with §17.6 late-detection (entered after the 25th of `earnedYearMonth` rolls to X+2 with `enteredLate=true`), an invoice compiler that generates the next month's forecast (salary lines from a finalized PayrollRun + utilities 3-month average + petty cash 3-month average + recurring rent + flagged hardware) and reconciles it against actuals, React-PDF rendering with dual USD and PKR columns, and an external payer portal that gives non-staff users a USD-only invoice surface with acknowledge / raise query / mark paid actions, shipped in the same codebase via conditional layout chrome.
+A call kit puts the insurer's phone line, their portal, the reference number, the expected turnaround and the last three touches on one screen, so a chase call takes one tab instead of six. Availability is tracked per insurer and per state, so an application that is doomed before it is filed can be caught before it is filed.
+
+Around that sits the daily ops layer, which was built first: a work-from-home, office or field check-in on the first visit of the Karachi day, leave with pro-rated balances for new joiners, credential expiry alerts at 90, 60, 30 and 7 days, team invites by role and region, and an activity feed where an admin can undo an allowed change in one click. Every reminder writes a log row, so nothing sends twice.
+
+The finance module is the part I am most pleased with. It runs salaries, expenses with receipts, payroll, bonuses, and a monthly invoice that forecasts the next month and then reconciles against what was actually spent. Invoices print with US dollar and rupee columns side by side, and the people who pay them get their own dollar-only view where they can acknowledge an invoice, raise a query, or mark it paid.
 
 ## What broke
 
-Four things went wrong that are worth writing down. They are the reason an authenticated walkthrough is now its own step in my process, not something I assume the tests cover.
+Four things went wrong that are worth writing down. They are the reason a signed-in walkthrough is now its own step in my process, not something I assume the tests cover.
 
-**The original import silently dropped a third of the source.** The workbook migration looked clean and was not. Re-verified against the source: 240 provider blocks across 141 tabs, of which 141 imported, and 1,796 payer rows, of which 1,123 imported. Recovery on production took clients from 194 to 250 and panels from 1,521 to 2,042, and it surfaced that the credential-expiry cron had nothing to fire on since go-live, because zero `Credential` rows had come across at all. Two judgment calls became locked decisions during the recovery, because the obvious move was wrong both times: red in the sheet does not mean closed (auto-mapping it would have killed around 240 live panels), and a stacked continuation block that repeats the first block's NPI is the same person rather than a new client (importing all of them would have created 42 duplicate clients).
+**The original import silently dropped a third of the source.** The workbook migration looked clean and was not. The workbook held 240 provider blocks on 141 tabs. Only 141 of those blocks came across, and only 1,123 of its 1,796 insurer rows. The recovery on the live system took clients from 194 to 250 and panels from 1,521 to 2,042. It also showed that the credential-expiry reminders had had nothing to fire on since go-live, because zero credential records had come across at all. Two judgment calls became locked decisions during the recovery, because the obvious move was wrong both times: red in the sheet does not mean closed (mapping it automatically would have killed around 240 live panels), and a continuation block that repeats the first block's provider number is the same person, not a new client (importing all of them would have created 42 duplicate clients).
 
-**A screen that was dead, and no test could see it.** The panels page rendered a Suspense fallback forever: no request ever made, nothing in the console, tests green. It only appeared in the first authenticated UI walkthrough the module had ever had. That same walkthrough caught a median arriving as -1 day, from mixing a date column with a datetime one.
+**A screen that was dead, and no test could see it.** The panels page showed its loading state forever: no request ever made, nothing in the console, tests green. It only turned up in the first signed-in walkthrough the module had ever had. That same walkthrough caught a median arriving as -1 day, from mixing a date column with a date-and-time one.
 
-**Real credentials were sitting in clear text on production.** Around 26 rows of a 2FA-hint field held payer-portal passwords, recovery codes and a TOTP seed that staff had pasted there as notes, and the call kit I had just built would have rendered them on the busiest screen in the module. The read path now withholds anything credential-shaped and points at an audited reveal instead, 45 recovery codes moved into AES-GCM, and the remaining rows were encrypted, so the count is zero. None of that arrived as a bug report. It came from opening the screens as a user would.
+**Real passwords were sitting in plain text on the live system.** Around 26 rows of a sign-in hint field held insurer portal passwords, recovery codes and the secret key for a sign-in code app, pasted there by staff as notes, and the call kit I had just built would have shown them on the busiest screen in the module. The screen now hides anything that looks like a password and offers a logged reveal instead, 45 recovery codes moved into encrypted storage, and the remaining rows were encrypted too, so the count is zero. None of that arrived as a bug report. It came from opening the screens the way a user would.
 
-**A re-compile that could have erased a sent invoice.** The invoice compiler deleted the prior document before picking the next number, so a re-compile handed back a number that was already out, and the delete had no status filter, which means a re-compile after sending would have erased an invoice a client was holding. Caught before it happened. Fixed with a status filter, monotonic numbering, keep-do-not-delete on supersede, and a staleness warning on the page.
+**A re-compile that could have erased a sent invoice.** The invoice compiler deleted the previous document before picking the next number, so a re-compile handed back a number that was already out. The delete had no status filter either, which means a re-compile after sending would have erased an invoice a client was holding. Caught before it happened. Now the delete skips anything already sent, numbers only go up, a replaced invoice is kept rather than deleted, and the page warns when an invoice is out of date.
 
 ## Decisions I'd defend
 
-**A panel is the unit of work, not a provider.** One client with five payers is five rows, each with its own status, chase date, reference and history. It reads as duplication on first look, and the alternative (one row per provider with the payers stuffed inside) is what made the workbook unanswerable. Same-named clients are qualified in the list by license state, then source tab, then NPI tail, and any qualifier that comes out identical across the group is dropped rather than printed as a label that distinguishes nothing.
+**A panel is the unit of work, not a provider.** One client with five insurers is five rows, each with its own status, chase date, reference and history. It reads as duplication at first glance, and the alternative (one row per provider with the insurers stuffed inside) is what made the workbook unanswerable. Same-named clients are told apart in the list by license state, then source tab, then the end of their provider number, and any detail that comes out identical across the group is dropped rather than printed as a label that tells nobody anything.
 
-**Payer matching is exact after normalization, on purpose.** Panel payer names arrive as free text and a chunk of them do not match the directory. They stay unmatched until a human aliases them, because filing an availability fact against the wrong payer is worse than filing none. Fuzzy matching here buys a fuller dashboard and a wrong answer.
+**Insurer names have to match exactly, on purpose.** Insurer names on panels arrive as free text, and a chunk of them do not match the directory. They stay unmatched until a person links them, because filing an availability fact against the wrong insurer is worse than filing none. Guessing at near matches would buy a fuller dashboard and a wrong answer.
 
-**The HIPAA boundary is enforced in code, not policy.** Two independent defenses: `phiSniffer.ts` runs regex PHI detection on every free-text input pre-persistence, and `withHipaaGuardrail()` wraps every Claude call with a stop-clause system prompt. The second is the belt, the first is the suspenders. Direct `@anthropic-ai/sdk` imports outside `claude.ts` are bugs by convention, and a contributor doc says so explicitly. Compliance teams stop arguing once the rule lives in code.
+**The patient-data boundary lives in code, not in a policy document.** The check on every free-text box and the instruction on every AI request are independent on purpose: if one misses, the other still holds. Calling the AI any other way counts as a bug, and the notes for anyone working on the code say so. Compliance arguments stop once the rule lives in code.
 
-**Reproducible-by-design multi-currency.** Every monetary row stores native amount, native currency and an `FxRateSnapshot` FK. Reports never call live FX. A report regenerated from yesterday matches the original row for row, even if the rate moved overnight. That is the difference between approximately right and audit-ready, and it costs almost nothing to enforce at the schema level.
+**Money reports never look up today's rate.** A report regenerated from yesterday matches the original row for row, even if the rate moved overnight, because each amount carries the rate from the day it was recorded. That is the difference between roughly right and audit-ready, and it costs almost nothing to enforce.
 
-**Two-tier audit retention is policy in code.** `CONTRACT` rows (finance, credentials, employee contracts, payments) live 7 years. `OPERATIONAL` rows (leave, WFH, notifications, sales activities) live 1 year. The classification sits next to each `recordAudit()` call, so future-me cannot accidentally downgrade a finance event by writing the wrong tier.
+**Two record-keeping tiers, set in code.** Finance, credentials, employee contracts and payments are kept for 7 years. Leave, work from home, notifications and sales activity are kept for 1 year. The tier is written at every place the system logs an event, so future-me cannot quietly downgrade a finance record by picking the wrong one.
 
-**Bisection over Newton on the Net→Gross solver.** Newton's method works for most cases, but a CONSOLIDATED-structure salary with a bonus-induced FBR slab transition breaks the derivative continuity assumption and Newton damping diverges by about 10k PKR. Bisection is slower and does not care about derivative behavior. The doc-comment in `salaryEngine.ts` records the counterexample so the next person does not optimize it back to Newton.
+**The salary calculator takes the slow, safe route.** Working back from take-home pay to a gross salary has a fast shortcut that is right most of the time. It goes wrong when a bonus pushes a salary into a new tax band, and the answer drifts by about 10k PKR. The slower method cannot drift that way, and a note in the code records the example so nobody swaps the shortcut back in.
 
-**Invite-only signup.** Public `/register` does not exist. Admins create users, the invitee gets a tokenized email link, sets a password, the account flips active. There is no value in self-serve signup for a clinic ops platform, and there is a real cost (PHI surface) to allowing one.
+**Invite-only signup.** There is no public sign-up page. Admins create users, the invitee gets a one-time email link, sets a password, and the account goes live. Self-serve signup has no value for a clinic operations platform, and it has a real cost: a bigger surface for patient data to leak through.
 
 ## What's next
 
-The availability pre-flight already exists and returns a plain-sentence verdict per payer and state, whether that payer is open to new providers and when it was last checked. Nothing consumes it yet. Wiring it into bulk enrollment is the next change that moves a number, because it stops doomed applications before they are filed. After that: de-duplicating people through the affiliation model rather than by merging rows, aliasing the payer names that do not match the directory yet so the payer-by-state availability matrix fills in, and naming practices from the EIN's legal name instead of whichever member happened to anchor the group.
+The availability pre-check already exists and returns a plain-sentence answer per insurer and state: whether that insurer is open to new providers, and when that was last checked. Nothing uses it yet. Wiring it into bulk enrollment is the next change that moves a number, because it stops doomed applications before they are filed. After that: de-duplicating people by linking their records instead of merging rows, linking the insurer names that do not match the directory yet so the availability map fills in, and naming practices from their legal business name instead of whichever member happened to anchor the group.
 
-If you run a credentialing, billing or multi-location practice operation that has outgrown the workbook and the shared inbox, [reach out](/contact). The credentialing spine, the audit tiers and the finance core are modules now, so the next build starts further along than this one did. The multi-currency posture means a US entity and a Pakistan ops team can run the same instance.
+If your credentialing or billing team has outgrown the workbook and the shared inbox, [tell me what it looks like](/contact). The credentialing core, the record-keeping, and the finance engine are reusable now, so your build starts further along than this one did. And because it handles two currencies, a US company and a team in Pakistan can work in the same system.

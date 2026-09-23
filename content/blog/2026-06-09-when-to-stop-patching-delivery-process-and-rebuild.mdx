@@ -1,5 +1,5 @@
 ---
-title: "When to Stop Patching Your Delivery Process and Rebuild It From Scratch"
+title: "When to stop patching your delivery process and rebuild it from scratch"
 slug: "when-to-stop-patching-delivery-process-and-rebuild"
 excerpt: "Patching a broken delivery process feels productive until you have 15 patches and no process. Here is how I decide when incremental fixes stop working and a clean rebuild is the right call."
 metaDescription: "Four signals I watch before rebuilding: nobody can run it from docs, exceptions outnumber steps, a workaround tool went load-bearing, onboarding dread."
@@ -9,7 +9,7 @@ draft: false
 aiAssisted: true
 ---
 
-## The Patch Accumulation Problem
+## The patch accumulation problem
 
 Every delivery process starts clean. Then a client asks for weekly status emails, so you add a Friday reminder. Then another client wants a shared drive instead of the portal, so you add a parallel folder structure. Then someone on a project misses a deadline and you add a check-in Slack message mid-week. Then the check-in message goes to the wrong channel once and you add a pinned note about which channel to use.
 
@@ -17,7 +17,7 @@ None of those decisions were wrong individually. All of them made sense at the t
 
 That is not a process. That is scar tissue.
 
-## Why Incremental Fixes Feel Right (and Are Not Always Wrong)
+## Why incremental fixes feel right (and are not always wrong)
 
 Patching is usually the correct move. Rebuilding a working system mid-flight is expensive and risky. If something mostly works, the marginal cost of a small fix is low and the disruption is minimal.
 
@@ -25,7 +25,7 @@ The trap is treating "mostly works" as a permanent state instead of a temporary 
 
 That is a fragile system disguised as a mature one.
 
-## The Four Signals I Actually Watch For
+## The four signals I actually watch for
 
 **New people cannot run the process without shadowing.** If someone competent cannot follow your delivery process from documentation alone on day three, the process is not documented, it is institutionalized knowledge. That is fine when you are a solo operator. It becomes a ceiling the moment you try to scale or hand off.
 
@@ -35,7 +35,7 @@ That is a fragile system disguised as a mature one.
 
 **You dread onboarding a new client because of the setup overhead.** This one is practical and underrated. Dread is data. If adding a new client means 90 minutes of [manual configuration](/services/operations-infrastructure), copying folders, setting permissions, and sending three orientation emails, that overhead compounds. At 10 active clients it is annoying. At 20 it is a constraint on revenue.
 
-## What a Rebuild Actually Involves
+## What a rebuild actually involves
 
 A rebuild is not a software migration. Most of the time the tools stay the same. What changes is the decision logic underneath them.
 
@@ -47,7 +47,7 @@ The rebuild also requires a constraint decision: what will I stop supporting? Ev
 
 That conversation with existing clients is uncomfortable but short. In my experience, clients care far less about the specific process than you expect. They care about outcomes and communication. If you can tell them clearly what changes and why it improves their experience, most of them adjust without friction.
 
-## The Timing Question
+## The timing question
 
 The worst time to rebuild is during a capacity crunch. The second-worst time is right after one, when you are relieved and distracted. The right time is a calm quarter where you have at least one month of runway to run the old and new processes in parallel before switching over.
 
@@ -55,7 +55,7 @@ Parallel running sounds expensive. It is less expensive than discovering that yo
 
 I rebuilt the core delivery workflow in my agency portal twice in four years. The first time I waited too long and did it under pressure. The second time I did it proactively when I hit signal three above, a spreadsheet had become the actual source of truth, and it took six weeks instead of three months.
 
-## One Thing I Am Confident About
+## One thing I am confident about
 
 A delivery process that works through accumulated institutional knowledge is not an asset. It feels like one because it runs. But it is actually a liability that grows every time someone new touches it or every time a client falls slightly outside the original assumptions.
 

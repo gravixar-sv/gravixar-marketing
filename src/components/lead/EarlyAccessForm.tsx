@@ -1,18 +1,26 @@
 "use client";
 
-// Early-access waitlist form. Structured fields give Qamar enough triage
-// signal (interest, team size, timeline) without making the form long.
-// Free-text `need` is optional — for visitors who want to add context
-// the dropdowns don't capture.
+// Early-access waitlist form. Email is the only must. Interest is the one
+// triage signal Qamar reads first, so it stays visible; team size, timeline
+// and a free-text line sit behind "Add context", because a list that promises
+// one email should not open with a six-field form. Everything inside the
+// disclosure still submits whether or not it was opened.
 //
 // Adaptive questions powered by AI (GenAI follow-ups based on their
 // interest selection) is a follow-up, not in this iteration. The static
 // dropdowns cover the same triage need at zero LLM cost.
+//
+// Payload keys, the honeypot and the source tag are the contract with
+// /api/early-access and HQ; do not rename them.
 
-import { useState } from "react";
+import Link from "next/link";
+import { useId, useState } from "react";
 import { cn } from "@/lib/cn";
 import { sourceTag } from "@/lib/source-tag";
-import { buttonClass } from "@/components/ui/Button";
+import { Button } from "@/components/ui/Button";
+import { FormError, FormSuccess, SelectField, TextArea, TextField } from "@/components/ui/Field";
+import { Disclosure } from "@/components/conversion/Disclosure";
+import { FocusOnMount } from "@/components/conversion/FocusOnMount";
 import {
   interestOptions,
   teamSizeOptions,
@@ -22,14 +30,24 @@ import {
   TIMELINE_LABELS,
 } from "@/lib/early-access";
 
+// Two of the interests are things I sell today, through /contact. Picking one
+// here used to put a buyer on a list that promises one email "when there is
+// something you can use", which is a wait for something already on offer. The
+// options and their stored values stay (HQ triages on them); the form now says
+// so and points at the booking panel instead.
+const AVAILABLE_NOW: ReadonlySet<string> = new Set(["ops-consulting", "brand-visuals"]);
+
 type FormState =
   | { kind: "idle" }
   | { kind: "submitting" }
   | { kind: "ok" }
-  | { kind: "error"; message: string };
+  | { kind: "error" };
 
 export function EarlyAccessForm() {
   const [state, setState] = useState<FormState>({ kind: "idle" });
+  const [interest, setInterest] = useState("");
+  const nowId = useId();
+  const availableNow = AVAILABLE_NOW.has(interest);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -59,83 +77,99 @@ export function EarlyAccessForm() {
         throw new Error(data.error ?? `request_failed_${res.status}`);
       }
       form.reset();
+      setInterest("");
       setState({ kind: "ok" });
     } catch (err) {
-      setState({
-        kind: "error",
-        message: err instanceof Error ? err.message : "unknown_error",
-      });
+      // The code is for the logs. The visitor gets a sentence (FormError).
+      console.warn("[early-access] signup did not send:", err instanceof Error ? err.message : err);
+      setState({ kind: "error" });
     }
   }
 
   if (state.kind === "ok") {
     return (
-      <div className="rounded-xl border border-brand-deep/30 bg-brand-deep/5 p-6">
-        <p className="font-mono text-label uppercase text-brand">
-          on the list
-        </p>
-        <h3 className="mt-2 text-xl font-semibold tracking-[-0.01em]">
-          Got you. I&apos;ll email when there is something you can actually run.
-        </h3>
-        <p className="mt-2 text-sm text-zinc-400">
-          No drip sequence, no marketing list. One email when there&apos;s
-          something for you to try, that&apos;s it.
-        </p>
-      </div>
+      <FocusOnMount>
+        <FormSuccess title="You're on the list.">
+          I&apos;ll email once, when there is something you can use.
+        </FormSuccess>
+      </FocusOnMount>
     );
   }
 
   const submitting = state.kind === "submitting";
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
-      <Field
-        label="Email"
-        name="email"
-        type="email"
-        required
-        placeholder="you@example.com"
-      />
-      <Field
-        label="Name (optional)"
-        name="name"
-        placeholder="What should I call you?"
-      />
-      <Select
-        label="What are you looking for?"
-        name="interest"
-        placeholder="Pick the closest match"
-        options={interestOptions.map((v) => ({
-          value: v,
-          label: INTEREST_LABELS[v],
-        }))}
-      />
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Select
-          label="Team size"
-          name="teamSize"
-          placeholder="Select one"
-          options={teamSizeOptions.map((v) => ({
-            value: v,
-            label: TEAM_SIZE_LABELS[v],
-          }))}
+    <form onSubmit={onSubmit} className="space-y-6">
+      <div className="grid gap-6 sm:grid-cols-2">
+        <TextField
+          label="Email"
+          name="email"
+          type="email"
+          required
+          autoComplete="email"
+          placeholder="you@example.com"
         />
-        <Select
-          label="Timeline"
-          name="timeline"
-          placeholder="Select one"
-          options={timelineOptions.map((v) => ({
-            value: v,
-            label: TIMELINE_LABELS[v],
-          }))}
-        />
+        <TextField label="Name" optional name="name" autoComplete="name" placeholder="What should I call you?" />
       </div>
-      <Textarea
-        label="Anything else? (optional)"
-        name="need"
-        rows={3}
-        placeholder="Specific use case, current stack, what 'good' looks like for you."
-      />
+      {/* No disabled placeholder option: an optional choice must be
+          clearable, and a disabled "" option made the first pick permanent. */}
+      <div>
+        <SelectField
+          label="What are you looking for?"
+          optional
+          name="interest"
+          defaultValue=""
+          onChange={(e) => setInterest(e.target.value)}
+          aria-describedby={availableNow ? nowId : undefined}
+        >
+          <option value="">Pick the closest match</option>
+          {interestOptions.map((v) => (
+            <option key={v} value={v}>
+              {INTEREST_LABELS[v]}
+            </option>
+          ))}
+        </SelectField>
+        {/* A live region that is always mounted, so the line is announced
+            when it appears and not only when the select is next focused. */}
+        <div aria-live="polite">
+          {availableNow ? (
+            <p id={nowId} className="fade-up mt-2 text-caption text-ink-300">
+              That is available now.{" "}
+              <Link href="/contact#book" className="link-quiet">
+                Book a call instead
+              </Link>
+              .
+            </p>
+          ) : null}
+        </div>
+      </div>
+      <Disclosure summary="Add context">
+        <div className="grid gap-6 sm:grid-cols-2">
+          <SelectField label="Team size" optional name="teamSize" defaultValue="">
+            <option value="">Prefer not to say</option>
+            {teamSizeOptions.map((v) => (
+              <option key={v} value={v}>
+                {TEAM_SIZE_LABELS[v]}
+              </option>
+            ))}
+          </SelectField>
+          <SelectField label="Timeline" optional name="timeline" defaultValue="">
+            <option value="">Pick one</option>
+            {timelineOptions.map((v) => (
+              <option key={v} value={v}>
+                {TIMELINE_LABELS[v]}
+              </option>
+            ))}
+          </SelectField>
+        </div>
+        <TextArea
+          label="Anything else?"
+          optional
+          name="need"
+          rows={3}
+          hint="What you would use it for, what you run today, what good would look like."
+        />
+      </Disclosure>
       {/* honeypot, visually hidden, must stay empty */}
       <div className="hidden" aria-hidden>
         <label>
@@ -143,107 +177,13 @@ export function EarlyAccessForm() {
           <input name="website" type="text" tabIndex={-1} autoComplete="off" />
         </label>
       </div>
-      <button
-        type="submit"
-        disabled={submitting}
-        className={cn(buttonClass(), submitting && "cursor-wait")}
-      >
-        {submitting ? "Adding…" : "Get early access"}
-      </button>
-      {state.kind === "error" ? (
-        <p className="text-sm text-red-400">
-          Something failed: {state.message}. Try again, or email me at gravixar@gmail.com.
-        </p>
-      ) : null}
+      {state.kind === "error" ? <FormError /> : null}
+      {/* "Join the list", not "Get early access": the page's own headline
+          says there is nothing to access yet, and joining a list is what the
+          button actually does. */}
+      <Button type="submit" disabled={submitting} className={cn("w-full sm:w-auto", submitting && "cursor-wait")}>
+        {submitting ? "Adding…" : "Join the list"}
+      </Button>
     </form>
-  );
-}
-
-function Field({
-  label,
-  name,
-  type = "text",
-  required,
-  placeholder,
-}: {
-  label: string;
-  name: string;
-  type?: string;
-  required?: boolean;
-  placeholder?: string;
-}) {
-  return (
-    <label className="block">
-      <span className="font-mono text-label uppercase text-zinc-400">
-        {label}
-      </span>
-      <input
-        name={name}
-        type={type}
-        required={required}
-        placeholder={placeholder}
-        className="mt-2 block w-full rounded-md border border-line bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none transition-colors placeholder:text-zinc-600 focus:border-brand"
-      />
-    </label>
-  );
-}
-
-function Select({
-  label,
-  name,
-  placeholder,
-  options,
-}: {
-  label: string;
-  name: string;
-  placeholder?: string;
-  options: { value: string; label: string }[];
-}) {
-  return (
-    <label className="block">
-      <span className="font-mono text-label uppercase text-zinc-400">
-        {label}
-      </span>
-      <select
-        name={name}
-        defaultValue=""
-        className="mt-2 block w-full rounded-md border border-line bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none transition-colors focus:border-brand"
-      >
-        <option value="" disabled>
-          {placeholder ?? "Select…"}
-        </option>
-        {options.map((o) => (
-          <option key={o.value} value={o.value}>
-            {o.label}
-          </option>
-        ))}
-      </select>
-    </label>
-  );
-}
-
-function Textarea({
-  label,
-  name,
-  rows = 3,
-  placeholder,
-}: {
-  label: string;
-  name: string;
-  rows?: number;
-  placeholder?: string;
-}) {
-  return (
-    <label className="block">
-      <span className="font-mono text-label uppercase text-zinc-400">
-        {label}
-      </span>
-      <textarea
-        name={name}
-        rows={rows}
-        placeholder={placeholder}
-        className="mt-2 block w-full rounded-md border border-line bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none transition-colors placeholder:text-zinc-600 focus:border-brand"
-      />
-    </label>
   );
 }

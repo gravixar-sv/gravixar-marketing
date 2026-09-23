@@ -1,8 +1,8 @@
 ---
-title: "Audit log + safe-restore"
+title: "Audit log with safe restore"
 slug: "audit-log-restore"
 category: "audit"
-summary: "Two-tier retention (CONTRACT 7y / OPERATIONAL 1y) audit log with allowlist-gated one-click restore on UPDATE rows. Compliance teams stop arguing once the policy lives in code."
+summary: "A record of every change, kept seven years for contracts and money and one year for everyday work. Some edits can be undone in one click, and the undo is recorded too. Compliance stops being an argument once the rule lives in the software."
 metaDescription: "Audit rows tiered CONTRACT 7 years or OPERATIONAL 1 year, with one-click restore gated by a per-table field allowlist. Corrections are on record too."
 runningIn:
   - { client: "Agency portal", productSlug: "bs-hub" }
@@ -13,6 +13,10 @@ stack:
 order: 3
 publishedAt: "2026-05-04"
 ---
+
+When a client or an auditor asks who changed a contract or a payment, and when, the answer is already written down. Some edits can be put back in one click, and the ones that matter most, like money and who owns a piece of work, always need a person to decide.
+
+## Under the hood
 
 Every mutating route calls `recordAudit()`. Every audit row has a tier: CONTRACT for finance, contracts, payments, credentials (kept seven years); OPERATIONAL for leave, WFH, notifications, sales activities (kept one). The tier is decided next to the call site, not in a config file, so future-me can't accidentally downgrade a finance event by writing the wrong constant.
 

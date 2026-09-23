@@ -40,6 +40,13 @@ import { BosunMount } from "@/components/chat/BosunMount";
 // types reference, this import fails typecheck. Stable react does not export
 // ViewTransition.
 // Reduced motion is handled in globals.css, on the ::view-transition-* pseudos.
+//
+// default="page-swap" gives the group a class the CSS can choreograph. Left
+// unnamed, the UA default tweened main's group from the OLD scroll offset, so
+// navigating from a scrolled page slid both snapshots ~1,700px across the
+// screen and over the header. globals.css now holds the group still, drops
+// the old page and lets the new one rise 8px. Do not use enter/exit type maps
+// here: under Next 16 they never start a transition (react/react#37614).
 
 export default function MarketingLayout({
   children,
@@ -50,7 +57,7 @@ export default function MarketingLayout({
     <>
       <DemoBanner />
       <Navbar />
-      <ViewTransition>
+      <ViewTransition default="page-swap">
         <main className="mx-auto max-w-6xl px-6 pb-24 pt-12 md:pt-16">{children}</main>
       </ViewTransition>
       <Footer />

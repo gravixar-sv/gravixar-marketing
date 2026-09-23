@@ -1,8 +1,8 @@
 ---
-title: "FBR + EOBI tax engine"
+title: "FBR and EOBI tax engine"
 slug: "fbr-tax-engine"
 category: "finance"
-summary: "Property-tested salary engine for Pakistan's FBR slabs and EOBI rates. Forward Gross→Net + bisection Net→Gross solver. 17 of 17 vitest property tests green, decimal.js precision throughout."
+summary: "Salary maths for Pakistan's FBR tax slabs and EOBI rates. It works from gross pay to net and back from net to gross, uses exact decimal maths throughout, and passes 17 of 17 automated property tests."
 metaDescription: "Pakistan FBR slab and EOBI salary math in one pure module: Gross to Net plus a bisection Net to Gross solver, 17 of 17 property tests green."
 runningIn:
   - { client: "Healthcare ops platform", productSlug: "beeline" }
@@ -13,6 +13,10 @@ stack:
 order: 8
 publishedAt: "2026-05-04"
 ---
+
+Payroll in Pakistan follows FBR tax slabs that change every fiscal year, with EOBI rates on top, and a bonus entered late changes the maths again. All of it lives in one place, and for the hardest calculation I chose the slower method, because the faster one went wrong by about 10,000 rupees in one known case.
+
+## Under the hood
 
 As far as I can tell, this is the only Pakistan-tax payroll engine shipped cleanly anywhere. FBR slabs change per fiscal year and per regime; EOBI rates are separate; consolidated-versus-component salary structures route through different math; bonuses entered late roll forward two months per §17.6. All of that lives in one pure module, with seventeen vitest property tests covering the invariants (1000-iteration round-trip, EXEMPT regime, bonusTaxedAsSalary=false, GROSS_AGREED bonus invariance).
 

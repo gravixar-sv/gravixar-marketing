@@ -136,9 +136,13 @@ async function validateSystemStats(): Promise<number> {
 // because both are published: a summary becomes a meta description, a title
 // becomes a <title>.
 //
-// U+2014 only. The en-dash (U+2013) is deliberately NOT banned; it has
-// legitimate uses in ranges ("4-10 weeks" is usually written with a hyphen
-// here, but a date range is not the tell the rule is aimed at).
+// CONTENT ALSO BANS THE EN-DASH (U+2013), since 2026-09-23. It used to be
+// allowed "for ranges", and that exemption is how three case-study periods
+// shipped as "2022 [en-dash] present" while the voice DNA said no dashes of
+// either kind: an allowed character gets used for more than its excuse. Ranges
+// are written "5 to 25" and periods "Since 2022". The src/ check below stays
+// em-dash only, because src/ legitimately carries the en-dash inside the chat
+// guards' character classes and the voice doc's statement of this rule.
 //
 // SCOPE NOTE, updated 2026-09-03: this used to cover content/ only, and said
 // so. It now also covers src/, see validateSrcDashes below. Still NOT covered:
@@ -150,11 +154,13 @@ async function validateSystemStats(): Promise<number> {
 // Written as an escape rather than the literal character on purpose, so this
 // file can state the rule without breaking its own rule.
 const EM_DASH = "\u2014";
+const EN_DASH = "\u2013";
 
+// Content check: both dashes. (src/ uses EM_DASH alone; see the note above.)
 function emDashHits(raw: string): { line: number; text: string }[] {
   const hits: { line: number; text: string }[] = [];
   raw.split(/\r?\n/).forEach((line, i) => {
-    if (line.includes(EM_DASH)) {
+    if (line.includes(EM_DASH) || line.includes(EN_DASH)) {
       hits.push({ line: i + 1, text: line.trim().slice(0, 120) });
     }
   });

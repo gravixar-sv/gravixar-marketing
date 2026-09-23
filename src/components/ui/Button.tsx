@@ -1,51 +1,40 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/cn";
 
-// The primary action existed at THIRTEEN call sites before this file, with six
-// different padding pairs, two different label colours, and three different
-// interaction stories: some had a shadow lift plus a press scale, some had a
-// colour transition only, and two had no feedback at all. The same control
-// felt like three different controls depending on where you met it.
+// One button vocabulary for the whole site. Before this file the primary
+// action existed at thirteen call sites with six padding pairs and three
+// interaction stories, and seven of them shipped pure #000 labels.
 //
-// Two things this fixes that were outright wrong rather than merely
-// inconsistent:
-//   1. SEVEN call sites shipped `text-black`, which is #000, against the house
-//      rule that forbids pure black and white. The site's ground is #0a0a0a
-//      and the other six correctly used `text-[#0a0a0a]`, so those seven
-//      labels were measurably darker than the surface the fill sits on.
-//   2. `not-found.tsx` and the mobile navbar CTA had no transition at all, so
-//      they snapped between states while every other button eased.
+// Ember Gate rules (2026-09-23):
+//   - primary is the ONLY coral fill on a screen: it is the human decision.
+//     It reads as a physical key: a lit top edge and a neutral drop shadow.
+//     No coloured glow: depth comes from light and shadow, not from coral.
+//   - ghost is neutral at rest AND on hover. It used to turn coral on hover,
+//     which put two coral controls side by side and erased the hierarchy.
+//   - the press is a transform on the spring curve: it compresses in 100ms
+//     and releases with a small overshoot. Transitions are listed explicitly;
+//     `transition-all` animated properties that never change.
+//   - lg is 44px tall (the touch target) and is the page-level CTA size. The
+//     shadow is a compound of primary + lg so dense chrome never gets a lift.
 //
-// `class-variance-authority` was already a dependency and had zero importers,
-// so this puts something already paid for to work rather than adding a package.
-//
-// SIZE is a real scale now, not six accidents: sm for an inline control in
-// dense chrome, md for a control inside a panel or form step, lg for the
-// page-level call to action. The old `px-6 py-3` on the careers apply button
-// folds into lg, which is a small shrink on one page and one fewer knob.
-//
-// The shadow lift is a COMPOUND of primary + lg on purpose. It was deliberate
-// polish on the hero and the closing CTA and is worth keeping, but putting it
-// on the base would have hung a page-level lift off the navbar button. The
-// rule it encodes: a page-level CTA lifts, an inline control does not.
-//
-// `active:scale-[0.98]` is on the base, so every button presses. It is reset
-// by the reduced-motion guard in globals.css, which resets `scale` as its own
-// property rather than through `transform` (see the block there; Tailwind v4
-// compiles it independently and Lightning CSS will merge a shorthand).
+// active:scale is reset by the reduced-motion guard in globals.css, which
+// resets `scale` as its own property (Tailwind v4 compiles it independently).
 export const buttonClass = cva(
-  "inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium transition-all active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex select-none items-center justify-center gap-2 whitespace-nowrap rounded-lg font-medium tracking-[-0.005em] transition-[background-color,border-color,color,box-shadow,scale] duration-200 ease-spring active:scale-[0.97] active:duration-100 disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
-        primary: "bg-brand text-[#0a0a0a] hover:bg-brand-soft",
+        primary:
+          "bg-brand text-bg shadow-[inset_0_1px_0_rgb(255_255_255/0.28),inset_0_-1px_0_rgb(0_0_0/0.12)] hover:bg-brand-soft",
         ghost:
-          "border border-zinc-700 text-zinc-200 hover:border-brand hover:text-brand-soft active:border-brand active:bg-brand/15",
+          "border border-line-strong bg-ink-50/[0.02] text-ink-100 hover:border-ink-400/60 hover:bg-ink-50/[0.06] active:bg-ink-50/[0.08]",
+        quiet:
+          "text-ink-300 hover:bg-ink-50/[0.05] hover:text-ink-100",
       },
       size: {
-        sm: "px-3 py-1.5",
-        md: "px-4 py-2.5",
-        lg: "px-5 py-2.5",
+        sm: "h-8 px-3 text-[0.8125rem]",
+        md: "h-10 px-4 text-sm",
+        lg: "h-11 px-5 text-[0.9375rem]",
       },
     },
     compoundVariants: [
@@ -53,7 +42,7 @@ export const buttonClass = cva(
         variant: "primary",
         size: "lg",
         class:
-          "shadow-lg shadow-brand-deep/20 hover:shadow-xl hover:shadow-brand-deep/30",
+          "shadow-[inset_0_1px_0_rgb(255_255_255/0.28),inset_0_-1px_0_rgb(0_0_0/0.12),0_10px_30px_-12px_rgb(0_0_0/0.6)] hover:shadow-[inset_0_1px_0_rgb(255_255_255/0.34),inset_0_-1px_0_rgb(0_0_0/0.12),0_14px_36px_-12px_rgb(0_0_0/0.65)]",
       },
     ],
     defaultVariants: { variant: "primary", size: "lg" },
@@ -64,8 +53,7 @@ export type ButtonVariants = VariantProps<typeof buttonClass>;
 
 // Two exports on purpose. `Button` covers real <button> elements; `buttonClass`
 // covers everything that is not one, which here is every next/link CTA and the
-// one <a download>. A polymorphic `as` prop would buy nothing over passing the
-// class, and it would hide which element actually renders.
+// one <a download>.
 export function Button({
   variant,
   size,
@@ -79,5 +67,23 @@ export function Button({
       className={cn(buttonClass({ variant, size }), className)}
       {...props}
     />
+  );
+}
+
+// The trailing arrow every CTA uses, so the glyph and its nudge are one thing.
+// The parent needs `group`.
+export function Arrow({ external = false }: { external?: boolean }) {
+  return (
+    <span
+      aria-hidden
+      className={cn(
+        "inline-block transition-transform duration-300 ease-out-expo",
+        external
+          ? "group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+          : "group-hover:translate-x-1",
+      )}
+    >
+      {external ? "↗" : "→"}
+    </span>
   );
 }

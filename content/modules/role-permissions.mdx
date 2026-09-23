@@ -1,8 +1,8 @@
 ---
-title: "Role hierarchy + permission guards"
+title: "Roles and permissions"
 slug: "role-permissions"
 category: "auth"
-summary: "STAFF < TEAM_LEAD < MANAGER < ADMIN role ladder plus an isSuperAdmin tier, with requireAuth, requireRole, requireSuperAdmin, and target-guard helpers that make permission errors loud and uniform."
+summary: "Four access levels, from staff up to admin, plus a super-admin above them. Checks run through the same few helpers, so when someone is blocked it fails loudly and the same way everywhere."
 metaDescription: "A STAFF to ADMIN role ladder plus a super-admin tier, with requireAuth, requireRole and target guards that throw a typed AuthError, never a silent denial."
 runningIn:
   - { client: "Agency portal", productSlug: "bs-hub" }
@@ -14,6 +14,10 @@ order: 2
 publishedAt: "2026-05-04"
 ---
 
-Permission checks should be one line per route. They almost never are in production codebases I inherit. The pattern I ship is a four-rung role ladder (STAFF < TEAM_LEAD < MANAGER < ADMIN) plus an orthogonal isSuperAdmin tier, plus a small set of guard helpers: `requireAuth`, `requireRole`, `requireSuperAdmin`, `guardSuperAdminTarget` (so a manager can't promote-then-demote a super-admin), `guardAdminTarget` (so admins can't elevate themselves).
+Who can see and change what should be a one-line check on every page, and in most codebases I inherit it is not. Here it is. A new role slots in without breaking the old ones, and a blocked request always fails the same clear way.
+
+## Under the hood
+
+The pattern I ship is a four-rung role ladder (STAFF < TEAM_LEAD < MANAGER < ADMIN) plus an orthogonal isSuperAdmin tier, plus a small set of guard helpers: `requireAuth`, `requireRole`, `requireSuperAdmin`, `guardSuperAdminTarget` (so a manager can't promote-then-demote a super-admin), `guardAdminTarget` (so admins can't elevate themselves).
 
 Every guard throws a typed `AuthError` that the API surface translates into a 401/403 with the right message. No silent denials. No "user is null" landmines downstream. New roles slot into the ladder without breaking existing call sites.

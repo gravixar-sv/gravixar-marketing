@@ -1,7 +1,13 @@
-// Capabilities and integrations: the real engineering surface area I build
-// with, grouped by what each tool does. Every entry here is wired into at
-// least one shipped product. No fabricated "X integrations" headline number;
-// the proof is the named list, not a count.
+// The tools I build with, grouped by what each one does. Every entry is wired
+// into at least one shipped product. No "X integrations" headline number: the
+// proof is the named list, not a count.
+//
+// Since 2026-09-23 this lives on /about, not the homepage. On the homepage it
+// was an engineer's spec sheet standing between the proof and the offer, and
+// for the agency owner the page is written for it was the least useful screen
+// on it. On /about it is reference material for the reader who asked, so it is
+// set quietly: a small heading, sans labels in sentence case, and the tools as
+// plain pills. Nothing here is machine output, so nothing here is mono.
 
 type CapabilityGroup = {
   label: string;
@@ -11,15 +17,17 @@ type CapabilityGroup = {
 
 const GROUPS: CapabilityGroup[] = [
   {
-    label: "ai",
-    // Eval gates: 37 eval-gate suites, roughly 475 act-eval cases.
-    // Source: brain/projects/gravixar-hq.md.
-    note: "Claude across products: drafting, assessment, triage, with a human on every write. 37 eval suites gate the ones running in my own ops platform.",
+    label: "AI",
+    // 37 test suites (eval gates, roughly 475 cases) gate the AI in my own ops
+    // platform. Source: brain/projects/gravixar-hq.md. Hard-coded here, so it
+    // sits outside system-stats.json and its staleness check; recount it when
+    // that file is recounted.
+    note: "Claude writes drafts, screens candidates, and sorts feedback, with a person approving every action. In my own ops system, 37 sets of tests check its work.",
     items: [
       "Claude API (Anthropic)",
       "Content drafting",
       "Candidate assessment",
-      "Feedback triage",
+      "Feedback sorting",
       "Eval gates",
     ],
   },
@@ -29,93 +37,76 @@ const GROUPS: CapabilityGroup[] = [
     // HMAC-signed email verification code (no token storage), a Blob append,
     // and a Resend confirmation carrying a reusable Google Meet link plus an
     // .ics invite. No third-party scheduler is in the path.
-    label: "payments & scheduling",
+    label: "Payments and scheduling",
     note: "Take the money and book the time.",
     items: ["Stripe", "In-house booking (no third-party scheduler)"],
   },
   {
-    label: "storage & data",
-    note: "Object storage, blobs, and Postgres, picked per workload.",
+    label: "Storage and data",
+    note: "Where files and data live, picked for each job.",
     items: ["Wasabi (S3-compatible)", "Vercel Blob", "Supabase", "Neon Postgres"],
   },
   {
-    label: "comms",
+    label: "Messages and meetings",
     note: "Meetings, mail, and the notifications people actually read.",
-    items: ["Zoom (meetings + telephony)", "Resend", "Web Push", "Telegram", "LinkedIn API"],
+    items: ["Zoom (meetings and phone)", "Resend", "Web Push", "Telegram", "LinkedIn API"],
   },
   {
-    label: "ops & security",
-    // Governance: 23 registered checks running daily across the platform.
-    // Source: brain/projects/gravixar-hq.md.
-    note: "The boring, load-bearing layer: identity, audit, anti-bot, PHI safety, and 23 governance checks that run daily.",
+    label: "Ops and security",
+    // 23 registered checks running daily across the platform. Source:
+    // brain/projects/gravixar-hq.md. Same staleness caveat as the 37 above.
+    // "Bot checks", not "bot blocking": BotID is warn-only on lead routes.
+    note: "The boring part that holds it all up: logins, audit trails, bot checks, patient-data safety, and 23 rule checks that run every day.",
     items: [
       "Monday.com",
-      "Google OAuth + Drive",
-      "WebAuthn passkeys + TOTP 2FA",
-      "Anti-bot / BotID",
+      "Google OAuth and Drive",
+      "Passkeys (WebAuthn) and TOTP 2FA",
+      "Bot checks (BotID)",
       "Audit logging",
-      "PHI detection / redaction",
-      "Governance checks",
+      "Patient-data detection and redaction",
+      "Rule checks",
     ],
   },
 ];
 
 export function Capabilities() {
   return (
-    <section>
-      <p className="font-mono text-label uppercase text-brand">
-        capabilities &amp; integrations
-      </p>
-      {/* Reference rank, held in lockstep with Proof's h2: unprefixed 24px at
-          every width, medium weight, zinc-200. One rank means one look, so the
-          two call sites change together or not at all. globals.css has why this
-          rank alone ships without a breakpoint prefix. */}
-      <h2 className="mt-3 text-reference font-medium tracking-[-0.01em] text-zinc-200">
-        The surface area I build with.
+    <section aria-labelledby="capabilities">
+      <h2 id="capabilities" className="text-reference font-semibold text-ink-100">
+        The tools I build with.
       </h2>
-      <p className="mt-4 max-w-2xl text-zinc-400">
-        Not a logo wall for its own sake. Every tool below is wired into
-        something that ships: a client portal, a demo you can click, or the
-        platform itself.
+      <p className="mt-3 max-w-[60ch] text-[0.9375rem] leading-relaxed text-ink-400">
+        Every tool here is in use today: in a client portal, a demo you can
+        click, or my own ops system.
       </p>
 
-      {/* No container box: the rows sit on the canvas and are separated by their
-          own hairlines, so the top rule is unconditional (a conditional i > 0
-          rule would leave the first row's top edge floating), and the last row
-          carries a bottom rule so the stack closes instead of trailing off.
-          The rules take border-line rather than border-line-soft on purpose:
-          with the box gone they are the only structure left, so they enclose
-          rather than merely separate. The chips keep border-line, which is
-          a solid chip outline against their own fill, not a hairline rank. */}
-      <div className="mt-10">
-        {GROUPS.map((group, i) => (
+      {/* No container box: the rows sit on the canvas, separated by their own
+          hairlines, and the last row closes the stack with a bottom rule. */}
+      <dl className="mt-8 border-b border-line">
+        {GROUPS.map((group) => (
           <div
             key={group.label}
-            className={`grid gap-x-8 gap-y-4 border-t border-line py-5 md:grid-cols-[minmax(0,220px)_minmax(0,1fr)] md:py-6 ${
-              i === GROUPS.length - 1 ? "border-b" : ""
-            }`}
+            className="grid gap-x-10 gap-y-3 border-t border-line py-5 md:grid-cols-[minmax(0,240px)_minmax(0,1fr)] md:py-6"
           >
-            <div>
-              <p className="font-mono text-label-sm uppercase text-muted">
-                {group.label}
-              </p>
-              <p className="mt-2 text-sm leading-relaxed text-muted">
-                {group.note}
-              </p>
-            </div>
-            <ul className="flex flex-wrap content-start gap-2">
-              {group.items.map((item) => (
-                <li
-                  key={item}
-                  className="rounded-sm border border-line bg-zinc-900/60 px-2.5 py-1 font-mono text-[11px] text-zinc-300"
-                >
-                  {item}
-                </li>
-              ))}
-            </ul>
+            <dt>
+              <p className="text-caption font-medium text-ink-200">{group.label}</p>
+              <p className="mt-1.5 text-caption text-ink-500">{group.note}</p>
+            </dt>
+            <dd>
+              <ul className="flex flex-wrap content-start gap-2">
+                {group.items.map((item) => (
+                  <li
+                    key={item}
+                    className="rounded-full border border-line px-3 py-1 text-caption text-ink-300"
+                  >
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </dd>
           </div>
         ))}
-      </div>
+      </dl>
     </section>
   );
 }

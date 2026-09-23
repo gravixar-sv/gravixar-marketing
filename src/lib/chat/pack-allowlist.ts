@@ -100,7 +100,11 @@ export const PACK_EXCLUDED: Record<PackKind, readonly string[]> = {
   // chat answer re-serving a named client's words in whatever context a
   // visitor conjures is a different act, same instinct as module runningIn,
   // and clause 6 keeps the client: line as the ceiling.
-  caseStudy: ["cover", "publishedAt", "draft", "demo", "testimonial", "metaDescription"],
+  // order: a sort key for /work, not a fact. homeLine: a one-sentence
+  // compression of `outcome` for the homepage rows; Bosun already reads the
+  // full outcome, so this would only be a second, shorter phrasing of it (the
+  // same reasoning as metaDescription above).
+  caseStudy: ["cover", "publishedAt", "draft", "demo", "testimonial", "metaDescription", "order", "homeLine"],
   page: ["eyebrow"],
 };
 

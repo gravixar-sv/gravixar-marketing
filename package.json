@@ -38,7 +38,6 @@
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.92",
-    "@fontsource-variable/hubot-sans": "^5.2.8",
     "@fontsource-variable/mona-sans": "^5.2.8",
     "@gravixar-sv/core": "^0.8.1",
     "@mdx-js/react": "^3.1.1",
@@ -59,6 +58,7 @@
     "react-email": "^6.6.5",
     "resend": "^6.16.0",
     "tailwind-merge": "^3.6.0",
+    "three": "^0.186.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
@@ -67,6 +67,7 @@
     "@types/node": "^24.13.2",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
+    "@types/three": "^0.186.0",
     "@vercel/config": "^0.7.0",
     "eslint": "^9.39.4",
     "eslint-config-next": "^16.2.10",

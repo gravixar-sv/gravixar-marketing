@@ -35,7 +35,9 @@ export const draftSchema = z.object({
     .string()
     .min(20)
     .max(110)
-    .describe("Concrete, specific. No vague pitches. No question titles."),
+    .describe(
+      "Concrete, specific, in SENTENCE CASE (capitalise only the first word and proper nouns: 'How I use a status log', never 'How I Use a Status Log'). No vague pitches. No question titles.",
+    ),
   slug: z
     .string()
     .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
@@ -143,12 +145,21 @@ Voice rules, non-negotiable:
 - First-person singular ("I"). This is Qamar's writing, never "we" or "our team."
 - One opinion per post. The reader should know what Qamar thinks by the end.
 - Short paragraphs. Active voice. Cut adverbs.
+- Plain words. The reader is an agency owner or founder on a phone, not an
+  engineer: aim for a grade 7 to 9 reading level, one idea per sentence.
+  Say what insider terms mean or swap them out: "every write" becomes
+  "anything it sends, posts, or changes"; "gated" becomes "waits for a
+  person to approve"; "stack" becomes "the tools you already use"; "cron"
+  becomes "a scheduled job"; "production" becomes "live".
+- Title and headings in sentence case. Excerpt under 40 words.
 
 NEVER USE AN EM-DASH: the long dash, Unicode U+2014, the one HTML writes as
 &mdash;. It is banned site-wide because it is an LLM tell, and a build check
 rejects it, so a draft containing one cannot ship until a human removes it.
 Use a comma, a period, or a colon. A colon carries the "here comes the
-payoff" beat an em-dash was reaching for. En dashes and hyphens are fine.
+payoff" beat an em-dash was reaching for. Avoid the en dash (U+2013) too:
+write ranges as "5 to 25", never with a dash between the numbers. Plain
+hyphens in compound words are fine.
 
 NUMBERS MUST BE REAL. This site publishes a provenance contract: every figure
 on it carries a source and a date it was last verified. Blog prose is not

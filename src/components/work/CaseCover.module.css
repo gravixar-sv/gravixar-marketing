@@ -1,0 +1,78 @@
+/* Case-study cover: light, grid, and the page-arrival draw. */
+
+/* The ember sits a touch dimmer at rest on index cards and wakes when the
+   reader points at the card (the parent link carries `group`). */
+.ember {
+  opacity: 0.8;
+  transition: opacity 260ms var(--ease-out);
+}
+
+/* A fine drafting grid, faded to nothing before it reaches the frame, so the
+   drawing sits on paper rather than in a box. */
+.grid {
+  background-image:
+    linear-gradient(to right, var(--color-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--color-line) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-position: -1px -1px;
+  -webkit-mask-image: radial-gradient(120% 90% at 60% 55%, #000 30%, transparent 78%);
+  mask-image: radial-gradient(120% 90% at 60% 55%, #000 30%, transparent 78%);
+}
+
+.art {
+  transition: translate 420ms var(--ease-out-expo);
+}
+
+/* Thumbnails are drawn at about a sixth of the detail size, where a 1px
+   hairline disappears. Strokes are non-scaling, so these are screen pixels:
+   every fine stroke gains half a pixel. The attribute selectors outrank the
+   SVG presentation attributes and leave the heavier strokes alone. */
+.thumb [stroke-width="1"] {
+  stroke-width: 1.5px;
+}
+.thumb [stroke-width="1.25"] {
+  stroke-width: 1.75px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  :global(.group):hover .ember {
+    opacity: 1;
+  }
+  /* The drawing settles 4px toward the reader. Causal, small, vertical. */
+  :global(.group):hover .art {
+    translate: 0 -4px;
+  }
+}
+
+/* Page arrival on the detail cover: the drawing is laid down left to right,
+   once, on the narrative curve. The final state is the base state, so a
+   reader without animation sees the finished drawing. */
+@keyframes draw-in {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+.draw {
+  animation: draw-in 860ms var(--ease-out-expo) 280ms both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ember,
+  .art {
+    transition: none;
+  }
+  .draw {
+    animation: none;
+    clip-path: none;
+  }
+}
+/* Separate rule on purpose: Lightning CSS merges adjacent resets into one
+   shorthand that cancels nothing. The movement reset stands alone. */
+@media (prefers-reduced-motion: reduce) {
+  :global(.group):hover .art {
+    translate: none;
+  }
+}

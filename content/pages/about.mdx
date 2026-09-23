@@ -1,43 +1,74 @@
 ---
-title: "About"
-eyebrow: "who's behind this"
-description: "Qamar, founder of Gravixar, the AI-ops platform. Four live client engagements, still close to every build."
+title: "The person who builds it is the person you talk to."
+eyebrow: "Who's behind this"
+description: "I'm Qamar, founder of Gravixar, with four client projects live right now and my hands in every one."
 ---
 
-{/* Standing numbers here are sourced from C:/dev/gravixar-hq/brain (projects/beeline-medical.md, projects/bs-hub.md, projects/gravixar-hq.md, _meta/module-health.json, ledgers/) and from this repo's own vercel.ts. Recount at the source before editing any figure. */}
+{/* Standing numbers here are sourced from C:/dev/gravixar-hq/brain (projects/beeline-medical.md, projects/bs-hub.md, projects/gravixar-hq.md, _meta/module-health.json, ledgers/) and from this repo's own vercel.ts. Recount at the source before editing any figure. The figures cut from "What I'm working on" on 2026-09-23 (84 models, 255 endpoints, 12 states, 9 jobs, 13,702 events, 147 gaps, 34% to 66%, 83,665 rows) were cut from this page only; they stay on the case studies. <Ledger>, <LedgerGroup>, <Fact>, <WorkList> and <WorkItem> are passed in by src/app/(marketing)/about/page.tsx. */}
 
-I'm Qamar. I build Gravixar, an AI-ops platform whose modules run your operations with a human on every approval. You see it running before you buy it.
+Gravixar is the software I build to run a business's daily operations. AI does the busywork, and a person approves anything that spends money, changes a record, or goes out the door. You see it running before you buy it.
 
 ## How I work
 
-The platform's modules run the same pattern everywhere: AI does the work, a human approves anything that writes, spends, or ships. When a team needs it shaped to them, I take that on as a high-touch build, one at a time, no agency layer between you and the person doing the work. That's me.
+Every system I build follows the same rule: a person approves before anything changes. When a team needs it shaped around how they work, I build it myself. There is no agency layer between you and the person doing the work. That's me.
 
-The systems I build for clients run in production. I usually run a version myself before recommending it. There are five scenes at [demo.gravixar.com](https://demo.gravixar.com), each a purpose-built playground with sample data, no sign-in, nothing to install. It's a separate build from any client's system, on purpose. Pick the one closest to your work, run the loop yourself, and decide if the workflow makes sense before we talk pricing.
+The systems I build for clients are live and running, and I usually run a version myself before I recommend one. There are five demo apps at [demo.gravixar.com](https://demo.gravixar.com): sample data, no sign-in, nothing to install. They are built separately from any client's system, on purpose. Pick the one closest to your work, click through it, and decide if it makes sense before you ever get on a call.
 
-I prefer iterative engagements. Week one you have something running, even if small. Week ten you have something that's been used in real conditions and rounded off where the corners caught. I don't disappear into a four-month build cycle and surface with a "v1" you've never seen.
+I build in small steps. In week one you have something running, even if it is small. By week ten you have something that has been used in real conditions and rounded off where the corners caught. I don't disappear into a four-month build and come back with a "v1" you have never seen.
 
-Four client engagements run live at the same time right now, and that only holds together because the layer behind them is itself a system. Counted on 1 September 2026, the operations stack I work from carries 24 registered modules, 13 of them reused across more than one product, and 19 jobs on a schedule, with a set of governance checks that run daily and tell me when something has drifted. In July 2026 it moved 378 commits, 158 merged pull requests, and 68 guarded automated operations.
+Running four live client projects at once only works because the setup behind them is a system too, with checks that run every day and tell me when something has drifted. Here is what that system handles.
 
-When AI is part of the system, it drafts and suggests; the human approves. The SEO agent on this site doesn't auto-publish. The market scan hands me a ranked brief and waits; no signal on it acts by itself. That pattern, AI handles the boring 80% and the human keeps the steering wheel, is what I sell.
+<Ledger>
+<LedgerGroup when="Counted on 1 September 2026">
+<Fact value="24" label="Building blocks in the library (modules)" />
+<Fact value="13" label="Of those, used in more than one&nbsp;product" />
+<Fact value="19" label="Tasks that run on a schedule" />
+</LedgerGroup>
+<LedgerGroup when="Work done in July 2026">
+<Fact value="378" label="Saved code changes (commits)" />
+<Fact value="158" label="Batches of changes merged (pull&nbsp;requests)" />
+<Fact value="68" label="Automated upkeep tasks, each one behind a check" />
+</LedgerGroup>
+</Ledger>
+
+When AI is part of a system, it drafts and suggests, and a person approves. The AI that drafts articles for this site does not publish them on its own. The market scan hands me a ranked list and waits. Nothing on it acts by itself. That is what I sell: AI handles the boring 80%, and a person keeps the steering wheel.
 
 ## What I'm working on
 
-- **[An agency portal](/work/bs-hub)** for a digital agency, live in production. 84 data models and 255 endpoints behind a 12-state delivery funnel, an AI intake step, and 9 scheduled jobs. A new client goes from inquiry to an active project in about 10 minutes, where the email version of that took two to three days.
-- **[A healthcare ops platform](/work/beeline)**, live on its own domain since June 2026. 250 clients, 2,042 credentialing panels, 13,702 timeline events on the record. It answers what nobody there could answer before: 125 panels waiting on the desk against 1,560 waiting on payers, 147 carve-out gaps, and a follow-up queue that went from nothing to 60 due per day. Payer-directory coverage of active panels moved from 34% to 66%, and exclusion screening runs against the real OIG list, all 83,665 rows of it.
-- **This site.** Small in scope, and still real proof: 3 jobs on a schedule (an SEO drafter twice a week, a market scan on the 1st and 15th, a daily push to Google's job index), lead capture wired into the same system I run my own operations from, and the five live demo scenes it points at. None of the three publish anything on their own.
-- **The hosted platform.** The same productized modules, rented by the month instead of commissioned as a build. It does not exist yet and I am not printing a date for it. [Join the list](/early-access).
+<WorkList>
+<WorkItem title="An agency portal" href="/work/bs-hub" note="For a digital agency, live in production">
+
+A new client goes from first inquiry to an active project in about 10 minutes. By email, that took two to three days.
+
+</WorkItem>
+<WorkItem title="A healthcare credentialing platform" href="/work/beeline" note="Live on its own domain since June 2026">
+
+For the first time, the team can see how many insurer applications are waiting on them (125) and how many are waiting on the insurers (1,560), across 250 clients.
+
+</WorkItem>
+<WorkItem title="This site" note="Small in scope, and still real proof">
+
+Three jobs run on a schedule: one drafts articles twice a week, one scans the market on the 1st and 15th, and one tells Google about open jobs every day. None of them publishes anything on its own.
+
+</WorkItem>
+<WorkItem title="The hosted platform" note="Not built yet">
+
+The same building blocks, rented by the month instead of built for you. It does not exist yet, and I am not printing a date for it. [Join the list](/early-access).
+
+</WorkItem>
+</WorkList>
 
 ## Background
 
-I started managing operations in 2009 and have been doing it in some form ever since: HubSpot, Monday, ClickUp, Zoho, and most of the rest of the suite over the years, on teams that were on-site, remote, and everything in between. These days I also head operations for an Islamabad-based creative agency on top of my own work, so the patterns I sell aren't things I've read about. They're things I run.
+I started managing operations in 2009 and have been doing it in some form ever since: HubSpot, monday.com, ClickUp, Zoho, and most of the rest of the suite over the years, on teams that were on-site, remote, and everything in between. These days I also head operations for an Islamabad-based creative agency on top of my own work, so the patterns I sell aren't things I've read about. They're things I run.
 
-I've watched enough teams stitch Notion + Sheets + a Slack channel into something that almost works to know that "almost" is where most of the cost lives. The gap between that and a real system is where I tend to be useful.
+I've watched enough teams stitch Notion, Sheets and a Slack channel into something that almost works to know that "almost" is where most of the cost lives. The gap between that and a real system is where I tend to be useful.
 
 ## A few things I'm not
 
 - Not a CRM developer, though I've built portals with CRM-shaped pieces in them.
 - Not a vendor who'll tell you AI is the answer to a problem AI is bad at.
-- Not a black-box. Every system I ship comes with the audit trail, the source, and the decisions written down: 493 decision entries and 71 infrastructure entries so far, append-only, so nothing gets quietly rewritten after the fact.
+- Not a black box. Every system I ship comes with a record of what it did, the code itself, and the reasons behind each decision. I have written down 493 decisions and 71 infrastructure notes so far, and I only ever add to them, so nothing gets quietly rewritten later.
 
 ## Outside this
 
