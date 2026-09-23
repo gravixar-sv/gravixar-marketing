@@ -141,7 +141,7 @@ function Frame({
         }`}
       />
       <div
-        className={`relative overflow-hidden bg-ink-950 [aspect-ratio:var(--ar-n)] [mask-image:linear-gradient(to_bottom,#000_90%,transparent)] md:[aspect-ratio:var(--ar-w)] ${
+        className={`relative overflow-clip bg-ink-950 [aspect-ratio:var(--ar-n)] [mask-image:linear-gradient(to_bottom,#000_90%,transparent)] md:[aspect-ratio:var(--ar-w)] ${
           compact ? "rounded-[10px] md:rounded-lg" : "rounded-[10px]"
         }`}
         style={vars}

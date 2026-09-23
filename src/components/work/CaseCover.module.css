@@ -1,4 +1,4 @@
-/* Case-study cover: light, grid, and the page-arrival draw. */
+/* Case-study cover: light, grid, and the build. */
 
 /* The ember sits a touch dimmer at rest on index cards and wakes when the
    reader points at the card (the parent link carries `group`). */
@@ -44,10 +44,90 @@
   }
 }
 
-/* Page arrival on the detail cover: the drawing is laid down left to right,
-   once, on the narrative curve. The final state is the base state, so a
-   reader without animation sees the finished drawing. */
-@keyframes draw-in {
+/* ---------- The build ----------
+
+   Every moving element in a drawing names a ROLE (how it arrives) and carries
+   --t and --d inline: its start and its duration, in ms of the arrival build
+   (CaseCover.tsx, `at`). A DRIVER class on the frame turns those numbers into
+   motion:
+     .arrive  page-load time, for a cover in the first viewport. --b0 is the
+              ms before the build starts.
+     .scrub   the same numbers on the frame's own view timeline, so the build
+              assembles as the cover scrolls in and ends by entry 100%, the
+              moment the whole frame is in view.
+   THE BASE STATE IS THE FINISHED DRAWING. Keyframes only say where an element
+   comes FROM (their end is its resting style), and the hiding lives in the
+   backwards fill of a running animation. So a cover with no driver, an
+   inactive timeline (no overflow, print), an engine without view(), and
+   reduced motion all show the complete drawing. Only transform, opacity and
+   clip-path move: nothing here can shift layout. */
+
+/* SVG transforms need the element's own box as the reference, or scale()
+   pivots on the SVG's origin and flings the element across the drawing. */
+.pop,
+.popSoft,
+.ring,
+.rise,
+.growX,
+.growY {
+  transform-box: fill-box;
+}
+.pop,
+.popSoft,
+.ring,
+.rise {
+  transform-origin: center;
+}
+.growX {
+  transform-origin: left center;
+}
+.growY {
+  transform-origin: center bottom;
+}
+
+@keyframes cc-pop {
+  from {
+    transform: scale(0);
+  }
+}
+@keyframes cc-pop-soft {
+  from {
+    opacity: 0;
+    transform: scale(0.86);
+  }
+}
+@keyframes cc-ring {
+  from {
+    opacity: 0;
+    transform: scale(0.55);
+  }
+}
+/* 40 viewBox units: about 25px on a detail cover, 5px on a thumb. */
+@keyframes cc-rise {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+}
+@keyframes cc-grow-x {
+  from {
+    transform: scaleX(0);
+  }
+}
+@keyframes cc-grow-y {
+  from {
+    transform: scaleY(0);
+  }
+}
+@keyframes cc-fade {
+  from {
+    opacity: 0;
+  }
+}
+/* A clip reveal needs both ends: none and inset() do not interpolate, so an
+   implicit end would flip halfway instead of sweeping. The end, inset(0), is
+   the group's padded box (see Wipe), so the finished drawing is never cut. */
+@keyframes cc-wipe-ltr {
   from {
     clip-path: inset(0 100% 0 0);
   }
@@ -55,18 +135,119 @@
     clip-path: inset(0 0 0 0);
   }
 }
-.draw {
-  animation: draw-in 860ms var(--ease-out-expo) 280ms both;
+@keyframes cc-wipe-rtl {
+  from {
+    clip-path: inset(0 0 0 100%);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
 }
 
+/* What each role plays, and on which curve: arrivals on the expo curve, small
+   pops on the damped spring, lines and fades on the plain ease-out. Named
+   only under a driver. */
+:is(.arrive, .scrub) .pop {
+  animation-name: cc-pop;
+  animation-timing-function: var(--ease-spring);
+}
+:is(.arrive, .scrub) .popSoft {
+  animation-name: cc-pop-soft;
+  animation-timing-function: var(--ease-out-expo);
+}
+:is(.arrive, .scrub) .ring {
+  animation-name: cc-ring;
+  animation-timing-function: var(--ease-out-expo);
+}
+:is(.arrive, .scrub) .rise {
+  animation-name: cc-rise;
+  animation-timing-function: var(--ease-out-expo);
+}
+:is(.arrive, .scrub) .growX {
+  animation-name: cc-grow-x;
+  animation-timing-function: var(--ease-out-expo);
+}
+:is(.arrive, .scrub) .growY {
+  animation-name: cc-grow-y;
+  animation-timing-function: var(--ease-out);
+}
+:is(.arrive, .scrub) .fade,
+.arrive .note {
+  animation-name: cc-fade;
+  animation-timing-function: var(--ease-out);
+}
+/* A keyframe lands; it does not fade. */
+:is(.arrive, .scrub) .blink {
+  animation-name: cc-fade;
+  animation-timing-function: steps(1, jump-start);
+}
+:is(.arrive, .scrub) .wipeLtr {
+  animation-name: cc-wipe-ltr;
+  animation-timing-function: var(--ease-out-expo);
+}
+:is(.arrive, .scrub) .wipeRtl {
+  animation-name: cc-wipe-rtl;
+  animation-timing-function: var(--ease-out-expo);
+}
+
+/* ARRIVAL. The notes (the detail cover's HTML labels) fade in beside what
+   they name, on the same clock. */
+.arrive :is(.pop, .popSoft, .ring, .rise, .growX, .growY, .fade, .blink, .wipeLtr, .wipeRtl, .note) {
+  animation-duration: calc(var(--d, 400) * 1ms);
+  animation-delay: calc((var(--b0, 300) + var(--t, 0)) * 1ms);
+  animation-fill-mode: both;
+}
+
+/* SCROLL. Where each frame's build sits in its entry range: 1600ms of the
+   arrival build (the longest) maps onto [--r0, 100%], so --rk is
+   (100% - --r0) / 1600. A card's drawing fills the lower half of its frame,
+   under the figure (which sets over 16% to 56%), so its build starts once the
+   frame is 48% in; a thumb's drawing sits higher, so it starts at 26%. */
+.spanCard {
+  --r0: 48%;
+  --rk: 0.0325%;
+}
+.spanThumb {
+  --r0: 26%;
+  --rk: 0.0462%;
+}
+@supports (animation-timeline: view()) {
+  /* On the frame itself. The frame is overflow-hidden, which makes it a
+     scroll container, so a view() inside it would watch the frame and never
+     run; everything in the frame reads this named timeline instead. */
+  .scrub {
+    view-timeline: --cc block;
+  }
+  .scrub :is(.pop, .popSoft, .ring, .rise, .growX, .growY, .fade, .blink, .wipeLtr, .wipeRtl) {
+    animation-duration: auto;
+    animation-delay: 0s;
+    animation-fill-mode: both;
+    animation-timeline: --cc;
+    animation-range:
+      entry calc(var(--r0, 48%) + var(--t, 0) * var(--rk, 0.0325%))
+      entry calc(var(--r0, 48%) + (var(--t, 0) + var(--d, 400)) * var(--rk, 0.0325%));
+  }
+}
+
+/* Reduced motion: the finished drawing, still. Unlayered and last, so it
+   outranks the role and driver rules above on order alone. Only transform is
+   animated here (never the independent scale, translate or rotate), so the
+   transform reset is complete; the one independent-property reset, for the
+   hover drift, is the separate rule below. The notes are left out of the
+   transform reset: their alignment is an inline transform. */
 @media (prefers-reduced-motion: reduce) {
   .ember,
   .art {
     transition: none;
   }
-  .draw {
+  :is(.arrive, .scrub) :is(.pop, .popSoft, .ring, .rise, .growX, .growY, .fade, .blink, .wipeLtr, .wipeRtl, .note) {
     animation: none;
+    animation-timeline: auto;
+    opacity: 1;
+  }
+  :is(.arrive, .scrub) :is(.pop, .popSoft, .ring, .rise, .growX, .growY, .fade, .blink, .wipeLtr, .wipeRtl) {
     clip-path: none;
+    transform: none;
   }
 }
 /* Separate rule on purpose: Lightning CSS merges adjacent resets into one

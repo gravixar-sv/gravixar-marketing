@@ -741,7 +741,12 @@
   }
 
   /* Screenshot depth: the app appears to sit behind glass inside its frame as
-     the card crosses the viewport. Transform only, inside overflow-hidden. */
+     the card crosses the viewport. Transform only, and the frames around it
+     must clip with overflow-clip, never overflow-hidden: overflow: hidden
+     makes a scroll container, and view() then watches that frame, which never
+     scrolls, instead of the page. That is how this drift sat frozen at the
+     midpoint on every screenshot from 2026-09-23 until the fix (measured:
+     progress 0.4999 from scroll 0 to 989 on /services/operations-infrastructure). */
   @supports (animation-timeline: view()) {
     .shot-parallax {
       scale: 1.06;

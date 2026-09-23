@@ -120,7 +120,7 @@ export function DemoFigure({ slug }: { slug: string }) {
               buttons sit at about 75% of the box, and they are the reason the
               picture is here. */}
           <div
-            className="relative overflow-hidden rounded-[10px] bg-ink-950 [aspect-ratio:var(--ar-n)] [mask-image:linear-gradient(to_bottom,#000_88%,transparent)] sm:[aspect-ratio:var(--ar-w)]"
+            className="relative overflow-clip rounded-[10px] bg-ink-950 [aspect-ratio:var(--ar-n)] [mask-image:linear-gradient(to_bottom,#000_88%,transparent)] sm:[aspect-ratio:var(--ar-w)]"
             style={vars}
           >
             <div className="shot-parallax absolute inset-0">

@@ -1,3 +1,4 @@
+import { SetFigure } from "@/components/site/SetFigure";
 import type { CaseStudy } from "@/content/schema";
 import { cn } from "@/lib/cn";
 import { glanceMetrics, keepCompounds } from "./model";
@@ -8,6 +9,10 @@ import { glanceMetrics, keepCompounds } from "./model";
 // left, the numbers on the right. A number with provenance carries the date it
 // was checked, in mono, because that date is machine output; when every row
 // was checked on the same day, the date prints once under the block.
+//
+// The numbers are set in type as the block scrolls in (<SetFigure>): each
+// glyph rises in its own slot, so no frame ever shows a number the study does
+// not print. The rows and their hairlines hold still.
 //
 // On phones the engagement folds into one caption line (client and period;
 // the role waits for a wider screen), so the reading starts a screen sooner.
@@ -44,7 +49,9 @@ export function CaseLedger({ meta, className }: { meta: CaseStudy; className?: s
             <dl className="divide-y divide-line-soft border-t border-line-soft md:border-t-0">
               {numbers.map((m) => (
                 <Row key={m.label} label={m.label}>
-                  <span className="font-medium text-ink-50">{m.value}</span>
+                  <span className="font-medium text-ink-50">
+                    <SetFigure text={m.value} />
+                  </span>
                   {m.verifiedAt && !shared ? (
                     <span className="mt-1 block font-mono text-label-xs text-ink-500">checked {m.verifiedAt}</span>
                   ) : null}

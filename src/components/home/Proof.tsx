@@ -1,4 +1,6 @@
+import { Fragment, type ReactNode } from "react";
 import type { HomeBlock, SystemStat } from "@/content/schema";
+import { SetFigure } from "@/components/site/SetFigure";
 import systemStats from "../../../content/data/system-stats.json";
 import { Clients } from "./Clients";
 
@@ -18,12 +20,15 @@ import { Clients } from "./Clients";
 // terms a non-technical owner skims past. A key missing from the JSON drops
 // its phrase rather than printing a hole.
 //
-// Static on purpose. The old hero rolled these up from zero, which made
-// audited figures read like a gimmick; here they sit still under a date.
-const LEDGER: { key: string; phrase: (value: string) => string }[] = [
-  { key: "modules-built", phrase: (v) => `${v} building blocks built` },
-  { key: "modules-reused", phrase: (v) => `${v} of them reused across products` },
-  { key: "automated-jobs", phrase: (v) => `${v} automated jobs running my own business` },
+// Never a count-up. The old hero rolled these up from zero, which made
+// audited figures read like a gimmick. Here the sentence sits still under its
+// date and only the three numbers are set in type as the line scrolls in: a
+// short lift and fade per glyph, in place (<SetFigure quiet>), so every frame
+// shows the counted figure and never one on the way to it.
+const LEDGER: { key: string; phrase: (value: ReactNode) => ReactNode }[] = [
+  { key: "modules-built", phrase: (v) => <>{v} building blocks built</> },
+  { key: "modules-reused", phrase: (v) => <>{v} of them reused across products</> },
+  { key: "automated-jobs", phrase: (v) => <>{v} automated jobs running my own business</> },
 ];
 
 function formatCounted(iso: string) {
@@ -35,11 +40,11 @@ function formatCounted(iso: string) {
   }).format(new Date(`${iso}T00:00:00Z`));
 }
 
-function ledgerLine(): string | null {
+function ledgerLine(): ReactNode | null {
   const stats = systemStats.stats as SystemStat[];
   const used = LEDGER.flatMap(({ key, phrase }) => {
     const stat = stats.find((s) => s.key === key);
-    return stat ? [{ stat, text: phrase(stat.value) }] : [];
+    return stat ? [{ stat, text: phrase(<SetFigure text={stat.value} quiet />) }] : [];
   });
   if (used.length === 0) return null;
   // The oldest date among the figures shown, so the line never claims a
@@ -47,12 +52,19 @@ function ledgerLine(): string | null {
   const counted = used
     .map((u) => u.stat.verifiedAt)
     .sort()[0] as string;
-  const parts = used.map((u) => u.text);
-  const list =
-    parts.length > 1
-      ? `${parts.slice(0, -1).join(", ")}, and ${parts[parts.length - 1]}`
-      : parts[0];
-  return `Counted ${formatCounted(counted)}: ${list}.`;
+  // "a, b, and c": the same joins the line used as a plain string.
+  return (
+    <>
+      Counted {formatCounted(counted)}:{" "}
+      {used.map((u, i) => (
+        <Fragment key={u.stat.key}>
+          {i === 0 ? null : i === used.length - 1 ? ", and " : ", "}
+          {u.text}
+        </Fragment>
+      ))}
+      .
+    </>
+  );
 }
 
 export function Proof({ meta, body }: { meta: HomeBlock; body: string }) {
