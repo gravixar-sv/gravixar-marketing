@@ -328,14 +328,12 @@
 
 /* ---------- 04 and every swap in the panel ---------- */
 
+/* What arrives in a step (the next task, a version line, where it went) is
+   animated on mount by <Swap> in ApprovalStrip.tsx, not here: a CSS
+   animation gated on data-armed would also start on everything already on
+   the page when the attribute flips at hydration. */
 .outcome {
   min-height: 1.35rem;
-}
-.card[data-armed="true"] .swapIn {
-  animation: swap-in 260ms var(--ease-out-expo) both;
-}
-.card[data-armed="true"] .version {
-  animation: swap-in 220ms var(--ease-out) both;
 }
 @keyframes swap-in {
   from {
@@ -344,21 +342,12 @@
   }
 }
 
-/* "6 waiting": the new figure rises out of its own clip. */
+/* "6 waiting": the new figure rises out of this clip (<Swap from="0 70%">). */
 .count {
   display: inline-grid;
   height: 1lh;
   overflow: clip;
   vertical-align: bottom;
-}
-.card[data-armed="true"] .countIn {
-  animation: count-in 320ms var(--ease-out-expo) both;
-}
-@keyframes count-in {
-  from {
-    opacity: 0;
-    translate: 0 70%;
-  }
 }
 
 /* ---------- All clear ---------- */
@@ -427,9 +416,6 @@
   .timer {
     display: none;
   }
-  .card[data-armed="true"] .swapIn,
-  .card[data-armed="true"] .version,
-  .card[data-armed="true"] .countIn,
   .clear {
     animation: fade-only 150ms linear both;
   }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { PriorityBars } from "@/components/three/LoopOverlay";
 import { PRIORITIES, draftSegments, optionLabel, taskDef, type DraftSegment } from "./hero/approvalTasks";
 import { learningLine, summaryLine, type QueueState } from "./hero/approvalQueue";
@@ -125,14 +125,64 @@ function Check({ className }: { className?: string }) {
   );
 }
 
-/** "6 waiting", the figure rolling up out of a clip when it changes. */
-function Waiting({ n }: { n: number }) {
+/**
+ * Something that arrives in the panel (the next task, a rewrite's version
+ * line, where an approval went) animates when it MOUNTS, and only if the
+ * panel was already live when it did. Callers key it by what it shows, so a
+ * new task is a new mount. Not a CSS animation gated on data-armed: that
+ * starts on every element already on the page the moment the attribute
+ * flips, which re-faded the first task a beat after hydration, and on a slow
+ * phone after it had already been read.
+ */
+function Swap({
+  armed,
+  reduced,
+  as: Tag = "p",
+  from = "0 5px",
+  className,
+  children,
+}: {
+  armed: boolean;
+  reduced: boolean;
+  as?: "p" | "span";
+  /** Where it travels from, as a `translate` value. */
+  from?: string;
+  className?: string;
+  children: ReactNode;
+}) {
+  const node = useRef<HTMLElement | null>(null);
+  const liveAtMount = useRef(armed);
+  const motion = useRef({ reduced, from });
+  // Mount only, by design: the values it reads are the ones it mounted with.
+  useLayoutEffect(() => {
+    const el = node.current;
+    if (!el || !liveAtMount.current) return;
+    const { reduced: still, from: start } = motion.current;
+    el.animate(
+      still ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 0, translate: start }, { opacity: 1, translate: "0 0" }],
+      { duration: still ? 150 : 260, easing: still ? "linear" : "cubic-bezier(0.16, 1, 0.3, 1)" },
+    );
+  }, []);
+  return (
+    <Tag
+      ref={(el: HTMLElement | null) => {
+        node.current = el;
+      }}
+      className={className}
+    >
+      {children}
+    </Tag>
+  );
+}
+
+/** "6 waiting", the new figure rolling up out of a clip when it changes. */
+function Waiting({ n, armed, reduced }: { n: number; armed: boolean; reduced: boolean }) {
   return (
     <p className="font-mono text-label-sm tabular-nums text-ink-400">
       <span className={styles.count}>
-        <span key={n} className={styles.countIn}>
+        <Swap key={n} as="span" armed={armed} reduced={reduced} from="0 70%">
           {n}
-        </span>
+        </Swap>
       </span>{" "}
       waiting
     </p>
@@ -282,7 +332,7 @@ export function ApprovalStrip({ state, reduced, onApprove, onRevise, onCancel, o
         <p id="approval-card-title" className="text-caption font-medium text-ink-200">
           The approval loop
         </p>
-        <Waiting n={state.order.length} />
+        <Waiting n={state.order.length} armed={armed} reduced={reduced} />
       </div>
 
       <div className={styles.body}>
@@ -294,7 +344,7 @@ export function ApprovalStrip({ state, reduced, onApprove, onRevise, onCancel, o
                 title="The task"
                 wire="plain"
                 aside={
-                  <p key={task.id} className={cx(styles.swapIn, "flex flex-wrap items-center gap-1.5")}>
+                  <Swap key={task.id} armed={armed} reduced={reduced} className="flex flex-wrap items-center gap-1.5">
                     <span className={styles.chip}>
                       <span aria-hidden="true" className={styles.dot} style={{ background: CATEGORIES[def.category].hex }} />
                       {CATEGORIES[def.category].label}
@@ -304,12 +354,17 @@ export function ApprovalStrip({ state, reduced, onApprove, onRevise, onCancel, o
                       {PRIORITIES[def.priority].label}
                       <span className="sr-only"> priority</span>
                     </span>
-                  </p>
+                  </Swap>
                 }
               >
-                <p key={task.id} className={cx(styles.swapIn, "text-[0.9375rem] font-medium leading-snug text-ink-50")}>
+                <Swap
+                  key={task.id}
+                  armed={armed}
+                  reduced={reduced}
+                  className="text-[0.9375rem] font-medium leading-snug text-ink-50"
+                >
                   {def.name}
-                </p>
+                </Swap>
               </Step>
 
               <Step
@@ -317,9 +372,14 @@ export function ApprovalStrip({ state, reduced, onApprove, onRevise, onCancel, o
                 title="The AI drafts"
                 wire="plain"
                 aside={
-                  <p key={`${task.id}:${task.version}`} className={cx(styles.version, "font-mono text-label-sm text-ink-400")}>
+                  <Swap
+                    key={`${task.id}:${task.version}`}
+                    armed={armed}
+                    reduced={reduced}
+                    className={cx(styles.version, "font-mono text-label-sm text-ink-400")}
+                  >
                     {version}
-                  </p>
+                  </Swap>
                 }
               >
                 <div className={styles.draft}>
@@ -406,7 +466,12 @@ export function ApprovalStrip({ state, reduced, onApprove, onRevise, onCancel, o
               <Step n="04" title="It goes out">
                 <div className={styles.outcome}>
                   {phase === "sent" ? (
-                    <p key={`sent-${task.id}`} className={cx(styles.swapIn, "flex items-baseline gap-2 text-[0.875rem] text-ink-100")}>
+                    <Swap
+                      key={`sent-${task.id}`}
+                      armed={armed}
+                      reduced={reduced}
+                      className="flex items-baseline gap-2 text-[0.875rem] text-ink-100"
+                    >
                       <Check className="translate-y-[1px] shrink-0 text-brand" />
                       <span className="min-w-0">
                         {def.done.text}
@@ -417,11 +482,16 @@ export function ApprovalStrip({ state, reduced, onApprove, onRevise, onCancel, o
                           </>
                         ) : null}
                       </span>
-                    </p>
+                    </Swap>
                   ) : phase === "returned" ? (
-                    <p key={`back-${task.id}-${task.version}`} className={cx(styles.swapIn, "text-[0.875rem] text-ink-300")}>
+                    <Swap
+                      key={`back-${task.id}-${task.version}`}
+                      armed={armed}
+                      reduced={reduced}
+                      className="text-[0.875rem] text-ink-300"
+                    >
                       Nothing went out. V{task.version} goes to the back of the queue.
-                    </p>
+                    </Swap>
                   ) : (
                     <p className="text-[0.875rem] text-ink-400">Nothing goes out until someone says yes.</p>
                   )}
