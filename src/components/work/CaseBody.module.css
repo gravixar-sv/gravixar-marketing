@@ -1,0 +1,38 @@
+/* The "What broke" inset sits on .card-surface (one luminance step up, an
+   enclosing hairline). The only addition here is the lit top edge: ivory,
+   like .panel-lit, bright in the middle and gone at the corners. */
+.broke {
+  isolation: isolate;
+}
+
+.brokeLine {
+  position: absolute;
+  top: 0;
+  left: 8%;
+  right: 8%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgb(243 239 232 / 0.22) 50%, transparent);
+  transform-origin: center;
+}
+
+/* The hairline opens from its centre as the inset arrives. Transform only;
+   the base state is the open line, so no timeline means a finished line. */
+@supports (animation-timeline: view()) {
+  @keyframes open-line {
+    from {
+      transform: scaleX(0);
+    }
+  }
+  .brokeLine {
+    animation: open-line linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 60%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brokeLine {
+    animation: none;
+    transform: none;
+  }
+}

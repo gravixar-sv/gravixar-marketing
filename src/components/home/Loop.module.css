@@ -1,0 +1,11 @@
+/* Coral marks a human decision and nothing else. The rail is scroll progress,
+   so its fill is ink; of the three nodes only step 2 ("A person approves")
+   lights coral, lining up with the coral check in that step's chip.
+
+   The global .loop-node::after (globals.css) paints every node coral and owns
+   the scroll-linked animation and its reduced-motion reset. This unlayered
+   rule only recolours the two machine steps, so timing and the reduced-motion
+   behaviour stay in one place. */
+.machineNode::after {
+  background: var(--color-ink-200);
+}

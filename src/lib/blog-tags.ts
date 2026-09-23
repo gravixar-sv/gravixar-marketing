@@ -67,7 +67,7 @@ const TAG_COPY: Record<string, { label: string; title: string; description: stri
     title: "Ops infrastructure for small teams",
     label: "Ops infrastructure",
     description:
-      "The systems underneath the work. Portals, state machines, audit trails, and what to build once off-the-shelf tools stop fitting the shape of the business.",
+      "The systems underneath the work. Portals, sign-off flows, audit trails, and what to build once off-the-shelf tools stop fitting the shape of the business.",
   },
   operations: {
     title: "Operations and delivery process",
@@ -82,10 +82,10 @@ const TAG_COPY: Record<string, { label: string; title: string; description: stri
       "What a client portal has to do beyond giving clients somewhere to log in, and the point at which the cheap ones stop being enough.",
   },
   "ai-governance": {
-    title: "AI governance: approval gates and audit trails",
+    title: "AI governance: approvals and audit trails",
     label: "AI governance",
     description:
-      "Approval gates, audit trails and human review on AI output. What has to sit between a model and anything a client will read.",
+      "Keeping a person between the AI and your clients: who reviews the output, who signs off, and the record that proves it.",
   },
   "ai-tooling": {
     title: "AI tooling that survives production",

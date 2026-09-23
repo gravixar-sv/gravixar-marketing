@@ -36,9 +36,9 @@ const newsreader = Newsreader({
 });
 
 export const metadata: Metadata = {
-  title: { default: `${SITE.name} · AI-ops platform with a human on every approval`, template: `%s · ${SITE.name}` },
+  title: { default: `${SITE.name} · The AI-ops platform that asks before it acts`, template: `%s · ${SITE.name}` },
   description:
-    "Gravixar is an AI-ops platform: portals, intake wizards, and content agents that run your operations with a human on every write. In production before you buy.",
+    "Client portals, intake forms, and AI that drafts the work, with a person approving every action before it happens. See each one running before you buy.",
   metadataBase: new URL(SITE.url),
   applicationName: SITE.name,
   authors: [{ name: SITE.author, url: SITE.url }],

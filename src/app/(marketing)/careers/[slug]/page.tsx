@@ -15,6 +15,8 @@ import {
 } from "@/lib/careers";
 import { buildMetadata, SITE } from "@/lib/seo";
 import { buttonClass } from "@/components/ui/Button";
+import { PageLight } from "@/components/conversion/PageLight";
+import { cn } from "@/lib/cn";
 
 // Read HQ's published snapshot; re-fetch every 5 min. New roles not pre-built
 // at deploy time render on demand (dynamicParams defaults to true).
@@ -52,7 +54,8 @@ export default async function CareerPage({
   const datePosted = job.publishedAt ?? new Date().toISOString().slice(0, 10);
 
   return (
-    <div className="space-y-16">
+    <div className="relative isolate">
+      <PageLight />
       <StructuredDataJobPosting
         title={job.title}
         description={jobDescriptionHtml(job)}
@@ -80,21 +83,18 @@ export default async function CareerPage({
         ]}
       />
 
-      <div className="space-y-6">
-        <PageHeader eyebrow={job.team} title={job.title} lede={job.summary} />
-        <a
-          href="#apply"
-          className={buttonClass({ size: "lg" })}
-        >
-          Apply now
-          <span aria-hidden>↓</span>
+      <PageHeader eyebrow="All roles" eyebrowHref="/careers" title={job.title} lede={job.summary}>
+        <a href="#apply" className={cn("group", buttonClass())}>
+          Apply for this role
+          <span aria-hidden className="inline-block transition-transform duration-300 ease-out-expo group-hover:translate-y-0.5">
+            ↓
+          </span>
         </a>
-      </div>
+      </PageHeader>
 
-      <div className="grid gap-12 md:grid-cols-3">
-        <article className="prose-invert space-y-10 md:col-span-2">
-          <p className="text-ink-300">{job.about}</p>
-
+      <div className="mt-12 grid gap-14 md:mt-16 lg:grid-cols-[minmax(0,1fr)_17rem] lg:gap-20">
+        <article className="min-w-0 max-w-[68ch] space-y-12">
+          <p className="text-prose text-ink-300">{job.about}</p>
           <Section title="What you will do" items={job.responsibilities} />
           <Section title="What I am looking for" items={job.requirements} />
           {job.niceToHave.length > 0 ? (
@@ -102,20 +102,16 @@ export default async function CareerPage({
           ) : null}
         </article>
 
-        <aside className="space-y-8">
-          <dl className="space-y-4">
-            <Meta label="employment" value={employmentLabel(job.employmentType)} />
-            <Meta label="location" value={job.location} />
-            {job.compensation ? (
-              <Meta label="compensation" value={job.compensation} />
-            ) : null}
+        <aside className="min-w-0 lg:sticky lg:top-24 lg:self-start">
+          <dl className="divide-y divide-line-soft border-y border-line">
+            <Meta label="Team" value={job.team} />
+            <Meta label="Employment" value={employmentLabel(job.employmentType)} />
+            <Meta label="Location" value={job.location} />
+            {job.compensation ? <Meta label="Pay" value={job.compensation} /> : null}
           </dl>
-          <p className="text-sm text-muted">
-            Not quite the right role but think you should be working with me?{" "}
-            <Link
-              href="/contact"
-              className="text-brand-soft underline underline-offset-4 hover:text-brand"
-            >
+          <p className="mt-6 text-caption text-ink-400">
+            Not quite the right role, but think you should be working with me?{" "}
+            <Link href="/contact" className="link-quiet">
               Get in touch
             </Link>
             .
@@ -123,26 +119,23 @@ export default async function CareerPage({
         </aside>
       </div>
 
+      {/* The apply panel. "I read every application myself" is said once,
+          here; the form below no longer repeats it in its own intro, and the
+          confirmation does not either. */}
       <section
         id="apply"
-        className="live-panel relative scroll-mt-24 overflow-hidden rounded-2xl p-8 md:p-12"
+        aria-labelledby="apply-title"
+        className="panel-lit relative isolate mt-24 scroll-mt-24 overflow-hidden rounded-3xl px-5 py-9 sm:p-10 md:mt-32 md:p-14"
       >
-        <div
-          aria-hidden
-          className="bg-brand-glow pointer-events-none absolute inset-0 -z-0 opacity-60"
-        />
-        <div className="relative z-10 grid gap-10 md:grid-cols-2 md:items-start">
+        <div aria-hidden className="ember-rise pointer-events-none absolute inset-0 -z-10 opacity-70" />
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] lg:gap-16">
           <div>
-            <p className="font-mono text-label uppercase text-brand">
-              apply
-            </p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-[-0.015em] md:text-4xl">
+            <h2 id="apply-title" className="max-w-[18ch] text-section font-semibold text-ink-50">
               Apply for {job.title}.
             </h2>
-            <p className="mt-4 text-ink-400">
-              Lands in my HQ inbox tagged with this role, so when I reply I
-              already know what you applied for. I read every application
-              myself.
+            <p className="mt-4 max-w-[44ch] text-ink-300">
+              It comes straight to me, marked with this role, so I know what you applied for
+              before I reply. I read every application myself.
             </p>
           </div>
           <JobApplicationForm
@@ -158,29 +151,24 @@ export default async function CareerPage({
 
 function Section({ title, items }: { title: string; items: string[] }) {
   return (
-    <div>
-      <h2 className="font-mono text-label uppercase text-brand">
-        {title}
-      </h2>
-      <ul className="mt-3 space-y-2 text-sm text-ink-300">
+    <section>
+      <h2 className="text-reference font-semibold text-ink-50">{title}</h2>
+      <ul className="mt-4 list-disc space-y-2.5 pl-5 text-prose text-ink-300 marker:text-ink-600">
         {items.map((it) => (
-          <li key={it} className="flex gap-2">
-            <span className="text-brand-deep">→</span>
-            <span>{it}</span>
+          <li key={it} className="pl-1.5">
+            {it}
           </li>
         ))}
       </ul>
-    </div>
+    </section>
   );
 }
 
 function Meta({ label, value }: { label: string; value: string }) {
   return (
-    <div>
-      <dt className="font-mono text-label uppercase text-brand">
-        {label}
-      </dt>
-      <dd className="mt-1 text-sm text-ink-300">{value}</dd>
+    <div className="grid grid-cols-[6.5rem_minmax(0,1fr)] gap-3 py-3.5">
+      <dt className="text-caption text-ink-500">{label}</dt>
+      <dd className="text-sm text-ink-200">{value}</dd>
     </div>
   );
 }

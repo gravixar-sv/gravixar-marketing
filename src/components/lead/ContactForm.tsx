@@ -3,16 +3,32 @@
 import { useState } from "react";
 import { cn } from "@/lib/cn";
 import { sourceTag } from "@/lib/source-tag";
-import { SERVICE_OPTIONS } from "@/lib/services";
+import { SERVICE_LABELS, SERVICE_OPTIONS } from "@/lib/services";
 import { TOOL_OPTIONS } from "@/lib/lead";
 import { TEAM_SIZE_LABELS, teamSizeOptions } from "@/lib/early-access";
-import { buttonClass } from "@/components/ui/Button";
+import { Button } from "@/components/ui/Button";
+import {
+  ChipGroup,
+  FormError,
+  FormSuccess,
+  SelectField,
+  TextArea,
+  TextField,
+} from "@/components/ui/Field";
+import { Disclosure } from "@/components/conversion/Disclosure";
+import { FocusOnMount } from "@/components/conversion/FocusOnMount";
+
+// The note form on /contact. Payload keys, the honeypot, the source tag and
+// the field limits are the contract with /api/lead and HQ triage; only the
+// presentation changed. Team size and tools are non-gating qualifiers that
+// pre-arm the reply, so they sit behind "Add details" instead of in front of
+// the one field that matters, the message.
 
 type FormState =
   | { kind: "idle" }
   | { kind: "submitting" }
   | { kind: "ok" }
-  | { kind: "error"; message: string };
+  | { kind: "error" };
 
 export function ContactForm() {
   const [state, setState] = useState<FormState>({ kind: "idle" });
@@ -49,96 +65,61 @@ export function ContactForm() {
       form.reset();
       setState({ kind: "ok" });
     } catch (err) {
-      setState({
-        kind: "error",
-        message: err instanceof Error ? err.message : "unknown_error",
-      });
+      // The code is for the logs. The visitor gets a sentence (FormError).
+      console.warn("[contact] note did not send:", err instanceof Error ? err.message : err);
+      setState({ kind: "error" });
     }
   }
 
   if (state.kind === "ok") {
     return (
-      <div className="rounded-lg border border-brand-deep/30 bg-brand-deep/5 p-6">
-        <p className="font-mono text-eyebrow uppercase text-brand">
-          received
-        </p>
-        <h3 className="mt-2 text-xl font-semibold tracking-tight">
-          Got it. I&apos;ll reply within 24 hours.
-        </h3>
-        <p className="mt-2 text-sm text-ink-400">
-          If you&apos;d rather skip the email and just book the call,
-          the slots are right next to this form.
-        </p>
-      </div>
+      <FocusOnMount>
+        <FormSuccess title="Got it. I'll reply within 24 hours.">
+          Rather talk sooner? Pick a time from the calendar on this page.
+        </FormSuccess>
+      </FocusOnMount>
     );
   }
 
   const submitting = state.kind === "submitting";
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
-      <Field label="Your name" name="name" required minLength={2} />
-      <Field label="Email" name="email" type="email" required />
-      <Field label="Company (optional)" name="company" />
-      <label className="block">
-        <span className="font-mono text-label uppercase text-ink-400">
-          What do you need? (optional)
-        </span>
-        <select
-          name="service"
-          defaultValue=""
-          className="mt-2 block w-full rounded-md border border-line bg-ink-950 px-3 py-2 text-sm text-ink-100 outline-none transition-colors focus:border-brand"
-        >
+    <form onSubmit={onSubmit} className="space-y-6">
+      <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2">
+        <TextField label="Your name" name="name" required minLength={2} autoComplete="name" />
+        <TextField label="Email" name="email" type="email" required autoComplete="email" />
+      </div>
+      <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2">
+        <TextField label="Company" optional name="company" autoComplete="organization" />
+        <SelectField label="What do you need?" optional name="service" defaultValue="">
           <option value="">Pick the closest match</option>
           {SERVICE_OPTIONS.map((s) => (
             <option key={s} value={s}>
-              {s}
+              {SERVICE_LABELS[s]}
             </option>
           ))}
-        </select>
-      </label>
-      {/* Optional qualifiers. Deliberately non-gating: no required flags, no
-          extra step. They pre-arm the reply and the call, nothing more. */}
-      <label className="block">
-        <span className="font-mono text-label uppercase text-ink-400">
-          Team size (optional)
-        </span>
-        <select
-          name="teamSize"
-          defaultValue=""
-          className="mt-2 block w-full rounded-md border border-line bg-ink-950 px-3 py-2 text-sm text-ink-100 outline-none transition-colors focus:border-brand"
-        >
+        </SelectField>
+      </div>
+      <TextArea
+        label="What do you want fixed or built?"
+        name="message"
+        required
+        minLength={20}
+        rows={6}
+        hint="What's broken, what you've tried, what good would look like."
+        placeholder="For example: client approvals live in three email threads and nobody knows which version was signed off."
+      />
+      <Disclosure summary="Add details">
+        <SelectField label="Team size" optional name="teamSize" defaultValue="">
           <option value="">Prefer not to say</option>
           {teamSizeOptions.map((t) => (
             <option key={t} value={t}>
               {TEAM_SIZE_LABELS[t]}
             </option>
           ))}
-        </select>
-      </label>
-      <fieldset>
-        <legend className="font-mono text-label uppercase text-ink-400">
-          What are you running on today? (optional)
-        </legend>
-        <div className="mt-2 flex flex-wrap gap-1.5">
-          {TOOL_OPTIONS.map((t) => (
-            <label key={t} className="cursor-pointer">
-              <input type="checkbox" name="tools" value={t} className="peer sr-only" />
-              <span className="inline-block rounded-md border border-line bg-ink-950 px-2.5 py-1.5 text-xs text-ink-400 transition-colors peer-checked:border-brand peer-checked:bg-brand/10 peer-checked:text-brand-soft peer-focus-visible:border-brand hover:border-ink-600">
-                {t}
-              </span>
-            </label>
-          ))}
-        </div>
-      </fieldset>
-      <Textarea
-        label="What's the problem you're solving?"
-        name="message"
-        required
-        minLength={20}
-        rows={6}
-        placeholder="The more concrete the better, what's broken, what you've tried, what 'good' looks like."
-      />
+        </SelectField>
+        <ChipGroup legend="What are you running on today?" optional name="tools" options={TOOL_OPTIONS} />
+      </Disclosure>
       {/* honeypot, visually hidden, must stay empty */}
       <div className="hidden" aria-hidden>
         <label>
@@ -146,79 +127,17 @@ export function ContactForm() {
           <input name="website" type="text" tabIndex={-1} autoComplete="off" />
         </label>
       </div>
-      <button
+      {state.kind === "error" ? <FormError /> : null}
+      {/* Ghost, not primary: on desktop this sits beside the booking panel,
+          whose "Email me the code" is the page's one coral action. */}
+      <Button
         type="submit"
+        variant="ghost"
         disabled={submitting}
-        className={cn(buttonClass(), submitting && "cursor-wait")}
+        className={cn("w-full sm:w-auto", submitting && "cursor-wait")}
       >
-        {submitting ? "Sending…" : "Send"}
-      </button>
-      {state.kind === "error" ? (
-        <p className="text-sm text-red-400">
-          Something failed: {state.message}. Try again, or email me directly at gravixar@gmail.com.
-        </p>
-      ) : null}
+        {submitting ? "Sending…" : "Send the note"}
+      </Button>
     </form>
-  );
-}
-
-function Field({
-  label,
-  name,
-  type = "text",
-  required,
-  minLength,
-}: {
-  label: string;
-  name: string;
-  type?: string;
-  required?: boolean;
-  minLength?: number;
-}) {
-  return (
-    <label className="block">
-      <span className="font-mono text-label uppercase text-ink-400">
-        {label}
-      </span>
-      <input
-        name={name}
-        type={type}
-        required={required}
-        minLength={minLength}
-        className="mt-2 block w-full rounded-md border border-line bg-ink-950 px-3 py-2 text-sm text-ink-100 outline-none transition-colors placeholder:text-ink-600 focus:border-brand"
-      />
-    </label>
-  );
-}
-
-function Textarea({
-  label,
-  name,
-  required,
-  minLength,
-  rows = 5,
-  placeholder,
-}: {
-  label: string;
-  name: string;
-  required?: boolean;
-  minLength?: number;
-  rows?: number;
-  placeholder?: string;
-}) {
-  return (
-    <label className="block">
-      <span className="font-mono text-label uppercase text-ink-400">
-        {label}
-      </span>
-      <textarea
-        name={name}
-        required={required}
-        minLength={minLength}
-        rows={rows}
-        placeholder={placeholder}
-        className="mt-2 block w-full rounded-md border border-line bg-ink-950 px-3 py-2 text-sm text-ink-100 outline-none transition-colors placeholder:text-ink-600 focus:border-brand"
-      />
-    </label>
   );
 }

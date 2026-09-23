@@ -2,15 +2,15 @@
 title: "Operations Infrastructure"
 slug: "operations-infrastructure"
 bucket: "operations"
-tagline: "Custom portals, internal tools, websites, and the people-ops layer that holds them together. The system that runs your business. Not a Notion template."
-metaDescription: "Custom client and staff portals with review state machines, audit trails and real permissions. $28,000 to $55,000 fixed, typically 4 to 10 weeks."
+tagline: "Custom portals and internal tools for your clients, your staff, and your new hires, built around how your business already works. Not a Notion template."
+metaDescription: "Custom client and staff portals with a set review process, a record of every change, and real permissions. $28,000 to $55,000 fixed, typically 4 to 10 weeks."
 deliverables:
-  - "Custom client / staff portals (Next.js or WordPress, your call)"
-  - "Project workspaces with audit trails and review state machines"
-  - "Hiring + onboarding flows with task templates per role"
-  - "Leave / WFH / daily check-in tracking, presence, org calendar"
-  - "Role-based permissions, audit log, restore guardrails"
-  - "Delivery governance, inquiry → activation → ship workflows"
+  - "Custom portals for clients and staff, built new (Next.js) or on WordPress, your call"
+  - "Hiring and onboarding, with a task checklist for each role"
+  - "Time off, work from home, and daily check-ins, plus who is online and a team calendar"
+  - "Project workspaces with a full change history and a set review process"
+  - "Permissions by role, a log of every change, and a safe way to undo"
+  - "One path for every job, from the first enquiry to the delivered work"
 proof:
   - { label: "Agency portal, 4 years in production", href: "/work/bs-hub", kind: "case-study" }
   - { label: "monday.com rollout, 10 to 50+ users", href: "/work/monday-rollout-agency", kind: "case-study" }
@@ -22,25 +22,31 @@ proof:
 # had no way to rule themselves in before a call, so most of them did not book.
 # "Fixed before the build starts" and deliberately nothing about billing
 # schedule: payment terms are unpublished, and Bosun escalates that question.
+# Leave the comma after the range alone: the refusal copy in
+# src/lib/chat/refusals.ts carries the same "$55,000," and registers against it.
 pricing: "$28,000 to $55,000, fixed before the build starts. Typically 4 to 10 weeks for a working portal."
 track: "build"
 order: 1
 updatedAt: "2026-09-14"
 ---
 
-The version of this work you can poke at is at **demo.gravixar.com/lattice**. No sign-in, no signup. You drive all three columns yourself: submit a draft as the editor, hand it to the client as the project manager, approve it as the client. That's not a screenshot, it's a working app. The scene is purpose-built for the demo, and the review flow inside it is the one an agency has run in production for four years.
+You can try one right now at [demo.gravixar.com/lattice](https://demo.gravixar.com/lattice). No sign-up. You play all three parts: submit a draft as the editor, pass it to the client as the project manager, then approve it as the client. It is a working app, not a screenshot. The setup is built for the demo, but the review flow inside it is the one a real agency has run for four years.
 
-What I deliver:
+{/* demo-shot: the page renders the Lattice screenshot here */}
 
-- A custom portal scoped to your real client journey (not a generic template forced onto your shape)
-- The state machine for how work moves: draft → internal review → client review → approved
-- Auto-routing logic for who picks up what (workload-balanced, skill-matched)
-- The compliance backbone: per-record audit trail with safe-restore for the fields you allow
-- The boring-but-load-bearing pieces: email templates, notifications, exports, a real permission model
-- Hiring + onboarding when the team grows, same portal, new tab
+## What I deliver
 
-I work iteratively. Week one you have something running. Week ten you have something that's been used in anger.
+- A portal built around how your clients actually move through your business, not a template bent to fit
+- A fixed path for every piece of work: draft, internal review, client review, approved
+- Automatic assignment of who picks up what, based on workload and skills
+- A record of every change to every item, with a safe undo for the fields you choose
+- The boring parts that hold it all up: email templates, notifications, exports, and real control over who sees what
+- Hiring and onboarding when the team grows: same portal, new tab
 
-Nothing about this is agency-specific. The same backbone now runs a healthcare credentialing platform, live on its own domain with 2,042 payer panels across 250 clients, and a booking system for a driving school where the domain's own rules (age gating, guardian consent, instructor availability) are enforced in the model rather than bolted on. If your business runs on records, approvals, and handoffs, the shape transfers and only the industry noun changes.
+I build in small steps. In week one, you have something running. By week ten, your team has been using it for real work.
 
-For teams that already have a WordPress site and want it modernized rather than rebuilt, I'll work in that codebase. The shape of the system is more important than the framework.
+## Not only for agencies
+
+The same foundation now runs a healthcare credentialing platform, live with 2,042 payer panels across 250 clients, and a booking system for a driving school that builds its own rules (age limits, guardian consent, instructor availability) into the core instead of adding them on later. If your business runs on records, approvals, and handoffs, the same shape fits. Only the industry changes.
+
+For teams that already have a WordPress site and want it modernized rather than rebuilt, I will work in that codebase. The shape of the system matters more than the framework.

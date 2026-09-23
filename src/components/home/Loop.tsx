@@ -1,79 +1,86 @@
-// The approval loop: the mechanism behind the hero's "asks before it
-// acts" and the thing every demo card means by "watch the loop run".
-// Deliberately not a card grid; an open three-step strip on a hairline,
-// with a slow brand pulse traveling the connector (CSS-only, decorative).
+import { LOOP_STEPS, type LoopStep } from "./hero/loopSteps";
+import styles from "./Loop.module.css";
 
-const STEPS = [
-  {
-    n: "01",
-    title: "The agent drafts",
-    body: "Replies, content, screening notes, invoices. Prepared with full context from your stack, not from a blank prompt.",
-  },
-  {
-    n: "02",
-    title: "A human approves",
-    body: "Every write waits for a click from someone accountable. Nothing reaches a client, a ledger, or production on its own.",
-  },
-  {
-    n: "03",
-    title: "The rule tightens",
-    body: "Each approval tightens the rule the next draft follows. The queue gets quieter every week, not louder.",
-  },
-] as const;
+// How it works: the approval loop the hero's card runs, laid out on a rail
+// that fills as the reader moves through it and lights each step's node when
+// the fill reaches it. The motion carries information (progress through a
+// sequence), so it is scroll-linked and linear, and its base state is the
+// COMPLETED rail: engines without scroll timelines, print and reduced motion
+// all get every node lit. The rail classes (.loop-track, .loop-fill,
+// .loop-fill-y, .loop-step, .loop-node) are global, in globals.css, where the
+// node ranges are tuned to three equal columns at md.
+//
+// Colour: the rail and the two machine steps are ink. Only step 2, the human
+// decision, lights coral (Loop.module.css), so the one coral node and the one
+// coral check in the row mark the same thing.
+//
+// The step titles come from ./hero/loopSteps.ts, the same module the hero's
+// approval card prints, so the two cannot drift. This section is the ONE
+// place the three explanatory sentences are printed (the card shows titles
+// only), plus a concrete thing to look at under each step: the
+// machine-output chip that step produces. Illustrative, no numbers.
+
+function Artifact({ step, index }: { step: LoopStep; index: number }) {
+  const { state, detail } = step.artifact;
+  return (
+    <p className="mt-6 inline-flex max-w-full items-center gap-2 rounded-md border border-line bg-surface/60 px-2.5 py-1.5 font-mono text-label-sm text-ink-400">
+      {index === 1 ? (
+        // The decision is the one coral mark in the row: approval is what
+        // coral means on this site.
+        <svg width="11" height="11" viewBox="0 0 16 16" fill="none" aria-hidden className="shrink-0 text-brand">
+          <path d="M3 8.5l3.2 3L13 4.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      ) : (
+        <span aria-hidden className="h-1.5 w-1.5 shrink-0 rounded-full border border-ink-500" />
+      )}
+      <span className="whitespace-nowrap text-ink-200">{state}</span>
+      {detail ? (
+        <>
+          <span aria-hidden className="text-ink-600">
+            ·
+          </span>
+          <span className="truncate">{detail}</span>
+        </>
+      ) : null}
+    </p>
+  );
+}
 
 export function Loop() {
   return (
-    <section aria-label="How the approval loop works">
-      {/* Statement beside footnote, not above it: this h2 is the page's
-          second typographic peak (still under the hero h1), so the lede
-          sits in a narrower column where it reads as annotation. */}
-      <div className="grid gap-8 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] md:items-end">
-        <div>
-          <p className="font-mono text-label uppercase text-brand">
-            how it works
-          </p>
-          <h2 className="mt-3 max-w-[13ch] text-4xl font-semibold leading-[1.0] tracking-[-0.025em] md:text-[2.75rem] lg:text-statement">
-            One loop runs everything.
-          </h2>
-        </div>
-        <p className="mt-4 max-w-md text-ink-400 md:mt-0">
-          Every module I ship, from the demos to the client portals, moves work
-          through the same three steps. It is the reason the AI gets trusted
-          with real operations.
-        </p>
-      </div>
+    <section aria-labelledby="loop-title">
+      {/* A two-tone statement: the claim in ivory, one plain sentence of
+          explanation continuing in the same element, muted. It replaces an
+          eyebrow + h2 + paragraph stack that said the same thing three times. */}
+      <h2 id="loop-title" className="max-w-[30ch] text-statement font-semibold text-ink-50">
+        One loop runs everything.{" "}
+        <span className="text-ink-500">Every AI tool I build follows the same three steps.</span>
+      </h2>
 
-      <div className="relative mt-12">
-        {/* Connector hairline + traveling pulse (desktop only) */}
+      <div className="loop-track relative mt-12 md:mt-16">
+        {/* The rail. Horizontal from md, vertical in the gutter on phones. */}
+        <div aria-hidden className="absolute inset-x-0 top-[5px] hidden h-px bg-line md:block">
+          <span className="loop-fill absolute inset-0 origin-left bg-ink-300/50" />
+        </div>
+        {/* On phones the rail runs on past step 3 and fades out: the loop
+            goes round again, it does not end. */}
         <div
           aria-hidden
-          className="absolute inset-x-0 top-[5px] hidden h-px overflow-hidden bg-ink-800 md:block"
+          className="absolute bottom-0 left-[5px] top-[13px] w-px bg-line [mask-image:linear-gradient(to_bottom,#000_72%,transparent)] md:hidden"
         >
-          <span className="loop-pulse absolute inset-y-0 left-0 w-[12%]" />
+          <span className="loop-fill-y absolute inset-0 origin-top bg-ink-300/50" />
         </div>
 
-        {/* A section explaining a three-step sequence cannot have its three steps
-            arrive at once. The beat is engine-conditional: --stagger (220ms, vs
-            the 70ms default) drives the transition fallback, while engines with
-            scroll-driven animation stagger by a 6vh/12vh scroll offset instead
-            (see the @supports block in globals.css). The pulse is not a timing
-            reference either way, since it tracks scroll where that exists. */}
-        <ol className="reveal-stagger grid gap-10 [--stagger:220ms] md:grid-cols-3 md:gap-8">
-          {STEPS.map((step) => (
-            <li key={step.n} className="relative md:pt-8">
+        <ol className="grid grid-cols-1 gap-12 md:grid-cols-3 md:gap-10">
+          {LOOP_STEPS.map((step, i) => (
+            <li key={step.key} className="loop-step relative pl-9 md:pl-0 md:pt-10">
               <span
                 aria-hidden
-                className="absolute left-0 top-0 hidden h-[11px] w-[11px] rounded-full border border-brand/60 bg-bg md:block"
+                className={`loop-node ${step.key === "approve" ? "" : styles.machineNode} absolute left-0 top-2 h-[11px] w-[11px] rounded-full border border-line-strong bg-bg md:top-0`}
               />
-              <p className="font-mono text-label-sm uppercase text-ink-400">
-                {step.n}
-              </p>
-              <h3 className="mt-2 text-lg font-semibold tracking-[-0.01em] text-ink-100">
-                {step.title}
-              </h3>
-              <p className="mt-2 max-w-sm text-sm leading-relaxed text-ink-400">
-                {step.body}
-              </p>
+              <h3 className="text-reference font-semibold text-ink-50">{step.title}</h3>
+              <p className="mt-2.5 max-w-[32ch] text-base leading-relaxed text-ink-400">{step.body}</p>
+              <Artifact step={step} index={i} />
             </li>
           ))}
         </ol>

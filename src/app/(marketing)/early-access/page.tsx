@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PageHeader } from "@/components/site/PageHeader";
+import { Reveal } from "@/components/site/Reveal";
 import { EarlyAccessForm } from "@/components/lead/EarlyAccessForm";
-import { buildMetadata } from "@/lib/seo";
+import { PageLight } from "@/components/conversion/PageLight";
+import { Arrow, buttonClass } from "@/components/ui/Button";
+import { buildMetadata, SITE } from "@/lib/seo";
+import { cn } from "@/lib/cn";
 import systemStats from "../../../../content/data/system-stats.json";
 
 // This page used to sell a hosted platform: three monthly price bands, a
@@ -15,15 +19,20 @@ import systemStats from "../../../../content/data/system-stats.json";
 // library of modules already running inside builds, and a list you join to
 // hear when one of them becomes something you can run yourself. If a hosted
 // account ever ships, add it here with a date that can be held. Not before.
+//
+// It also used to say that four times (the h1, a 63-word lede, a note under
+// the numbers, and the closing panel). It now says it once in the header and
+// once in the closing panel, and the middle of the page is the list and the
+// evidence.
 
 export const metadata: Metadata = buildMetadata({
   title: "Early access to the module library",
   description:
-    "The modules run in production inside real builds today. A hosted account you rent by the month does not exist yet. Join the list to hear when it does.",
+    "The modules work today inside real builds. A monthly plan you can rent does not exist yet. Join the list to hear when it does.",
   path: "/early-access",
 });
 
-// The right-hand column reads the same validated file the homepage reads
+// The evidence column reads the same validated file the homepage reads
 // rather than numbers typed into this component. Every entry in
 // content/data/system-stats.json carries the source it was counted from, and
 // the prebuild validator warns past 45 days and fails past 90, so this column
@@ -38,145 +47,142 @@ const LIBRARY_STATS = systemStats.stats.filter((s) =>
 // how fresh the count is.
 const COUNTED_AT = LIBRARY_STATS.map((s) => s.verifiedAt).sort()[0];
 
+const sentence = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
+// Three properties of the library, not three steps, so they are ruled rows
+// rather than numbered cards.
 const HOW_THE_LIBRARY_WORKS = [
   {
-    n: "01",
     title: "One copy of each module",
-    body: "A reused module is a version in a private package, not a folder copied into the next repo and left to drift. A fix lands once and reaches every build that depends on it.",
+    body: "A reused module lives in one private package, not as a copy pasted into each new project and left to drift. A fix lands once and reaches every build that uses it.",
   },
   {
-    n: "02",
     title: "You can read it before you talk to me",
-    body: "Every entry names what it does, the stack under it, and the builds it runs inside today. No discovery call required to work out whether the shape fits your problem.",
+    body: "Every entry says what it does, what it is built with, and which builds it runs inside today. You don't need a call to work out whether it fits your problem.",
   },
   {
-    n: "03",
-    title: "A human approves every write",
-    body: "The AI parts draft, a person approves. That rule holds in the custom builds and it holds in anything hosted later. No 3am surprises, no auto-published garbage.",
+    title: "A person approves before anything changes",
+    body: "The AI drafts, a person decides. That rule holds in every custom build and it will hold in anything hosted later. No 3am surprises, no auto-published garbage.",
   },
 ] as const;
 
 export default function EarlyAccessPage() {
   return (
-    <div className="space-y-16">
+    <div className="relative isolate">
+      <PageLight />
       <PageHeader
-        eyebrow="early access"
-        title="Everything here runs in production. None of it is a product you can buy yet."
-        lede="The module library is real: each entry names the build it runs inside and how it works. What does not exist is a hosted account where you rent one by the month. I am working toward it, and I will not print a date I cannot hold. Join the list and you hear from me when there is something you can actually run."
+        eyebrow="Early access"
+        title="Everything here works today."
+        accent="You can't buy it off the shelf yet."
+        // Two sentences, two lines: the serif tail starts its own line.
+        accentBreak
+        lede="The module library is real: each entry names the build it runs inside. What does not exist yet is a monthly plan you can rent, and I won't give a date I can't keep."
       />
 
-      <section className="grid gap-12 lg:grid-cols-12">
-        {/* Form column */}
-        <div className="lg:col-span-7">
-          <h2 className="font-mono text-label uppercase text-brand">
-            join the list
+      <div className="mt-12 grid gap-16 md:mt-16 lg:grid-cols-12 lg:gap-16">
+        <section aria-labelledby="join-title" className="min-w-0 lg:col-span-7">
+          <h2 id="join-title" className="text-reference font-semibold text-ink-50">
+            Join the list
           </h2>
-          <p className="mt-2 text-sm text-ink-400">
-            One email when a module becomes something you can run yourself. No
-            drip sequence, no marketing list, no sharing your address with
-            anyone.
+          <p className="mt-2 max-w-[52ch] text-ink-400">
+            One email when a module is ready to use on its own. No newsletter, no follow-up
+            sequence, and your address goes nowhere else.
           </p>
-          <div className="mt-6">
+          <div className="mt-8">
             <EarlyAccessForm />
           </div>
-        </div>
+        </section>
 
-        {/* Evidence column. This slot used to hold indicative price bands for
-            the unbuilt platform, which was the page's fastest-aging claim:
+        {/* Evidence. This slot used to hold indicative price bands for the
+            unbuilt platform, which was the page's fastest-aging claim:
             invented numbers attached to an invented date. It now holds counts
-            that can be checked. */}
-        <aside className="lg:col-span-5">
-          <h2 className="font-mono text-label uppercase text-brand">
-            what exists today
+            that can be checked. Each cell is value-first (flex-col-reverse,
+            so the <dt> still leads for a screen reader), which pins both
+            numbers to the same line even when one label wraps. */}
+        <aside aria-labelledby="exists-title" className="min-w-0 lg:col-span-5 lg:pt-1.5">
+          {/* A label-sized h2, so it opts out of the global h1/h2 display
+              treatment (94% width, -0.03em), which only suits large sizes. */}
+          <h2 id="exists-title" className="text-sm font-medium tracking-normal text-ink-200 [font-stretch:100%]">
+            What exists today
           </h2>
-          <p className="mt-2 text-sm text-ink-400">
+          <dl className="mt-4 grid grid-cols-2 border-y border-line">
+            {LIBRARY_STATS.map((s, i) => (
+              <div
+                key={s.key}
+                className={cn(
+                  "flex flex-col-reverse justify-end py-6",
+                  i > 0 ? "border-l border-line-soft pl-6" : "pr-6",
+                )}
+              >
+                <dt className="mt-3 text-caption text-ink-400">{sentence(s.label)}</dt>
+                <dd className="text-[2.75rem] font-semibold leading-none tracking-[-0.03em] text-ink-50 tabular-nums md:text-[3.25rem]">
+                  {s.value}
+                </dd>
+              </div>
+            ))}
+          </dl>
+          <p className="mt-4 text-caption text-ink-400">
             Counted from the module registry, not projected from a roadmap.
           </p>
-          <div className="mt-6 rounded-xl border border-line bg-ink-950/40 p-5">
-            <dl className="grid grid-cols-2 gap-4">
-              {LIBRARY_STATS.map((s) => (
-                <div key={s.key} className="flex flex-col">
-                  <dt className="font-mono text-label-sm uppercase text-ink-400">
-                    {s.label}
-                  </dt>
-                  <dd className="mt-1 font-mono text-xl text-ink-100">
-                    {s.value}
-                  </dd>
-                </div>
-              ))}
-            </dl>
-            {COUNTED_AT ? (
-              <p className="mt-4 border-t border-line-soft pt-3 font-mono text-label-sm uppercase text-ink-400">
-                counted {COUNTED_AT}
-              </p>
-            ) : null}
-          </div>
-          <p className="mt-4 text-sm text-ink-400">
-            No price list here, because there is nothing priced to sell. Today a
-            module reaches you inside a build, and a build starts with a
-            conversation about what you already have.
-          </p>
-          <p className="mt-4 font-mono text-label-sm uppercase text-ink-400">
-            want one in your own build? <Link href="/contact" className="text-brand-soft underline-offset-4 hover:underline">book a call →</Link>
-          </p>
+          {COUNTED_AT ? (
+            <p className="mt-1.5 font-mono text-label-sm text-ink-500">
+              counted {COUNTED_AT}
+            </p>
+          ) : null}
         </aside>
-      </section>
+      </div>
 
-      {/* How the library works */}
-      <section>
-        <h2 className="font-mono text-label uppercase text-brand">
-          how the library works
+      <section aria-labelledby="how-title" className="mt-24 md:mt-32">
+        <h2 id="how-title" className="text-section font-semibold text-ink-50">
+          How the library works
         </h2>
-        <div className="mt-6 grid gap-4 md:grid-cols-3">
-          {HOW_THE_LIBRARY_WORKS.map((step) => (
-            <div
-              key={step.n}
-              className="card-surface rounded-2xl p-6"
-            >
-              <p className="font-mono text-label-sm uppercase text-muted">
-                {step.n}
-              </p>
-              <h3 className="mt-3 text-lg font-medium tracking-[-0.01em] text-ink-100">
-                {step.title}
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed text-ink-400">
-                {step.body}
-              </p>
-            </div>
-          ))}
-        </div>
+        <Reveal className="reveal-quiet mt-10">
+          <ul className="reveal-stagger border-t border-line">
+            {HOW_THE_LIBRARY_WORKS.map((row) => (
+              <li
+                key={row.title}
+                className="grid gap-3 border-b border-line py-7 md:grid-cols-[minmax(0,20rem)_minmax(0,1fr)] md:gap-12 md:py-9"
+              >
+                <h3 className="text-reference font-semibold text-ink-100">{row.title}</h3>
+                <p className="max-w-[58ch] text-ink-400 md:pt-0.5">{row.body}</p>
+              </li>
+            ))}
+          </ul>
+        </Reveal>
       </section>
 
       {/* What you can do now. Was "while you wait", which only makes sense
           under a launch this page no longer claims. */}
-      <section className="rounded-2xl border border-line bg-ink-950/40 p-8 md:p-10">
-        <h2 className="font-mono text-label uppercase text-brand">
-          what you can do now
-        </h2>
-        <h3 className="mt-3 max-w-3xl text-2xl font-medium tracking-[-0.015em] md:text-3xl">
-          The library is readable today, and the demo is runnable today.
-        </h3>
-        <p className="mt-3 max-w-2xl text-sm text-ink-300">
-          Each module has a page naming what it does and where it runs. The demo
-          site holds sandboxes of the same patterns with nothing saved. Read
-          one, run the other, then decide whether the shape fits before you
-          spend an hour on a call.
-        </p>
-        <div className="mt-6 flex flex-wrap gap-3">
-          <Link
-            href="/modules"
-            className="rounded-md border border-ink-700 px-5 py-2.5 text-sm text-ink-200 transition-colors hover:border-brand hover:text-brand-soft"
-          >
-            See the module library →
-          </Link>
-          <Link
-            href="/contact"
-            className="rounded-md border border-ink-700 px-5 py-2.5 text-sm text-ink-200 transition-colors hover:border-brand hover:text-brand-soft"
-          >
-            Book a custom-build call →
-          </Link>
-        </div>
-      </section>
+      <Reveal className="mt-24 md:mt-32">
+        <section
+          aria-labelledby="now-title"
+          className="panel-lit relative isolate overflow-hidden rounded-3xl px-6 py-10 sm:p-10 md:p-14"
+        >
+          <div aria-hidden className="ember-rise pointer-events-none absolute inset-0 -z-10" />
+          <h2 id="now-title" className="max-w-[22ch] text-section font-semibold text-ink-50">
+            You can read the library and try the demo today.
+          </h2>
+          <p className="mt-4 max-w-[56ch] text-ink-300">
+            Each module has its own page. The demo site lets you click through working versions on
+            sample data, and nothing you do is saved. Look at both, then decide if it fits before
+            you book a call.
+          </p>
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+            <Link href="/modules" className={cn("group", buttonClass())}>
+              See the module library <Arrow />
+            </Link>
+            <a href={SITE.demoUrl} rel="noreferrer" className={cn("group", buttonClass({ variant: "ghost" }))}>
+              Try the demo <Arrow external />
+            </a>
+            <Link
+              href="/contact"
+              className="group inline-flex min-h-11 items-center justify-center px-2 text-sm text-ink-300 transition-colors hover:text-ink-50 sm:justify-start"
+            >
+              <span className="link-draw">Or book a 30-minute call</span>
+            </Link>
+          </div>
+        </section>
+      </Reveal>
     </div>
   );
 }

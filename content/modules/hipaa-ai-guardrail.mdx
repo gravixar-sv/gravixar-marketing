@@ -2,7 +2,7 @@
 title: "HIPAA-aware AI guardrail"
 slug: "hipaa-ai-guardrail"
 category: "ai"
-summary: "Two independent defenses on every Claude call: a PHI sniffer regex that blocks free-text PHI pre-persistence, and a wrapper that prepends a stop-clause to every system prompt. Direct AI SDK imports outside the wrapper are bugs by convention."
+summary: "Two separate locks keep patient data away from the AI. One scans typed text for things like Social Security and medical record numbers and blocks it before it is saved. The other tells the AI, on every call, to refuse patient data."
 metaDescription: "Two defenses on every Claude call: a regex PHI sniffer that rejects free text that trips it before persistence, and a wrapper that prepends a stop-clause."
 runningIn:
   - { client: "Healthcare ops platform", productSlug: "beeline" }

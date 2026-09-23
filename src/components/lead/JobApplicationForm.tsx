@@ -2,6 +2,18 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/cn";
+import { Button } from "@/components/ui/Button";
+import {
+  FieldLabel,
+  FieldHint,
+  FormError,
+  SelectField,
+  TextArea,
+  TextField,
+  controlClass,
+} from "@/components/ui/Field";
+import { FocusOnMount } from "@/components/conversion/FocusOnMount";
+import { FlatSuccess } from "@/components/conversion/FlatSuccess";
 import {
   CV_ACCEPT,
   CV_CONTENT_TYPES,
@@ -11,9 +23,10 @@ import {
   normalizeLink,
 } from "@/lib/job-application";
 import type { ScreeningQuestion } from "@/lib/careers";
-import { buttonClass } from "@/components/ui/Button";
 
-// Map the API's machine error codes to something a human wants to read.
+// Map the API's machine error codes to something a human wants to read. An
+// unknown code is never shown (it used to reach applicants as "Something
+// failed (500)."); it goes to the console and the applicant gets a sentence.
 function friendlyError(code: string | undefined, status: number): string {
   if (code === "invalid")
     return "Some details look off. Please check the form and try again.";
@@ -22,14 +35,17 @@ function friendlyError(code: string | undefined, status: number): string {
     return "Your CV is over 4 MB. Please upload a smaller file.";
   if (code === "invalid_form" || code === "invalid_json")
     return "Something went wrong sending the form. Please try again.";
-  return `Something failed (${code ?? status}).`;
+  console.warn("[careers] application did not send:", code ?? status);
+  return "That didn't send. Please try again.";
 }
 
+// `mailFallback` is for failures to SEND (offer the email route); a
+// validation message about the applicant's own input does not need it.
 type FormState =
   | { kind: "idle" }
   | { kind: "submitting" }
   | { kind: "ok" }
-  | { kind: "error"; message: string };
+  | { kind: "error"; message: string; mailFallback?: boolean };
 
 interface Props {
   /** Page slug travelling into HQ Inbox as `sourcePage`, e.g. "/careers/founding-engineer" */
@@ -47,7 +63,7 @@ export function JobApplicationForm({
 }: Props) {
   const [state, setState] = useState<FormState>({ kind: "idle" });
   // Flexible links: the applicant can add as many as they like (LinkedIn,
-  // portfolio, online CV, GitHub, socials). Forgiving — no scheme required.
+  // portfolio, online CV, GitHub, socials). Forgiving: no scheme required.
   const [links, setLinks] = useState<string[]>([""]);
   const setLinkAt = (i: number, v: string) =>
     setLinks((prev) => prev.map((l, j) => (j === i ? v : l)));
@@ -92,7 +108,7 @@ export function JobApplicationForm({
       return;
     }
 
-    // Validate the CV (type/size) before submitting — fast feedback; the route
+    // Validate the CV (type/size) before submitting for fast feedback; the route
     // re-checks. The file itself rides in the multipart body below.
     const cvFile = fd.get("cv");
     if (cvFile instanceof File && cvFile.size > 0) {
@@ -109,7 +125,7 @@ export function JobApplicationForm({
       }
     }
 
-    // Normalize links (forgiving — prepend https:// when missing); drop blanks.
+    // Normalize links (forgiving: prepend https:// when missing); drop blanks.
     const normalizedLinks = links.map(normalizeLink).filter(Boolean);
 
     setState({ kind: "submitting" });
@@ -147,90 +163,73 @@ export function JobApplicationForm({
     } catch (err) {
       setState({
         kind: "error",
+        mailFallback: true,
+        // A network failure surfaces as the browser's own "Failed to fetch";
+        // only messages friendlyError wrote are shown as they are.
         message:
-          err instanceof Error ? err.message : "Something failed. Please try again.",
+          err instanceof Error && !(err instanceof TypeError)
+            ? err.message
+            : "That didn't send. Please try again.",
       });
     }
   }
 
   if (state.kind === "ok") {
     return (
-      <div className="rounded-lg border border-brand-deep/30 bg-brand-deep/5 p-6">
-        <p className="font-mono text-eyebrow uppercase text-brand">
-          received
-        </p>
-        <h3 className="mt-2 text-xl font-semibold tracking-tight">
-          Thanks for applying for {roleTitle}. I read every application myself
-          and reply if it is a fit.
-        </h3>
-        <p className="mt-2 text-sm text-ink-400">
-          If you have more to share, you can also email me directly at{" "}
-          <a
-            href="mailto:gravixar@gmail.com"
-            className="text-brand-soft underline underline-offset-4 hover:text-brand"
-          >
+      <FocusOnMount>
+        {/* Flat, not FormSuccess: this form already sits in a lit panel. */}
+        <FlatSuccess title={`Thanks for applying for ${roleTitle}.`}>
+          I reply if it is a fit. If you have more to share, email me at{" "}
+          <a href="mailto:gravixar@gmail.com" className="link-quiet">
             gravixar@gmail.com
           </a>
           .
-        </p>
-      </div>
+        </FlatSuccess>
+      </FocusOnMount>
     );
   }
 
   const submitting = state.kind === "submitting";
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
-      <div>
-        <h3 className="text-xl font-semibold tracking-tight">
-          Apply for {roleTitle}
-        </h3>
-        <p className="mt-1 text-sm text-ink-400">
-          Quick form, lands in my inbox and HQ at the same time. I read every
-          one myself.
-        </p>
+    <form onSubmit={onSubmit} className="space-y-6">
+      <div className="grid gap-6 sm:grid-cols-2">
+        <TextField
+          label="Your name"
+          name="name"
+          required
+          minLength={2}
+          maxLength={80}
+          pattern="[^0-9<>]{2,80}"
+          title="Your name, letters only"
+          autoComplete="name"
+        />
+        <TextField label="Email" name="email" type="email" required autoComplete="email" />
       </div>
-      <Field
-        label="Your name"
-        name="name"
-        required
-        minLength={2}
-        maxLength={80}
-        pattern="[^0-9<>]{2,80}"
-        title="Your name, letters only"
-        autoComplete="name"
-      />
-      <Field
-        label="Email"
-        name="email"
-        type="email"
-        required
-        autoComplete="email"
-      />
-      <Field
-        label="Phone"
-        name="phone"
-        type="tel"
-        required
-        inputMode="tel"
-        placeholder="+92 3xx xxxxxxx"
-        autoComplete="tel"
-      />
-      <Field
-        label="Current company (optional)"
-        name="company"
-        maxLength={160}
-        autoComplete="organization"
-      />
-      <div>
-        <span className="font-mono text-label uppercase text-ink-400">
-          Links (optional)
-        </span>
-        <p className="mt-1 text-xs text-ink-600">
-          LinkedIn, portfolio, online CV, GitHub, socials. Paste any, no
-          https:// needed.
-        </p>
-        <div className="mt-2 space-y-2">
+      <div className="grid gap-6 sm:grid-cols-2">
+        <TextField
+          label="Phone"
+          name="phone"
+          type="tel"
+          required
+          inputMode="tel"
+          placeholder="+92 3xx xxxxxxx"
+          autoComplete="tel"
+        />
+        <TextField
+          label="Current company"
+          optional
+          name="company"
+          maxLength={160}
+          autoComplete="organization"
+        />
+      </div>
+      <fieldset>
+        <FieldLabel as="legend" optional>
+          Links
+        </FieldLabel>
+        <FieldHint>LinkedIn, portfolio, online CV, GitHub, socials. Paste any, no https:// needed.</FieldHint>
+        <div className="mt-2.5 space-y-2">
           {links.map((val, i) => (
             <div key={i} className="flex items-center gap-2">
               <input
@@ -240,16 +239,19 @@ export function JobApplicationForm({
                 onChange={(e) => setLinkAt(i, e.target.value)}
                 placeholder="linkedin.com/in/you"
                 autoComplete="off"
-                className="block w-full rounded-md border border-line bg-ink-950 px-3 py-2 text-sm text-ink-100 outline-none transition-colors placeholder:text-ink-600 focus:border-brand"
+                aria-label={`Link ${i + 1}`}
+                className={cn(controlClass, "h-11")}
               />
               {links.length > 1 ? (
                 <button
                   type="button"
                   onClick={() => removeLink(i)}
-                  aria-label="Remove link"
-                  className="shrink-0 rounded-md border border-line px-3 py-2 text-sm text-muted transition hover:border-ink-600 hover:text-ink-300"
+                  aria-label={`Remove link ${i + 1}`}
+                  className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-line text-ink-400 transition-colors hover:border-line-strong hover:text-ink-100"
                 >
-                  ×
+                  <svg aria-hidden width="12" height="12" viewBox="0 0 12 12" fill="none">
+                    <path d="m3 3 6 6M9 3 3 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                  </svg>
                 </button>
               ) : null}
             </div>
@@ -259,61 +261,66 @@ export function JobApplicationForm({
           <button
             type="button"
             onClick={addLink}
-            className="mt-2 text-xs text-brand-soft underline-offset-4 hover:text-brand hover:underline"
+            className="mt-1 inline-flex min-h-11 items-center gap-1.5 text-sm text-ink-300 transition-colors hover:text-ink-50"
           >
-            + Add another link
+            <span aria-hidden className="text-ink-500">
+              +
+            </span>{" "}
+            Add another link
           </button>
         ) : null}
-      </div>
-      <FileField
-        label="CV, PDF or Word, optional (max 4 MB)"
-        name="cv"
-        accept={CV_ACCEPT}
-      />
+      </fieldset>
+      <label className="block">
+        <FieldLabel optional>CV</FieldLabel>
+        <input
+          name="cv"
+          type="file"
+          accept={CV_ACCEPT}
+          className={cn(
+            controlClass,
+            "mt-2 h-auto cursor-pointer py-2 text-sm text-ink-300 md:text-sm file:mr-3 file:h-8 file:cursor-pointer file:rounded-md file:border-0 file:bg-ink-800 file:px-3 file:text-[0.8125rem] file:font-medium file:text-ink-100 hover:file:bg-ink-700",
+          )}
+        />
+        <FieldHint>PDF or Word, up to 4 MB.</FieldHint>
+      </label>
       {screeningQuestions.map((q) => {
-        const cls =
-          "mt-2 block w-full rounded-md border border-line bg-ink-950 px-3 py-2 text-sm text-ink-100 outline-none transition-colors placeholder:text-ink-600 focus:border-brand";
         const name = `sq_${q.id}`;
-        return (
-          <label key={q.id} className="block">
-            <span className="font-mono text-label uppercase text-ink-400">
-              {q.label}
-              {q.required ? " *" : ""}
-            </span>
-            {q.type === "textarea" ? (
-              <textarea name={name} required={q.required} rows={3} className={cls} />
-            ) : q.type === "yesno" ? (
-              <select name={name} required={q.required} defaultValue="" className={cls}>
-                <option value="" disabled={q.required}>
-                  Select…
+        if (q.type === "textarea") {
+          return (
+            <TextArea key={q.id} label={q.label} optional={!q.required} name={name} required={q.required} rows={3} />
+          );
+        }
+        if (q.type === "yesno" || q.type === "select") {
+          const options = q.type === "yesno" ? ["Yes", "No"] : (q.options ?? []);
+          return (
+            <SelectField
+              key={q.id}
+              label={q.label}
+              optional={!q.required}
+              name={name}
+              required={q.required}
+              defaultValue=""
+            >
+              <option value="" disabled={q.required}>
+                Pick one
+              </option>
+              {options.map((o) => (
+                <option key={o} value={o}>
+                  {o}
                 </option>
-                <option value="Yes">Yes</option>
-                <option value="No">No</option>
-              </select>
-            ) : q.type === "select" ? (
-              <select name={name} required={q.required} defaultValue="" className={cls}>
-                <option value="" disabled={q.required}>
-                  Select…
-                </option>
-                {(q.options ?? []).map((o) => (
-                  <option key={o} value={o}>
-                    {o}
-                  </option>
-                ))}
-              </select>
-            ) : (
-              <input name={name} type="text" required={q.required} className={cls} />
-            )}
-          </label>
-        );
+              ))}
+            </SelectField>
+          );
+        }
+        return <TextField key={q.id} label={q.label} optional={!q.required} name={name} required={q.required} />;
       })}
-      <Textarea
+      <TextArea
         label="Why this role?"
         name="message"
         required
         minLength={20}
         rows={5}
-        placeholder="A few sentences on why this fits and what you would bring. Links to things you have built are worth more than a polished pitch."
+        hint="A few sentences on why this fits and what you would bring. Links to things you have built are worth more than a polished pitch."
       />
       {/* honeypot, visually hidden, must stay empty */}
       <div className="hidden" aria-hidden>
@@ -322,128 +329,24 @@ export function JobApplicationForm({
           <input name="website" type="text" tabIndex={-1} autoComplete="off" />
         </label>
       </div>
-      <button
-        type="submit"
-        disabled={submitting}
-        className={cn(buttonClass(), submitting && "cursor-wait")}
-      >
-        {submitting ? "Sending…" : "Send application"}
-      </button>
       {state.kind === "error" ? (
-        <p className="text-sm text-red-400">
-          {state.message} If it keeps failing, email me directly at{" "}
-          <a
-            href="mailto:gravixar@gmail.com"
-            className="underline underline-offset-4"
-          >
-            gravixar@gmail.com
-          </a>
-          .
-        </p>
+        <FormError>
+          {state.message}
+          {state.mailFallback ? (
+            <>
+              {" "}
+              If it keeps failing, email me at{" "}
+              <a href="mailto:gravixar@gmail.com" className="link-quiet">
+                gravixar@gmail.com
+              </a>
+              .
+            </>
+          ) : null}
+        </FormError>
       ) : null}
+      <Button type="submit" disabled={submitting} className={cn("w-full sm:w-auto", submitting && "cursor-wait")}>
+        {submitting ? "Sending…" : "Send application"}
+      </Button>
     </form>
-  );
-}
-
-function Field({
-  label,
-  name,
-  type = "text",
-  required,
-  minLength,
-  maxLength,
-  pattern,
-  title,
-  inputMode,
-  autoComplete,
-  placeholder,
-}: {
-  label: string;
-  name: string;
-  type?: string;
-  required?: boolean;
-  minLength?: number;
-  maxLength?: number;
-  pattern?: string;
-  title?: string;
-  inputMode?: "text" | "tel" | "email" | "url" | "numeric";
-  autoComplete?: string;
-  placeholder?: string;
-}) {
-  return (
-    <label className="block">
-      <span className="font-mono text-label uppercase text-ink-400">
-        {label}
-      </span>
-      <input
-        name={name}
-        type={type}
-        required={required}
-        minLength={minLength}
-        maxLength={maxLength}
-        pattern={pattern}
-        title={title}
-        inputMode={inputMode}
-        autoComplete={autoComplete}
-        placeholder={placeholder}
-        className="mt-2 block w-full rounded-md border border-line bg-ink-950 px-3 py-2 text-sm text-ink-100 outline-none transition-colors placeholder:text-ink-600 focus:border-brand"
-      />
-    </label>
-  );
-}
-
-function FileField({
-  label,
-  name,
-  accept,
-}: {
-  label: string;
-  name: string;
-  accept?: string;
-}) {
-  return (
-    <label className="block">
-      <span className="font-mono text-label uppercase text-ink-400">
-        {label}
-      </span>
-      <input
-        name={name}
-        type="file"
-        accept={accept}
-        className="mt-2 block w-full cursor-pointer rounded-md border border-line bg-ink-950 px-3 py-2 text-sm text-ink-300 outline-none transition-colors file:mr-3 file:rounded file:border-0 file:bg-ink-800 file:px-3 file:py-1 file:text-xs file:font-medium file:text-ink-100 hover:file:bg-ink-700 focus:border-brand"
-      />
-    </label>
-  );
-}
-
-function Textarea({
-  label,
-  name,
-  required,
-  minLength,
-  rows = 5,
-  placeholder,
-}: {
-  label: string;
-  name: string;
-  required?: boolean;
-  minLength?: number;
-  rows?: number;
-  placeholder?: string;
-}) {
-  return (
-    <label className="block">
-      <span className="font-mono text-label uppercase text-ink-400">
-        {label}
-      </span>
-      <textarea
-        name={name}
-        required={required}
-        minLength={minLength}
-        rows={rows}
-        placeholder={placeholder}
-        className="mt-2 block w-full rounded-md border border-line bg-ink-950 px-3 py-2 text-sm text-ink-100 outline-none transition-colors placeholder:text-ink-600 focus:border-brand"
-      />
-    </label>
   );
 }

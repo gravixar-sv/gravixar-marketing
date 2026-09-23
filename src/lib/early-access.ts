@@ -39,14 +39,14 @@ export const timelineOptions = [
 export const earlyAccessSchema = z.object({
   email: z.string().email().max(160),
   name: z.string().max(120).optional(),
-  // Primary interest — drives Qamar's triage. Maps to a module in the
+  // Primary interest, drives Qamar's triage. Maps to a module in the
   // /modules library. "other" is the catch-all; the free-text `need`
   // field captures the specific shape.
   interest: z.enum(interestOptions).optional(),
   // Team size, optional. Helps with sizing the right tier (Starter /
   // Pro / Concierge).
   teamSize: z.enum(teamSizeOptions).optional(),
-  // How urgent — separates "ready to buy" from "just curious."
+  // How urgent: separates "ready to buy" from "just curious."
   timeline: z.enum(timelineOptions).optional(),
   // Free-form one-liner: anything else they want to share. Optional;
   // supplements the structured fields above.
@@ -67,24 +67,27 @@ export type EarlyAccessRecord = EarlyAccessSignup & {
 };
 
 // Display labels for the structured fields, used by both the form UI
-// and the notification email body.
+// and the notification email body. Only the labels are written for the
+// visitor (in their own voice: "state machine" and "compliance-grade
+// retention" were the builder's words); the option VALUES above are stored
+// and triaged in HQ and do not change.
 export const INTEREST_LABELS: Record<(typeof interestOptions)[number], string> = {
-  "agentic-email": "Agentic email (drafts and sequences with human approval)",
-  "client-portal": "Hosted client portal (review state machine, audit log)",
-  "ai-intake-wizard": "AI intake wizard (adaptive questions, brand brief from URL)",
-  "audit-log-restore": "Audit log + safe-restore (compliance-grade retention)",
-  "review-state-machine": "Review state machine (deliverable approval flow)",
-  "ops-consulting": "Operations consulting (custom build, not hosted)",
+  "agentic-email": "AI email drafts that a person approves before they send",
+  "client-portal": "A client portal I can rent (sign-offs, change history)",
+  "ai-intake-wizard": "AI client intake (asks follow-ups, drafts a brief from their website)",
+  "audit-log-restore": "Change history with one-click undo",
+  "review-state-machine": "Sign-off flow for client work",
+  "ops-consulting": "A custom build for my own business",
   "brand-visuals": "Brand and visual work (identity, motion, decks)",
-  "fbr-payroll": "Pakistan FBR + EOBI payroll engine",
-  other: "Something else, I'll describe below",
+  "fbr-payroll": "Pakistan FBR and EOBI payroll",
+  other: "Something else, I'll describe it",
 };
 
 export const TEAM_SIZE_LABELS: Record<(typeof teamSizeOptions)[number], string> = {
   solo: "Just me",
   "2-10": "2 to 10 people",
   "11-50": "11 to 50 people",
-  "50+": "50+ people",
+  "50+": "More than 50 people",
 };
 
 export const TIMELINE_LABELS: Record<(typeof timelineOptions)[number], string> = {

@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PageHeader } from "@/components/site/PageHeader";
+import { Reveal } from "@/components/site/Reveal";
+import { PageLight } from "@/components/conversion/PageLight";
+import { Arrow } from "@/components/ui/Button";
 import { getCareersRoles, employmentLabel } from "@/lib/careers";
 import { buildMetadata } from "@/lib/seo";
 
@@ -8,64 +11,77 @@ import { buildMetadata } from "@/lib/seo";
 export const revalidate = 300;
 
 export const metadata: Metadata = buildMetadata({
-  title: "Careers at Gravixar, Build Systems That Run",
+  title: "Careers at Gravixar, build systems that run",
   description:
-    "Open roles at Gravixar. Small team, real systems running in production, a human on every approval. If you would rather ship something running than talk about it, read on.",
+    "Careers at Gravixar. Small on purpose: the systems I build run real businesses, and a person signs off on every AI action. For people who would rather ship something running than talk about it.",
   path: "/careers",
 });
 
+const LEDE = "Small on purpose. The systems I build run real businesses, and a person signs off on every AI action.";
+
 export default async function CareersIndexPage() {
   const jobs = await getCareersRoles();
+  const empty = jobs.length === 0;
 
   return (
-    <div className="space-y-16">
+    <div className="relative isolate">
+      <PageLight />
       <PageHeader
-        eyebrow="careers"
+        eyebrow="Careers"
         title="Build the AI-ops platform with me."
-        lede="Small team on purpose. Real systems running live businesses, with a human on every approval. If a role fits, the apply form lands straight in my inbox."
+        // The apply-form sentence only makes sense when there is a form to
+        // reach; with no roles open it promised something the page could not
+        // deliver.
+        lede={empty ? LEDE : `${LEDE} If a role fits, your application comes straight to me.`}
       />
 
-      {jobs.length === 0 ? (
-        <div className="rounded-xl border border-line bg-ink-950/40 p-8 text-center">
-          <p className="text-ink-300">No open roles right now.</p>
-          <p className="mt-2 text-sm text-muted">
-            If you think you should be working with me anyway,{" "}
-            <Link
-              href="/contact"
-              className="text-brand-soft underline underline-offset-4 hover:text-brand"
-            >
-              get in touch
+      {empty ? (
+        // An empty state that reads as a decision, not a missing section:
+        // left-aligned on the page's own grid, no box around it.
+        <section aria-labelledby="no-roles" className="mt-14 max-w-[40rem] md:mt-20">
+          <h2 id="no-roles" className="text-section font-semibold text-ink-50">
+            No open roles right now.
+          </h2>
+          <p className="mt-4 text-lead text-ink-300">
+            If you would rather ship something running than talk about it,{" "}
+            <Link href="/contact" className="link-quiet">
+              get in touch anyway
             </Link>
             .
           </p>
-        </div>
+          <p className="mt-8 text-caption text-ink-400">
+            Or find me on{" "}
+            <a href="https://www.linkedin.com/in/qamarabbas/" rel="noreferrer" className="link-quiet">
+              LinkedIn
+            </a>
+            .
+          </p>
+        </section>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2">
-          {jobs.map((job) => (
-            <Link
-              key={job.slug}
-              href={`/careers/${job.slug}`}
-              className="card-surface card-hover-glow group rounded-xl p-6"
-            >
-              <p className="font-mono text-label-sm uppercase text-muted group-hover:text-brand">
-                {job.team} · {employmentLabel(job.employmentType)} ·{" "}
-                {job.location}
-              </p>
-              <h2 className="mt-2 text-2xl font-semibold tracking-[-0.015em] text-ink-100">
-                {job.title}
-              </h2>
-              <p className="mt-3 text-sm leading-relaxed text-ink-400">
-                {job.summary}
-              </p>
-              <p className="mt-4 font-mono text-label-sm uppercase text-ink-400 group-hover:text-brand">
-                View role + apply
-                <span className="ml-1 inline-block transition-transform group-hover:translate-x-0.5">
-                  →
-                </span>
-              </p>
-            </Link>
-          ))}
-        </div>
+        <Reveal className="reveal-quiet mt-12 md:mt-16">
+          <ul className="reveal-stagger border-t border-line">
+            {jobs.map((job) => (
+              <li key={job.slug} className="border-b border-line">
+                <Link
+                  href={`/careers/${job.slug}`}
+                  className="group grid gap-3 py-8 md:grid-cols-[minmax(0,1fr)_auto] md:items-end md:gap-12 md:py-10"
+                >
+                  <div className="min-w-0">
+                    <p className="text-caption text-ink-400">
+                      {job.team} · {employmentLabel(job.employmentType)} · {job.location}
+                    </p>
+                    <h2 className="mt-2 text-subsection font-semibold text-ink-50">{job.title}</h2>
+                    <p className="mt-3 max-w-[60ch] text-ink-400">{job.summary}</p>
+                  </div>
+                  <span className="inline-flex items-center gap-2 text-sm font-medium text-ink-200 transition-colors group-hover:text-ink-50">
+                    <span className="link-draw">View the role and apply</span>
+                    <Arrow />
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </Reveal>
       )}
     </div>
   );

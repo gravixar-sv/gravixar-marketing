@@ -56,6 +56,10 @@
   --color-line: rgb(243 239 232 / 0.09);
   --color-line-strong: rgb(243 239 232 / 0.16);
 
+  /* Wrong, as distinct from decided. A cooler red than the coral, for invalid
+     borders and error tints only, so an error never reads as an approval. */
+  --color-danger: #e5645c;
+
   /* Type. Mona Sans is the single family, loaded with its width axis so
      display sizes can run slightly condensed. Newsreader italic is the human
      voice: one phrase per page at most (the hero h1 tail, pull quotes, the
@@ -71,7 +75,11 @@
      reference is the quietest heading. Display is fluid so it never needs a
      breakpoint ladder at the call site. */
   --text-display: clamp(2.75rem, 1.55rem + 4.4vw, 5.25rem);
-  --text-display--line-height: 0.98;
+  /* 1.08, not tighter: the home h1 mixes a Mona Sans descender (the p of
+     "ops,") over a Newsreader ascender (the k of "asks"), and at 0.98 the two
+     glyphs overlapped ink to ink. 1.08 keeps them apart at every width and
+     still reads as tight display type. */
+  --text-display--line-height: 1.08;
   --text-display--letter-spacing: -0.035em;
   --text-statement: clamp(2.25rem, 1.5rem + 2.6vw, 3.5rem);
   --text-statement--line-height: 1.02;
@@ -540,6 +548,14 @@
       .reveal .reveal-stagger > *:nth-child(3n) {
         animation-range: entry 12vh entry 44vh;
       }
+    }
+    /* Opt-out for a stagger child that sits above the fold (a featured card
+       at the top of a page): it must never start part-faded before the first
+       scroll, on any screen height. */
+    .reveal .reveal-stagger > .reveal-skip {
+      animation: none;
+      opacity: 1;
+      transform: none;
     }
     /* A hairline that draws as it arrives rather than on page load. */
     .rule-draw-scroll::after {

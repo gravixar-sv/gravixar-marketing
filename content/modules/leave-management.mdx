@@ -1,8 +1,8 @@
 ---
-title: "Leave management with atomic balance updates"
+title: "Leave management that keeps balances right"
 slug: "leave-management"
 category: "ops"
-summary: "Annual / sick / unpaid / parental / bereavement leave with pro-rated entitlements for new joiners, manager approve/decline state machine, and balance updates that run inside a Prisma transaction so balances can't desync."
+summary: "Annual, sick, unpaid, parental and bereavement leave. New joiners get a fair share of the year, managers approve or decline, and the balance changes in the same step as the approval, so the two never drift apart."
 metaDescription: "Leave approval and balance decrement run in one Prisma transaction, so balances cannot desync. Pro-rated entitlements for mid-year joiners."
 runningIn:
   - { client: "Agency portal", productSlug: "bs-hub" }

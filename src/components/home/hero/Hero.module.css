@@ -1,0 +1,23 @@
+/* The ember horizon behind the fold.
+
+   The layer starts at the header's bottom rule, not behind the header. The
+   header is only clear at scroll-top in engines with scroll timelines and
+   with motion allowed; under reduced motion (and in Firefox) it stays an 80%
+   veil, and light that peaked behind it started abruptly at its bottom rule.
+   So the light rises from nothing at that rule instead: the top ramp in the
+   mask takes it from zero to full over the first 150px, which puts the
+   visible peak just under the header whatever the header is doing.
+
+   The sides fade out rather than cut (a radial still faintly lit at the column
+   edge would otherwise end on a vertical line), and the bottom fades so the
+   light has no floor. Two masks, intersected. */
+.light {
+  -webkit-mask-image:
+    linear-gradient(to right, transparent, #000 12%, #000 88%, transparent),
+    linear-gradient(to bottom, transparent, #000 150px, #000 40%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to right, transparent, #000 12%, #000 88%, transparent),
+    linear-gradient(to bottom, transparent, #000 150px, #000 40%, transparent);
+  mask-composite: intersect;
+}

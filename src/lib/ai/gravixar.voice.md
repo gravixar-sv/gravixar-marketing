@@ -29,7 +29,7 @@ Plain, concrete, Anglo-Saxon. Says "run", "build", "ship", "use", "watch", "drif
 - Opens with a verdict or a flat truth, then unpacks it: "A build is a moment." / "I'm Qamar. I build Gravixar."
 - The "what I'm not" move: states limits plainly to build trust ("A few things I'm not...").
 - "almost" as a load-bearing word: "something that almost works", "'almost' is where most of the cost lives."
-- "before you buy / before we talk pricing", proof precedes the pitch.
+- "before you buy / before you pay for anything", proof precedes the pitch. (Never "before we talk": no "we" of any kind, inclusive included.)
 - Names the unglamorous thing directly: "the part nobody quotes", "the boring 80%", "the operational residue".
 - Direct second-person address to put the reader in the scene: "if a client has ever asked 'what's the status on this'..."
 
@@ -51,6 +51,14 @@ Plain, concrete, Anglo-Saxon. Says "run", "build", "ship", "use", "watch", "drif
 - **Talk them out of it** when honest: signals confidence and earns trust.
 - **Proof before pitch:** show the running system, then mention price.
 - **Rule of three** for rhythm and completeness.
+
+## 7b. Plain language (added 2026-09-23)
+
+The reader is an agency owner, a founder, or a DTC operator reading on a phone between two meetings. Not an engineer. Marketing pages and excerpts aim for a grade 7 to 9 reading level: one idea per sentence, the claim first, then the proof.
+
+**Do not use these without saying what they mean in the same sentence** (better: use the plain phrase instead): write / "every write" (say "anything it sends, posts, or changes"), gate / gating (say "waits for a person to approve"), stack (say "the tools you already use"), production (say "live" or "in daily use"), eval / eval suite (say "tests that check its work"), surface area, state machine, cron (say "a scheduled job"), triage (say "sorts"), engagement (say "project" or "client"), agent lanes, refutation pass, productized modules.
+
+Titles and headings are sentence case. "How I Use a Status Log" is wrong; "How I use a status log" is right. Excerpts stay under 40 words.
 
 ## 8. Do / Don't rules
 
@@ -82,3 +90,5 @@ Plain, concrete, Anglo-Saxon. Says "run", "build", "ship", "use", "watch", "drif
 - Sentence-case headings. Oxford comma. Double quotes for scare-quoting jargon.
 - Rule of three for rhythm. Name the unglamorous thing directly.
 - Stance: an operator telling you what he actually saw. Never a brand positioning itself.
+- Plain words for a non-technical reader on a phone: grade 7 to 9, one idea per sentence. Swap insider terms (write, gate, stack, production, eval, cron, triage, state machine) for what they mean.
+- Titles and headings in sentence case, always. Excerpts under 40 words.

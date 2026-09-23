@@ -1,0 +1,72 @@
+/* Case-study rail. Sticks only where it fits (bands by viewport height, the
+   same approach as the services rail), and lights the section being read. */
+
+@media (min-width: 64rem) {
+  .aside {
+    align-self: stretch;
+  }
+}
+
+@media (min-width: 64rem) and (min-height: 40rem) {
+  .fitsShort {
+    position: sticky;
+    top: 7rem;
+  }
+}
+@media (min-width: 64rem) and (min-height: 48rem) {
+  .fitsMedium {
+    position: sticky;
+    top: 7rem;
+  }
+}
+@media (min-width: 64rem) and (min-height: 56rem) {
+  .fitsTall {
+    position: sticky;
+    top: 7rem;
+  }
+}
+
+/* Scroll-spy with no script. Each article section declares a view timeline
+   (--cs-N) and the grid around article and rail hoists the names with
+   timeline-scope. A link's animation runs only while its section crosses a
+   reading line 30% down the window: from the section's top reaching that
+   line (cover + 70vh) to its bottom reaching it (cover 100% - 30vh). Fill
+   is none, so outside that window the link is simply at rest. Colour and a
+   hairline, no movement. */
+@supports (animation-timeline: view()) {
+  @keyframes toc-on {
+    from,
+    to {
+      color: var(--color-ink-50);
+      border-left-color: var(--color-ink-200);
+    }
+  }
+  .tocLink {
+    animation: toc-on linear;
+    animation-fill-mode: none;
+    animation-timeline: var(--tl);
+    animation-range: cover 70vh cover calc(100% - 30vh);
+  }
+}
+
+/* Nothing in the rail moves, so reduced motion only drops the colour ease. */
+@media (prefers-reduced-motion: reduce) {
+  .tocLink {
+    transition: none;
+  }
+}
+
+/* The phone index: the caret turns to show the disclosure is open. A small
+   rotation on the micro band, caused by the tap. */
+.caret {
+  transition: rotate 200ms var(--ease-out);
+}
+.index[open] .caret {
+  rotate: 180deg;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .caret {
+    transition: none;
+  }
+}

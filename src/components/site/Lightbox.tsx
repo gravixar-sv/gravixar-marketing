@@ -4,6 +4,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { CaretLeft, CaretRight, X } from "@phosphor-icons/react";
+import styles from "./Lightbox.module.css";
 
 // Gallery lightbox for /graphics/[slug], built on the NATIVE <dialog> element.
 // showModal() is what makes this ~150 lines instead of a dependency: the focus
@@ -43,10 +44,21 @@ export type LightboxFrame = {
   // backing" heuristic stays in exactly one place.
   fit: boolean;
   onLight: boolean;
+  /** The grid cell's `sizes` when it is not GALLERY_SIZES (a cell widened to
+   *  close an odd row). The dialog's base layer uses the same string, for the
+   *  same cache reason GALLERY_SIZES is shared. */
+  sizes?: string;
 };
 
+// 44px for any coarse pointer (a touch tablet is as wide as a laptop, so
+// width is the wrong test), 36px only where the pointer is fine. Neutral on
+// hover: coral is for decisions, and "next frame" is not one.
 const CONTROL =
-  "inline-flex h-8 w-8 items-center justify-center rounded-md border border-line text-ink-300 transition-colors hover:border-brand hover:text-brand-soft";
+  "inline-flex size-11 items-center justify-center rounded-lg border border-line text-ink-300 transition-colors hover:border-line-strong hover:text-ink-50 pointer-fine:size-9";
+
+// A horizontal swipe of at least this many CSS pixels, and more horizontal than
+// vertical, changes frame. Below it, the gesture is a tap or a scroll.
+const SWIPE_PX = 48;
 
 export function Lightbox({
   title,
@@ -66,13 +78,16 @@ export function Lightbox({
   // value any other way.
   const indexRef = useRef<number | null>(null);
   const pathname = usePathname();
+  // Where a touch or pen gesture started, for swipe. Mouse drags are ignored:
+  // a desktop reader has the buttons and the arrow keys.
+  const swipeRef = useRef<{ x: number; y: number; id: number } | null>(null);
 
   const count = frames.length;
 
   // Everything hydration adds to the server's grid, in one place: the cells
   // start intercepting their own navigation, and they say so. Written as plain
   // DOM against children this component does not own, which is the honest shape
-  // for an enhancement — the server HTML keeps promising exactly what it
+  // for an enhancement: the server HTML keeps promising exactly what it
   // delivers without JS (a link to the image file), and the promise is upgraded
   // only once there is something to upgrade it to.
   useEffect(() => {
@@ -162,16 +177,34 @@ export function Lightbox({
     if (e.target === dialogRef.current) setIndex(null);
   }
 
+  function step(delta: 1 | -1) {
+    setIndex((i) => ((i ?? 0) + delta + count) % count);
+  }
+
+  function onPointerDown(e: React.PointerEvent<HTMLDivElement>) {
+    if (e.pointerType === "mouse" || count < 2) return;
+    swipeRef.current = { x: e.clientX, y: e.clientY, id: e.pointerId };
+  }
+
+  function onPointerUp(e: React.PointerEvent<HTMLDivElement>) {
+    const start = swipeRef.current;
+    swipeRef.current = null;
+    if (!start || start.id !== e.pointerId) return;
+    const dx = e.clientX - start.x;
+    const dy = e.clientY - start.y;
+    if (Math.abs(dx) >= SWIPE_PX && Math.abs(dx) > Math.abs(dy)) step(dx < 0 ? 1 : -1);
+  }
+
   function onDialogKeyDown(e: React.KeyboardEvent<HTMLDialogElement>) {
     // Escape is the UA's. Left/right are the only keys this adds, and they wrap,
     // so walking a gallery never dead-ends on the last frame.
     if (index === null || count < 2) return;
     if (e.key === "ArrowRight") {
       e.preventDefault();
-      setIndex((i) => ((i ?? 0) + 1) % count);
+      step(1);
     } else if (e.key === "ArrowLeft") {
       e.preventDefault();
-      setIndex((i) => ((i ?? 0) + count - 1) % count);
+      step(-1);
     }
   }
 
@@ -182,8 +215,9 @@ export function Lightbox({
       {/* m-auto is load-bearing: Tailwind's preflight zeroes the UA's
           `margin: auto` on dialog, and without it a modal dialog pins itself to
           the top-left corner of the viewport rather than centring.
-          .live-panel rather than a new surface, and nothing inside it carries a
-          second one — the frame below is a background fill, not a card. */}
+          .panel-lit rather than a new surface, and nothing inside it carries a
+          second one: the frame below is a background fill, not a card. The
+          entrance, the exit and the backdrop fade live in Lightbox.module.css. */}
       <dialog
         ref={dialogRef}
         onClose={onDialogClose}
@@ -193,20 +227,20 @@ export function Lightbox({
           frame ? `${title}, frame ${(index ?? 0) + 1} of ${count}` : title
         }
         style={{ width: `min(92vw, ${(72 * ratio).toFixed(2)}vh, 68rem)` }}
-        className="live-panel m-auto min-w-[16rem] max-h-none max-w-none rounded-xl p-0 text-fg backdrop:bg-bg/90"
+        className={`panel-lit ${styles.dialog} m-auto min-w-[16rem] max-h-none max-w-none overflow-hidden rounded-2xl p-0 text-fg`}
       >
         {frame ? (
           <div className="flex flex-col">
             <div className="flex items-center justify-between gap-4 border-b border-line-soft px-4 py-3">
-              <p className="font-mono text-label-sm uppercase text-ink-400">
-                frame {(index ?? 0) + 1} / {count}
+              <p className="font-mono text-label-sm tabular-nums text-ink-400">
+                {String((index ?? 0) + 1).padStart(2, "0")} / {String(count).padStart(2, "0")}
               </p>
               <div className="flex items-center gap-1.5">
                 {count > 1 ? (
                   <>
                     <button
                       type="button"
-                      onClick={() => setIndex((i) => ((i ?? 0) + count - 1) % count)}
+                      onClick={() => step(-1)}
                       aria-label="Previous frame"
                       className={CONTROL}
                     >
@@ -214,7 +248,7 @@ export function Lightbox({
                     </button>
                     <button
                       type="button"
-                      onClick={() => setIndex((i) => ((i ?? 0) + 1) % count)}
+                      onClick={() => step(1)}
                       aria-label="Next frame"
                       className={CONTROL}
                     >
@@ -249,7 +283,11 @@ export function Lightbox({
                 browser: without it the element sits at currentSrc "" while the
                 upgrade fetches. */}
             <div
-              className={`relative w-full ${frame.onLight ? "bg-ink-200" : "bg-ink-950"}`}
+              key={frame.src}
+              onPointerDown={onPointerDown}
+              onPointerUp={onPointerUp}
+              onPointerCancel={() => (swipeRef.current = null)}
+              className={`${styles.frame} relative w-full ${frame.onLight ? "bg-ink-200" : "bg-ink-950"}`}
               style={{ aspectRatio: `${ratio}` }}
             >
               <Image
@@ -258,7 +296,7 @@ export function Lightbox({
                 alt={frame.alt}
                 fill
                 loading="eager"
-                sizes={GALLERY_SIZES}
+                sizes={frame.sizes ?? GALLERY_SIZES}
                 className={frame.fit ? "object-contain p-6 md:p-10" : "object-contain"}
               />
               <Image
@@ -272,6 +310,15 @@ export function Lightbox({
                 className={frame.fit ? "object-contain p-6 md:p-10" : "object-contain"}
               />
             </div>
+            {/* The frame's own description, written as alt text, shown to
+                everyone. aria-hidden because the image already carries it as
+                its alt, and a screen reader should not hear it twice. */}
+            <p
+              aria-hidden
+              className="border-t border-line-soft px-4 py-3.5 text-[0.875rem] leading-relaxed text-ink-400 md:px-5"
+            >
+              {frame.alt}
+            </p>
           </div>
         ) : null}
       </dialog>

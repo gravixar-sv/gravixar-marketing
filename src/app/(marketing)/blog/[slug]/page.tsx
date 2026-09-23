@@ -1,10 +1,16 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MDX } from "@/content/mdx";
+import { PageHeader } from "@/components/site/PageHeader";
+import { PostList } from "@/components/site/PostList";
+import { ContactCTA } from "@/components/home/ContactCTA";
 import { StructuredDataBlogPost, StructuredDataBreadcrumb } from "@/components/site/StructuredData";
+import { ArticleBody } from "@/components/content/ArticleBody";
+import { AuthorNote } from "@/components/content/AuthorNote";
+import { relatedPosts, tagIndex, tagsFor } from "@/components/content/blog";
+import { extractToc, longDate, readingMinutes } from "@/components/content/longform";
 import { loadBlogPosts } from "@/content/loaders";
-import { tagSlug } from "@/lib/blog-tags";
+import { loadTagHubs } from "@/lib/blog-tags";
 import { buildMetadata, SITE } from "@/lib/seo";
 
 export const revalidate = 1800;
@@ -32,16 +38,29 @@ export async function generateMetadata(
   });
 }
 
+// A post is the site's main search landing page, so it is laid out to be read
+// and then to lead somewhere: header, a 68ch column with a contents rail, and a
+// footer with the author, related reading and the next step. It used to end on
+// a single "All writing" link.
 export default async function BlogPostPage(
   { params }: { params: Promise<{ slug: string }> },
 ) {
   const { slug } = await params;
-  const posts = await loadBlogPosts();
+  const [posts, hubs] = await Promise.all([loadBlogPosts(), loadTagHubs()]);
   const post = posts.find((p) => p.meta.slug === slug);
   if (!post) notFound();
 
+  const toc = extractToc(post.body);
+  const minutes = readingMinutes(post.body);
+  const tags = tagIndex(hubs, posts.length);
+  const related = relatedPosts(post, posts, 3);
+  const updated =
+    post.meta.updatedAt && post.meta.updatedAt !== post.meta.publishedAt
+      ? post.meta.updatedAt
+      : null;
+
   return (
-    <article className="mx-auto max-w-3xl">
+    <div>
       <StructuredDataBlogPost
         title={post.meta.title}
         description={post.meta.excerpt}
@@ -56,9 +75,6 @@ export default async function BlogPostPage(
           `/api/og?title=${encodeURIComponent(post.meta.title)}`
         }
       />
-      {/* Blog posts were the ONLY detail route with no BreadcrumbList; every
-          other one (services, work, compare, modules, graphics, careers) has
-          carried the three-item shape since it shipped. */}
       <StructuredDataBreadcrumb
         items={[
           { name: "Home", url: SITE.url },
@@ -66,49 +82,74 @@ export default async function BlogPostPage(
           { name: post.meta.title, url: `${SITE.url}/blog/${slug}` },
         ]}
       />
-      <header className="border-b border-line-soft pb-8">
-        <div className="flex items-baseline gap-4">
-          <p className="font-mono text-label uppercase text-muted">
-            {post.meta.publishedAt}
-          </p>
-          {post.meta.aiAssisted ? (
-            <p className="font-mono text-label-sm uppercase text-brand-deep">
-              ai-assisted, human-edited
+
+      {/* .read-track feeds the header's reading-progress line. It wraps the
+          header and body only, so the line completes at the last paragraph,
+          not at the footer. */}
+      <article className="read-track">
+        <PageHeader
+          eyebrow="Writing"
+          eyebrowHref="/blog"
+          title={post.meta.title}
+          lede={post.meta.excerpt}
+        >
+          <div className="space-y-1 text-caption text-ink-500">
+            <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
+              <span className="font-medium text-ink-300">{SITE.author}</span>
+              <Dot />
+              <time dateTime={post.meta.publishedAt}>{longDate(post.meta.publishedAt)}</time>
+              {updated ? (
+                <>
+                  <Dot />
+                  <span>
+                    Updated <time dateTime={updated}>{longDate(updated)}</time>
+                  </span>
+                </>
+              ) : null}
+              <Dot />
+              <span>{minutes} min read</span>
             </p>
-          ) : null}
-        </div>
-        <h1 className="mt-4 text-3xl font-semibold tracking-tight md:text-4xl">
-          {post.meta.title}
-        </h1>
-        <p className="mt-3 text-ink-400">{post.meta.excerpt}</p>
-        {/* Linked since 2026-09-08. These rendered as inert chips for as long
-            as the blog existed, so the taxonomy the SEO agent maintains
-            produced no route and no internal link from any post. */}
-        {post.meta.tags.length > 0 ? (
-          <ul className="mt-5 flex flex-wrap gap-1.5">
-            {post.meta.tags.map((t) => (
-              <li key={t}>
-                <Link
-                  href={`/blog/tag/${tagSlug(t)}`}
-                  className="block rounded-sm border border-line bg-ink-900 px-1.5 py-0.5 font-mono text-[10px] text-ink-400 transition-colors hover:border-brand-deep hover:text-brand-soft"
-                >
-                  {t}
-                </Link>
-              </li>
-            ))}
-          </ul>
+            {/* Its own line, so the disclosure never wraps into a trailing dot
+                and never reads as a footnote to the reading time. */}
+            {post.meta.aiAssisted ? <p>AI-assisted, human-edited</p> : null}
+          </div>
+        </PageHeader>
+
+        <ArticleBody toc={toc} className="mt-12 md:mt-16">
+          <MDX source={post.body} />
+        </ArticleBody>
+      </article>
+
+      <footer className="mt-20 space-y-20 md:mt-28 md:space-y-24">
+        <AuthorNote
+          name={SITE.author}
+          aiAssisted={post.meta.aiAssisted}
+          topics={tagsFor(post.meta, tags)}
+        />
+
+        {related.length > 0 ? (
+          <section aria-labelledby="keep-reading">
+            <h2 id="keep-reading" className="text-subsection font-semibold text-ink-50">
+              Keep reading
+            </h2>
+            <div className="mt-6">
+              <PostList posts={related} tags={tags} headingLevel="h3" />
+            </div>
+          </section>
         ) : null}
-      </header>
 
-      <div className="prose-invert mt-8">
-        <MDX source={post.body} />
-      </div>
-
-      <footer className="mt-16 border-t border-line-soft pt-6">
-        <Link href="/blog" className="text-sm text-brand-soft hover:underline">
-          ← All writing
-        </Link>
+        {/* AuthorNote already shows Qamar, so the closing panel drops its
+            portrait: one face per footer, not two a screen apart. */}
+        <ContactCTA person={false} />
       </footer>
-    </article>
+    </div>
+  );
+}
+
+function Dot() {
+  return (
+    <span aria-hidden className="text-ink-600">
+      ·
+    </span>
   );
 }

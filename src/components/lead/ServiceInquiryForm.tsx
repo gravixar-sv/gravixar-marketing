@@ -1,28 +1,56 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 import { sourceTag } from "@/lib/source-tag";
-import { buttonClass } from "@/components/ui/Button";
+import { Button } from "@/components/ui/Button";
+import { FormError, FormSuccess, TextArea, TextField } from "@/components/ui/Field";
+
+// The closing form on every /services/[slug] page. It sits under the panel's
+// own heading, so it carries no heading of its own: the old "Talk about Ops
+// Leak Audit" repeated the h2 above it, dropped the article, and promised a
+// 24-hour reply for the third time in one panel.
+//
+// Built on the shared Field primitives, so inputs are 16px on phones (no iOS
+// zoom on focus), 44px tall, and keep the site-wide focus ring. Failures show
+// human copy; the machine code goes to the console, never to the visitor.
 
 type FormState =
   | { kind: "idle" }
   | { kind: "submitting" }
   | { kind: "ok" }
-  | { kind: "error"; message: string };
+  | { kind: "error"; status?: number };
 
 interface Props {
   /** Page slug travelling into HQ Inbox as `sourcePage`, e.g. "/services/ai-tooling" */
   sourcePage: string;
-  /** Display name of the service — drives the form heading + email body */
+  /** Display name of the service, used in the confirmation */
   serviceTitle: string;
+  /** The one field that needs thought. The start track asks for the scope inputs. */
+  messageLabel?: string;
+  messagePlaceholder?: string;
+  submitLabel?: string;
 }
 
-export function ServiceInquiryForm({ sourcePage, serviceTitle }: Props) {
+export function ServiceInquiryForm({
+  sourcePage,
+  serviceTitle,
+  messageLabel = "What are you trying to do?",
+  messagePlaceholder = "What is broken, what good would look like, your team size and tools, and any deadline.",
+  submitLabel = "Send",
+}: Props) {
   const [state, setState] = useState<FormState>({ kind: "idle" });
+  const doneRef = useRef<HTMLDivElement>(null);
+
+  // The form unmounts on success; move focus to the confirmation so keyboard
+  // and screen reader users land on what just happened instead of on <body>.
+  useEffect(() => {
+    if (state.kind === "ok") doneRef.current?.focus();
+  }, [state.kind]);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (state.kind === "submitting") return;
     setState({ kind: "submitting" });
 
     const form = e.currentTarget;
@@ -45,37 +73,25 @@ export function ServiceInquiryForm({ sourcePage, serviceTitle }: Props) {
       });
       if (!res.ok) {
         const data = (await res.json().catch(() => ({}))) as { error?: string };
-        throw new Error(data.error ?? `request_failed_${res.status}`);
+        console.error("[service-inquiry] send failed", res.status, data.error);
+        setState({ kind: "error", status: res.status });
+        return;
       }
       form.reset();
       setState({ kind: "ok" });
     } catch (err) {
-      setState({
-        kind: "error",
-        message: err instanceof Error ? err.message : "unknown_error",
-      });
+      console.error("[service-inquiry] send failed", err);
+      setState({ kind: "error" });
     }
   }
 
   if (state.kind === "ok") {
     return (
-      <div className="rounded-lg border border-brand-deep/30 bg-brand-deep/5 p-6">
-        <p className="font-mono text-eyebrow uppercase text-brand">
-          received
-        </p>
-        <h3 className="mt-2 text-xl font-semibold tracking-tight">
-          Got it. I&apos;ll reply within 24 hours about {serviceTitle}.
-        </h3>
-        <p className="mt-2 text-sm text-ink-400">
-          If you&apos;d rather chat than email, you can also{" "}
-          <a
-            href="/contact"
-            className="text-brand-soft underline underline-offset-4 hover:text-brand"
-          >
-            book a 30-minute call
-          </a>
-          .
-        </p>
+      <div ref={doneRef} tabIndex={-1} className="rounded-xl outline-none">
+        <FormSuccess flat title="Got it. I will reply within 24 hours.">
+          It reaches me tagged with the {serviceTitle} page, so there is nothing
+          to explain twice.
+        </FormSuccess>
       </div>
     );
   }
@@ -83,26 +99,42 @@ export function ServiceInquiryForm({ sourcePage, serviceTitle }: Props) {
   const submitting = state.kind === "submitting";
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
-      <div>
-        <h3 className="text-xl font-semibold tracking-tight">
-          Talk about {serviceTitle}
-        </h3>
-        <p className="mt-1 text-sm text-ink-400">
-          Quick form, lands in my inbox and HQ at the same time. I reply within
-          24 hours.
-        </p>
+    <form onSubmit={onSubmit} className="space-y-5" aria-busy={submitting}>
+      <div className="grid gap-5 sm:grid-cols-2">
+        <TextField
+          label="Your name"
+          name="name"
+          required
+          minLength={2}
+          maxLength={120}
+          autoComplete="name"
+        />
+        <TextField
+          label="Email"
+          name="email"
+          type="email"
+          inputMode="email"
+          required
+          maxLength={160}
+          autoComplete="email"
+        />
       </div>
-      <Field label="Your name" name="name" required minLength={2} />
-      <Field label="Email" name="email" type="email" required />
-      <Field label="Company (optional)" name="company" />
-      <Textarea
-        label="What are you trying to do?"
+      <TextField
+        label="Company"
+        optional
+        name="company"
+        maxLength={160}
+        autoComplete="organization"
+      />
+      <TextArea
+        label={messageLabel}
         name="message"
         required
         minLength={20}
+        maxLength={4000}
         rows={5}
-        placeholder="Concrete is better than vague. What's broken now, what would good look like, what's the rough size or timeline."
+        placeholder={messagePlaceholder}
+        hint="A couple of sentences is plenty."
       />
       {/* honeypot, visually hidden, must stay empty */}
       <div className="hidden" aria-hidden>
@@ -111,80 +143,26 @@ export function ServiceInquiryForm({ sourcePage, serviceTitle }: Props) {
           <input name="website" type="text" tabIndex={-1} autoComplete="off" />
         </label>
       </div>
-      <button
-        type="submit"
-        disabled={submitting}
-        className={cn(buttonClass(), submitting && "cursor-wait")}
-      >
-        {submitting ? "Sending…" : "Send"}
-      </button>
       {state.kind === "error" ? (
-        <p className="text-sm text-red-400">
-          Something failed: {state.message}. Try again, or email me directly at
-          gravixar@gmail.com.
-        </p>
+        state.status === 400 ? (
+          <FormError>
+            Something in the form did not go through. Check the email address
+            and that the message is at least a sentence, then send again.
+          </FormError>
+        ) : (
+          <FormError />
+        )
       ) : null}
+      {/* aria-disabled rather than disabled: a disabled button drops focus to
+          <body> mid-submit, so a keyboard user would lose their place when an
+          error comes back. onSubmit ignores repeat presses instead. */}
+      <Button
+        type="submit"
+        aria-disabled={submitting}
+        className={cn("w-full sm:w-auto sm:min-w-[11rem]", submitting && "cursor-wait opacity-70")}
+      >
+        {submitting ? "Sending" : submitLabel}
+      </Button>
     </form>
-  );
-}
-
-function Field({
-  label,
-  name,
-  type = "text",
-  required,
-  minLength,
-}: {
-  label: string;
-  name: string;
-  type?: string;
-  required?: boolean;
-  minLength?: number;
-}) {
-  return (
-    <label className="block">
-      <span className="font-mono text-label uppercase text-ink-400">
-        {label}
-      </span>
-      <input
-        name={name}
-        type={type}
-        required={required}
-        minLength={minLength}
-        className="mt-2 block w-full rounded-md border border-line bg-ink-950 px-3 py-2 text-sm text-ink-100 outline-none transition-colors placeholder:text-ink-600 focus:border-brand"
-      />
-    </label>
-  );
-}
-
-function Textarea({
-  label,
-  name,
-  required,
-  minLength,
-  rows = 5,
-  placeholder,
-}: {
-  label: string;
-  name: string;
-  required?: boolean;
-  minLength?: number;
-  rows?: number;
-  placeholder?: string;
-}) {
-  return (
-    <label className="block">
-      <span className="font-mono text-label uppercase text-ink-400">
-        {label}
-      </span>
-      <textarea
-        name={name}
-        required={required}
-        minLength={minLength}
-        rows={rows}
-        placeholder={placeholder}
-        className="mt-2 block w-full rounded-md border border-line bg-ink-950 px-3 py-2 text-sm text-ink-100 outline-none transition-colors placeholder:text-ink-600 focus:border-brand"
-      />
-    </label>
   );
 }

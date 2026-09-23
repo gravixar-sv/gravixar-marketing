@@ -2,14 +2,16 @@
 title: "Ops Leak Audit"
 slug: "ops-leak-audit"
 bucket: "audit"
-tagline: "I count the hours your team loses to the tools it runs on, then price the fix. A fixed-price diagnostic before anyone commits to a build."
-metaDescription: "A $3,500 fixed-price diagnostic. I count the hours your team loses to its tools, then price the fix, including when the fix is keeping the tool."
+tagline: "I find the hours your team loses to its tools every week, then price the fix. You see the numbers before anyone commits to a build."
+metaDescription: "A $3,500 fixed-price audit. I count the hours your team loses to its tools, then price the fix, including when the fix is keeping the tool."
+# Outcome first: the report, the count and the priced fix are what a buyer
+# pays for, so they lead.
 deliverables:
-  - "Interviews with the people who move the work, not only whoever chose the tools"
-  - "A stack inventory: every tool in the workflow, its seats, its monthly cost, and what it is actually used for"
-  - "The leak count: hours a week lost per workflow, each figure tied to the interview or recording it came from"
+  - "A written report, yours to keep whether or not you build with me, and a call to walk you through it"
+  - "The hours lost each week, per workflow, each number tied to the interview or recording it came from"
   - "The priced fix: what to change, what to keep, and a fixed price for anything worth building"
-  - "A written report and a readout call, yours to keep whether or not you build with me"
+  - "A list of every tool in the workflow: seats, monthly cost, and what it is really used for"
+  - "Interviews with the people who do the work, not just whoever picked the tools"
 proof:
   - { label: "An import that reported success and dropped a third of its source", href: "/work/beeline", kind: "case-study" }
   - { label: "monday.com rollout, 10 to 50+ users", href: "/work/monday-rollout-agency", kind: "case-study" }
@@ -17,7 +19,9 @@ proof:
 # The front door since 2026-09-14. A fixed number rather than "from", because
 # the point of this offer is that a stranger can rule themselves in or out
 # without a call. The scope boundary is the team and its costliest workflows.
-pricing: "$3,500 fixed for one team and the workflows that cost it the most, with a written report and a readout call. No hourly, no open-ended discovery."
+# The price is its own sentence, so it is the first thing the eye lands on,
+# and never followed by a comma (extractFigures would register "$3,500,").
+pricing: "$3,500 fixed. It covers one team and the workflows that cost it the most, plus a written report and a call to walk you through it. No hourly billing, no open-ended discovery."
 track: "start"
 order: 0
 updatedAt: "2026-09-14"
@@ -25,34 +29,32 @@ updatedAt: "2026-09-14"
 
 Most operations problems get counted in the wrong unit. A tool costs $25 a seat, so the tool looks cheap. The hours spent around it never reach an invoice.
 
-Those hours are the leak. The Friday afternoon a project manager spends reconciling two systems that disagree. The approval chased over email because the portal cannot hold it. The client status update three people assemble by hand. Nothing errors, and all of it gets paid for every week, at salary rates.
-
-This audit counts those hours, then prices the fix.
+Those hours are the leak. The Friday afternoon a project manager spends matching up two systems that disagree. The approval chased by email because the portal cannot handle it. The client status update three people put together by hand. Nothing breaks, and you pay for all of it every week, at salary rates.
 
 ## What I do
 
-- **Talk to the people who move the work,** not only whoever chose the tools. The person reconciling a spreadsheet on Friday knows where the time goes, and usually nobody has asked them.
-- **Inventory the stack.** Every tool in the workflow, the seats, the monthly cost, and what each one is really used for. That last column is where the surprises sit.
-- **Watch the expensive workflows run.** A walkthrough or a screen recording of the few workflows that eat the most time, so the count comes from what happens rather than from what the process document says happens.
-- **Count the leak.** Hours a week per workflow, each figure written next to the interview or recording it came from, so you can check every number yourself.
-- **Price the fix.** What to change, what to keep, and a fixed price for anything worth building.
+1. **Talk to the people who do the work,** not just whoever picked the tools. The person patching a spreadsheet on Friday knows where the time goes, and usually nobody has asked them.
+2. **List every tool.** Every tool in the workflow, the seats, the monthly cost, and what each one is really used for. That last column is where the surprises sit.
+3. **Watch the expensive workflows run.** A walkthrough or a screen recording of the few workflows that eat the most time, so the count comes from what happens rather than from what the process document says happens.
+4. **Count the leak.** Hours a week per workflow, each number written next to the interview or recording it came from, so you can check every one yourself.
+5. **Price the fix.** What to change, what to keep, and a fixed price for anything worth building.
 
 ## What you receive
 
-A written report and a readout call, about two weeks after kickoff. The report is yours either way. If the fix is a build, the report already carries its fixed price, so the next conversation starts from a number rather than from another discovery call.
+A written report and a call to walk you through it, about two weeks after kickoff. The report is yours either way. If the fix is a build, the report already includes its fixed price, so the next conversation starts from a number, not another round of scoping calls.
 
 ## Sometimes the answer is the tool you already have
 
-I publish comparisons of five tools against a custom build, and each one says when the tool is the right answer. The audit holds to the same rule. If a cheaper fix inside the tool you already pay for beats replacing it, the report says so on page one.
+I publish [comparisons of five tools against a custom build](/compare), and each one says when the tool is the right answer. The audit holds to the same rule. If a cheaper fix inside the tool you already pay for beats replacing it, the report says so on page one.
 
 ## Why a fixed price
 
-Because the usual alternative is a discovery phase billed by the hour that ends in a proposal. A fixed price means you know what the answer costs before you ask the question, and you decide on a build with the numbers in front of you.
+Because the usual alternative is a scoping phase billed by the hour that ends in a proposal. A fixed price means you know what the answer costs before you ask the question, and you decide on a build with the numbers in front of you.
 
 ## What this is not
 
-Not a code review. If the question is whether a codebase written largely with AI will hold up under diligence, that is the [AI Code Confidence Review](/services/system-audit).
+Not a code review. If the question is whether a codebase written mostly with AI will hold up when someone else inspects it, that is the [AI Code Confidence Review](/services/system-audit).
 
-Not a sales pitch dressed as a diagnostic either. The report is written to be useful to someone who never speaks to me again.
+Not a sales pitch dressed as an audit either. The report is written to be useful to someone who never speaks to me again.
 
 Pairs with **[Operations Infrastructure](/services/operations-infrastructure)** when the fix is a build, and with **[Fractional AI Ops Lead](/services/fractional-ai-ops-lead)** when the system already exists and needs watching.

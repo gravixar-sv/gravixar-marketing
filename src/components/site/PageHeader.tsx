@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ViewTransition, type ReactNode } from "react";
 import { SetInType } from "./SetInType";
 import { cn } from "@/lib/cn";
@@ -24,6 +25,7 @@ export function PageHeader({
   children,
   className,
   rule = true,
+  accentBreak = false,
 }: {
   eyebrow?: ReactNode;
   eyebrowHref?: string;
@@ -36,19 +38,27 @@ export function PageHeader({
   children?: ReactNode;
   className?: string;
   rule?: boolean;
+  /** start the serif accent on its own line */
+  accentBreak?: boolean;
 }) {
-  const titleClass = "mt-4 max-w-[22ch] text-page font-semibold text-ink-50";
+  const titleClass = cn("mt-4 max-w-[22ch] text-page font-semibold text-ink-50", accentBreak && "[&_em]:block");
   return (
     <header className={cn("pb-10 md:pb-14", rule && "rule-draw", className)}>
       {eyebrow ? (
         <p className="hero-enter text-caption text-ink-400">
           {eyebrowHref ? (
-            <a href={eyebrowHref} className="group inline-flex items-center gap-2 transition-colors hover:text-ink-100">
+            // next/link, so going back is a client navigation and the title
+            // morphs back into the card it came from. -my-3 py-3 gives a 44px
+            // tap target without moving the layout.
+            <Link
+              href={eyebrowHref}
+              className="group -my-3 inline-flex min-h-11 items-center gap-2 py-3 transition-colors hover:text-ink-100"
+            >
               <span aria-hidden className="transition-transform duration-300 ease-out-expo group-hover:-translate-x-0.5">
                 ←
               </span>
               {eyebrow}
-            </a>
+            </Link>
           ) : (
             eyebrow
           )}

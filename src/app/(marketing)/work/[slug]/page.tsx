@@ -1,12 +1,19 @@
+import type { CSSProperties } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/site/PageHeader";
-import { MDX } from "@/content/mdx";
 import { ContactCTA } from "@/components/home/ContactCTA";
 import {
   StructuredDataBreadcrumb,
   StructuredDataCaseStudy,
 } from "@/components/site/StructuredData";
+import { CaseCover } from "@/components/work/CaseCover";
+import { CaseLedger } from "@/components/work/CaseLedger";
+import { CaseBody, type ShortSection } from "@/components/work/CaseBody";
+import { CaseAside, PageIndex, type TocItem } from "@/components/work/CaseAside";
+import { DemoShot } from "@/components/work/DemoShot";
+import { NextStudy } from "@/components/work/NextStudy";
+import { demoSceneFor, keepCompounds, splitBody } from "@/components/work/model";
 import { loadCaseStudies } from "@/content/loaders";
 import { buildMetadata, SITE } from "@/lib/seo";
 
@@ -34,16 +41,42 @@ export async function generateMetadata(
   });
 }
 
+// A case study reads top to bottom as: the claim (header), the shape of the
+// work (cover), the facts (at a glance), the short story, the long version,
+// the sample-data demo where one exists, then the next study. On desktop a
+// rail beside the reading column indexes the sections; on phones the same
+// index folds into a disclosure under "At a glance".
+//
+// The lede is the study's one-liner (homeLine), the same promise its index
+// card makes. The long summary stays the meta description and structured
+// data, and is the fallback for a study without a one-liner.
 export default async function CaseStudyPage(
   { params }: { params: Promise<{ slug: string }> },
 ) {
   const { slug } = await params;
   const studies = await loadCaseStudies();
-  const cs = studies.find((x) => x.meta.slug === slug);
-  if (!cs) notFound();
+  const index = studies.findIndex((x) => x.meta.slug === slug);
+  if (index < 0) notFound();
+  const cs = studies[index]!;
+  const next = studies.length > 1 ? studies[(index + 1) % studies.length]! : null;
+
+  const short: ShortSection[] = [
+    { id: "what-was-going-wrong", title: "What was going wrong", body: cs.meta.problem },
+    { id: "what-i-did", title: "What I did", body: cs.meta.approach },
+    { id: "what-changed", title: "What changed", body: cs.meta.outcome },
+  ];
+  const chunks = splitBody(cs.body);
+  const timelines = [...short, ...chunks].map((_, i) => `--cs-${i}`);
+  const toc: TocItem[] = [
+    ...short.map((s, i) => ({ id: s.id, title: s.title, timeline: timelines[i]! })),
+    ...chunks.flatMap((c, i) =>
+      c.id && c.title ? [{ id: c.id, title: c.title, timeline: timelines[short.length + i]! }] : [],
+    ),
+  ];
+  const scene = demoSceneFor(cs.meta);
 
   return (
-    <div className="space-y-16">
+    <div>
       <StructuredDataCaseStudy
         title={cs.meta.title}
         description={cs.meta.summary}
@@ -59,118 +92,39 @@ export default async function CaseStudyPage(
           { name: cs.meta.client, url: `${SITE.url}/work/${slug}` },
         ]}
       />
+
       <PageHeader
-        eyebrow={`${cs.meta.client} · ${cs.meta.period}`}
-        title={cs.meta.title}
-        lede={cs.meta.summary}
+        eyebrow="Work"
+        eyebrowHref="/work"
+        title={keepCompounds(cs.meta.title)}
+        titleTransition={`case-${slug}`}
+        lede={keepCompounds(cs.meta.homeLine ?? cs.meta.summary)}
+        rule={false}
       />
 
-      <div className="grid gap-12 md:grid-cols-3">
-        <article className="prose-invert md:col-span-2 space-y-12">
-          <Section title="Problem" body={cs.meta.problem} />
-          <Section title="Approach" body={cs.meta.approach} />
-          <Section title="Outcome" body={cs.meta.outcome} />
+      <CaseCover slug={slug} client={cs.meta.client} variant="detail" animate />
 
-          {cs.meta.testimonial ? (
-            <figure className="border-l-2 border-brand/60 pl-5">
-              <blockquote className="text-lg leading-relaxed text-ink-200">
-                &ldquo;{cs.meta.testimonial.quote}&rdquo;
-              </blockquote>
-              <figcaption className="mt-3 font-mono text-label uppercase text-muted">
-                {cs.meta.testimonial.attribution}
-              </figcaption>
-            </figure>
-          ) : null}
+      <CaseLedger meta={cs.meta} className="mt-10 md:mt-14" />
+      <PageIndex toc={toc} demo={cs.meta.demo} />
 
-          {cs.body.trim().length > 0 ? (
-            <div>
-              <h2 className="mt-12 text-2xl font-semibold tracking-tight">Notes</h2>
-              <div className="mt-4">
-                <MDX source={cs.body} />
-              </div>
-            </div>
-          ) : null}
+      <div
+        className="mt-16 grid gap-14 md:mt-24 lg:grid-cols-[minmax(0,1fr)_15rem] lg:gap-16 xl:grid-cols-[minmax(0,1fr)_16rem]"
+        style={{ timelineScope: timelines.join(", ") } as CSSProperties}
+      >
+        <article className="read-track min-w-0 max-w-[68ch]">
+          <CaseBody short={short} chunks={chunks} testimonial={cs.meta.testimonial} timelines={timelines} />
         </article>
-
-        <aside className="space-y-8">
-          <Meta label="Client" value={cs.meta.client} />
-          <Meta label="Role" value={cs.meta.role} />
-          <Meta label="Period" value={cs.meta.period} />
-          {cs.meta.demo ? (
-            <div>
-              <p className="font-mono text-label uppercase text-brand">
-                Related demo
-              </p>
-              <a
-                href={cs.meta.demo.href}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-2 inline-flex items-center gap-1.5 text-sm text-ink-200 transition-colors hover:text-brand-soft"
-              >
-                {cs.meta.demo.label} <span aria-hidden>↗</span>
-              </a>
-            </div>
-          ) : null}
-          {cs.meta.stack.length > 0 ? (
-            <div>
-              <p className="font-mono text-label uppercase text-brand">
-                Stack
-              </p>
-              <ul className="mt-3 flex flex-wrap gap-1.5">
-                {cs.meta.stack.map((s) => (
-                  <li
-                    key={s}
-                    className="rounded-sm border border-line bg-ink-900 px-2 py-1 font-mono text-[10px] text-ink-300"
-                  >
-                    {s}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ) : null}
-          {cs.meta.metrics.length > 0 ? (
-            <div>
-              <p className="font-mono text-label uppercase text-brand">
-                Metrics
-              </p>
-              <dl className="mt-3 space-y-3 text-sm">
-                {cs.meta.metrics.map((m) => (
-                  <div key={m.label}>
-                    <dt className="text-muted">{m.label}</dt>
-                    <dd className="text-ink-100">{m.value}</dd>
-                  </div>
-                ))}
-              </dl>
-            </div>
-          ) : null}
-        </aside>
+        <CaseAside toc={toc} demo={cs.meta.demo} stack={cs.meta.stack} />
       </div>
 
-      <ContactCTA />
-    </div>
-  );
-}
+      {scene && cs.meta.demo ? <DemoShot scene={scene} href={cs.meta.demo.href} /> : null}
 
-function Section({ title, body }: { title: string; body: string }) {
-  return (
-    <div>
-      {/* Subsection rank: these are the Problem / Approach / Outcome headings
-          inside a case study, a step under the page title and a step above the
-          reference headings. Set from the named scale so the ladder stays
-          retunable from @theme rather than drifting per page. */}
-      <h2 className="text-2xl font-semibold tracking-tight md:text-subsection">{title}</h2>
-      <p className="mt-3 leading-relaxed text-ink-300">{body}</p>
-    </div>
-  );
-}
+      {next ? <NextStudy next={next.meta} /> : null}
 
-function Meta({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <p className="font-mono text-label uppercase text-brand">
-        {label}
-      </p>
-      <p className="mt-2 text-sm text-ink-200">{value}</p>
+      <div className="mt-24 md:mt-32">
+        {/* The testimonial, when a study has one, is this page's serif moment. */}
+        <ContactCTA voice={!cs.meta.testimonial} />
+      </div>
     </div>
   );
 }

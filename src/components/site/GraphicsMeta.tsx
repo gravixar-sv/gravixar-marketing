@@ -17,14 +17,22 @@ export const KIND_LABELS: Record<GraphicsItem["kind"], string> = {
   print: "print and deck",
 };
 
+// The same label at the start of a line, where it reads as a caption
+// ("Motion design · 2026") rather than mid-sentence.
+export function kindLabel(kind: GraphicsItem["kind"]): string {
+  const label = KIND_LABELS[kind];
+  return label.charAt(0).toUpperCase() + label.slice(1);
+}
+
 // Provenance, rendered as a category and not as a caveat. The three do carry
 // different evidential weight, and showing that is the honest move: a client
 // commission is someone else betting money on the work, self-directed work
 // proves the capability without that bet, a concept proves neither. Weight is
 // carried by text and border brightness only.
 //
-// No coral in here. Coral marks a section start or a pointer state on this
-// site, and a provenance label is neither.
+// No coral in here. Coral marks a human decision on this site (the primary
+// action, an approval, the active route), and a provenance label is none of
+// those. It is a status chip, so it keeps the mono machine voice.
 const ORIGIN: Record<
   GraphicsItem["origin"],
   { label: string; className: string }

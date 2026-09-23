@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from "react";
 import {
   Stack,
   Scales,
@@ -33,8 +33,23 @@ const MORE = [
 
 const TRAILING = [{ href: "/about", label: "About" }] as const;
 
-// Long reads get a progress line along the header's bottom edge.
-const LONG_FORM = /^\/(blog|work|compare|services|modules)\/[^/]+$/;
+// Long reads get a progress line along the header's bottom edge. Only routes
+// whose article carries .read-track: module and graphics pages are short, and
+// a line that loads a third full before anyone scrolls says nothing.
+const LONG_FORM = /^\/(blog|work|compare|services)\/[^/]+$|^\/privacy$/;
+
+// One coral fill per viewport. On the homepage the hero publishes whether its
+// own "Start with the Ops Leak Audit" is on screen (html[data-hero-cta], set by
+// HeroCtaSignal); while it is, the header's audit button goes quiet. On the
+// audit page the page's own start button owns the coral. Server snapshot is
+// "visible", so SSR renders the quiet button on / and nothing flashes.
+function subscribeHeroCta(onChange: () => void) {
+  const mo = new MutationObserver(onChange);
+  mo.observe(document.documentElement, { attributes: true, attributeFilter: ["data-hero-cta"] });
+  return () => mo.disconnect();
+}
+const heroCtaSnapshot = () => document.documentElement.dataset.heroCta ?? "absent";
+const heroCtaServerSnapshot = () => "visible";
 
 function isActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
@@ -46,6 +61,9 @@ export function Navbar() {
   const moreRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const moreActive = MORE.some((m) => isActive(pathname, m.href));
+  const heroCta = useSyncExternalStore(subscribeHeroCta, heroCtaSnapshot, heroCtaServerSnapshot);
+  const quietAuditCta =
+    (pathname === "/" && heroCta !== "gone") || pathname === "/services/ops-leak-audit";
 
   // Close both menus on route change: the same DOM persists across client
   // navigations in the App Router.
@@ -109,7 +127,7 @@ export function Navbar() {
           />
         </Link>
 
-        <nav aria-label="Main" className="hidden items-center gap-8 text-[0.9375rem] md:flex">
+        <nav aria-label="Main" className="hidden items-center gap-8 text-[0.9375rem] lg:flex">
           {PRIMARY.map((item) => navLink(item.href, item.label))}
 
           <div className="relative" ref={moreRef}>
@@ -176,10 +194,16 @@ export function Navbar() {
             and buttonClass carries `inline-flex`, so the responsive `hidden`
             goes after it or both buttons render on phones. */}
         <div className="flex items-center gap-2.5">
-          <Link href="/contact" className={cn(buttonClass({ variant: "ghost", size: "sm" }), "hidden md:inline-flex")}>
+          <Link href="/contact" className={cn(buttonClass({ variant: "ghost", size: "sm" }), "hidden lg:inline-flex")}>
             Book a call
           </Link>
-          <Link href="/services/ops-leak-audit" className={cn(buttonClass({ size: "sm" }), "hidden md:inline-flex")}>
+          <Link
+            href="/services/ops-leak-audit"
+            className={cn(
+              buttonClass({ variant: quietAuditCta ? "ghost" : "primary", size: "sm" }),
+              "hidden lg:inline-flex",
+            )}
+          >
             Ops Leak Audit
           </Link>
           <button
@@ -187,7 +211,7 @@ export function Navbar() {
             onClick={() => setMobileOpen((v) => !v)}
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileOpen}
-            className="relative inline-flex h-10 w-10 items-center justify-center rounded-lg border border-line text-ink-200 transition-colors hover:border-line-strong md:hidden"
+            className="relative inline-flex h-10 w-10 items-center justify-center rounded-lg border border-line text-ink-200 transition-colors hover:border-line-strong lg:hidden"
           >
             {/* Two bars that fold into an X, rather than an icon swap. */}
             <span aria-hidden className="relative block h-3 w-4">
@@ -211,7 +235,7 @@ export function Navbar() {
       {LONG_FORM.test(pathname) ? <span aria-hidden className="read-progress" /> : null}
 
       {mobileOpen ? (
-        <div className="mobile-sheet border-t border-line-soft bg-bg/95 backdrop-blur-md md:hidden">
+        <div className="mobile-sheet border-t border-line-soft bg-bg/95 backdrop-blur-md lg:hidden">
           <nav aria-label="Mobile" className="mx-auto max-h-[calc(100dvh-4rem)] max-w-6xl overflow-y-auto px-6 pb-6 pt-3">
             <ul className="divide-y divide-line-soft">
               {[...PRIMARY, ...TRAILING].map((item, i) => {

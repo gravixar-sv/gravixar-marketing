@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { PageHeader } from "@/components/site/PageHeader";
 import { PostList } from "@/components/site/PostList";
+import { ContactCTA } from "@/components/home/ContactCTA";
+import { TopicNav } from "@/components/content/TopicNav";
+import { tagIndex } from "@/components/content/blog";
 import { loadBlogPosts } from "@/content/loaders";
 import { loadTagHubs } from "@/lib/blog-tags";
 import { buildMetadata } from "@/lib/seo";
@@ -9,45 +11,42 @@ import { buildMetadata } from "@/lib/seo";
 export const revalidate = 1800;
 
 export const metadata: Metadata = buildMetadata({
-  title: "Field Notes on Operations, AI Tooling and Systems",
+  title: "Field notes on operations, AI tooling and systems",
   description:
-    "Notes on operations, AI tooling, and the systems Qamar builds. Some posts drafted by an AI agent, always reviewed before publish.",
+    "Notes on operations, AI tooling, and the systems Qamar builds. An AI agent drafts the posts, and Qamar edits and approves every one before it goes live.",
   path: "/blog",
 });
 
 export default async function BlogIndexPage() {
   const [posts, hubs] = await Promise.all([loadBlogPosts(), loadTagHubs()]);
+  // The disclosure is computed, not asserted. Today every published post is an
+  // AI draft, and "some posts I write directly" was false for all of them; if
+  // a hand-written post ships, the sentence softens to "most" by itself.
+  const allAi = posts.length > 0 && posts.every((p) => p.meta.aiAssisted);
   return (
-    <div className="space-y-16">
+    <div>
       <PageHeader
-        eyebrow="writing"
+        eyebrow="Writing"
         title="Notes on the systems I build."
-        lede="Some posts I write directly. Some are drafted by the AI SEO agent that runs on this site, and I edit and approve them before they ship, flagged on each post."
-      />
+        lede={`An AI agent on this site drafts ${allAi ? "these posts" : "most of these posts"}. I edit and approve every one before it goes live, and each post says so under its byline.`}
+      >
+        {hubs.length > 0 ? <TopicNav hubs={hubs} total={posts.length} /> : null}
+      </PageHeader>
 
-      {hubs.length > 0 ? (
-        <nav aria-label="Topics">
-          <p className="font-mono text-label-sm uppercase text-muted">Topics</p>
-          <ul className="mt-3 flex flex-wrap gap-1.5">
-            {hubs.map((h) => (
-              <li key={h.slug}>
-                <Link
-                  href={`/blog/tag/${h.slug}`}
-                  className="block rounded-sm border border-line bg-ink-900 px-2 py-1 font-mono text-[10px] text-ink-400 transition-colors hover:border-brand-deep hover:text-brand-soft"
-                >
-                  {h.tag}
-                  <span className="ml-1.5 text-muted">{h.posts.length}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
-      ) : null}
+      <div className="mt-12 md:mt-16">
+        <PostList
+          posts={posts}
+          tags={tagIndex(hubs, posts.length)}
+          lead
+          emptyMessage="No posts published yet."
+        />
+      </div>
 
-      <PostList
-        posts={posts}
-        emptyMessage="No posts published yet. The agent is warming up."
-      />
+      {/* Every other list page closes on the next step; the writing index
+          used to run out on its last row and drop into the footer. */}
+      <div className="mt-20 md:mt-28">
+        <ContactCTA />
+      </div>
     </div>
   );
 }

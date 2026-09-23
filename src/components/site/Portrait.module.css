@@ -1,0 +1,47 @@
+/* The portrait arrives the way light falls on this site: from above. The frame
+   is uncovered top-down while the photograph settles from a slight push-in,
+   one narrative gesture on the expo curve, inside the 420 to 860ms band.
+   Pure CSS on first paint, so it needs no JS; the resting state is the final
+   frame, and reduced motion gets that frame immediately.
+
+   `backwards`, not `both`: once the gesture ends no clip-path is left on the
+   frame, so the lit frame's outer drop shadow (.frame-lit, 40px below the
+   edge) is never clipped. The closing keyframe already reaches past the frame
+   on three sides, so the shadow is in view before the animation lets go and
+   nothing pops at the end. */
+.frame {
+  animation: portrait-uncover 760ms var(--ease-out-expo) 100ms backwards;
+}
+.frame img {
+  animation: portrait-settle 860ms var(--ease-out-expo) 100ms backwards;
+}
+
+@keyframes portrait-uncover {
+  from {
+    clip-path: inset(0 0 100% 0 round 1rem);
+  }
+  to {
+    clip-path: inset(0 -3rem -5rem -3rem round 1rem);
+  }
+}
+
+@keyframes portrait-settle {
+  from {
+    scale: 1.06;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .frame,
+  .frame img {
+    animation: none;
+  }
+}
+/* Kept apart from the rule above on purpose: Lightning CSS merges adjacent
+   resets, and `scale` is an independent property that `transform` does not
+   cancel. */
+@media (prefers-reduced-motion: reduce) {
+  .frame img {
+    scale: none;
+  }
+}

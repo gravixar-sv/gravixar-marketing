@@ -1,0 +1,87 @@
+/* Lightbox motion. The dialog grows from 98% and fades in over 220ms on the
+   house curve; the backdrop fades with it. Exits are faster (140ms, ease-exit)
+   and still animate because display and overlay transition as discrete
+   properties. @starting-style gives the entry its "from" state without JS.
+   Engines without @starting-style or allow-discrete simply open and close
+   instantly, which is the correct fallback. */
+
+.dialog {
+  opacity: 1;
+  scale: 1;
+  transition:
+    opacity 220ms var(--ease-out),
+    scale 240ms var(--ease-out-expo),
+    overlay 220ms allow-discrete,
+    display 220ms allow-discrete;
+}
+.dialog:not([open]) {
+  opacity: 0;
+  scale: 0.98;
+  transition-duration: 140ms;
+  transition-timing-function: var(--ease-exit);
+}
+@starting-style {
+  .dialog[open] {
+    opacity: 0;
+    scale: 0.98;
+  }
+}
+
+.dialog::backdrop {
+  background-color: rgb(12 10 9 / 0.9);
+  opacity: 1;
+  transition:
+    opacity 220ms var(--ease-out),
+    overlay 220ms allow-discrete,
+    display 220ms allow-discrete;
+}
+.dialog:not([open])::backdrop {
+  opacity: 0;
+  transition-duration: 140ms;
+}
+@starting-style {
+  .dialog[open]::backdrop {
+    opacity: 0;
+  }
+}
+
+/* A new frame fades in over the old one's slot. Opacity only: the frame does
+   not travel, so a swipe never reads as a carousel sliding under the finger. */
+.frame {
+  animation: frame-in 180ms var(--ease-out) both;
+  touch-action: pan-y;
+}
+@keyframes frame-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Reduced motion: no growth, a short linear fade for the dialog and the
+   backdrop, and no frame fade. `scale` is reset in its own rule, apart from
+   the transition rule, so a CSS minifier cannot merge the two. */
+@media (prefers-reduced-motion: reduce) {
+  .dialog,
+  .dialog:not([open]),
+  .dialog::backdrop,
+  .dialog:not([open])::backdrop {
+    transition:
+      opacity 120ms linear,
+      overlay 120ms allow-discrete,
+      display 120ms allow-discrete;
+  }
+  .frame {
+    animation: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dialog,
+  .dialog:not([open]) {
+    scale: none;
+  }
+  @starting-style {
+    .dialog[open] {
+      scale: none;
+    }
+  }
+}

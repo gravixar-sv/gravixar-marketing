@@ -3,7 +3,7 @@ import { env } from "./env";
 
 export const SITE = {
   name: "Gravixar",
-  tagline: "The AI-ops platform that runs your operations, with a human on every approval.",
+  tagline: "The AI-ops platform that runs your operations and asks before it acts.",
   url: env.NEXT_PUBLIC_SITE_URL,
   // FULL legal name, not the mononym the site uses in prose. This string is
   // never rendered as body copy: its five consumers are all machine-readable

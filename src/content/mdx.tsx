@@ -72,7 +72,7 @@ function UL(props: ComponentProps<"ul">) {
 function OL(props: ComponentProps<"ol">) {
   return (
     <ol
-      className="mt-5 list-decimal space-y-3 pl-6 text-prose text-ink-300 marker:font-mono marker:text-[0.8125rem] marker:text-ink-500"
+      className="mt-5 list-decimal space-y-3 pl-6 text-prose text-ink-300 marker:font-sans marker:font-medium marker:tabular-nums marker:text-ink-400"
       {...props}
     />
   );
@@ -108,7 +108,7 @@ function Blockquote({ children, ...props }: ComponentProps<"blockquote">) {
       className="relative my-10 pl-7 font-serif text-[1.375rem] italic leading-[1.4] text-ink-100 md:text-[1.5rem] [&_p]:text-inherit [&_p]:[font-size:inherit] [&_p]:leading-[inherit]"
       {...props}
     >
-      <span aria-hidden className="absolute -top-2 left-0 font-serif text-[2.5rem] leading-none text-brand/70">
+      <span aria-hidden className="absolute -top-2 left-0 font-serif text-[2.5rem] leading-none text-ink-600">
         &ldquo;
       </span>
       {children}

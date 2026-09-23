@@ -1,203 +1,202 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { LOOP_STEPS } from "./hero/loopSteps";
+import styles from "./ApprovalStrip.module.css";
 
-// The compressed, working version of the Loop section two screens down. The
-// thesis above the fold is "asks before it acts", and until now the fold only
-// asserted it: the panel held a four-tile persona grid that described what a
-// visitor could DO in the demo instead of doing anything. A strip that runs the
-// loop earns the same real estate honestly. It also retires a hand-maintained
-// mirror of the demo's persona list, which is exactly the kind of copy that
-// drifts: three of its four tiles resolved to the same scene, and an earlier
-// version of it promised an admin persona the demo does not have. The demo's
-// own scene list stays the demo's job.
+// The approval card on the homepage fold: the thesis ("asks before it acts")
+// as something you can do, not something you are told. It sits on the lower
+// left edge of the 3D loop and is wired to it both ways (see HeroStage.tsx):
+// Approve here releases the lead draft at the scene's gate, and approving at
+// the gate in the scene flips this card.
 //
-// Language is lifted from Loop.tsx on purpose (its titles, and its "every write
-// waits for a click from someone accountable" / "each approval tightens the rule
-// the next draft follows"), so the two surfaces cannot drift into saying
-// different things about the same mechanism. Edit both or neither.
+// Step titles come from ./hero/loopSteps.ts, the same module Loop.tsx prints,
+// so the fold and "how it works" cannot drift into saying different things
+// about the same mechanism. The card prints TITLES ONLY, at every width: the
+// Loop section one scroll below is the one place the three explanatory
+// sentences appear. Printing them here too put the same 40 words on screen
+// twice, 80px apart.
 //
-// BASE VISIBILITY, the rule this component is most likely to break. Every row,
-// every payoff, the drafted line and the control are server-rendered at full
-// emphasis. Hydration adds exactly one thing: `mounted`, which lets .approval-step
-// de-emphasise row 03 by OPACITY alone. Nothing is revealed on click, so with
-// scripting off, a failed hydration, or a frozen tab, the strip still reads as a
-// correct and complete description of the loop. Same contract as <Reveal> and
-// <StatValue>: the server renders the resolved state, the client only enhances.
-const STEPS = [
-  {
-    n: "01",
-    title: "The agent drafts",
-    body: "Full context from your stack, not a blank prompt.",
-    // Illustrative, and captioned as such under the strip. It quotes nothing a
-    // client said, names nobody, and carries no number, because a made-up
-    // figure on the fold is the one lie this panel cannot afford.
-    // The prefix is what the click changes: the write was HELD, and approving
-    // releases it. That is the one upstream consequence that turns this from a
-    // state change into cause and effect, because the row you clicked is not
-    // the row that moves. "held" and "sent" are both four characters and the
-    // span is width-locked anyway, so the swap cannot move the wrap point.
-    artifact: "reply to a new inquiry, scope and start date attached",
-  },
-  {
-    n: "02",
-    title: "A human approves",
-    body: "Every write waits for a click from someone accountable.",
-  },
-  {
-    n: "03",
-    title: "The rule tightens",
-    body: "Each approval tightens the rule the next draft follows.",
-  },
-] as const;
+// BASE VISIBILITY, the rule this component is most likely to break. Every
+// step, the chip and the control are server-rendered at full emphasis.
+// Hydration adds exactly one thing, data-armed, which lets step 3 wait by
+// OPACITY alone until someone approves. Nothing is revealed by a click, so
+// with scripting off, a failed hydration or a frozen tab the card still reads
+// as a correct and complete description of the loop.
+//
+// The count ("3 drafts waiting") comes from the scene's queue while nothing
+// is approved. Once someone approves, the same slot shows the static result,
+// "1 sent", until they run it again: the scene keeps delivering new drafts to
+// the gate, and a count that climbs back to 5 under "Approved" read as the
+// click having done nothing. Neither is a live region: the queue would be
+// noise, and the approval itself is announced once, below.
 
-export function ApprovalStrip() {
-  const [mounted, setMounted] = useState(false);
-  const [approved, setApproved] = useState(false);
+type Props = {
+  approved: boolean;
+  /** Drafts held at the gate, from the scene. */
+  held: number;
+  onApprove: () => void;
+  onReset: () => void;
+  className?: string;
+};
 
-  // Not a content gate. It buys one thing: the right to de-emphasise the step
-  // that has not happened yet, which is only meaningful once the click that
-  // completes it is actually possible.
-  useEffect(() => setMounted(true), []);
+// A plain joiner, not cn(): tailwind-merge (unconfigured) reads the custom
+// size utilities (text-caption, text-label-sm) as colours and drops them when
+// a text colour follows in the same call.
+const cx = (...parts: (string | false | undefined)[]) => parts.filter(Boolean).join(" ");
+
+function waitingLabel(held: number) {
+  if (held <= 0) return "nothing waiting";
+  if (held === 1) return "1 draft waiting";
+  return `${held} drafts waiting`;
+}
+
+export function ApprovalStrip({ approved, held, onApprove, onReset, className }: Props) {
+  const [armed, setArmed] = useState(false);
+  const [live, setLive] = useState(false);
+  const approveRef = useRef<HTMLButtonElement>(null);
+
+  // Not a content gate. It buys the right to de-emphasise the step that has
+  // not happened yet, which only means something once the click that
+  // completes it can actually happen.
+  useEffect(() => setArmed(true), []);
+
+  // Transitions switch on in the SAME render as the first approval, whether
+  // the click came from this card or from the gate in the scene. A transition
+  // uses the after-change style's timing, so flipping data-live and
+  // data-approved together still animates; setting live in an effect would
+  // land one render late and the first approval from the scene would snap.
+  if (approved && !live) setLive(true);
 
   return (
-    <div className="mt-5">
-      <p className="font-mono text-label-sm uppercase text-muted">
-        the approval loop
-      </p>
+    <div
+      role="group"
+      aria-labelledby="approval-card-title"
+      data-armed={armed || undefined}
+      data-live={live || undefined}
+      data-approved={approved || undefined}
+      className={cx(styles.card, "panel-lit rounded-2xl p-5 sm:p-6 lg:p-5", className)}
+    >
+      <div className="flex items-baseline justify-between gap-4">
+        <p id="approval-card-title" className="text-caption font-medium text-ink-200">
+          The approval loop
+        </p>
+        <p className="font-mono text-label-sm tabular-nums text-ink-400">
+          {approved ? "1 sent" : waitingLabel(held)}
+        </p>
+      </div>
 
-      <ol className="mt-3 space-y-3">
-        {STEPS.map((step) => (
-          <li
-            key={step.n}
-            // Absent on the server, so the first paint is all three rows at
-            // full emphasis and no engine can resolve this to hidden content.
-            data-dimmed={
-              mounted && !approved && step.n === "03" ? "true" : undefined
-            }
-            className="approval-step"
-          >
-            <div className="flex items-baseline gap-2">
-              {/* Decorative: the ordered list carries the sequence, and the
-                  labels read in order without the digits. */}
-              <span
-                aria-hidden
-                className="font-mono text-label-sm uppercase text-ink-400"
-              >
-                {step.n}
-              </span>
-              <p className="text-sm font-medium text-ink-100">{step.title}</p>
-            </div>
-            <p className="mt-1 text-[11px] leading-snug text-ink-300">
-              {step.body}
-            </p>
+      <ol className="mt-5 space-y-3.5 lg:space-y-4">
+        {LOOP_STEPS.map((step, i) => (
+          <li key={step.key} className={cx(styles.step, i === 2 && styles.wake)}>
+            {i < 2 ? <span aria-hidden className={cx(styles.rail, i === 1 && styles.wire)} /> : null}
+            {/* Decorative: the ordered list carries the sequence. */}
+            <span
+              aria-hidden
+              className={cx(
+                styles.num,
+                i === 1 && styles.num2,
+                "pt-px text-caption font-medium",
+              )}
+            >
+              {String(i + 1).padStart(2, "0")}
+            </span>
+            <div className="min-w-0">
+              <p className="text-[0.9375rem] font-medium leading-snug text-ink-50">{step.title}</p>
 
-            {step.n === "01" ? (
-              <p className="mt-1.5 font-mono text-[10px] leading-snug text-ink-400">
-                {/* Width-locked so a four-to-four character swap still cannot
-                    reflow the line, and colour-only on the transition, because
-                    the whole point of the fixed slot below is that nothing in
-                    this strip moves vertically after hydration. */}
-                <span
-                  className={`inline-block w-[4ch] transition-colors duration-200 ease-out ${
-                    approved ? "text-emerald-300" : "text-muted"
-                  }`}
+              {i === 0 ? (
+                <p
+                  className={cx(
+                    styles.chip,
+                    "mt-2.5 inline-flex max-w-full items-center gap-2 rounded-md px-2 py-1 font-mono text-label-sm text-ink-400",
+                  )}
                 >
-                  {approved ? "sent" : "held"}
-                </span>
-                <span aria-hidden className="text-ink-600"> · </span>
-                {step.artifact}
-              </p>
-            ) : null}
-
-            {step.n === "02" ? (
-              <>
-                {/* FIXED-HEIGHT CONTROL SLOT. h-7 is declared on this box, so
-                    its height is 28px whatever it holds: the button is h-7 too,
-                    whitespace-nowrap, and the reset that appears after a click
-                    is text on the same 28px flex line. The server markup and the
-                    post-mount markup are byte-identical here (nothing about this
-                    slot reads `mounted`), so hydration on the LCP surface shifts
-                    nothing; the click only changes labels horizontally inside a
-                    box whose height is already resolved. */}
-                <div className="mt-2 flex h-7 items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (!approved) setApproved(true);
-                    }}
-                    // aria-disabled, not disabled: `disabled` would drop focus
-                    // off the control the visitor just pressed, and the button
-                    // has to stay in the tab order for the reset beside it to
-                    // make sense.
-                    aria-disabled={approved || undefined}
-                    // min-w sized to the longer label, so the box does not
-                    // contract when "Approve the draft" becomes "Approved".
-                    // Without it the button snapped narrower while row 03 was
-                    // still fading, and the snap pulled the eye BACK to the
-                    // control instead of forward to the row that changed.
-                    className={`inline-flex h-7 min-w-[7.5rem] items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 text-[11px] font-medium transition-colors duration-200 ease-out ${
-                      approved
-                        ? // No emerald dot here on purpose: the panel's chrome
-                          // already wears a dot-and-pill for "live", and cloning
-                          // it would let an illustrative control claim the same
-                          // status as the real badge 200px above it.
-                          "border-emerald-500/25 text-emerald-300"
-                        : // Zinc at rest, coral on interaction. Resting coral on
-                          // this fold belongs to the hero's primary action; the real
-                          // secondary action next to it is a zinc outline that
-                          // earns coral on hover. A control inside an
-                          // illustrative panel must not outrank either, so it
-                          // takes the secondary treatment exactly. The active
-                          // colour shift carries the press on its own, since
-                          // scale is separately reset under reduced motion.
-                          "border-ink-700 text-ink-100 hover:border-brand hover:text-brand-soft active:scale-[0.98] active:border-brand active:bg-brand/15"
-                    }`}
-                  >
-                    {approved ? "Approved" : "Approve the draft"}
-                  </button>
-
-                  {approved ? (
-                    <button
-                      type="button"
-                      onClick={() => setApproved(false)}
-                      className="whitespace-nowrap font-mono text-label-sm uppercase text-muted transition-colors duration-200 ease-out hover:text-ink-300"
-                    >
-                      {/* Short on screen, complete to a screen reader, and the
-                          visible words are the start of the accessible name, so
-                          voice control still matches what is drawn. The label is
-                          kept this terse for a layout reason too: both controls
-                          are nowrap on one 28px line, so together they feed the
-                          panel's min-content width. Measured, they come to 180px
-                          against the 258px the panel's chrome row already
-                          demands, so the strip is not what the panel narrows to;
-                          "run the loop again" made it 279px and would have put a
-                          horizontal scrollbar on a 320px screen. */}
-                      run it again
-                      <span className="sr-only"> from the draft</span>
-                    </button>
-                  ) : null}
-                </div>
-
-                {/* aria-live rather than aria-pressed: this is not a two-state
-                    toggle, it is a one-way step whose effect lands on ANOTHER
-                    row, and aria-pressed would announce a pressed control while
-                    saying nothing about what changed. A screen reader never saw
-                    row 03 de-emphasised, so the honest announcement is the
-                    outcome, in the same words the row uses. Empty and present
-                    on the server, so the region is registered before it fills. */}
-                <p className="sr-only" aria-live="polite">
-                  {approved
-                    ? "Draft approved. The rule tightens, and the next draft follows it."
-                    : ""}
+                  <span aria-hidden className={styles.flip}>
+                    <span className={styles.held}>held</span>
+                    <span className={styles.sent}>sent</span>
+                  </span>
+                  <span className="sr-only">{approved ? "sent" : "held"}: </span>
+                  <span aria-hidden className="text-ink-600">
+                    ·
+                  </span>
+                  <span className="truncate">reply to a new inquiry</span>
                 </p>
-              </>
-            ) : null}
+              ) : null}
+
+              {i === 1 ? (
+                <>
+                  {/* Fixed-height slot: both controls live on one line of a
+                      box whose height never changes, so the click only swaps
+                      things horizontally inside it. 44px for touch at every
+                      width (an iPad at 1024 is still a finger); the compact
+                      36px size is for a mouse or trackpad only. */}
+                  <div className="mt-3 flex h-11 items-center gap-2 pointer-fine:h-9">
+                    <button
+                      ref={approveRef}
+                      type="button"
+                      onClick={() => {
+                        if (!approved) onApprove();
+                      }}
+                      // aria-disabled, not disabled: `disabled` would drop
+                      // focus off the control the visitor just pressed.
+                      aria-disabled={approved || undefined}
+                      className={cx(
+                        styles.approve,
+                        "inline-flex h-11 items-center justify-center whitespace-nowrap rounded-lg px-4 text-[0.875rem] font-medium pointer-fine:h-9 pointer-fine:px-3.5",
+                      )}
+                    >
+                      <span className={styles.labels}>
+                        {/* Both labels stay in the DOM so the button never changes
+                            width; only the one showing is exposed. */}
+                        <span aria-hidden={approved || undefined} className={styles.idle}>
+                          Approve the draft
+                        </span>
+                        <span aria-hidden={!approved || undefined} className={styles.done}>
+                          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden>
+                            <path
+                              d="M3 8.5l3.2 3L13 4.5"
+                              stroke="currentColor"
+                              strokeWidth="1.8"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                          Approved
+                        </span>
+                      </span>
+                    </button>
+
+                    {approved ? (
+                      <button
+                        type="button"
+                        // This button unmounts on reset, so focus goes back
+                        // to the control that starts the loop again.
+                        onClick={() => {
+                          onReset();
+                          approveRef.current?.focus();
+                        }}
+                        className="h-11 whitespace-nowrap px-2 text-caption text-ink-400 transition-colors hover:text-ink-100 pointer-fine:h-9"
+                      >
+                        Run it again
+                        <span className="sr-only"> from the draft</span>
+                      </button>
+                    ) : null}
+                  </div>
+
+                  {/* The outcome, in the same words the step uses. Empty and
+                      present on the server, so the region exists before it
+                      fills. */}
+                  <p className="sr-only" aria-live="polite">
+                    {approved ? "Draft approved. The rules get sharper, and the next draft follows them." : ""}
+                  </p>
+                </>
+              ) : null}
+            </div>
           </li>
         ))}
       </ol>
 
-      <p className="mt-3 text-[10px] leading-snug text-muted">
+      <p className="mt-5 border-t border-line-soft pt-3.5 text-caption text-ink-500 lg:mt-4 lg:pt-3">
         Illustrative sample data, not a live system.
       </p>
     </div>

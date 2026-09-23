@@ -1,10 +1,9 @@
-import { loadHomeBlock, loadServices } from "@/content/loaders";
+import { loadCaseStudies, loadHomeBlock, loadServices } from "@/content/loaders";
 import { Hero } from "@/components/home/Hero";
 import { Loop } from "@/components/home/Loop";
-import { Proof } from "@/components/home/Proof";
+import { SelectedWork } from "@/components/home/sections/SelectedWork";
 import { Demos } from "@/components/home/Demos";
 import { ServicesPreview } from "@/components/home/ServicesPreview";
-import { Capabilities } from "@/components/home/Capabilities";
 import { ContactCTA } from "@/components/home/ContactCTA";
 import { Reveal } from "@/components/site/Reveal";
 import type { Metadata } from "next";
@@ -23,9 +22,9 @@ export const revalidate = 3600;
 // `template: "%s · Gravixar"` (layout.tsx:26) and a plain string would render
 // "Gravixar · ... · Gravixar". The strings are copied verbatim from the root
 // layout's own default + description so this adds a card, not a new claim.
-const HOME_TITLE = "Gravixar · AI-ops platform with a human on every approval";
+const HOME_TITLE = "Gravixar · The AI-ops platform that asks before it acts";
 const HOME_DESCRIPTION =
-  "Gravixar is an AI-ops platform: portals, intake wizards, and content agents that run your operations with a human on every write. In production before you buy.";
+  "Client portals, intake forms, and AI that drafts the work, with a person approving every action before it happens. See each one running before you buy.";
 
 export const metadata: Metadata = {
   ...buildMetadata({ title: HOME_TITLE, description: HOME_DESCRIPTION, path: "/" }),
@@ -33,57 +32,67 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const [hero, proof, services] = await Promise.all([
+  const [hero, proof, services, studies] = await Promise.all([
     loadHomeBlock("hero"),
     loadHomeBlock("proof"),
     loadServices(),
+    loadCaseStudies(),
   ]);
 
-  // Four movements, not eight sections. A uniform space-y between every section
-  // reads as a list, so the gaps are explicit per section instead: claim (Hero +
-  // Loop, kept tight because the claim and its mechanism are one thought),
-  // evidence (Proof, Demos, Capabilities), offer (the services menu), ask.
-  // The invariant: every act boundary (128/144/160px at md) strictly exceeds
-  // every intra-act gap (80/88/96px), which is what makes the structure felt
-  // rather than explained. Note Hero pays its own pb-10/md:pb-12, so the
-  // claim-act gap is 72/88px, not the mt-8/md:mt-10 alone. The old 56px gap
-  // left the list when managed services became a service file: that raised the
-  // page's smallest gap without moving a boundary, so 128 still clears 96 and
-  // no spacing needed retuning to keep the four movements legible.
-  // Reveal weight agrees with spacing so the two never argue:
-  // reveal-lead (40px/820ms) on the three sections carrying the argument,
-  // reveal-quiet (12px/480ms) on the reference material, base weight on the
-  // offer block sitting between them.
+  // FIVE MOVEMENTS, felt through spacing rather than labels (2026-09-23):
+  //   claim     Hero + Loop, tight, because the claim and its mechanism are
+  //             one thought;
+  //   evidence  Selected work (real engagements, with the client rail and the
+  //             counted ledger as its caption), then Demos (try it yourself);
+  //   offer     the audit as the front door, the other services as rows;
+  //   ask       the closing panel.
+  // The invariant: every act boundary (112px, 160px at md) strictly exceeds
+  // every gap inside an act (96px, 128px at md), so the structure is felt
+  // rather than explained. Hero pays its own bottom padding, so the claim
+  // act's inner gap is smaller still.
+  //
+  // CAPABILITIES LEFT THE HOMEPAGE. It used to close the evidence act, an
+  // engineer's spec sheet between the proof and the offer that pushed the
+  // services to roughly screen 9 of 13 on a phone. It now lives on /about as
+  // reference, and the evidence act is outcomes (Selected work) plus the
+  // product itself (Demos). The client rail moved under Selected work as its
+  // caption, since the logos only mean something next to what was built.
+  //
+  // Reveal weight agrees with spacing: reveal-lead on the two sections that
+  // carry the argument (the real outcomes, the ask), the base weight on the
+  // demos and the offer.
+  //
+  // One heading rank for every act opener: text-statement (defined in
+  // globals.css for exactly this job). Inside an act the ladder steps down
+  // from there (the offer's panel title is a subsection, its rows text-xl),
+  // so no heading ever sits directly under another of the same size. Only
+  // the Loop and the closing ask keep the two-tone device (ivory claim, muted
+  // second sentence); the other openers are a single statement, so the device
+  // stays a voice and does not become a template.
   return (
     <div>
       <Hero meta={hero.meta} body={hero.body} />
       <Reveal className="reveal-lead mt-8 md:mt-10">
         <Loop />
       </Reveal>
-      <Reveal className="reveal-quiet mt-24 md:mt-32">
-        <Proof meta={proof.meta} body={proof.body} />
+      <Reveal className="reveal-lead mt-28 md:mt-40">
+        <SelectedWork studies={studies.map((s) => s.meta)} proof={proof} />
       </Reveal>
-      <Reveal className="reveal-lead mt-16 md:mt-20">
+      <Reveal className="mt-24 md:mt-32">
         <Demos />
       </Reveal>
-      {/* Capabilities closes the evidence act rather than preceding the ask: an
-          integrations spec sheet immediately before the CTA stalls the page at
-          its most decisive moment. */}
-      <Reveal className="reveal-quiet mt-20 md:mt-24">
-        <Capabilities />
-      </Reveal>
-      {/* The offer act is one section. Managed website retainers used to hang
-          below the menu as a hand-written block, demoted to a subsection
-          because they were not a service file. They are one now, and since
-          2026-09-14 they and brand work carry audience "existing-clients", so
-          ServicesPreview names both on one line under the bands instead of as
-          cards. The line comes from frontmatter, so there is still nothing
-          hand-written to nest here. */}
-      <Reveal className="mt-28 md:mt-36">
+      {/* Brand work and managed services carry audience "existing-clients",
+          so ServicesPreview names them in one sentence under the rows. The
+          line comes from frontmatter, so nothing here is hand-written. */}
+      <Reveal className="mt-28 md:mt-40">
         <ServicesPreview services={services.map((s) => s.meta)} />
       </Reveal>
-      <Reveal className="reveal-lead mt-32 md:mt-40">
-        <ContactCTA />
+      {/* voice={false}: the hero h1 already spends this page's one serif
+          phrase, so the closing line renders as a two-tone statement.
+          size="statement": the ask opens the last act, so it takes the same
+          rank as every other homepage act opener. */}
+      <Reveal className="reveal-lead mt-28 md:mt-40">
+        <ContactCTA voice={false} size="statement" />
       </Reveal>
     </div>
   );

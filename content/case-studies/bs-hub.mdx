@@ -1,14 +1,27 @@
 ---
-title: "Digital agency portal, end-to-end delivery with AI in the loop"
+title: "A digital agency portal that onboards clients in about 10 minutes"
 slug: "bs-hub"
 client: "Digital agency, 4-year engagement"
 role: "Solo build, architecture, engineering, AI integration, brand"
-period: "Q1 2026 – present"
-summary: "Took a digital agency from email/Notion/Drive sprawl to a single AI-augmented portal: adaptive intake wizard, 12-state delivery funnel, role-aware project workspace with review state machine, compliance-grade audit log, daily security-watch cron. Code recount, July 2026: 84 Prisma models, 255 endpoints, 9 crons."
-metaDescription: "Client onboarding in about 10 minutes, down from 2-3 days of email: a 12-state inquiry funnel, a task review state machine, and AI that never auto-approves."
-problem: "Like most digital agencies past a certain size, the studio was running on stitched-together tools, Notion for some things, Slack threads for others, email for proposals, a shared Drive for assets, manual handoffs between admin and PM. Inquiries got lost in the seam between 'admin received it' and 'PM owns it'. Scopes drifted between the discovery call and the contract because nobody was holding the canonical version. There was no audit trail when something went sideways, so disputes ended in 'whose memory wins'. They needed one place where the client journey lived end-to-end, and they wanted AI threaded in where it actually saved time, not as an afterthought."
-approach: "Built one portal around a state machine, then layered AI into the joints where humans were paying the highest tax. The inquiry funnel is 12 explicit states with hard transitions, no implicit status, no admins typing free-form notes that might or might not mean 'approved'. Every mutating route writes to a compliance-grade audit log with a per-table safe-restore allowlist; the cancellation flow keeps the row, deletes tasks, and issues a credit ledger entry rather than hard-delete. AI is wired in at three points: the intake wizard uses Claude to adaptively pick the next question and generate a brand brief from the client's website (so the PM walks into the discovery call with context, not blind); a daily security-watch cron sweeps the audit log for anomalies (mass-signup spikes, DELETE bursts, stuck inquiries, classifier blackouts) and emails admin if anything trips; and per-task AI briefs auto-generate from the scope so designers don't read the whole project to start a single deliverable. AI never auto-publishes, never auto-approves, never sends client-facing communication without human review."
-outcome: "Live in production. Onboards new clients in about 10 minutes (was 2-3 days of back-and-forth email). I stopped guessing at the size of it and measured: a 2026-07-21 recount run by the repo's own stats script came back with 84 Prisma models, 255 endpoints and 9 scheduled jobs, all catalogued in-repo so the same shape can be forked for the next agency. A 14-agent find-then-refute audit on 2026-07-29 raised 63 findings, refuted none of them and recalibrated 11 for severity; 87 findings closed across two pull requests with 252 of 252 tests passing. The pattern is now the recipe, every digital agency I work with starts here and I strip or extend per their shape."
+period: "Since early 2026"
+summary: "The agency ran on email, Notion, and a shared Drive, and new inquiries fell through the gaps. Now one portal takes a new client from first inquiry to an active project in about 10 minutes, down from 2 to 3 days of email. AI drafts the briefs. It never approves anything."
+metaDescription: "Client onboarding in about 10 minutes, down from 2 to 3 days of email: 12 fixed inquiry steps, a review flow on every task, and AI that never approves."
+problem: |
+  The agency was running on a patchwork: Notion for some things, Slack threads for others, email for proposals, a shared Drive for files, and handoffs between admin and project managers done by hand. New inquiries got lost between "admin has it" and "the project manager owns it".
+
+  The scope agreed on the discovery call drifted before the contract, because nobody held the one true copy. When something went wrong there was no record, so disputes came down to whose memory won. They needed one place for a client's whole path, from first inquiry to final sign-off, with AI only where it actually saved time.
+approach: |
+  I built one portal where every inquiry moves through 12 fixed steps, so its status is never a guess or a note someone typed. Every change is logged, and cancelling a project keeps the record and issues a credit instead of wiping it.
+
+  AI helps in three places. It picks the next intake question and drafts a brand brief from the client's website, so the project manager walks into the first call already briefed. A daily check reads the activity log for warning signs, like a burst of deletions or an inquiry stuck too long, and emails the admin. And it writes a short brief for each task, so a designer can start without reading the whole project.
+
+  AI never publishes, never approves, and never messages a client without a person checking first.
+outcome: |
+  Live in production. A new client goes from first inquiry to an active project in about 10 minutes. By email, that took 2 to 3 days.
+
+  It is bigger than it looks: a July 2026 recount found 84 data models and 9 scheduled jobs. The same month, 14 agents working in parallel hunted for problems in the code, then a second pass tried to prove each finding wrong. None of the 63 findings was knocked down, and every test passed afterwards, 252 of 252.
+
+  Every digital agency I work with now starts from this build, and I cut or extend it to fit.
 metrics:
   - { label: "Time to first project activation", value: "~10 min (was 2-3 days)" }
   - { label: "Inquiry funnel states", value: "12, fully audited" }
@@ -16,7 +29,7 @@ metrics:
     value: "84 Prisma models, 255 endpoints, 9 crons"
     source: "Direct recount of the bs-hub repository: Prisma schema models, API route handlers, and scheduled jobs."
     verifiedAt: "2026-07-21"
-  - label: "Audit pass"
+  - label: "Code audit"
     value: "63 findings, 0 refuted, 87 closed, 252/252 tests"
     source: "The 14-lane System Audit run against this codebase, with its refutation pass and the test suite result recorded at handover."
     verifiedAt: "2026-07-29"
@@ -43,36 +56,46 @@ homeLine: "New clients go from first inquiry to a live project in about 10 minut
 
 ## What I built
 
-The portal handles four distinct surfaces in one codebase: **public marketing + signup wizard**, **client view of their own work**, **PM/admin operations console**, and **internal HR + presence tooling**. Each has its own permission model, its own dashboard, and its own audit boundaries.
+The portal handles four distinct surfaces in one codebase: **public marketing and the signup wizard**, **a client's view of their own work**, **the operations console for project managers and admins**, and **internal HR and presence tools**. Each has its own permissions, its own dashboard, and its own record of who changed what.
 
-Module count stopped being the useful unit once the system outgrew its first estimate. A recount on 2026-07-21, run by the repo's own `count-system-stats.ts` rather than from memory, measured 84 Prisma models, 255 API endpoints and 9 scheduled jobs. The named units, from `identity-auth` at the base to `security-watch` at the tip, are catalogued in-repo with a dependency graph that says exactly what depends on what. That catalogue is the recipe: when I spin up a portal for the next client, I work down the list and decide unit-by-unit what to keep, drop, or customize. A pure task-tracker needs a fraction of it. An internal HR tool needs less than that.
+Every named unit, from sign-in at the base to the daily security check at the top, is catalogued in the repository with a map of what depends on what. That catalogue is the recipe. When I build a portal for the next client, I work down the list and decide unit by unit what to keep, drop, or change. A plain task tracker needs a fraction of it. An internal HR tool needs less than that.
 
-The piece I'm proudest of is the review state machine on tasks. Every deliverable flows through `DRAFT → SUBMITTED_FOR_INTERNAL → INTERNAL_APPROVED → SUBMITTED_FOR_CLIENT → CLIENT_APPROVED`, with a `CLIENT_REVISION_REQUESTED` branch back into the loop. Each transition is a single-purpose API call with a side-effect contract, emails, notifications, audit row. No state is implicit. No admin can flip a task to "approved" by editing a free-text field.
+The piece I'm proudest of is the review flow on tasks. Every deliverable moves through five fixed states:
+
+```
+DRAFT
+→ SUBMITTED_FOR_INTERNAL
+→ INTERNAL_APPROVED
+→ SUBMITTED_FOR_CLIENT
+→ CLIENT_APPROVED
+```
+
+A revision request from the client sends it back into the loop. Each step does one job: it sends its emails and notifications and writes a line to the audit log. No state is implied. No admin can flip a task to "approved" by editing a free-text field.
 
 ## Decisions I'd defend
 
-**The state machine is non-negotiable.** Free-text status fields are how "almost works" turns into "definitely doesn't." Every transition is a function with explicit pre-conditions and side-effects, and every call site writes an audit row. The discipline pays for itself the first time a client claims a deliverable was never approved.
+**The fixed steps are non-negotiable.** Free-text status fields are how "almost works" turns into "definitely doesn't." Every step has explicit conditions and side effects, and every one writes an audit row. That discipline pays for itself the first time a client says a deliverable was never approved.
 
-**Audit log retention has two tiers.** `CONTRACT` rows (anything financial or contractual) live 7 years. `OPERATIONAL` rows (everyday CRUD) live 1 year. Compliance teams stop arguing once the policy is in code; the per-table classification lives in `auditLog.ts:defaultRetention()`.
+**Records are kept on two clocks.** Anything financial or contractual is kept for 7 years. Everyday changes are kept for 1 year. The rule for each kind of record is written into the code, and arguments about what to keep stop once it is.
 
-**AI fails open, never closed.** Every Claude call site, brand brief, suspicion classifier, follow-up question generator, has a graceful fallback. If the API key is unset or the call times out, the workflow continues without the AI enrichment. I will not ship a system whose critical path waits on a third-party LLM.
+**When the AI fails, the work carries on.** Every AI step, the brand brief, the daily warning check, the intake question writer, has a fallback. If the AI cannot be reached or takes too long, that part is skipped and everything else goes ahead. I will not ship a system where the core work waits on someone else's model.
 
-**Restore is allowlist-only.** The Activity Log has a "Restore" button on update rows, but only for fields in `auditRestoreAllowlist.ts`. Status enums, money amounts, and assignment ownership are never auto-restorable, those need a human decision. The allowlist is the security boundary.
+**Only some changes can be undone in one click.** The activity log has a Restore button on changed rows, but only for fields on a short approved list. Status, money amounts and who owns a task are never on it. Those need a human decision, and the list is where that line is drawn.
 
-**Findings get refuted before they get fixed.** The audit on 2026-07-29 ran as 14 parallel agents hunting problems, then a second pass trying to knock every finding down. 63 findings survived, none were refuted, 11 came back with a corrected severity. Two pull requests followed, closing 87 findings in total, and the suite finished 252 of 252. The refute pass is the part that matters: it is what keeps an audit from becoming a list of things that merely sounded bad.
+**Every finding has to survive an attempt to disprove it.** The audit on 2026-07-29 ran 14 agents in parallel to hunt for problems, then a second pass tried to knock every finding down. 63 findings survived, none were disproved, and 11 came back with a corrected severity. Two rounds of fixes followed, closing 87 findings in total, and the tests finished 252 of 252. The second pass is the part that matters: it keeps an audit from becoming a list of things that merely sounded bad.
 
-## What broke (the honest section)
+## What broke
 
-**Activation latency on retainers.** When a PM activates a heavy retainer scope, the portal generates milestones, tasks, and a per-task AI brief. The auto-assigner runs ~5 queries per task to score-and-pick by skill and workload. On a 30-deliverable retainer that's 150 sequential queries before the activation finishes. First version timed out the request. Fix was to hand the activation to a background queue and stream status back to the UI; meanwhile I shipped a "Activating… (spinning up tasks)" disabled state on the button so PMs don't double-click during the 70 seconds.
+**Activation was slow on big retainers.** When a project manager activates a heavy retainer, the portal creates milestones, tasks, and an AI brief for each task. Picking the right person for each task by skill and workload takes about 5 database lookups. On a 30-deliverable retainer that's 150 lookups in a row before activation finishes. The first version timed out. The fix was to run activation in the background and show its progress on screen. Meanwhile the button reads "Activating… (spinning up tasks)" and stays disabled, so nobody double-clicks during the 70 seconds.
 
-**The Stripe-bypass coupon was supposed to be temporary.** I shipped a `BYPASS_COUPONS` env var to support the demo period before live Stripe keys landed. It's still there. It will probably stay there as a comp/demo path. Some "temporary" hacks earn their keep.
+**The skip-payment coupon was supposed to be temporary.** I added a coupon that skips payment, to cover the demo period before live Stripe payments were switched on. It's still there, and it will probably stay as a way to give free access and run demos. Some temporary hacks earn their keep.
 
-**"Lock scope" is a terminology hill I died on.** PMs initially submitted call notes via "Mark as Call Done" which then locked the scope. Felt fine until users complained the verb didn't match the action, they were locking a scope, not just marking a call done. Renamed the button to "Lock Scope" and added an "Unlock & re-scope" button for the assigned PM. Sounds trivial. Took two iterations and a lot of email-template editing because the lock flips a notification + dashboard banner + email cascade.
+**Getting "Lock scope" right took two rounds.** Project managers submitted call notes with a "Mark as Call Done" button, which then locked the scope. Users pushed back: the words didn't match the action. They were locking a scope, not just closing a call. I renamed it "Lock Scope" and added "Unlock & re-scope" for the assigned project manager. Sounds trivial. It meant a lot of email-template editing, because the lock sets off a notification, a dashboard banner, and a chain of emails.
 
-**The first cancellation flow was a hard delete.** Wrong. Cancellation needs to keep the row, delete tasks, revert the inquiry to a re-scopeable state, and issue a credit. Took a v3.10 rebuild. The credit ledger now lives as `ClientCredit` rows; the finance module (planned) will treat them as first-class.
+**The first cancellation deleted everything.** Wrong. Cancelling needs to keep the record, remove the tasks, put the inquiry back where it can be re-scoped, and issue a credit. That took a rebuild. Credits are now records of their own, and the planned finance module will treat them that way.
 
 ## What's next
 
-The healthcare ops platform that was next when I wrote this is live: separate build, different shape, different problem space, running on its own branded domain since June 2026. [Written up here](/work/beeline).
+The healthcare platform that was next when I wrote this is live: a separate build for a different problem, running on its own domain since June 2026. [Written up here](/work/beeline).
 
-A finance module for the agency portal, mirroring the cancellation pattern: separate API + email template + admin UI + audit hooks. Expense tracking, salaried payroll, monthly reports. Last open loop on the roadmap.
+For this portal, a finance module that follows the cancellation pattern: its own screens, emails, and audit hooks, covering expenses, salaried payroll, and monthly reports. It is the last open item on the roadmap.

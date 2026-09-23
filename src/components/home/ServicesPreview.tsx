@@ -1,165 +1,218 @@
 import Link from "next/link";
+import { ViewTransition } from "react";
 import type { Service } from "@/content/schema";
+import { Arrow, buttonClass } from "@/components/ui/Button";
+import { SpotlightGrid } from "@/components/site/SpotlightGrid";
+import { leadFigure, TRACK_LABEL } from "@/components/services/model";
+import { cn } from "@/lib/cn";
 import { separatorBefore } from "@/lib/prose";
 
-// BANDS, NOT INDEX ARITHMETIC.
-// Every service carries a track: the diagnostic to start with (fixed price),
-// something I build (scoped, with an end date), something I keep honest after
-// it ships (a retainer where I make the calls), or something I keep running
-// (someone else's stack, maintained). Each track renders as its own 12-column
-// band, and every card in a band spans 12 / (cards in that band), so a band
-// divides exactly and always fills its row. As of 2026-09-14 that is the Ops
-// Leak Audit at span 12, two builds at span 6 and two ongoing at span 6. Brand
-// work and managed services are on the menu for existing clients only, so they
-// get one line under the bands rather than cards in them.
+// THE OFFER, AS A FRONT DOOR AND A LIST.
 //
-// What was here before: a `wide` flag that ran the last card full-width when
-// services.length % 3 === 1. It read the count instead of the meaning, so the
-// day a fifth service shipped the remainder became 2, the flag went quiet with
-// no error, and the section rendered three cards plus two orphans. The span now
-// comes from what a service IS. Add a service, give it a track, and the band
-// re-divides itself. Do not bring modular arithmetic back here.
+// The audit is the one service a stranger can buy without a call, so it is not
+// a card among cards: it is a lit panel with the section's only primary button.
+// The other services a visitor can start are LIST ROWS under it, grouped by
+// track, with the track named once on the first row of its band.
 //
-// Tailwind v4 builds its stylesheet by scanning source text for class names, so
-// `md:col-span-${n}` compiles to nothing at all: the class has to exist in the
-// file as a literal string. Hence the map instead of a template.
-const BAND_SPAN: Record<number, string> = {
-  1: "md:col-span-12",
-  2: "md:col-span-6",
-  3: "md:col-span-4",
-  4: "md:col-span-3",
-  6: "md:col-span-2",
-  12: "md:col-span-1",
-};
+// ONE OFFER, ONE VOCABULARY. The front door here has the same anatomy as the
+// one on /services (src/components/services/FrontDoor.tsx): the promise and
+// the button on the left; across a hairline, the price as a number and what it
+// covers. The track names, the price figure and the button label come from the
+// same place (services/model.ts), and the rows use the same hover language as
+// ServiceRow (a pointer-lit edge inside a SpotlightGrid and a faint wash, no
+// sweep), so a visitor meets one offer, not two drafts of it. The one
+// difference is deliberate: this panel lists the deliverables, because the
+// homepage has nowhere else that says what the audit hands over.
+//
+// THE LADDER. The section h2 is a statement (the homepage act-opener rank), the
+// panel title is a subsection, the row titles are text-xl. Three sizes, three
+// jobs, so the panel never reads as a second headline under the first.
+//
+// BANDS, NOT INDEX ARITHMETIC. Every service carries a track, loadServices
+// sorts by the frontmatter `order`, and rows are grouped by track in order of
+// first appearance, so a mis-ordered file can shuffle the bands but never split
+// one. The front door is whichever "everyone" service carries track "start";
+// if there were none, every service would simply render as a row.
+//
+// Services for existing clients only (brand work, managed services) stay a
+// single sentence under the list, not rows.
+//
+// Every title carries the view-transition name `svc-${slug}`, the same name
+// the service page gives its h1, so the title morphs into the heading on
+// navigation. One name per page: each service appears once in this section and
+// nowhere else on the homepage.
 
-// A band size that does not divide 12 (five, seven) cannot fill a row by any
-// arrangement. It falls back to thirds and wraps, which is obvious enough on
-// screen to go fix, rather than a silent misrender.
-const UNEVEN_BAND_SPAN = "md:col-span-4";
+// One line per row: the first sentence of the tagline. The full tagline stays
+// on the service page, where there is room for the second and third.
+function firstSentence(text: string) {
+  return text.match(/^.*?[.?](?=\s|$)/)?.[0] ?? text;
+}
 
-// Three deliverables per card, at every span. Each service file carries five or
-// six, so three never leaves a card visibly short, and one fixed count keeps
-// the cards inside a band within a line of each other in height. The old fourth
-// line existed only because the full-width card had two interior columns to
-// fill; at a third or a half of the row the list is single-column, so a fourth
-// item just makes one card taller than the card beside it.
-const DELIVERABLES_SHOWN = 3;
+// The panel lists the first three deliverables (the report, the hours, the
+// priced fix: the core of what the audit hands over) and then says how many
+// more there are, with a link to the page that lists them, so the list never
+// pretends to be complete. Three, at every width: five full sentences made the
+// panel's right half twice the height of its left and put about 80 words on
+// one screen.
+const SHOWN_DELIVERABLES = 3;
+const COUNT_WORDS = ["", "one", "two", "three", "four", "five", "six"] as const;
 
-type Card = { service: Service; number: string };
-type Band = { track: Service["track"]; cards: Card[] };
+function Title({ service, className }: { service: Service; className: string }) {
+  return (
+    <ViewTransition name={`svc-${service.slug}`} share="morph-title" default="none">
+      <h3 className={className}>{service.title}</h3>
+    </ViewTransition>
+  );
+}
 
-// Bands come out in order of first appearance, and loadServices sorts by the
-// frontmatter `order`, so the audit (0) precedes builds (1-2), which precede
-// ongoing (4-5), without this function knowing any track name. A track's cards group together even if
-// the orders interleave, so a mis-ordered file can shuffle the bands but can
-// never split one.
-function toBands(services: Service[]): Band[] {
-  const bands: Band[] = [];
-  services.forEach((service, i) => {
-    // The number is the position in the whole menu, not inside the band: the
-    // reader counts straight down through every card, because the split is
-    // about how an engagement runs, not the start of a second list.
-    const card: Card = { service, number: String(i + 1).padStart(2, "0") };
-    const band = bands.find((b) => b.track === service.track);
-    if (band) band.cards.push(card);
-    else bands.push({ track: service.track, cards: [card] });
-  });
-  return bands;
+function FrontDoor({ service }: { service: Service }) {
+  const href = `/services/${service.slug}`;
+  const lead = leadFigure(service);
+  const shown = service.deliverables.slice(0, SHOWN_DELIVERABLES);
+  const more = service.deliverables.length - shown.length;
+  return (
+    <div className="panel-lit relative overflow-hidden rounded-2xl">
+      <div aria-hidden className="ember-horizon pointer-events-none absolute inset-0" />
+      <div className="relative grid gap-10 p-6 py-8 sm:p-8 md:grid-cols-12 md:gap-0 md:p-12">
+        <div className="md:col-span-6 md:pr-12">
+          <p className="text-caption text-ink-400">{TRACK_LABEL[service.track]}</p>
+          <Title service={service} className="mt-3 w-fit text-subsection font-semibold text-ink-50" />
+          <p className="mt-4 max-w-[44ch] text-lead text-ink-300">{service.tagline}</p>
+          <Link href={href} className={cn(buttonClass(), "group mt-8 w-full sm:w-auto")}>
+            Start with the audit
+            <Arrow />
+          </Link>
+        </div>
+
+        <div className="md:col-span-6 md:border-l md:border-line md:pl-12">
+          {lead ? (
+            <p className="flex items-baseline gap-2.5">
+              <span className="text-[2.75rem] font-semibold leading-none tracking-[-0.03em] text-ink-50 [font-stretch:94%] md:text-[3.25rem]">
+                {lead.figure}
+              </span>
+              {lead.qualifier ? <span className="text-[0.9375rem] text-ink-300">{lead.qualifier}</span> : null}
+            </p>
+          ) : null}
+          {service.deliverables.length > 0 ? (
+            <>
+              <p className={cn("text-caption text-ink-400", lead ? "mt-8" : null)}>What you get</p>
+              <ol className="mt-3 border-t border-line">
+                {shown.map((d, i) => (
+                  <li
+                    key={d}
+                    className="grid grid-cols-[1.75rem_minmax(0,1fr)] items-baseline gap-2 border-b border-line-soft py-3 text-[0.9375rem] leading-relaxed text-ink-200"
+                  >
+                    {/* Sans, set exactly like the step numbers on the hero's
+                        approval card: this is a list a buyer reads, not
+                        machine output. No tabular-nums: Mona Sans's tabular
+                        zero is slashed, which reads as code. Decorative,
+                        since the <ol> carries the order. */}
+                    <span aria-hidden className="text-caption font-medium text-ink-500">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <span>{d}</span>
+                  </li>
+                ))}
+              </ol>
+              {more > 0 ? (
+                <Link
+                  href={href}
+                  className="group mt-1 inline-flex min-h-11 items-center gap-2 text-caption text-ink-300 transition-colors hover:text-ink-50"
+                >
+                  <span className="link-draw">
+                    And {COUNT_WORDS[more] ?? more} more on the audit page
+                  </span>
+                  <Arrow />
+                </Link>
+              ) : null}
+            </>
+          ) : null}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Row({ service, label }: { service: Service; label: string | null }) {
+  return (
+    <li>
+      <Link
+        href={`/services/${service.slug}`}
+        className="card-hover-glow group -mx-4 grid grid-cols-[minmax(0,1fr)_auto] gap-x-4 gap-y-2 rounded-xl px-4 py-6 transition-colors duration-200 md:-mx-6 md:grid-cols-[200px_minmax(0,1fr)_auto] md:items-baseline md:gap-x-8 md:px-6 md:py-7 [@media(hover:hover)]:hover:bg-ink-50/[0.018]"
+      >
+        <p className={cn("col-span-2 text-caption text-ink-400 md:col-span-1", label ? null : "hidden md:block")}>
+          {label}
+        </p>
+        <div>
+          <Title
+            service={service}
+            className="w-fit text-xl text-ink-100 transition-colors duration-200 group-hover:text-ink-50 group-focus-visible:text-ink-50"
+          />
+          <p className="mt-1.5 max-w-[60ch] text-[0.9375rem] leading-relaxed text-ink-400">
+            {firstSentence(service.tagline)}
+          </p>
+        </div>
+        <span className="self-start pt-0.5 text-ink-400 transition-colors duration-200 group-hover:text-ink-50 group-focus-visible:text-ink-50 md:self-auto md:pt-0">
+          <Arrow />
+        </span>
+      </Link>
+    </li>
+  );
 }
 
 export function ServicesPreview({ services }: { services: Service[] }) {
-  const bands = toBands(services.filter((s) => s.audience === "everyone"));
+  const forEveryone = services.filter((s) => s.audience === "everyone");
+  const frontDoor = forEveryone.find((s) => s.track === "start");
+  const rows = forEveryone.filter((s) => s !== frontDoor);
   const forExistingClients = services.filter((s) => s.audience === "existing-clients");
+
+  // Group rows by track in order of first appearance, then flatten, marking
+  // the first row of each band so it alone carries the track label.
+  const bands: Service[][] = [];
+  for (const s of rows) {
+    const band = bands.find((b) => b[0]?.track === s.track);
+    if (band) band.push(s);
+    else bands.push([s]);
+  }
+
   return (
-    <section>
-      <p className="font-mono text-label uppercase text-brand">
-        what i do
-      </p>
-      <h2 className="mt-3 text-3xl font-semibold tracking-[-0.015em] md:text-section">
-        Where to start, what I build, and what I keep honest after it ships.
+    <section aria-labelledby="services-heading">
+      <h2 id="services-heading" className="max-w-[24ch] text-statement text-ink-50">
+        Start with an audit.
       </h2>
-      <p className="mt-4 max-w-xl text-ink-400">
-        Not sure which one maps to your problem? Start with the audit. Every
-        card links to the real thing: a system in production, a live demo you
-        can click, or a client engagement with the parts that broke written
-        down.
+      <p className="mt-5 max-w-[44ch] text-lead text-balance text-ink-300">
+        Build what is worth it. Then keep it running.
       </p>
-      {/* One menu read in bands, so spacing carries the split instead of a
-          label: 16px inside a band, 32px between them. The card widths say it a
-          second time, stepping thirds to halves to full as the commitment
-          changes, which is why the band rule is worth more than a heading per
-          group. On mobile the spans go inert and only the 2:1 gap ratio is
-          left, which is thinner but still legible. */}
-      <div className="mt-10 space-y-8">
-        {bands.map((band) => {
-          const span = BAND_SPAN[band.cards.length] ?? UNEVEN_BAND_SPAN;
-          return (
-            // reveal-stagger per band rather than one wrapper for all five
-            // cards: the CSS ladder offsets direct children on a mod-3 cycle so
-            // a row's cards arrive left to right, and a band that starts its
-            // own count gets that beat at whatever width it happens to be.
-            <div
-              key={band.track}
-              className="reveal-stagger grid gap-4 md:grid-cols-12"
-            >
-              {band.cards.map(({ service, number }) => (
-                <Link
+
+      {frontDoor ? (
+        <div className="mt-12 md:mt-16">
+          <FrontDoor service={frontDoor} />
+        </div>
+      ) : null}
+
+      {bands.length > 0 ? (
+        <SpotlightGrid className="mt-12 border-y border-line md:mt-16">
+          <ul className="reveal-stagger divide-y divide-line-soft">
+            {bands.flatMap((band) =>
+              band.map((service, i) => (
+                <Row
                   key={service.slug}
-                  href={`/services/${service.slug}`}
-                  className={`card-surface card-hover-glow group flex flex-col rounded-xl p-6 active:scale-[0.99] ${span}`}
-                >
-                  <div className="flex items-baseline justify-between">
-                    <p className="font-mono text-label-sm uppercase text-muted group-hover:text-brand">
-                      {service.bucket}
-                    </p>
-                    <span className="font-mono text-[10px] text-ink-700">
-                      {number}
-                    </span>
-                  </div>
-                  <h3 className="mt-3 text-xl font-semibold tracking-[-0.01em] text-ink-100">
-                    {service.title}
-                  </h3>
-                  <p className="mt-3 text-sm leading-relaxed text-ink-400">
-                    {service.tagline}
-                  </p>
-                  {service.deliverables.length > 0 ? (
-                    <ul className="mt-5 space-y-1.5 text-xs text-muted">
-                      {service.deliverables
-                        .slice(0, DELIVERABLES_SHOWN)
-                        .map((d) => (
-                          <li key={d} className="flex gap-2">
-                            <span className="text-ink-700 transition-colors group-hover:text-brand-deep">
-                              →
-                            </span>
-                            <span>{d}</span>
-                          </li>
-                        ))}
-                    </ul>
-                  ) : null}
-                  {/* self-start, because the card is a flex column and a
-                      stretched item would draw the link-draw underline across
-                      the whole card instead of under the two words. */}
-                  <span className="link-draw mt-6 self-start font-mono text-label-sm uppercase text-ink-400 group-hover:text-brand">
-                    learn more
-                  </span>
-                </Link>
-              ))}
-            </div>
-          );
-        })}
-      </div>
+                  service={service}
+                  label={i === 0 ? TRACK_LABEL[service.track] : null}
+                />
+              )),
+            )}
+          </ul>
+        </SpotlightGrid>
+      ) : null}
+
       {forExistingClients.length > 0 ? (
-        <p className="mt-6 text-sm leading-relaxed text-ink-400">
-          <span className="font-mono text-label-sm uppercase text-muted">
-            also available to existing clients
-          </span>{" "}
+        <p className="mt-8 text-[0.9375rem] leading-relaxed text-ink-400">
+          For existing clients, I also take on{" "}
           {forExistingClients.map((s, i) => (
             <span key={s.slug}>
               {separatorBefore(i, forExistingClients.length)}
-              <Link
-                href={`/services/${s.slug}`}
-                className="text-brand-soft underline-offset-4 hover:underline"
-              >
+              <Link href={`/services/${s.slug}`} className="link-quiet whitespace-nowrap">
                 {s.title}
               </Link>
             </span>

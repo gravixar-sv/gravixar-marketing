@@ -5,11 +5,11 @@ kind: "identity"
 origin: "self-directed"
 year: 2026
 featured: false
-summary: "Mark, coral, dark-only palette, two variable grotesks and a mono label convention. The strongest thing I can say about it is that you are reading the system right now, on the site it was built for."
-metaDescription: "Coral on dark, Hubot Sans and Mona Sans, and a 10px mono label convention. The system I built for my own brand, live on the page you are reading."
+summary: "The mark, one coral with one job, warm ink instead of black, one type family with a serif voice, and mono kept for what the machine says. The strongest thing I can say about it is that you are reading it right now, on the site it was built for."
+metaDescription: "Warm ink, one coral that only marks a human decision, Mona Sans with a serif voice, and mono for machine output. My own brand system, live on this page."
 tools:
-  - "Hubot Sans"
   - "Mona Sans"
+  - "Newsreader"
   - "Geist Mono"
   - "Tailwind v4 design tokens"
 cover:
@@ -26,33 +26,39 @@ gallery:
     alt: "The dark-ink variant of the same wordmark for light backgrounds, black letters with the square shifted to a warmer orange-red so it holds against white."
     width: 374
     height: 100
-processNote: "Every value in this system is a token in one file rather than a hex code typed into components, which is the only reason the palette has stayed one palette. Coral ships as three values, not one, so hover and pressed and border states are decided once in the theme instead of being invented per component. The heading sizes are named after their job (display, statement, section, subsection, reference) rather than their size, because named ranks survive a redesign and text-3xl md:text-4xl does not. The honest gap: the lockups only exist as PNG. There is no vector master, so the wordmark is fine at screen sizes and will not hold up at print scale or on a large-format cut. Redrawing it as SVG is the outstanding piece of work here."
+processNote: "Every value in this system is a token in one file rather than a hex code typed into components, which is the only reason the palette has stayed one palette. Coral ships as three values, not one, so the states of a coral control are decided once in the theme instead of being invented per component. The heading sizes are named after their job (display, statement, page, section, subsection, reference) rather than their size, because named ranks survive a redesign and text-3xl md:text-4xl does not. They have already survived one. The honest gap: the lockups only exist as PNG. There is no vector master, so the wordmark is fine at screen sizes and will not hold up at print scale or on a large-format cut. Redrawing it as SVG is the outstanding piece of work here."
 order: 2
 draft: false
 ---
 
 ## What it is
 
-The identity Gravixar runs on: the mark, one accent color, a dark-only palette, a display and body pairing, and a mono label convention that shows up on every field, eyebrow and metric on the site. Not a deck describing a system. The system itself, in use, with the tokens that enforce it living in one theme block.
+The identity Gravixar runs on: the mark, one accent color with one job, a warm dark palette, one type family, a serif voice for a single phrase, and mono kept for machine output. Not a deck describing a system. The system itself, in use, with the tokens that enforce it living in one theme block.
 
-## The coral is not the logo color, and that is the point
+## The coral is not the logo color, and it has one job
 
-The mark carries a small solid square in pure red. Red at full saturation is a terrible interface accent: it fights everything near it, and it already means "error" everywhere else on a page. So the accent is coral at `#ff6b35`, chosen to sit beside that red rather than compete with it. Warm enough to read as the same family, calm enough to survive being on every link, hover state and label. The dark-ink wordmark variant shifts the square a little warmer for the same reason, so a printed lockup on white does not glare.
+The mark carries a small solid square in pure red. Red at full saturation is a poor interface accent: it fights everything near it, and it already means "error" everywhere else on a page. So the accent is coral at `#ff6b35`, chosen to sit beside that red rather than compete with it. The dark-ink wordmark variant shifts the square a little warmer for the same reason, so a printed lockup on white does not glare.
 
-## Dark only, and committed to
+The coral also has exactly one job. It marks a human decision: the main action on a page, an Approve button, the approved state, the page you are on in the menu, and the focus ring that shows where you are about to act. It is never a label color, never a hover color and never link text. The business is AI that drafts and a person who decides, so the one color that stands out is kept for the person deciding.
 
-One surface at `#0a0a0a`, one text color at `#fafafa`, muted text at zinc-500, and hairlines in exactly two ranks: one for things that enclose, one for things that only separate inside an enclosure. There is no light theme, and not having one is a decision rather than a backlog item. A system that has to look right in both directions ends up with a palette that is a compromise in both. This one is tuned for a single condition and is sharper for it.
+## Warm ink, not black
+
+The ground is `#0c0a09`, a black with a little stone in it, and text is `#f3efe8`, a warm off-white rather than pure white. Between them sits one ramp of warm greys that replaced the cold neutral greys the site used before. The rule for it is short: the lighter half is for words, and the darker half is only ever for lines and shapes. Muted text measures 6 to 1 against the ground, so it stays readable at small sizes.
+
+Hairlines come in three ranks: a soft one that separates things inside a box, a standard one that draws the box, and a strong one for a focused or approved edge. There is no light theme, and not having one is a decision rather than a backlog item. A palette that has to look right in both directions ends up a compromise in both. This one is tuned for a single condition and is sharper for it.
 
 ## The type is where a generated brand gives itself away
 
-Display is Hubot Sans, body is Mona Sans, both open variable grotesks, self-hosted. They were picked specifically because the obvious choices read as a default. A site set in Inter or the framework's own face announces that nobody chose anything, and for a studio selling design judgment that is the worst available first impression. Mono is Geist Mono, and it does exactly one job.
+Everything is set in Mona Sans, one open source variable family, loaded with its width axis so large headings can run slightly condensed while body text stays at its normal width. It replaced a two-family pairing. The display face it retired had slab serifs on its capital I, which read as a fallback glyph in every heading on a site written as "I". The obvious choices, Inter or the framework's own face, announce that nobody chose anything, and for a studio selling design judgment that is the worst first impression available.
 
-## The mono field label
+The second voice is Newsreader italic, and it is rationed: one phrase per page at most, never smaller than 20px, never on a button or a label. It is the human voice, the part of a sentence that sounds like a person said it. Used everywhere, it would be decoration. Used once, it reads as someone speaking.
 
-Small caps-height mono, 10px, uppercase, letter-spaced wide. It labels a section, a metric, a tool list, a date. It is the smallest element in the system and the one doing the most structural work, because it lets a page carry hierarchy without adding another heading size. Once a reader has seen three of them they know what one means, and after that the layout can be quiet.
+## Mono is for the machine
+
+Geist Mono does one job: it sets what a machine says. URLs, timestamps, status chips, code and figure captions. Labels written for people, like a section name or a form field, are set in the same sans as everything else. The system this one replaced put a 10px uppercase mono label on every field, eyebrow and metric, and the site read like a terminal. Now mono is rarer and quieter, which is what makes it mean something: when you see it, a machine wrote it. Nothing on the site is smaller than 11px.
 
 ## Where to check it
 
-Scroll. The type ranks, the coral, the hairlines and the mono labels on this page are the deliverable, which is a stronger check than any mockup of them would be. If a piece of the system were weak, you would be looking straight at it.
+Scroll. Coral is kept for where you would act: the main buttons, the marker in the menu that says where you are, and the focus ring if you move through the page with the keyboard. The second half of the closing panel's headline is this page's one serif phrase. Everything else is ink, sans and hairline. That is a stronger check than any mockup of the system would be. If a piece of it were weak, you would be looking straight at it.
 
 No client briefed this one, and I am not going to present it as though one did. It is my own brand, and the useful thing about that is the constraint it creates: I have to live inside these rules every time I ship a page here. That is a harder test than a guidelines PDF that gets opened twice and then ignored.

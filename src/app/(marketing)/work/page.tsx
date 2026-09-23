@@ -1,71 +1,80 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { PageHeader } from "@/components/site/PageHeader";
+import { Reveal } from "@/components/site/Reveal";
+import { SpotlightGrid } from "@/components/site/SpotlightGrid";
 import { ContactCTA } from "@/components/home/ContactCTA";
+import { CaseRow, FeaturedCase, PairCase } from "@/components/work/CaseIndex";
+import { hasWhatBroke } from "@/components/work/model";
 import { loadCaseStudies } from "@/content/loaders";
 import { buildMetadata } from "@/lib/seo";
 
 export const revalidate = 3600;
 
 export const metadata: Metadata = buildMetadata({
-  title: "Case Studies: AI-Ops Systems Built and Shipped",
+  title: "Case studies: what I built for clients, and what broke",
   description:
-    "Case studies of operations systems Gravixar has built and shipped: custom portals, AI tooling, and the workflows behind them, running in production.",
+    "Real client projects, from custom portals with AI inside to a Dropbox replacement: what I built, and what it changed.",
   path: "/work",
 });
 
+// Curated order (frontmatter `order`) drives the tiers: the first study is
+// the feature, the next two a pair, the rest editorial rows.
 export default async function WorkIndexPage() {
-  const studies = await loadCaseStudies();
-  return (
-    <div className="space-y-16">
-      <PageHeader
-        eyebrow="work"
-        title="Case studies, what shipped, what worked, what didn't."
-        lede="Each entry is a real client engagement or a real product I built. The honest sections about what broke are the ones worth reading."
-      />
+  const studies = (await loadCaseStudies()).map((s) => ({ meta: s.meta, broke: hasWhatBroke(s.body) }));
+  const [lead, ...others] = studies;
+  const pair = others.slice(0, 2);
+  const rows = others.slice(2);
 
-      {studies.length === 0 ? (
-        <div className="rounded-lg border border-line bg-ink-950 p-8 text-center">
-          <p className="text-ink-400">No case studies published yet.</p>
-        </div>
-      ) : (
-        <div className="grid gap-6 md:grid-cols-2">
-          {studies.map((cs) => (
-            <Link
-              key={cs.meta.slug}
-              href={`/work/${cs.meta.slug}`}
-              className="card-surface card-hover-glow group rounded-xl p-6"
-            >
-              <div className="flex items-baseline justify-between gap-3">
-                <p className="font-mono text-label-sm uppercase text-muted group-hover:text-brand">
-                  {cs.meta.client}
-                </p>
-                <p className="font-mono text-[10px] text-ink-600">{cs.meta.period}</p>
+  return (
+    <div>
+      <PageHeader
+        eyebrow={`Work · ${studies.length} case studies`}
+        title="What I built, what worked,"
+        accent="and what broke."
+        lede="Real client projects, and what each one changed. Some have a section on what broke. Read those first."
+        rule={false}
+      >
+        <p className="text-caption text-ink-500">Client names are left out unless the client agreed.</p>
+      </PageHeader>
+
+      {lead ? (
+        <SpotlightGrid className="mt-4 md:mt-6">
+          <div className="hero-enter [animation-delay:380ms]">
+            <FeaturedCase study={lead} />
+          </div>
+          {pair.length > 0 ? (
+            <Reveal className="mt-20 md:mt-28">
+              <div className="reveal-stagger grid gap-x-10 gap-y-16 md:grid-cols-2">
+                {pair.map((s) => (
+                  <PairCase key={s.meta.slug} study={s} />
+                ))}
               </div>
-              <h2 className="mt-2 text-xl font-semibold tracking-[-0.015em] text-ink-100">
-                {cs.meta.title}
-              </h2>
-              <p className="mt-3 text-sm leading-relaxed text-ink-400">
-                {cs.meta.summary}
-              </p>
-              {cs.meta.stack.length > 0 ? (
-                <ul className="mt-5 flex flex-wrap gap-1.5">
-                  {cs.meta.stack.slice(0, 5).map((s) => (
-                    <li
-                      key={s}
-                      className="rounded-sm border border-ink-800/80 bg-ink-900/60 px-1.5 py-0.5 font-mono text-[10px] text-ink-400"
-                    >
-                      {s}
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
-            </Link>
-          ))}
-        </div>
+            </Reveal>
+          ) : null}
+        </SpotlightGrid>
+      ) : (
+        <p className="text-ink-400">No case studies published yet.</p>
       )}
 
-      <ContactCTA />
+      {rows.length > 0 ? (
+        <section aria-labelledby="more-work" className="mt-24 md:mt-32">
+          <h2 id="more-work" className="text-caption font-normal tracking-normal text-ink-400 [font-stretch:100%]">
+            More case studies
+          </h2>
+          <Reveal className="reveal-quiet mt-4">
+            <ul className="border-b border-line">
+              {rows.map((s) => (
+                <CaseRow key={s.meta.slug} study={s} />
+              ))}
+            </ul>
+          </Reveal>
+        </section>
+      ) : null}
+
+      <div className="mt-24 md:mt-32">
+        {/* The header's serif tail is this page's one serif phrase. */}
+        <ContactCTA voice={false} />
+      </div>
     </div>
   );
 }

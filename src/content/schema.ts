@@ -61,7 +61,7 @@ export const caseStudySchema = z.object({
   slug,
   client: z.string().min(1),
   role: z.string().min(1),
-  period: z.string().min(1), // free-form e.g. "Jan 2025 – present"
+  period: z.string().min(1), // free-form e.g. "Since January 2025"
   summary: z.string().min(20).max(320),
   metaDescription,
   problem: z.string().min(1),

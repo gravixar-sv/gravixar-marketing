@@ -47,7 +47,11 @@ export function SetInType({
       <span className="sr-only">{accent ? `${text} ${accent}` : text}</span>
       <span aria-hidden style={{ "--sit-d": `${delay}ms` } as CSSProperties}>
         {render(words, 0)}
-        {accentWords.length > 0 ? <em className="voice">{render(accentWords, words.length)}</em> : null}
+        {/* align-top: the serif's taller inline box otherwise stretches the
+            line it sits on, so a mixed headline stepped 82/82/94px. */}
+        {accentWords.length > 0 ? (
+          <em className="voice align-top">{render(accentWords, words.length)}</em>
+        ) : null}
       </span>
     </Component>
   );

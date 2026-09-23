@@ -1,0 +1,7 @@
+/* The stage has no box and no frame. The scene is transparent and carries
+   its own vignette; this mask only makes sure the stage's bottom edge, where
+   the approval card sits, melts into the ink instead of ending on a line. */
+.stage {
+  -webkit-mask-image: linear-gradient(to bottom, #000 80%, transparent);
+  mask-image: linear-gradient(to bottom, #000 80%, transparent);
+}
