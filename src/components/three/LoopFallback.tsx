@@ -1,4 +1,5 @@
 import { useId, type CSSProperties } from "react";
+import { CATEGORIES, type CategoryKey } from "../home/hero/taskPalette";
 import {
   CARD,
   CTRL_COUNT,
@@ -10,15 +11,19 @@ import {
   echoPoint,
   elevationFor,
   fitDistance,
-  initialLayout,
   planeNormal,
   projectPoint,
+  queueSlot,
   sampleLoop,
   viewBasis,
 } from "./loopShape";
 
-// Static drawing of the opening frame: server-rendered, zero JS work beyond
-// this module, and the permanent state wherever WebGL is unavailable.
+// Static drawing of the queue: server-rendered, zero JS work beyond this
+// module, and the permanent state wherever WebGL is unavailable. It draws the
+// tasks it is given in their queue slots (the same slots the live scene uses),
+// each with its category strip, so the cross-fade into the live scene lines
+// up, and a device without WebGL still sees the queue shorten as tasks are
+// approved.
 
 const W = 560;
 const H = 520;
@@ -30,12 +35,11 @@ const f3 = (v: number) => Math.round(v * 1000) / 1000;
 
 interface FallbackCard {
   d: string;
+  strip: string;
+  hue: string;
   depth: number;
   /** Nearness 0.45..1, pre-rounded. */
   k: number;
-  coral: boolean;
-  cx: number;
-  cy: number;
 }
 
 function build() {
@@ -123,34 +127,6 @@ function build() {
     };
   };
 
-  // k mirrors the live scene's phone scale (fewer, larger drafts).
-  const cardsFor = (n: number, k: number): FallbackCard[] => {
-    const U = new Float64Array(n);
-    initialLayout(n, perimeter / k, U);
-    const out: FallbackCard[] = [];
-    for (let i = 0; i < n; i++) {
-      const f = frame(U[i]!, k);
-      const hw = (CARD.w * k) / 2;
-      const hh = (CARD.h * k) / 2;
-      let d = "";
-      let depth = 0;
-      const corners: [number, number][] = [
-        [-hw, -hh],
-        [hw, -hh],
-        [hw, hh],
-        [-hw, hh],
-      ];
-      const cp = project(f.c[0], f.c[1], f.c[2]);
-      corners.forEach(([cx, cy], k) => {
-        const p = project(f.c[0] + f.t[0] * cx + f.y[0] * cy, f.c[1] + f.t[1] * cx + f.y[1] * cy, f.c[2] + f.t[2] * cx + f.y[2] * cy);
-        d += `${k === 0 ? "M" : "L"}${f1(p[0])} ${f1(p[1])}`;
-        depth += p[2] / 4;
-      });
-      out.push({ d: `${d}Z`, depth, k: f3(0.45 + 0.55 * near(depth)), coral: i === 0, cx: f1(cp[0]), cy: f1(cp[1]) });
-    }
-    return out.sort((a, b) => b.depth - a.depth);
-  };
-
   const gateFor = (k: number) => {
     const g = frame(GATE_U, k);
     let ring = "";
@@ -168,37 +144,93 @@ function build() {
   return {
     runs,
     echoes,
-    desktop: { cards: cardsFor(16, 1), gate: gateFor(1) },
-    mobile: { cards: cardsFor(10, 1.4), gate: gateFor(1.4) },
+    perimeter,
+    frame,
+    project,
+    near,
+    gates: { desktop: gateFor(1), mobile: gateFor(1.4) },
   };
 }
 
 let cached: ReturnType<typeof build> | null = null;
 const model = () => (cached ??= build());
 
-type Variant = ReturnType<typeof build>["desktop"];
+// k mirrors the live scene's phone scale (larger cards).
+function cardsFor(categories: readonly CategoryKey[], k: number): FallbackCard[] {
+  const m = model();
+  const n = categories.length;
+  const hw = (CARD.w * k) / 2;
+  const hh = (CARD.h * k) / 2;
+  const quad = (f: ReturnType<typeof m.frame>, corners: readonly (readonly [number, number])[]) => {
+    let d = "";
+    let depth = 0;
+    corners.forEach(([cx, cy], i) => {
+      const p = m.project(
+        f.c[0] + f.t[0] * cx + f.y[0] * cy,
+        f.c[1] + f.t[1] * cx + f.y[1] * cy,
+        f.c[2] + f.t[2] * cx + f.y[2] * cy,
+      );
+      d += `${i === 0 ? "M" : "L"}${f1(p[0])} ${f1(p[1])}`;
+      depth += p[2] / corners.length;
+    });
+    return { d: `${d}Z`, depth };
+  };
+  const out: FallbackCard[] = [];
+  categories.forEach((cat, rank) => {
+    const f = m.frame(queueSlot(rank, n, m.perimeter / k), k);
+    const body = quad(f, [
+      [-hw, -hh],
+      [hw, -hh],
+      [hw, hh],
+      [-hw, hh],
+    ]);
+    // The category strip: the top 12% of the card, as the shader draws it.
+    const strip = quad(f, [
+      [-hw, hh - 0.24 * hh],
+      [hw, hh - 0.24 * hh],
+      [hw, hh],
+      [-hw, hh],
+    ]);
+    out.push({ d: body.d, strip: strip.d, hue: CATEGORIES[cat].hex, depth: body.depth, k: f3(0.45 + 0.55 * m.near(body.depth)) });
+  });
+  return out.sort((a, b) => b.depth - a.depth);
+}
 
-function Drafts({ v, lit, glow, ivory, className }: { v: Variant; lit: boolean; glow: string; ivory: string; className: string }) {
-  const coral = v.cards.find((c) => c.coral);
+function Drafts({
+  cards,
+  gate,
+  lit,
+  glow,
+  ivory,
+  className,
+}: {
+  cards: FallbackCard[];
+  gate: { ring: string; x: number; y: number };
+  lit: boolean;
+  glow: string;
+  ivory: string;
+  className: string;
+}) {
   return (
     <g className={className}>
-      {coral ? <circle cx={coral.cx} cy={coral.cy} r={34} fill={`url(#${glow})`} opacity={0.7} /> : null}
-      {v.cards.map((c, i) => (
-        <path
-          key={i}
-          d={c.d}
-          fill={c.coral ? "#2a1c17" : "#1c1a17"}
-          fillOpacity={f3(0.4 + 0.6 * c.k)}
-          stroke={c.coral ? "#ff8a5c" : "#aba49b"}
-          strokeOpacity={c.coral ? 0.95 : f3(0.25 + 0.45 * c.k)}
-          strokeWidth={1}
-          strokeLinejoin="round"
-          vectorEffect="non-scaling-stroke"
-        />
+      {cards.map((c, i) => (
+        <g key={i}>
+          <path
+            d={c.d}
+            fill="#1c1a17"
+            fillOpacity={f3(0.4 + 0.6 * c.k)}
+            stroke="#aba49b"
+            strokeOpacity={f3(0.25 + 0.45 * c.k)}
+            strokeWidth={1}
+            strokeLinejoin="round"
+            vectorEffect="non-scaling-stroke"
+          />
+          <path d={c.strip} fill={c.hue} fillOpacity={f3(0.35 + 0.55 * c.k)} />
+        </g>
       ))}
-      <circle cx={v.gate.x} cy={v.gate.y} r={52} fill={`url(#${lit ? glow : ivory})`} />
+      <circle cx={gate.x} cy={gate.y} r={52} fill={`url(#${lit ? glow : ivory})`} />
       <path
-        d={v.gate.ring}
+        d={gate.ring}
         stroke={lit ? "#ff6b35" : "#aba49b"}
         strokeOpacity={lit ? 1 : 0.75}
         strokeWidth={lit ? 1.6 : 1.2}
@@ -208,7 +240,18 @@ function Drafts({ v, lit, glow, ivory, className }: { v: Variant; lit: boolean; 
   );
 }
 
-export function LoopFallback({ lit = false, className, style }: { lit?: boolean; className?: string; style?: CSSProperties }) {
+export function LoopFallback({
+  categories,
+  lit = false,
+  className,
+  style,
+}: {
+  /** The queue, front first: one card per task, in its category's colour. */
+  categories: readonly CategoryKey[];
+  lit?: boolean;
+  className?: string;
+  style?: CSSProperties;
+}) {
   const m = model();
   const id = useId().replace(/[^a-zA-Z0-9_-]/g, "");
   const vig = `lfv${id}`;
@@ -248,9 +291,9 @@ export function LoopFallback({ lit = false, className, style }: { lit?: boolean;
         {m.runs.map((r, i) => (
           <path key={i} d={r.d} stroke="#aba49b" strokeOpacity={r.o} strokeWidth={1.1} strokeLinecap="round" vectorEffect="non-scaling-stroke" />
         ))}
-        {/* Same breakpoint the live scene uses to pick its draft count. */}
-        <Drafts v={m.desktop} lit={lit} glow={glow} ivory={ivory} className="max-md:hidden" />
-        <Drafts v={m.mobile} lit={lit} glow={glow} ivory={ivory} className="md:hidden" />
+        {/* Same breakpoint the live scene uses to pick its card scale. */}
+        <Drafts cards={cardsFor(categories, 1)} gate={m.gates.desktop} lit={lit} glow={glow} ivory={ivory} className="max-md:hidden" />
+        <Drafts cards={cardsFor(categories, 1.4)} gate={m.gates.mobile} lit={lit} glow={glow} ivory={ivory} className="md:hidden" />
       </g>
     </svg>
   );

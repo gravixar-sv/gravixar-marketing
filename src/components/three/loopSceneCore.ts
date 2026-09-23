@@ -2,6 +2,27 @@
 // import after load + idle, so `three` stays out of the initial bundle.
 //
 // Draw calls: dust, cards, 2 echo loops, main loop, gate ring, halos = 7.
+//
+// THE QUEUE (2026-09-23). The cards are named tasks, not an endless conveyor.
+// Each one sits in a slot on the ring (queueSlot in loopShape.ts): slot 0
+// stops just before the gate, the rest are spaced back round the ring, and the
+// stretch after the gate stays clear for departures. Every move is eased, none
+// snaps:
+//   glide  the original motion law: speed eases toward a target that shrinks
+//          with the distance left, so a card sets off softly and settles
+//          softly. Starts are staggered by rank, so a queue advance reads as
+//          a ripple from the gate backwards.
+//   exit   approved: turns coral, passes through the ring, then leaves the
+//          ring along its direction of travel, rising and fading. It never
+//          comes back; a later batch is new cards.
+//   arc    sent back: lifts clear of the gate ring and flies to the back of
+//          the queue (the short way round), carrying its new version badge.
+//   enter  a new batch drifts down onto its slots, one after another.
+// Queued cards float gently while they wait; the one at the gate barely.
+//
+// The DOM layer over the canvas (LoopOverlay) gets each card's screen box and
+// the gate's position on every rendered frame through `onFrame`, so hover,
+// tap and keyboard focus land on the card the eye sees.
 
 import {
   BufferAttribute,
@@ -30,22 +51,47 @@ import {
   ECHOES,
   GATE_RADIUS,
   GATE_U,
-  QUEUE_START,
-  SPACING_WORLD,
-  SPEED_WORLD,
-  STOP_WORLD,
   VIEW,
   clamp01,
   controlPoints,
   elevationFor,
   fitDistance,
   hash01,
-  initialLayout,
   lerp,
   planeNormal,
+  queueSlot,
   sampleLoop,
   viewBasis,
 } from "./loopShape";
+import { CATEGORIES, type CategoryKey } from "../home/hero/taskPalette";
+
+export interface SceneItem {
+  id: string;
+  category: CategoryKey;
+  /** 1 low, 2 medium, 3 high. */
+  priority: 1 | 2 | 3;
+  version: number;
+}
+
+export interface CardSnap {
+  id: string;
+  /** Screen box of the card, in CSS pixels relative to the host. */
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  alpha: number;
+}
+
+export interface SceneSnapshot {
+  width: number;
+  height: number;
+  /** Queued cards only (not the ones leaving). */
+  cards: CardSnap[];
+  count: number;
+  /** The gate: its centre, and the point just under the ring where its label sits. */
+  gate: { x: number; y: number; labelX: number; labelY: number; sent: boolean };
+}
 
 export interface LoopSceneOptions {
   reducedMotion: boolean;
@@ -54,16 +100,19 @@ export interface LoopSceneOptions {
   progress: number;
   visible: boolean;
   interactive: boolean;
+  items: SceneItem[];
   onReady: () => void;
   onLost: () => void;
   /** Canvas click inside the gate hit area. */
-  onRequestApprove: () => void;
-  onQueueChange: (held: number) => void;
+  onGateClick: () => void;
+  /** Every rendered frame, for the DOM layer. The object is reused: read it, do not keep it. */
+  onFrame: (snap: SceneSnapshot) => void;
 }
 
 export interface LoopSceneController {
-  /** Releases the lead held card. Returns false when nothing was waiting (gate still flashes). */
-  approve(): boolean;
+  setItems(items: SceneItem[]): void;
+  /** The card the visitor is pointing at or focused on: it lifts and brightens. */
+  setHighlight(id: string | null): void;
   setProgress(p: number): void;
   setVisible(v: boolean): void;
   setReducedMotion(r: boolean): void;
@@ -84,11 +133,44 @@ const CARD_FILL = hex(0x1c1a17);
 const ATTACK = 0.18;
 const DECAY_RATE = 4.3; // ~5% left after 700ms
 const TIGHTEN_STEP = 0.2;
+
+/** Instances: six live tasks, plus room for a batch leaving while the next arrives. */
+const MAX = 12;
+/** Glide cruise speed (world units per second) and the pull toward the slot. */
+const VMAX = 2.6;
+const KD = 2.4;
+/** Ripple: the front card sets off first, each rank behind it a beat later. */
+const RIPPLE0 = 0.14;
+const RIPPLE = 0.1;
+/** Approved: speed once through the gate, where it leaves the ring, how long it fades. */
+const EXIT_SPEED = 1.5;
+const PEEL = 0.45;
+const FADE = 0.75;
+/** Sent back: how high it lifts over the ring (times K). */
+const ARC_H = 0.62;
+/** A new task settles onto its slot over this long; each one starts a beat after the last. */
+const ENTER = 1.1;
+const ENTER_STAGGER = 0.11;
+/** Idle float amplitude (world units, times K). */
+const FLOAT_A = 0.022;
+/** How long "Sent" stays under the gate. */
+const SENT_SHOW = 1.7;
+
+const FREE = 0;
+const QUEUED = 1;
+const EXIT = 2;
+const ARC = 3;
+
 const smoothstep = (a: number, b: number, x: number) => {
   const t = clamp01((x - a) / (b - a));
   return t * t * (3 - 2 * t);
 };
 const damp = (a: number, b: number, lambda: number, dt: number) => a + (b - a) * (1 - Math.exp(-lambda * dt));
+const easeInOutCubic = (x: number) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+const easeOutCubic = (x: number) => 1 - Math.pow(1 - x, 3);
+const frac = (x: number) => x - Math.floor(x);
+/** A single hump over [a, b]: 0 at both ends, 1 in the middle. */
+const hump = (x: number, a: number, b: number) => Math.sin(Math.PI * clamp01((x - a) / (b - a)));
 
 interface Spring {
   x: number;
@@ -220,14 +302,20 @@ void main() {
 
 const CARD_VERT = /* glsl */ `
 ${FOG}
-attribute vec3 aState;
+attribute vec4 aState;
+attribute vec4 aCat;
+attribute vec2 aMeta;
 varying vec2 vUv;
-varying vec3 vState;
+varying vec4 vState;
+varying vec4 vCat;
+varying vec2 vMeta;
 varying float vLight;
 varying float vFog;
 void main() {
   vUv = uv;
   vState = aState;
+  vCat = aCat;
+  vMeta = aMeta;
   vec4 mv = modelViewMatrix * instanceMatrix * vec4(position, 1.0);
   vec3 n = normalize(mat3(modelViewMatrix) * mat3(instanceMatrix) * vec3(0.0, 0.0, 1.0));
   vec3 L = normalize(vec3(-0.35, 0.8, 0.5));
@@ -236,16 +324,24 @@ void main() {
   gl_Position = projectionMatrix * mv;
 }`;
 
+// A task card: the same rounded slab as the old drafts, now carrying its
+// category (a top strip and a small outlined glyph, both in the category's
+// muted hue) and its priority (three ivory signal bars, filled to the level,
+// never coloured, so it reads apart from the category). Approval repaints the
+// whole card coral, strip and glyph included: coral only ever means a yes.
 const CARD_FRAG = /* glsl */ `
 ${VIGNETTE}
 uniform vec2 uSize;
 uniform vec3 uFill;
 uniform vec3 uEdge;
 uniform vec3 uInk;
+uniform vec3 uIvory;
 uniform vec3 uCoral;
 uniform vec3 uCoralSoft;
 varying vec2 vUv;
-varying vec3 vState;
+varying vec4 vState;
+varying vec4 vCat;
+varying vec2 vMeta;
 varying float vLight;
 varying float vFog;
 
@@ -253,9 +349,41 @@ float sdRound(vec2 p, vec2 b, float r) {
   vec2 q = abs(p) - b + r;
   return length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - r;
 }
+float cover(float d, float aa) { return 1.0 - smoothstep(-aa, aa, d); }
 float bar(vec2 p, vec2 c, float len, float th, float aa) {
   vec2 q = p - vec2(c.x + len * 0.5, c.y);
-  return 1.0 - smoothstep(-aa, aa, sdRound(q, vec2(len * 0.5, th * 0.5), th * 0.5));
+  return cover(sdRound(q, vec2(len * 0.5, th * 0.5), th * 0.5), aa);
+}
+float seg(vec2 p, vec2 a, vec2 b) {
+  vec2 pa = p - a;
+  vec2 ba = b - a;
+  float h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
+  return length(pa - ba * h);
+}
+// Outlined glyph of half-height s: 0 envelope, 1 browser window, 2 speech
+// bubble, 3 form.
+float glyph(vec2 p, float s, float kind, float aa) {
+  float d;
+  if (kind < 0.5) {
+    float box = abs(sdRound(p, vec2(s * 1.3, s * 0.9), s * 0.18));
+    float v = min(seg(p, vec2(-s * 1.2, s * 0.78), vec2(0.0, -s * 0.08)), seg(p, vec2(0.0, -s * 0.08), vec2(s * 1.2, s * 0.78)));
+    d = min(box, v);
+  } else if (kind < 1.5) {
+    float box = abs(sdRound(p, vec2(s * 1.3, s * 0.95), s * 0.2));
+    float top = seg(p, vec2(-s * 1.25, s * 0.38), vec2(s * 1.25, s * 0.38));
+    d = min(box, top);
+  } else if (kind < 2.5) {
+    float box = abs(sdRound(p - vec2(0.0, s * 0.18), vec2(s * 1.25, s * 0.74), s * 0.5));
+    float tail = min(seg(p, vec2(-s * 0.5, -s * 0.52), vec2(-s * 0.78, -s * 1.0)), seg(p, vec2(-s * 0.78, -s * 1.0), vec2(-s * 0.05, -s * 0.56)));
+    d = min(box, tail);
+  } else {
+    float box = abs(sdRound(p, vec2(s * 0.95, s * 1.15), s * 0.18));
+    float l1 = seg(p, vec2(-s * 0.5, s * 0.36), vec2(s * 0.5, s * 0.36));
+    float l2 = seg(p, vec2(-s * 0.5, -s * 0.22), vec2(s * 0.28, -s * 0.22));
+    d = min(box, min(l1, l2));
+  }
+  float w = s * 0.2;
+  return 1.0 - smoothstep(w - aa, w + aa, d);
 }
 
 void main() {
@@ -265,30 +393,61 @@ void main() {
   float d = sdRound(p, uSize * 0.5, uSize.y * 0.14);
   float aa = max(fwidth(d), 1e-5);
   float inside = 1.0 - smoothstep(-aa, aa, d);
-  if (inside < 0.01) discard;
+  if (inside < 0.01 || vMeta.y < 0.004) discard;
   float edge = 1.0 - smoothstep(0.0, aa * 1.6, abs(d + aa * 0.8));
 
   float warm = vState.x;
   float flash = vState.y;
   float seed = vState.z;
-  float th = uSize.y * 0.07;
-  float x0 = -uSize.x * 0.5 + uSize.x * 0.13;
-  float ink = bar(p, vec2(x0, uSize.y * 0.2), uSize.x * (0.34 + 0.12 * seed), th * 1.25, aa) * 0.9;
-  ink += bar(p, vec2(x0, -uSize.y * 0.04), uSize.x * (0.58 + 0.14 * fract(seed * 7.0)), th, aa) * 0.55;
-  ink += bar(p, vec2(x0, -uSize.y * 0.24), uSize.x * (0.4 + 0.2 * fract(seed * 13.0)), th, aa) * 0.55;
-  vec2 dotC = vec2(uSize.x * 0.5 - uSize.x * 0.14, uSize.y * 0.2);
-  float stamp = 1.0 - smoothstep(-aa, aa, length(p - dotC) - uSize.y * 0.065);
+  float hi = vState.w;
+  vec3 cat = vCat.rgb;
 
-  float lit = max(warm, flash);
-  vec3 fill = uFill * vLight + uCoral * (0.05 * warm + 0.16 * flash);
+  // Category strip along the top edge.
+  float top = uSize.y * 0.5;
+  float stripH = uSize.y * 0.12;
+  float strip = smoothstep(top - stripH - aa, top - stripH + aa, p.y);
+
+  // Glyph, then a short title bar beside it, then two body lines.
+  float s = uSize.y * 0.105;
+  vec2 gc = vec2(-uSize.x * 0.5 + uSize.x * 0.15, top - stripH - uSize.y * 0.17);
+  float gly = glyph(p - gc, s, vCat.w, aa);
+  float th = uSize.y * 0.07;
+  float ink = bar(p, vec2(gc.x + s * 1.3 + uSize.x * 0.06, gc.y), uSize.x * (0.3 + 0.1 * seed), th * 1.2, aa) * 0.9;
+  float x0 = -uSize.x * 0.5 + uSize.x * 0.1;
+  ink += bar(p, vec2(x0, -uSize.y * 0.07), uSize.x * (0.62 + 0.12 * fract(seed * 7.0)), th, aa) * 0.55;
+  ink += bar(p, vec2(x0, -uSize.y * 0.25), uSize.x * (0.4 + 0.2 * fract(seed * 13.0)), th, aa) * 0.55;
+
+  // Priority: three signal bars, filled to the level.
+  float bw = uSize.x * 0.026;
+  float gap = bw * 0.7;
+  float prX = uSize.x * 0.5 - uSize.x * 0.1 - 3.0 * bw - 2.0 * gap;
+  float prY = gc.y - s * 0.9;
+  float prOn = 0.0;
+  float prOff = 0.0;
+  for (int i = 0; i < 3; i++) {
+    float fi = float(i);
+    float h = uSize.y * (0.07 + 0.045 * fi);
+    vec2 c = vec2(prX + fi * (bw + gap) + bw * 0.5, prY + h * 0.5);
+    float m = cover(sdRound(p - c, vec2(bw * 0.5, h * 0.5), bw * 0.3), aa);
+    if (fi < vMeta.x - 0.5) prOn = max(prOn, m);
+    else prOff = max(prOff, m);
+  }
+
+  vec3 fill = uFill * vLight + uCoral * (0.05 * warm + 0.16 * flash) + uIvory * 0.035 * hi;
+  vec3 hue = mix(cat, uCoralSoft, warm);
   vec3 inkCol = mix(uInk, uCoralSoft * 0.8, warm * 0.55);
   vec3 edgeCol = mix(uEdge * (0.75 + 0.35 * vLight), uCoralSoft, clamp(warm * 0.9 + flash, 0.0, 1.0));
-  edgeCol += uCoralSoft * flash * 0.25;
-  vec3 col = mix(fill, inkCol, clamp(ink, 0.0, 1.0) * 0.6);
-  col = mix(col, mix(uInk * 0.7, uCoral, lit), stamp);
-  col = mix(col, edgeCol, edge);
+  edgeCol += uCoralSoft * flash * 0.25 + uIvory * 0.22 * hi;
+
+  vec3 col = fill;
+  col = mix(col, hue * (0.8 + 0.2 * vLight), strip * 0.92);
+  col = mix(col, inkCol, clamp(ink, 0.0, 1.0) * 0.6);
+  col = mix(col, hue, gly);
+  col = mix(col, mix(uIvory * 0.86, uCoralSoft, warm * 0.6), prOn);
+  col = mix(col, uInk * 0.55, prOff * 0.8);
+  col = mix(col, edgeCol, edge * (1.0 - strip * 0.6));
   col *= mix(0.42, 1.0, vFog);
-  float alpha = inside * mix(0.4, 1.0, vFog) * vignette();
+  float alpha = inside * mix(0.4, 1.0, vFog) * vignette() * vMeta.y;
   gl_FragColor = vec4(min(col, vec3(0.98)), alpha);
 }`;
 
@@ -417,6 +576,112 @@ function ribbonMaterial(uniforms: Record<string, IUniform>): ShaderMaterial {
   });
 }
 
+interface Card {
+  id: string | null;
+  mode: number;
+  /** Arc position as an unwrapped fraction of the loop, and speed along it (world units/s). */
+  u: number;
+  v: number;
+  /** The slot this card is steering to, as a fraction in [0, 1). */
+  slot: number;
+  /** Unwrapped position it is currently gliding to. */
+  target: number;
+  /** When its glide toward `slot` may start (the ripple). */
+  startAt: number;
+  /** When it began settling onto the ring (a new task); -1e9 for none. */
+  bornAt: number;
+  rank: number;
+  version: number;
+  t0: number;
+  // sent back
+  arcFrom: number;
+  arcDist: number;
+  arcDur: number;
+  arcLift: number;
+  pitch: number;
+  // approved
+  v0: number;
+  speed: number;
+  gateU: number;
+  peelU: number;
+  crossed: boolean;
+  peeled: boolean;
+  peelAt: number;
+  /** Where it left the ring: centre, then tangent, up and normal. */
+  peel: Float32Array;
+  /** Distance and rise travelled since it left the ring. */
+  s: number;
+  rise: number;
+  // look
+  alpha: number;
+  warm: number;
+  warmTarget: number;
+  flashStart: number;
+  hi: number;
+  float: number;
+  r: number;
+  g: number;
+  b: number;
+  glyph: number;
+  pri: number;
+  seed: number;
+  phase: number;
+}
+
+function newCard(): Card {
+  return {
+    id: null,
+    mode: FREE,
+    u: 0,
+    v: 0,
+    slot: 0,
+    target: 0,
+    startAt: 0,
+    bornAt: -1e9,
+    rank: 0,
+    version: 1,
+    t0: 0,
+    arcFrom: 0,
+    arcDist: 0,
+    arcDur: 1,
+    arcLift: 0,
+    pitch: 0,
+    v0: 0,
+    speed: 0,
+    gateU: 0,
+    peelU: 0,
+    crossed: false,
+    peeled: false,
+    peelAt: 0,
+    peel: new Float32Array(12),
+    s: 0,
+    rise: 0,
+    alpha: 1,
+    warm: 0,
+    warmTarget: 0,
+    flashStart: -1e9,
+    hi: 0,
+    float: 0,
+    r: 1,
+    g: 1,
+    b: 1,
+    glyph: 0,
+    pri: 1,
+    seed: 0,
+    phase: 0,
+  };
+}
+
+/** Stable 0..1 from a task id, so a card's ink lines and float never change between renders. */
+function idSeed(id: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < id.length; i++) {
+    h ^= id.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return ((h >>> 0) % 10007) / 10007;
+}
+
 export function createLoopScene(host: HTMLElement, opts: LoopSceneOptions): LoopSceneController | null {
   // Probe the context ourselves so an unsupported device never reaches three's
   // console.error path: we just return null and the SVG fallback stays.
@@ -454,14 +719,11 @@ export function createLoopScene(host: HTMLElement, opts: LoopSceneOptions): Loop
   const scene = new Scene();
   const camera = new PerspectiveCamera(VIEW.fovDeg, 1, 0.1, 60);
 
-  const n = opts.mobile ? 10 : 16;
-  // Phones get fewer, larger drafts so each one still reads as a document.
+  // Phones get larger cards so each one still reads as a document.
   const K = opts.mobile ? 1.4 : 1;
   const cardW = CARD.w * K;
   const cardH = CARD.h * K;
-  const lift = cardH / 2 + CARD.lift;
-  const spacing = SPACING_WORLD * K;
-  const stop = STOP_WORLD * K;
+  const lift0 = cardH / 2 + CARD.lift;
   const gateR = GATE_RADIUS * K;
   const SAMPLES = opts.mobile ? 240 : 320;
   const PER_SEG = 96;
@@ -540,8 +802,12 @@ export function createLoopScene(host: HTMLElement, opts: LoopSceneOptions): Loop
 
   // ---------- cards ----------
   const cardGeo = new PlaneGeometry(cardW, cardH);
-  const cardState = new InstancedBufferAttribute(new Float32Array(n * 3), 3).setUsage(DynamicDrawUsage);
-  cardGeo.setAttribute("aState", cardState);
+  const stateAttr = new InstancedBufferAttribute(new Float32Array(MAX * 4), 4).setUsage(DynamicDrawUsage);
+  const catAttr = new InstancedBufferAttribute(new Float32Array(MAX * 4), 4).setUsage(DynamicDrawUsage);
+  const metaAttr = new InstancedBufferAttribute(new Float32Array(MAX * 2), 2).setUsage(DynamicDrawUsage);
+  cardGeo.setAttribute("aState", stateAttr);
+  cardGeo.setAttribute("aCat", catAttr);
+  cardGeo.setAttribute("aMeta", metaAttr);
   const cardMat = new ShaderMaterial({
     uniforms: {
       uRes: res,
@@ -551,6 +817,7 @@ export function createLoopScene(host: HTMLElement, opts: LoopSceneOptions): Loop
       uFill: { value: CARD_FILL },
       uEdge: { value: ZINC_400 },
       uInk: { value: ZINC_600 },
+      uIvory: { value: ZINC_200 },
       uCoral: { value: CORAL },
       uCoralSoft: { value: CORAL_SOFT },
     },
@@ -560,12 +827,12 @@ export function createLoopScene(host: HTMLElement, opts: LoopSceneOptions): Loop
     depthWrite: true,
     side: DoubleSide,
   });
-  const cards = new InstancedMesh(cardGeo, cardMat, n);
+  const cards = new InstancedMesh(cardGeo, cardMat, MAX);
   cards.instanceMatrix.setUsage(DynamicDrawUsage);
   cards.renderOrder = 1;
 
   // ---------- halos (cards + gate), one instanced draw ----------
-  const haloCount = n + 1;
+  const haloCount = MAX + 1;
   const haloGeo = new InstancedBufferGeometry();
   const quad = new PlaneGeometry(1, 1);
   haloGeo.index = quad.index;
@@ -623,21 +890,10 @@ export function createLoopScene(host: HTMLElement, opts: LoopSceneOptions): Loop
     scene.add(o);
   }
 
-  // ---------- simulation state ----------
-  const U = new Float64Array(n);
-  const prevU = new Float64Array(n);
-  const vel = new Float64Array(n);
-  const gateLap = new Int32Array(n);
-  const approvedLap = new Int32Array(n).fill(-99);
-  const approvedAt = new Float64Array(n).fill(-1e9);
-  const approvedAtU = new Float64Array(n).fill(-1e9);
-  const flashStart = new Float64Array(n).fill(-1e9);
-  const warm = new Float64Array(n);
-  // Sticky "waiting" flag: set when a draft settles into the queue, cleared
-  // only by approval, so the count never flickers as the queue shuffles up.
-  const queued = new Uint8Array(n);
-  const freeMul = new Float64Array(n);
-  for (let i = 0; i < n; i++) freeMul[i] = 0.9 + 0.2 * hash01(i + 11);
+  // ---------- state ----------
+  const pool: Card[] = Array.from({ length: MAX }, newCard);
+  let items: SceneItem[] = opts.items;
+  let highlightId: string | null = null;
 
   let t = 0;
   let reduced = opts.reducedMotion;
@@ -651,13 +907,15 @@ export function createLoopScene(host: HTMLElement, opts: LoopSceneOptions): Loop
   let cssH = 0;
   let fitD = 9;
   let elevation = elevationFor(1.5);
-  let heldReported = -1;
   let gateStart = -1e9;
   let gateFrom = 0;
   let waveStart = -1e9;
   let waiting = 0;
+  let sentAt = -1e9;
   let stillFlash = 0;
+  let stillSent = false;
   let stillTimer = 0;
+  let sentTimer = 0;
   const tight: Spring = { x: 0, v: 0 };
   let tightTarget = 0;
   let builtTight = -1;
@@ -670,7 +928,15 @@ export function createLoopScene(host: HTMLElement, opts: LoopSceneOptions): Loop
   const gateCenter = new Vector3();
   const gateEdge = new Vector3();
   const tmp = new Vector3();
-  let gatePx = { x: -1e4, y: -1e4, r: 0 };
+  const gatePx = { x: -1e4, y: -1e4, r: 0 };
+
+  const snap: SceneSnapshot = {
+    width: 0,
+    height: 0,
+    cards: Array.from({ length: MAX }, () => ({ id: "", x: 0, y: 0, w: 0, h: 0, alpha: 0 })),
+    count: 0,
+    gate: { x: 0, y: 0, labelX: 0, labelY: 0, sent: false },
+  };
 
   // ---------- geometry ----------
   function rebuild(tightness: number) {
@@ -697,9 +963,9 @@ export function createLoopScene(host: HTMLElement, opts: LoopSceneOptions): Loop
     }
     // Gate ring, perpendicular to the path, framing the card height.
     const f = frameAt(GATE_U);
-    const cx = f.px + f.yx * lift;
-    const cy = f.py + f.yy * lift;
-    const cz = f.pz + f.yz * lift;
+    const cx = f.px + f.yx * lift0;
+    const cy = f.py + f.yy * lift0;
+    const cz = f.pz + f.yz * lift0;
     gateCenter.set(cx, cy, cz);
     for (let i = 0; i <= 64; i++) {
       const a = (i / 64) * Math.PI * 2;
@@ -753,131 +1019,409 @@ export function createLoopScene(host: HTMLElement, opts: LoopSceneOptions): Loop
     return fr;
   }
 
-  function layoutOpening() {
-    initialLayout(n, perimeter / K, U);
-    for (let i = 0; i < n; i++) {
-      gateLap[i] = 1;
-      approvedLap[i] = -99;
-      vel[i] = 0;
-      warm[i] = 0;
-      flashStart[i] = -1e9;
-      approvedAt[i] = -1e9;
-      approvedAtU[i] = -1e9;
-      queued[i] = 0;
+  // ---------- the queue ----------
+  const slotFor = (k: number, n: number) => queueSlot(k, n, perimeter / K);
+  /** The unwrapped position of `slot` nearest to `u` (a queue move is never more than half a lap). */
+  const nearest = (u: number, slot: number) => {
+    const d = slot - frac(u);
+    return u + d - Math.round(d);
+  };
+
+  function setLook(c: Card, it: SceneItem) {
+    const cat = CATEGORIES[it.category];
+    c.r = cat.rgb[0] / 255;
+    c.g = cat.rgb[1] / 255;
+    c.b = cat.rgb[2] / 255;
+    c.glyph = cat.glyph;
+    c.pri = it.priority;
+  }
+
+  function spawn(c: Card, it: SceneItem, slot: number, rank: number, delay: number, settled: boolean) {
+    Object.assign(c, newCard(), { peel: c.peel });
+    c.id = it.id;
+    c.mode = QUEUED;
+    c.version = it.version;
+    c.rank = rank;
+    c.seed = idSeed(it.id);
+    c.phase = c.seed * Math.PI * 2;
+    setLook(c, it);
+    c.slot = slot;
+    if (settled) {
+      c.u = slot;
+      c.bornAt = -1e9;
+    } else {
+      // A little behind its slot and above the ring: it drifts down and in.
+      c.u = slot - 0.02;
+      c.bornAt = t + delay;
     }
-    for (let k = 0; k < Math.min(QUEUE_START, n - 1); k++) queued[n - 1 - k] = 1;
-    // Card 0 has just been approved: coral, freshly through the gate.
-    approvedAtU[0] = U[0]! - 0.03;
-    warm[0] = 1;
-    // Cards in flight start at cruising speed; the queue starts at rest.
-    const base = SPEED_WORLD / perimeter;
-    for (let i = 0; i < n - QUEUE_START; i++) vel[i] = base * freeMul[i]!;
+    c.target = c.u;
+    c.startAt = settled ? t : c.bornAt;
+  }
+
+  function startExit(c: Card) {
+    c.mode = EXIT;
+    c.t0 = t;
+    c.v0 = Math.max(0, c.v);
+    c.warmTarget = 1;
+    c.arcLift = 0;
+    c.pitch = 0;
+    const ahead = frac(GATE_U - frac(c.u));
+    c.gateU = c.u + (ahead > 0.5 ? 0 : ahead);
+    c.peelU = c.gateU + PEEL / perimeter;
+    c.crossed = false;
+    c.peeled = false;
+    c.s = 0;
+    c.rise = 0;
+  }
+
+  function startArc(c: Card, slot: number) {
+    // The short way round; a tie goes forward, over the gate.
+    const fwd = frac(slot - frac(c.u));
+    let dist = fwd <= 0.5 + 1e-9 ? fwd : fwd - 1;
+    // A lone card sent back is its own back of the queue: it hops in place.
+    if (Math.abs(dist) < 1e-3) dist = 0;
+    c.mode = ARC;
+    c.t0 = t;
+    c.arcFrom = c.u;
+    c.arcDist = dist;
+    c.arcDur = 0.95 + 1.3 * Math.abs(dist);
+    c.slot = slot;
+    c.v = 0;
+  }
+
+  function free(c: Card) {
+    c.id = null;
+    c.mode = FREE;
+    c.alpha = 0;
+  }
+
+  function applyItems(next: SceneItem[], boot: boolean) {
+    items = next;
+    const n = next.length;
+    const live = new Set(next.map((i) => i.id));
+    let approved = false;
+    for (const c of pool) {
+      if (c.id && (c.mode === QUEUED || c.mode === ARC) && !live.has(c.id)) {
+        if (reduced || boot) free(c);
+        else startExit(c);
+        approved = true;
+      }
+    }
+    let entering = 0;
+    next.forEach((it, k) => {
+      const slot = slotFor(k, n);
+      let c = pool.find((x) => x.id === it.id && x.mode !== EXIT);
+      if (!c) {
+        c = pool.find((x) => x.mode === FREE);
+        if (!c) return;
+        spawn(c, it, slot, k, entering * ENTER_STAGGER, boot || reduced);
+        entering++;
+        return;
+      }
+      const sentBack = it.version > c.version;
+      c.version = it.version;
+      c.rank = k;
+      setLook(c, it);
+      if (sentBack && !reduced) {
+        startArc(c, slot);
+      } else if (Math.abs(frac(c.slot - slot + 0.5) - 0.5) > 1e-6 || sentBack) {
+        c.slot = slot;
+        c.startAt = t + RIPPLE0 + k * RIPPLE;
+      }
+    });
+    if (approved && !boot) {
+      gateFrom = flashLevel(t, gateStart, gateFrom);
+      gateStart = t;
+      waveStart = t;
+      tightTarget = Math.min(1, tightTarget + TIGHTEN_STEP);
+    }
+    // A fresh batch starts from the loose rule again.
+    if (entering >= 3 && !boot) tightTarget = 0;
+    // Nobody watching (scrolled away, a hidden tab): motion is for the viewer,
+    // so skip it. Without this, a phone reader approving from the panel below
+    // a paused scene came back to approved cards still crawling round the ring
+    // to reach the gate.
+    if (!reduced && !boot && (!visible || document.hidden || cssW === 0)) {
+      settleAll();
+      return;
+    }
+    if (reduced) {
+      settleAll();
+      if (approved && !boot) {
+        tight.x = tightTarget;
+        stillFlash = 1;
+        stillSent = true;
+        window.clearTimeout(stillTimer);
+        window.clearTimeout(sentTimer);
+        stillTimer = window.setTimeout(() => {
+          stillFlash = 0;
+          renderStill();
+        }, 900);
+        sentTimer = window.setTimeout(() => {
+          stillSent = false;
+          renderStill();
+        }, SENT_SHOW * 1000);
+      }
+      if (entering >= 3) tight.x = tightTarget;
+      renderStill();
+    }
+  }
+
+  /** Reduced motion: every card straight to its slot, nothing in flight. */
+  function settleAll() {
+    for (const c of pool) {
+      if (c.mode === EXIT) {
+        free(c);
+        continue;
+      }
+      if (c.mode === FREE) continue;
+      c.mode = QUEUED;
+      c.u = nearest(c.u, c.slot);
+      c.target = c.u;
+      c.v = 0;
+      c.startAt = t;
+      c.bornAt = -1e9;
+      c.arcLift = 0;
+      c.pitch = 0;
+      c.float = 0;
+      c.alpha = 1;
+    }
   }
 
   // ---------- per-frame ----------
   function stepCards(dt: number) {
-    const spU = spacing / perimeter;
-    const stopU = stop / perimeter;
-    const base = SPEED_WORLD / perimeter;
-    const zone = n * spU * 1.4;
-    prevU.set(U);
-    for (let i = 0; i < n; i++) {
-      // Car-following against last frame's leader: leaders only move forward,
-      // so the gap can only grow and cards can never overlap.
-      const leader = i === n - 1 ? prevU[0]! + 1 : prevU[i + 1]!;
-      let limit = leader - spU;
-      const gate = GATE_U + gateLap[i]!;
-      const cleared = approvedLap[i] === gateLap[i];
-      if (!cleared) limit = Math.min(limit, gate - stopU);
-      const sinceApproval = t - approvedAt[i]!;
-      const boost = 1 + 1.6 * Math.exp(-sinceApproval / 0.8);
-      const free = base * freeMul[i]! * boost;
-      const desired = Math.min(free, Math.max(0, (limit - U[i]!) * 2.2));
-      const v = damp(vel[i]!, desired, desired < vel[i]! ? 9 : sinceApproval < 1.5 ? 7 : 4, dt);
-      vel[i] = v;
-      let next = U[i]! + v * dt;
-      if (next > limit) next = Math.max(U[i]!, limit);
-      U[i] = next;
-      if (next >= gate) {
-        gateLap[i] = gateLap[i]! + 1;
-        if (cleared) {
-          // Stamped as it passes through the ring.
-          flashStart[i] = t;
-          approvedAtU[i] = gate;
-          warm[i] = 1;
+    for (const c of pool) {
+      if (c.mode === FREE) continue;
+      if (c.mode === QUEUED) {
+        if (t >= c.startAt) c.target = nearest(c.u, c.slot);
+        const dist = (c.target - c.u) * perimeter;
+        const desired = Math.sign(dist) * Math.min(VMAX, Math.abs(dist) * KD);
+        c.v = damp(c.v, desired, Math.abs(desired) < Math.abs(c.v) ? 9 : 3.4, dt);
+        let nu = c.u + (c.v * dt) / perimeter;
+        if ((dist >= 0 && nu > c.target) || (dist < 0 && nu < c.target)) {
+          nu = c.target;
+          c.v = 0;
+        }
+        c.u = nu;
+      } else if (c.mode === ARC) {
+        const p = clamp01((t - c.t0) / c.arcDur);
+        const f = easeInOutCubic(clamp01((p - 0.12) / 0.88));
+        c.u = c.arcFrom + c.arcDist * f;
+        c.arcLift = ARC_H * K * smoothstep(0, 0.34, p) * (1 - smoothstep(0.64, 1, p));
+        // Nose up on the way up, nose down on the way down.
+        const dir = c.arcDist < 0 ? -1 : 1;
+        c.pitch = 0.16 * dir * (hump(p, 0.04, 0.34) - hump(p, 0.6, 0.96));
+        if (p >= 1) {
+          c.mode = QUEUED;
+          c.v = 0;
+          c.arcLift = 0;
+          c.pitch = 0;
+          c.target = c.u;
+          c.startAt = t;
+        }
+      } else if (c.mode === EXIT) {
+        const tau = t - c.t0;
+        c.speed = c.v0 + (EXIT_SPEED - c.v0) * smoothstep(0, 0.55, tau);
+        if (!c.peeled) {
+          c.u += (c.speed * dt) / perimeter;
+          if (!c.crossed && c.u >= c.gateU) {
+            // Stamped as it passes through the ring.
+            c.crossed = true;
+            c.flashStart = t;
+            sentAt = t;
+          }
+          if (c.u >= c.peelU) {
+            // Leave the ring here, along the direction of travel.
+            const f = frameAt(c.peelU);
+            const L = lift0;
+            const q = c.peel;
+            q[0] = f.px + f.yx * L;
+            q[1] = f.py + f.yy * L;
+            q[2] = f.pz + f.yz * L;
+            q[3] = f.tx;
+            q[4] = f.ty;
+            q[5] = f.tz;
+            q[6] = f.yx;
+            q[7] = f.yy;
+            q[8] = f.yz;
+            q[9] = f.zx;
+            q[10] = f.zy;
+            q[11] = f.zz;
+            c.peeled = true;
+            c.peelAt = t;
+            c.s = 0;
+          }
+        } else {
+          const k = t - c.peelAt;
+          c.s += c.speed * dt;
+          c.rise = 0.35 * K * k * k;
+          if (k >= FADE) free(c);
         }
       }
-      if (!cleared && !queued[i] && v < base * 0.3 && gate - stopU - next < zone) queued[i] = 1;
-
-      const age = next - approvedAtU[i]!;
-      let target = age < 0.45 ? 1 : 1 - smoothstep(0.45, 0.82, age);
-      if (age > 0.1 && v < base * 0.25) target = 0;
-      if (target < warm[i]!) warm[i] = damp(warm[i]!, target, 1.4, dt);
     }
   }
 
-  /** Next unapproved draft in line for the gate, its distance to the stop, and the waiting count. */
-  function queueInfo(): { lead: number; dist: number; held: number } {
-    const stopU = stop / perimeter;
-    let lead = -1;
-    let dist = Infinity;
-    let held = 0;
-    for (let i = 0; i < n; i++) {
-      held += queued[i]!;
-      if (approvedLap[i] === gateLap[i]) continue;
-      const d = GATE_U + gateLap[i]! - stopU - U[i]!;
-      if (d < dist) {
-        dist = d;
-        lead = i;
-      }
+  // Scratch pose: centre, then the card's own axes after roll and pitch.
+  const pose = { x: 0, y: 0, z: 0, tx: 1, ty: 0, tz: 0, yx: 0, yy: 1, yz: 0, zx: 0, zy: 0, zz: 1, s: 1, a: 1 };
+
+  function computePose(c: Card) {
+    let tx: number, ty: number, tz: number, yx: number, yy: number, yz: number, zx: number, zy: number, zz: number;
+    let cx: number, cy: number, cz: number;
+    const enter = clamp01((t - c.bornAt) / ENTER);
+    const enterLift = 0.9 * K * (1 - easeOutCubic(enter));
+    let alpha = smoothstep(0, 0.55, enter);
+    const hiLift = 0.035 * K * c.hi;
+    const w = (Math.PI * 2) / (3.4 + 0.8 * c.seed);
+    const amp = FLOAT_A * K * (c.rank === 0 ? 0.5 : 1);
+    const floatLift = c.float * amp * Math.sin(t * w + c.phase);
+    const roll = c.float * 0.03 * Math.sin(t * w * 0.8 + c.phase + 1.3);
+
+    if (c.mode === EXIT && c.peeled) {
+      const q = c.peel;
+      tx = q[3]!;
+      ty = q[4]!;
+      tz = q[5]!;
+      yx = q[6]!;
+      yy = q[7]!;
+      yz = q[8]!;
+      zx = q[9]!;
+      zy = q[10]!;
+      zz = q[11]!;
+      cx = q[0]! + tx * c.s + yx * c.rise;
+      cy = q[1]! + ty * c.s + yy * c.rise;
+      cz = q[2]! + tz * c.s + yz * c.rise;
+      alpha *= 1 - smoothstep(0, FADE, t - c.peelAt);
+    } else {
+      const f = frameAt(c.u);
+      tx = f.tx;
+      ty = f.ty;
+      tz = f.tz;
+      yx = f.yx;
+      yy = f.yy;
+      yz = f.yz;
+      zx = f.zx;
+      zy = f.zy;
+      zz = f.zz;
+      const L = lift0 + enterLift + floatLift + c.arcLift + hiLift;
+      cx = f.px + yx * L;
+      cy = f.py + yy * L;
+      cz = f.pz + yz * L;
     }
-    return { lead, dist, held };
+
+    // Roll about the direction of travel (the idle float's gentle rock).
+    if (roll !== 0) {
+      const cr = Math.cos(roll);
+      const sr = Math.sin(roll);
+      const ax = yx * cr + zx * sr;
+      const ay = yy * cr + zy * sr;
+      const az = yz * cr + zz * sr;
+      zx = zx * cr - yx * sr;
+      zy = zy * cr - yy * sr;
+      zz = zz * cr - yz * sr;
+      yx = ax;
+      yy = ay;
+      yz = az;
+    }
+    // Pitch about the card's normal (a sent-back card noses up, then down).
+    if (c.pitch !== 0) {
+      const cp = Math.cos(c.pitch);
+      const sp = Math.sin(c.pitch);
+      const ax = tx * cp + yx * sp;
+      const ay = ty * cp + yy * sp;
+      const az = tz * cp + yz * sp;
+      yx = yx * cp - tx * sp;
+      yy = yy * cp - ty * sp;
+      yz = yz * cp - tz * sp;
+      tx = ax;
+      ty = ay;
+      tz = az;
+    }
+
+    const flash = reduced ? 0 : flashLevel(t, c.flashStart, 0);
+    pose.x = cx;
+    pose.y = cy;
+    pose.z = cz;
+    pose.tx = tx;
+    pose.ty = ty;
+    pose.tz = tz;
+    pose.yx = yx;
+    pose.yy = yy;
+    pose.yz = yz;
+    pose.zx = zx;
+    pose.zy = zy;
+    pose.zz = zz;
+    pose.s = (1 + 0.05 * flash) * (1 + 0.06 * c.hi) * (c.mode === EXIT && c.peeled ? 1 - 0.08 * smoothstep(0, FADE, t - c.peelAt) : 1);
+    pose.a = alpha;
+    return flash;
+  }
+
+  function updateLook(dt: number) {
+    for (const c of pool) {
+      if (c.mode === FREE) continue;
+      const resting = c.mode === QUEUED && Math.abs(c.v) < 0.04 && t > c.bornAt + ENTER && !reduced;
+      c.float = damp(c.float, resting ? 1 : 0, 1.6, dt);
+      c.hi = damp(c.hi, c.id !== null && c.id === highlightId && c.mode !== EXIT ? 1 : 0, 10, dt);
+      c.warm = damp(c.warm, c.warmTarget, 12, dt);
+    }
   }
 
   function writeInstances(gateFlash: number, waitGlow: number) {
     const m = cards.instanceMatrix.array as Float32Array;
-    const st = cardState.array as Float32Array;
+    const st = stateAttr.array as Float32Array;
+    const ca = catAttr.array as Float32Array;
+    const me = metaAttr.array as Float32Array;
     const hc = haloCenter.array as Float32Array;
     const hcol = haloColor.array as Float32Array;
     const hs = haloSize.array as Float32Array;
-    for (let i = 0; i < n; i++) {
-      const f = frameAt(U[i]!);
-      const flash = reduced ? (i === 0 ? 0.55 : 0) : flashLevel(t, flashStart[i]!, 0);
-      const s = 1 + 0.05 * flash;
-      const cx = f.px + f.yx * lift;
-      const cy = f.py + f.yy * lift;
-      const cz = f.pz + f.yz * lift;
+    for (let i = 0; i < MAX; i++) {
+      const c = pool[i]!;
       const o = i * 16;
-      m[o] = f.tx * s;
-      m[o + 1] = f.ty * s;
-      m[o + 2] = f.tz * s;
+      if (c.mode === FREE) {
+        for (let k = 0; k < 16; k++) m[o + k] = 0;
+        me[i * 2 + 1] = 0;
+        hcol[i * 4 + 3] = 0;
+        continue;
+      }
+      const flash = computePose(c);
+      const s = pose.s;
+      m[o] = pose.tx * s;
+      m[o + 1] = pose.ty * s;
+      m[o + 2] = pose.tz * s;
       m[o + 3] = 0;
-      m[o + 4] = f.yx * s;
-      m[o + 5] = f.yy * s;
-      m[o + 6] = f.yz * s;
+      m[o + 4] = pose.yx * s;
+      m[o + 5] = pose.yy * s;
+      m[o + 6] = pose.yz * s;
       m[o + 7] = 0;
-      m[o + 8] = f.zx;
-      m[o + 9] = f.zy;
-      m[o + 10] = f.zz;
+      m[o + 8] = pose.zx;
+      m[o + 9] = pose.zy;
+      m[o + 10] = pose.zz;
       m[o + 11] = 0;
-      m[o + 12] = cx;
-      m[o + 13] = cy;
-      m[o + 14] = cz;
+      m[o + 12] = pose.x;
+      m[o + 13] = pose.y;
+      m[o + 14] = pose.z;
       m[o + 15] = 1;
-      st[i * 3] = warm[i]!;
-      st[i * 3 + 1] = flash;
-      st[i * 3 + 2] = hash01(i + 5);
-      hc[i * 3] = cx;
-      hc[i * 3 + 1] = cy;
-      hc[i * 3 + 2] = cz;
+      st[i * 4] = c.warm;
+      st[i * 4 + 1] = flash;
+      st[i * 4 + 2] = c.seed;
+      st[i * 4 + 3] = c.hi;
+      ca[i * 4] = c.r;
+      ca[i * 4 + 1] = c.g;
+      ca[i * 4 + 2] = c.b;
+      ca[i * 4 + 3] = c.glyph;
+      me[i * 2] = c.pri;
+      me[i * 2 + 1] = pose.a;
+      c.alpha = pose.a;
+      hc[i * 3] = pose.x;
+      hc[i * 3 + 1] = pose.y;
+      hc[i * 3 + 2] = pose.z;
       hcol[i * 4] = CORAL.x;
       hcol[i * 4 + 1] = CORAL.y;
       hcol[i * 4 + 2] = CORAL.z;
-      hcol[i * 4 + 3] = 0.55 * flash + 0.1 * warm[i]!;
+      hcol[i * 4 + 3] = (0.55 * flash + 0.1 * c.warm) * pose.a;
       hs[i] = (1.0 + 0.4 * flash) * K;
     }
     // gate halo
-    const g = n;
+    const g = MAX;
     hc[g * 3] = gateCenter.x;
     hc[g * 3 + 1] = gateCenter.y;
     hc[g * 3 + 2] = gateCenter.z;
@@ -888,7 +1432,9 @@ export function createLoopScene(host: HTMLElement, opts: LoopSceneOptions): Loop
     hcol[g * 4 + 3] = Math.max(0.6 * gateFlash, waitGlow * 0.07);
     hs[g] = (1.6 + 0.5 * gateFlash) * K;
     cards.instanceMatrix.needsUpdate = true;
-    cardState.needsUpdate = true;
+    stateAttr.needsUpdate = true;
+    catAttr.needsUpdate = true;
+    metaAttr.needsUpdate = true;
     haloCenter.needsUpdate = true;
     haloColor.needsUpdate = true;
     haloSize.needsUpdate = true;
@@ -918,22 +1464,68 @@ export function createLoopScene(host: HTMLElement, opts: LoopSceneOptions): Loop
     uFogFar.value = D + 2.4;
   }
 
-  function projectGate() {
-    camera.updateMatrixWorld();
-    tmp.copy(gateCenter).project(camera);
-    const x = (tmp.x * 0.5 + 0.5) * cssW;
-    const y = (0.5 - tmp.y * 0.5) * cssH;
-    tmp.copy(gateEdge).project(camera);
-    const ex = (tmp.x * 0.5 + 0.5) * cssW;
-    const ey = (0.5 - tmp.y * 0.5) * cssH;
-    gatePx = { x, y, r: Math.max(40, Math.hypot(ex - x, ey - y) * 1.9) };
-  }
+  // Projects in place: tmp.x / tmp.y come back as CSS pixels in the host.
+  const toPx = (v: Vector3) => {
+    v.project(camera);
+    v.set((v.x * 0.5 + 0.5) * cssW, (0.5 - v.y * 0.5) * cssH, v.z);
+    return v;
+  };
 
-  function reportQueue(held: number) {
-    if (held !== heldReported) {
-      heldReported = held;
-      opts.onQueueChange(held);
+  /** Screen positions for the DOM layer: the gate and every queued card's box. */
+  function project() {
+    camera.updateMatrixWorld();
+    toPx(tmp.copy(gateCenter));
+    const gx = tmp.x;
+    const gy = tmp.y;
+    toPx(tmp.copy(gateEdge));
+    gatePx.x = gx;
+    gatePx.y = gy;
+    gatePx.r = Math.max(40, Math.hypot(tmp.x - gx, tmp.y - gy) * 1.9);
+    // The label sits just under the ring's lowest point on screen.
+    let low = -Infinity;
+    for (let i = 0; i < 64; i += 4) {
+      toPx(tmp.set(ringPts[i * 3]!, ringPts[i * 3 + 1]!, ringPts[i * 3 + 2]!));
+      if (tmp.y > low) low = tmp.y;
     }
+    snap.width = cssW;
+    snap.height = cssH;
+    snap.gate.x = gx;
+    snap.gate.y = gy;
+    snap.gate.labelX = gx;
+    snap.gate.labelY = low;
+    snap.gate.sent = reduced ? stillSent : t - sentAt < SENT_SHOW;
+
+    let n = 0;
+    const hw = cardW / 2;
+    const hh = cardH / 2;
+    for (const c of pool) {
+      if (!c.id || (c.mode !== QUEUED && c.mode !== ARC)) continue;
+      computePose(c);
+      const s = pose.s;
+      let x0 = Infinity;
+      let y0 = Infinity;
+      let x1 = -Infinity;
+      let y1 = -Infinity;
+      for (let k = 0; k < 4; k++) {
+        const sx = (k & 1 ? 1 : -1) * hw * s;
+        const sy = (k & 2 ? 1 : -1) * hh * s;
+        tmp.set(pose.x + pose.tx * sx + pose.yx * sy, pose.y + pose.ty * sx + pose.yy * sy, pose.z + pose.tz * sx + pose.yz * sy);
+        toPx(tmp);
+        if (tmp.x < x0) x0 = tmp.x;
+        if (tmp.x > x1) x1 = tmp.x;
+        if (tmp.y < y0) y0 = tmp.y;
+        if (tmp.y > y1) y1 = tmp.y;
+      }
+      const out = snap.cards[n++]!;
+      out.id = c.id;
+      out.x = x0;
+      out.y = y0;
+      out.w = x1 - x0;
+      out.h = y1 - y0;
+      out.alpha = pose.a;
+    }
+    snap.count = n;
+    opts.onFrame(snap);
   }
 
   let frames = 0;
@@ -967,9 +1559,12 @@ export function createLoopScene(host: HTMLElement, opts: LoopSceneOptions): Loop
     springTo(pitch, pitchTarget, 3.2, dt);
 
     stepCards(dt);
-    const q = queueInfo();
-    reportQueue(q.held);
-    waiting = damp(waiting, q.lead >= 0 && q.dist < (spacing / perimeter) * 0.35 ? 1 : 0, 3, dt);
+    updateLook(dt);
+    // The ring breathes while the card at the gate is settled and waiting.
+    let lead: Card | undefined;
+    for (const c of pool) if (c.mode === QUEUED && c.rank === 0 && c.id) lead = c;
+    const settled = lead && t >= lead.startAt && Math.abs((lead.target - lead.u) * perimeter) < 0.05;
+    waiting = damp(waiting, settled ? 1 : 0, 3, dt);
     const breath = 0.5 + 0.5 * Math.sin((t * Math.PI * 2) / 3.6);
     const waitGlow = waiting * (0.35 + 0.65 * breath);
     const gateFlash = flashLevel(t, gateStart, gateFrom);
@@ -980,7 +1575,7 @@ export function createLoopScene(host: HTMLElement, opts: LoopSceneOptions): Loop
     writeInstances(gateFlash, waitGlow);
     updateCamera();
     renderer.render(scene, camera);
-    if (interactive) projectGate();
+    project();
   }
 
   function renderStill() {
@@ -992,20 +1587,17 @@ export function createLoopScene(host: HTMLElement, opts: LoopSceneOptions): Loop
     writeInstances(stillFlash, 0.5);
     updateCamera();
     renderer.render(scene, camera);
-    if (interactive) projectGate();
+    project();
   }
 
   function composeStill() {
-    // Reduced motion: the opening composition, frozen. Three held, one coral past.
-    layoutOpening();
-    warm[0] = 1;
-    for (let i = 0; i < n; i++) vel[i] = 0;
+    // Reduced motion: every card at its slot, frozen.
+    settleAll();
     yaw.x = pitch.x = yaw.v = pitch.v = 0;
     tight.x = tightTarget;
     tight.v = 0;
     dolly.x = dollyTarget;
     dolly.v = 0;
-    reportQueue(Math.min(QUEUE_START, n - 1));
   }
 
   function shouldRun() {
@@ -1074,7 +1666,7 @@ export function createLoopScene(host: HTMLElement, opts: LoopSceneOptions): Loop
     canvas.style.cursor = "";
   };
   const onClick = (e: MouseEvent) => {
-    if (interactive && inGate(e)) opts.onRequestApprove();
+    if (interactive && inGate(e)) opts.onGateClick();
   };
   const onVisibility = () => sync();
   const onLost = (e: Event) => {
@@ -1104,54 +1696,33 @@ export function createLoopScene(host: HTMLElement, opts: LoopSceneOptions): Loop
 
   // ---------- boot ----------
   rebuild(0);
-  layoutOpening();
+  // The opening composition: every task already on its slot, as the SVG
+  // still drew it, so the cross-fade lines up.
+  applyItems(items, true);
   if (reduced) composeStill();
   resize();
-  if (!reduced) {
+  if (!reduced && cssW > 0) {
     // Draw the opening frame immediately so the cross-fade has content.
     writeInstances(0, 0);
     setGateUniforms(0, 0);
     updateCamera();
-    if (cssW > 0) renderer.render(scene, camera);
+    renderer.render(scene, camera);
+    project();
   }
-  if (interactive) projectGate();
-  reportQueue(queueInfo().held);
   requestAnimationFrame(() => {
     if (!disposed && !lost) opts.onReady();
   });
 
-  function approve(): boolean {
-    if (disposed) return false;
-    if (reduced) {
-      // No motion: the gate lights instantly and the rule steps tighter.
-      tightTarget = Math.min(1, tightTarget + TIGHTEN_STEP);
-      tight.x = tightTarget;
-      stillFlash = 1;
-      renderStill();
-      window.clearTimeout(stillTimer);
-      stillTimer = window.setTimeout(() => {
-        stillFlash = 0;
-        renderStill();
-      }, 900);
-      return true;
-    }
-    const q = queueInfo();
-    const spU = spacing / perimeter;
-    gateFrom = flashLevel(t, gateStart, gateFrom);
-    gateStart = t;
-    // The next draft in line: already waiting, or arriving at the gate.
-    if (q.lead < 0 || (!queued[q.lead] && q.dist > spU * 0.6)) return false;
-    const i = q.lead;
-    approvedLap[i] = gateLap[i]!;
-    approvedAt[i] = t;
-    queued[i] = 0;
-    tightTarget = Math.min(1, tightTarget + TIGHTEN_STEP);
-    waveStart = t;
-    return true;
-  }
-
   return {
-    approve,
+    setItems(next) {
+      if (disposed) return;
+      applyItems(next, false);
+    },
+    setHighlight(id) {
+      // Eased in by the frame loop. A still frame (reduced motion) shows no
+      // lift or glow: the DOM layer's focus ring and popup carry it there.
+      highlightId = id;
+    },
     setProgress(p) {
       dollyTarget = clamp01(p);
       if (reduced) {
@@ -1169,15 +1740,12 @@ export function createLoopScene(host: HTMLElement, opts: LoopSceneOptions): Loop
       if (r) {
         composeStill();
         renderStill();
-      } else {
-        layoutOpening();
       }
       sync();
     },
     setInteractive(i) {
       interactive = i;
       if (!i) canvas.style.cursor = "";
-      else projectGate();
     },
     dispose() {
       if (disposed) return;
@@ -1185,6 +1753,7 @@ export function createLoopScene(host: HTMLElement, opts: LoopSceneOptions): Loop
       if (raf) cancelAnimationFrame(raf);
       raf = 0;
       window.clearTimeout(stillTimer);
+      window.clearTimeout(sentTimer);
       ro.disconnect();
       window.removeEventListener("pointermove", onPointerMove);
       canvas.removeEventListener("pointermove", onCanvasMove);

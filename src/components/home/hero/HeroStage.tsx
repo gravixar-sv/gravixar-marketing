@@ -1,42 +1,63 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { LoopScene, type LoopSceneHandle } from "@/components/three/LoopScene";
-import { QUEUE_START } from "@/components/three/loopShape";
+import { useCallback, useEffect, useMemo, useReducer, useRef, useSyncExternalStore } from "react";
+import { LoopScene, type LoopItem, type LoopSceneHandle } from "@/components/three/LoopScene";
 import { ApprovalStrip } from "../ApprovalStrip";
+import { initialQueue, queueReducer } from "./approvalQueue";
+import { PRIORITIES, taskDef } from "./approvalTasks";
 import styles from "./HeroStage.module.css";
 
-// The right half of the fold: the 3D approval loop, and the approval card
-// breaking out of its lower-left edge. No box and no frame: the scene is
-// transparent and dissolves into the ink under the hero's ember light.
+// The right half of the fold: the 3D approval loop, and the approval panel
+// under it. No box and no frame: the scene is transparent and dissolves into
+// the ink under the hero's ember light.
 //
-// Wired both ways, so the page shows one mechanism rather than two widgets:
-//   - Approve in the card releases the lead held draft at the scene's gate
-//     (the handle's approve(), which also lights the static drawing's gate
-//     before three.js has loaded);
-//   - approving at the gate in the scene flips the card;
-//   - the card's "3 drafts waiting" is the scene's own queue, until someone
-//     approves; then the card shows the result ("1 sent") until they run it
-//     again, because the scene keeps delivering drafts and a climbing count
-//     under "Approved" read as the click having done nothing.
+// ONE QUEUE, TWO VIEWS. This component owns the queue (approvalQueue.ts);
+// the scene draws it and the panel runs it, so they cannot disagree:
+//   - Approve in the panel, or a click on the gate ring, approves the task
+//     at the gate: its card turns coral and leaves through the ring, the rest
+//     glide forward, and the panel shows where it went;
+//   - Send back for revision rewrites one part of the draft, and the card
+//     arcs over the ring to the back of the queue with its new version;
+//   - when nothing is left the panel says "All clear", and new tasks drift
+//     in after eight seconds, or sooner if asked.
+// The outcome of each click holds for a moment (the timers below) before the
+// next task takes the gate, so every decision is seen to land.
 //
 // The scene lazy-loads three.js after load + idle and server-renders a static
-// SVG, so this stage costs the fold nothing if scripting never runs; the card
-// is server-rendered complete for the same reason.
+// SVG of the same queue, and the panel is server-rendered with the first task
+// complete, so this stage costs the fold nothing if scripting never runs.
 //
 // Scroll gives the camera a gentle dolly as the fold leaves (causal motion:
 // it moves because the reader scrolled). Skipped under reduced motion, where
-// the scene renders one still frame anyway.
+// the scene renders still frames anyway.
+
+/** How long the outcome of a decision stays up before the next task takes the gate. */
+const SENT_HOLD = 1600;
+const RETURNED_HOLD = 1900;
+/** "All clear" lasts this long before new tasks drift in on their own. */
+const REFILL_AFTER = 8000;
+
+const reduceQuery = "(prefers-reduced-motion: reduce)";
+const subscribeReduced = (cb: () => void) => {
+  const mq = window.matchMedia(reduceQuery);
+  mq.addEventListener("change", cb);
+  return () => mq.removeEventListener("change", cb);
+};
+
 export function HeroStage() {
   const sceneRef = useRef<LoopSceneHandle>(null);
   const stageRef = useRef<HTMLDivElement>(null);
-  const [approved, setApproved] = useState(false);
-  const [held, setHeld] = useState<number>(QUEUE_START);
+  const [state, dispatch] = useReducer(queueReducer, undefined, initialQueue);
+  const reduced = useSyncExternalStore(
+    subscribeReduced,
+    () => window.matchMedia(reduceQuery).matches,
+    () => false,
+  );
 
   useEffect(() => {
     const el = stageRef.current;
     if (!el) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (window.matchMedia(reduceQuery).matches) return;
     let raf = 0;
     const update = () => {
       raf = 0;
@@ -58,50 +79,76 @@ export function HeroStage() {
     };
   }, []);
 
-  const approve = useCallback(() => {
-    setApproved(true);
-    sceneRef.current?.approve();
-  }, []);
-  const onSceneApprove = useCallback(() => setApproved(true), []);
-  const reset = useCallback(() => setApproved(false), []);
+  // The holds: each outcome stays up, then the queue moves on.
+  useEffect(() => {
+    const { phase } = state;
+    if (phase !== "sent" && phase !== "returned" && phase !== "clear") return;
+    const id = window.setTimeout(
+      () => dispatch({ type: phase === "clear" ? "refill" : "advance" }),
+      phase === "sent" ? SENT_HOLD : phase === "returned" ? RETURNED_HOLD : REFILL_AFTER,
+    );
+    return () => window.clearTimeout(id);
+  }, [state.phase, state.seq, state.rewrite, state.stats.approved]);
+
+  const items: LoopItem[] = useMemo(
+    () =>
+      state.order.map((id) => {
+        const task = state.tasks[id]!;
+        const def = taskDef(task.key);
+        return {
+          id,
+          name: def.name,
+          category: def.category,
+          priority: PRIORITIES[def.priority].level,
+          priorityLabel: PRIORITIES[def.priority].label,
+          version: task.version,
+          reason: task.reason,
+        };
+      }),
+    [state.order, state.tasks],
+  );
+
+  const approve = useCallback(() => dispatch({ type: "approve" }), []);
+  const revise = useCallback(() => dispatch({ type: "revise" }), []);
+  const cancel = useCallback(() => dispatch({ type: "cancel" }), []);
+  const choose = useCallback((option: string) => dispatch({ type: "choose", option }), []);
+  const refill = useCallback(() => dispatch({ type: "refill" }), []);
 
   return (
-    // Desktop: a diagonal. The scene rides high (its box starts 48px above the
-    // stage) and borrows the column gutter on the left and the page padding on
-    // the right (transparent canvas, clipped by its own box, so no overflow),
-    // so the loop sits big beside the headline. The card hangs off the
-    // stage's lower-left corner, 40px out to the left and 40px below.
+    // Desktop: a diagonal. The scene rides high: its box starts 144px above
+    // the stage, which only lifts empty canvas (the loop is width-bound and
+    // sits in the middle of its box), so the ring's top lines up with the
+    // headline's. It borrows the column gutter on the left and the page
+    // padding on the right (transparent canvas, clipped by its own box). The
+    // panel hangs off the stage's left edge, 40px out, and starts in the
+    // scene's dissolve just under the loop's lowest card, so it grows down
+    // the page with its four steps instead of up into the ring.
     //
-    // What renders (measured 2026-09-23 at 1024, 1280 and 1440): the loop's
-    // lowest drawn point sits about 85 to 90px above the card's top edge, so
-    // no draft ever passes under the panel. The card overlaps only the last
-    // few pixels of the scene's BOX, inside its dissolve, where nothing is
-    // drawn. The gate, on the loop's right, is never covered. That clearance
-    // depends on the card staying short (titles and controls only, no step
-    // bodies): a taller card grows upward from its bottom anchor and would
-    // cut across the near arc again.
+    // Measured 2026-09-23 (page y, CSS px): at 1440 x 900 the lowest card
+    // ends at 347, the panel runs 370 to 848 and Approve sits at 686, so the
+    // whole panel clears the fold; at 1280 x 720 Approve sits at 637. The
+    // gate, on the loop's right, is never covered: its label sits under the
+    // ring, and the panel never reaches that far right.
     //
-    // Phones: the scene, then the card tucked into its dissolve.
-    <div className="relative lg:mt-2 lg:h-[39rem]">
+    // Phones: the scene, then the panel tucked into its dissolve.
+    <div className="relative lg:mt-2">
       <div
         ref={stageRef}
-        className={`${styles.stage} hero-enter relative h-[16rem] [animation-delay:180ms] sm:h-[22rem] lg:absolute lg:-left-24 lg:-right-6 lg:-top-12 lg:h-[26rem]`}
+        className={`${styles.stage} hero-enter relative h-[16rem] [animation-delay:180ms] sm:h-[22rem] lg:-mr-6 lg:-ml-24 lg:-mt-36 lg:h-[26rem]`}
       >
-        <LoopScene
-          ref={sceneRef}
-          className="absolute inset-0"
-          onApprove={onSceneApprove}
-          onQueueChange={setHeld}
-        />
+        <LoopScene ref={sceneRef} className="absolute inset-0" items={items} onGateClick={approve} />
       </div>
 
-      <div className="relative z-10 -mt-8 sm:mx-auto sm:max-w-[23rem] lg:absolute lg:-bottom-10 lg:-left-10 lg:mx-0 lg:mt-0 lg:w-[21.25rem] lg:max-w-none">
+      <div className="relative z-10 -mt-8 sm:mx-auto sm:max-w-[24rem] lg:-ml-10 lg:-mt-[4.75rem] lg:mr-0 lg:w-[24rem] lg:max-w-none">
         <ApprovalStrip
           className="hero-enter [animation-delay:340ms]"
-          approved={approved}
-          held={held}
+          state={state}
+          reduced={reduced}
           onApprove={approve}
-          onReset={reset}
+          onRevise={revise}
+          onCancel={cancel}
+          onChoose={choose}
+          onRefill={refill}
         />
       </div>
     </div>
