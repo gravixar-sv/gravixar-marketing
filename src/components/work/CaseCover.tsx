@@ -110,7 +110,7 @@ type Role = "pop" | "popSoft" | "ring" | "rise" | "growX" | "growY" | "fade" | "
 
 /** One step of the build: a role, a start t and a duration d, in ms after the
  *  arrival build begins. Spread after the element's own attributes.
- *  KEEP EVERY t + d AT OR UNDER 1700: the scroll driver maps 1700ms onto the
+ *  KEEP EVERY t + d AT OR UNDER 1600: the scroll driver maps 1600ms onto the
  *  end of the frame's entry range (.spanCard / .spanThumb in the module CSS),
  *  so a later step would still be building when the frame is fully in view. */
 function at(role: Role, t: number, d: number, className?: string) {
@@ -196,7 +196,7 @@ function Funnel() {
         return (
           <g key={x}>
             {last ? (
-              <circle cx={x} cy={y} r={48} strokeWidth={1} {...ns} {...at("ring", 1140, 560, "fill-none stroke-ink-500")} />
+              <circle cx={x} cy={y} r={48} strokeWidth={1} {...ns} {...at("ring", 1140, 460, "fill-none stroke-ink-500")} />
             ) : null}
             <circle
               cx={x}
@@ -224,13 +224,13 @@ function TwoLanes() {
   const size = 38;
   const x0 = 90;
   const sq = (c: number, y: number, cls: string, key: string, t: number) => (
-    <rect key={key} x={x0 + c * pitch} y={y} width={size} height={size} rx={7} {...at("pop", t, 380, cls)} />
+    <rect key={key} x={x0 + c * pitch} y={y} width={size} height={size} rx={7} {...at("pop", t, 340, cls)} />
   );
   return (
     <>
       {Array.from({ length: 6 }, (_, c) => sq(c, 96, "fill-ink-100", `t${c}`, c * 50))}
       {[0, 1, 2].flatMap((r) =>
-        Array.from({ length: cols }, (_, c) => sq(c, 296 + r * 56, "fill-ink-700", `p${r}-${c}`, 200 + c * 42 + r * 30)),
+        Array.from({ length: cols }, (_, c) => sq(c, 296 + r * 56, "fill-ink-700", `p${r}-${c}`, 200 + c * 40 + r * 28)),
       )}
     </>
   );
@@ -267,7 +267,7 @@ function ReviewLoop({ variant }: ArtProps) {
           {...ns}
         />
       </Wipe>
-      <path d="M292 390 L300 378 L308 390" fill="none" strokeWidth={1} {...ns} {...at("pop", 1380, 300, "stroke-ink-500")} />
+      <path d="M292 390 L300 378 L308 390" fill="none" strokeWidth={1} {...ns} {...at("pop", 1380, 220, "stroke-ink-500")} />
     </>
   );
 }
@@ -373,7 +373,7 @@ function Growth() {
         />
       </Wipe>
       <circle cx={100} cy={452} r={14} strokeWidth={1.5} {...ns} {...at("pop", 240, 420, "fill-ink-950 stroke-ink-400")} />
-      <circle cx={1500} cy={132} r={48} strokeWidth={1} {...ns} {...at("ring", 1060, 560, "fill-none stroke-ink-500")} />
+      <circle cx={1500} cy={132} r={48} strokeWidth={1} {...ns} {...at("ring", 1060, 520, "fill-none stroke-ink-500")} />
       <circle cx={1500} cy={132} r={20} {...at("pop", 980, 440, "fill-ink-100")} />
     </>
   );
@@ -447,7 +447,7 @@ function Stream() {
           y2={286 + i * 36}
           strokeWidth={1}
           {...ns}
-          {...at("growX", 1080 + i * 80, 400, "stroke-ink-600")}
+          {...at("growX", 1060 + i * 70, 360, "stroke-ink-600")}
         />
       ))}
     </>
@@ -536,7 +536,7 @@ const COVERS: Record<string, Spec> = {
     notes: [
       { x: 90, y: 62, text: "waiting on the team", align: "start", t: 0 },
       { x: 90, y: 262, text: "waiting on insurers", align: "start", t: 200 },
-      { x: 1510, y: 500, text: "1 square ≈ 20 applications", align: "end", t: 1200 },
+      { x: 1510, y: 500, text: "1 square ≈ 20 applications", align: "end", t: 1160 },
     ],
   },
   "agency-operations-platform": {

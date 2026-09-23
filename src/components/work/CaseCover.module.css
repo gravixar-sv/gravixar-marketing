@@ -198,18 +198,18 @@
   animation-fill-mode: both;
 }
 
-/* SCROLL. Where each frame's build sits in its entry range: 1700ms of the
+/* SCROLL. Where each frame's build sits in its entry range: 1600ms of the
    arrival build (the longest) maps onto [--r0, 100%], so --rk is
-   (100% - --r0) / 1700. A card's drawing fills the lower half of its frame,
+   (100% - --r0) / 1600. A card's drawing fills the lower half of its frame,
    under the figure (which sets over 16% to 56%), so its build starts once the
    frame is 48% in; a thumb's drawing sits higher, so it starts at 26%. */
 .spanCard {
   --r0: 48%;
-  --rk: 0.0306%;
+  --rk: 0.0325%;
 }
 .spanThumb {
   --r0: 26%;
-  --rk: 0.0435%;
+  --rk: 0.0463%;
 }
 @supports (animation-timeline: view()) {
   /* On the frame itself. The frame is overflow-hidden, which makes it a
@@ -224,8 +224,8 @@
     animation-fill-mode: both;
     animation-timeline: --cc;
     animation-range:
-      entry calc(var(--r0, 48%) + var(--t, 0) * var(--rk, 0.0306%))
-      entry calc(var(--r0, 48%) + (var(--t, 0) + var(--d, 400)) * var(--rk, 0.0306%));
+      entry calc(var(--r0, 48%) + var(--t, 0) * var(--rk, 0.0325%))
+      entry calc(var(--r0, 48%) + (var(--t, 0) + var(--d, 400)) * var(--rk, 0.0325%));
   }
 }
 
