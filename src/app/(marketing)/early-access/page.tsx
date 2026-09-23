@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PageHeader } from "@/components/site/PageHeader";
 import { Reveal } from "@/components/site/Reveal";
+import { SetFigure } from "@/components/site/SetFigure";
 import { EarlyAccessForm } from "@/components/lead/EarlyAccessForm";
 import { PageLight } from "@/components/conversion/PageLight";
 import { Arrow, buttonClass } from "@/components/ui/Button";
@@ -104,7 +105,13 @@ export default function EarlyAccessPage() {
             invented numbers attached to an invented date. It now holds counts
             that can be checked. Each cell is value-first (flex-col-reverse,
             so the <dt> still leads for a screen reader), which pins both
-            numbers to the same line even when one label wraps. */}
+            numbers to the same line even when one label wraps.
+            The two numbers are set in type. From lg this column sits beside
+            the form, and by the layout's arithmetic the numbers sit about 700
+            to 750px down at 1440x900, inside the first viewport, so they set
+            on arrival, after the lede (220ms). Below lg the column stacks
+            under the form, well below the fold, so there they set as they
+            scroll in instead. */}
         <aside aria-labelledby="exists-title" className="min-w-0 lg:col-span-5 lg:pt-1.5">
           {/* A label-sized h2, so it opts out of the global h1/h2 display
               treatment (94% width, -0.03em), which only suits large sizes. */}
@@ -122,7 +129,7 @@ export default function EarlyAccessPage() {
               >
                 <dt className="mt-3 text-caption text-ink-400">{sentence(s.label)}</dt>
                 <dd className="text-[2.75rem] font-semibold leading-none tracking-[-0.03em] text-ink-50 tabular-nums md:text-[3.25rem]">
-                  {s.value}
+                  <SetFigure text={s.value} trigger="arrival" scrollBelow="lg" delay={440 + i * 140} />
                 </dd>
               </div>
             ))}

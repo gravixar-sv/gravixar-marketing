@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ViewTransition } from "react";
 import type { Service } from "@/content/schema";
+import { SetFigure } from "@/components/site/SetFigure";
 import { Arrow, buttonClass } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
 import { leadFigure, termsFor, TRACK_LABEL } from "./model";
@@ -68,8 +69,12 @@ export function FrontDoor({ meta }: { meta: Service }) {
         <div className="md:col-span-5 md:col-start-8 md:row-span-2 md:row-start-1 md:border-l md:border-line md:pl-12">
           {lead ? (
             <p className="flex items-baseline gap-2.5">
+              {/* The price is set in type once the panel has landed: the panel
+                  arrives at 380ms, so the first glyph moves at 660ms. Glyphs
+                  rise in place and never count, so no frame shows a different
+                  price. */}
               <span className="text-[2.75rem] font-semibold leading-none tracking-[-0.03em] text-ink-50 [font-stretch:94%] md:text-[3.25rem]">
-                {lead.figure}
+                <SetFigure text={lead.figure} trigger="arrival" delay={660} />
               </span>
               {lead.qualifier ? <span className="text-[0.9375rem] text-ink-300">{lead.qualifier}</span> : null}
             </p>

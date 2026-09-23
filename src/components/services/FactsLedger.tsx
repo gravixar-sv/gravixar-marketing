@@ -1,10 +1,16 @@
 import Link from "next/link";
+import { SetFigure } from "@/components/site/SetFigure";
 
 // A small ledger of figures the article already states, pulled out of grey
 // paragraphs so a scanner can find them. It never introduces a number: every
 // value must appear verbatim in the body it sits in, and a row whose figure is
 // not there is dropped rather than shown (see ledgerFor), so an edit to the
 // prose can never leave a stale figure on the page.
+//
+// Each value is set in type as it scrolls in (<SetFigure>), glyph by glyph in
+// its own slot: never a count-up, so every frame shows the audited number.
+// The page wraps this block in a fading <Reveal>, so the glyphs wait until a
+// row is 14vh into the window, when the block is mostly opaque.
 //
 // Placed by an MDX comment in the body, {/* facts-ledger */}; see
 // splitAtMarkers in ./body. On the AI Code Confidence Review it sits after
@@ -78,7 +84,7 @@ export function FactsLedger({ caption, groups }: { caption: string; groups: Grou
                 >
                   <dt className="text-sm leading-snug text-ink-400">{r.label}</dt>
                   <dd className="shrink-0 text-lg font-semibold leading-none text-ink-50">
-                    {r.value}
+                    <SetFigure text={r.value} enterAt={14} />
                   </dd>
                 </div>
               ))}
