@@ -60,7 +60,11 @@ export function FeaturedCase({ study }: { study: Study }) {
   const { meta } = study;
   return (
     <Link href={`/work/${meta.slug}`} className="group grid gap-7 lg:grid-cols-12 lg:items-end lg:gap-12">
-      <CaseCover slug={meta.slug} variant="card" className="lg:col-span-7" />
+      {/* The lead card sits in the first viewport inside a hero-enter (380ms),
+          so its cover builds on arrival, once that panel has landed. A
+          scroll-driven build here would rest half built on a screen where the
+          frame straddles the fold, until the first scroll. */}
+      <CaseCover slug={meta.slug} variant="card" animate delay={660} className="lg:col-span-7" />
       <div className="lg:col-span-5 lg:pb-1">
         <Meta meta={meta} />
         <Title slug={meta.slug} className="mt-3 max-w-[20ch] text-section font-semibold text-ink-50">
