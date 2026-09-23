@@ -1,0 +1,129 @@
+/* <SetFigure>: a figure set in type, one glyph per clip. See SetFigure.tsx.
+   THE BASE STATE IS THE SET FIGURE. Every rule below that hides a glyph does
+   it through an animation's backwards fill, never through a resting style. */
+
+/* An inline-block, so the figure is a real box: a view timeline measures its
+   subject's border box, and an inline span broken across lines has none. Its
+   baseline is its last line's, so it sits in a sentence or a baseline-aligned
+   row exactly where the plain text sat.
+   Scroll mapping when the figure reads its own timeline: the first glyph
+   starts once the figure's top edge is 3vh into the window (--sf-a, the
+   `enterAt` prop), and 1ms of the arrival choreography is 0.014vh of scroll,
+   so one glyph rises over 8.7vh and the longest figure is fully set 18vh
+   above the bottom of the window. The band is kept short on purpose: a
+   figure resting inside it on page load (before any scroll) shows part set,
+   and a short band keeps that to the bottom edge of the window. */
+.root {
+  display: inline-block;
+  --sf-tl: --sf;
+  --sf-a: 3vh;
+  --sf-k: 0.014vh;
+}
+
+/* A line may only wrap at a space, as it did when the figure was plain text. */
+.word {
+  white-space: nowrap;
+}
+
+/* The slot each glyph rises out of. Top-aligned because an inline-block that
+   clips has its baseline at its bottom margin edge; a box exactly one line
+   tall, aligned to the top of the line, keeps the glyph on the line's
+   baseline. The padding and matching negative margins extend the clip past
+   the line box (descenders below, tall glyphs above at leading-none) without
+   changing the box's footprint in the line. */
+.clip {
+  display: inline-block;
+  overflow: clip;
+  vertical-align: top;
+  padding-top: 0.1em;
+  padding-bottom: 0.14em;
+  margin-top: -0.1em;
+  margin-bottom: -0.14em;
+}
+.glyph {
+  display: inline-block;
+}
+
+@keyframes sf-rise {
+  from {
+    transform: translateY(106%);
+  }
+}
+/* A quiet figure sits inside a sentence at body size: it lifts a third of an
+   em and fades in, unclipped, so the line around it never looks cut. */
+@keyframes sf-lift {
+  from {
+    opacity: 0;
+    transform: translateY(0.35em);
+  }
+}
+
+/* ARRIVAL: page-load time, on the narrative curve. */
+.arrive .glyph {
+  animation: sf-rise 620ms var(--ease-out-expo) both;
+  animation-delay: calc((var(--sf-d, 0) + var(--t, 0)) * 1ms);
+}
+@media (min-width: 64rem) {
+  .arriveLg .glyph {
+    animation: sf-rise 620ms var(--ease-out-expo) both;
+    animation-delay: calc((var(--sf-d, 0) + var(--t, 0)) * 1ms);
+  }
+}
+
+/* SCROLL: the same choreography on a view timeline. Each glyph's slice of the
+   entry range is its arrival start and duration times --sf-k, offset by
+   --sf-a. An inactive timeline (no overflow, print) applies no effect at all,
+   so the figure is simply set. */
+@supports (animation-timeline: view()) {
+  .scroll {
+    view-timeline: --sf block;
+  }
+  .scroll .glyph {
+    animation-name: sf-rise;
+    animation-duration: auto;
+    animation-delay: 0s;
+    animation-timing-function: var(--ease-out);
+    animation-fill-mode: both;
+    animation-timeline: var(--sf-tl);
+    animation-range:
+      entry calc(var(--sf-a) + var(--t, 0) * var(--sf-k))
+      entry calc(var(--sf-a) + (var(--t, 0) + 620) * var(--sf-k));
+  }
+  @media (max-width: 63.99rem) {
+    .arriveLg {
+      view-timeline: --sf block;
+    }
+    .arriveLg .glyph {
+      animation-name: sf-rise;
+      animation-duration: auto;
+      animation-delay: 0s;
+      animation-timing-function: var(--ease-out);
+      animation-fill-mode: both;
+      animation-timeline: var(--sf-tl);
+      animation-range:
+        entry calc(var(--sf-a) + var(--t, 0) * var(--sf-k))
+        entry calc(var(--sf-a) + (var(--t, 0) + 620) * var(--sf-k));
+    }
+  }
+}
+
+/* After both drivers on purpose: same specificity, so order decides. */
+.quiet .clip {
+  overflow: visible;
+}
+.quiet .glyph {
+  animation-name: sf-lift;
+}
+
+/* Reduced motion: the figure is simply printed. Last in the file so it
+   outranks every driver and the quiet override on order alone. Only
+   `transform` is ever animated here (never scale, translate or rotate), so
+   there are no independent-property resets to keep apart. */
+@media (prefers-reduced-motion: reduce) {
+  .root .glyph {
+    animation: none;
+    animation-timeline: auto;
+    opacity: 1;
+    transform: none;
+  }
+}
