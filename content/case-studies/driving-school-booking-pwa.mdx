@@ -23,9 +23,9 @@ approach: |
 
   Students pay by mobile wallet or bank transfer, enter the transaction number, and an admin confirms it before the enrollment is final. The payment screen only shows methods that are fully set up, so a placeholder account number can never reach a student. Instructors mark each lesson done or missed and only ever see their own lessons. The first lesson starts the course, and the last one completes it.
 outcome: |
-  V1 went live on 2026-07-12, built and deployed the same day, then improved for weeks while the school used it. Rules that used to live in someone's memory are now enforced by the app: an under-18 student cannot be booked onto an open route, and a course slot cannot be offered unless it can be honored end to end.
+  The first version went live on 12 July 2026, built and deployed the same day, then improved for weeks while the school used it. Rules that used to live in someone's memory are now enforced by the app: an under-18 student cannot be booked onto an open route, and a course slot cannot be offered unless it can be honored end to end.
 
-  The honest part of this build is the launch. Sign-in was hard down from the first deploy, through three causes stacked on top of each other, and a database change reached production in the wrong order and briefly broke signed-in pages. Both are written up below, with the fixes and the standing rule that came out of them.
+  The launch did not go smoothly. Nobody could sign in after the first deploy, for three reasons stacked on top of each other, and a database change reached the live system in the wrong order and briefly broke pages for signed-in users. Both are written up below, with the fixes and the standing rule that came out of them.
 
   The booking logic is the part I would carry into the next build of this shape: a business that sells a course rather than a single slot has the same availability problem, whatever it teaches.
 metrics:
@@ -63,7 +63,7 @@ The interesting part is not the screens, it is what the app refuses to allow.
 
 **Under 18 is a different product, not a warning label.** A student under 18 cannot enroll without a guardian name, guardian ID and guardian phone on file, and their bookings are locked to fixed closed training routes until they turn 18. The limit lifts on the birthday. Nobody has to remember to flip it, and nobody can flip it early.
 
-**A slot is only offered if the whole course can be honored.** A booking is a course: N lesson days in a row at one fixed hour. Three instructors teach it. Each has a weekly shift pattern plus separate time off, and the check behind the slot picker asks the harder question: is there one working instructor, not already booked, who covers every single lesson day of this course? If not, the slot is not shown. Seasonal hours are part of the same check, 9 to 6 in summer and 9 to 5 in winter, and Sundays are closed.
+**A slot is only offered if the whole course can be honored.** A booking is a course: a set number of lesson days in a row at one fixed hour. Three instructors teach it. Each has a weekly shift pattern plus separate time off, and the check behind the slot picker asks the harder question: is there one working instructor, not already booked, who covers every single lesson day of this course? If not, the slot is not shown. Seasonal hours are part of the same check, 9 to 6 in summer and 9 to 5 in winter, and Sundays are closed.
 
 **Payment is manual on purpose.** The student pays by mobile wallet or bank transfer, enters the transaction reference, and an admin confirms it before the enrollment is final. The payment screen only shows the methods that are set up, and the server rejects a payment against a method that is not, so a half-set-up option can never show a student a placeholder account number.
 
@@ -81,15 +81,17 @@ The interesting part is not the screens, it is what the app refuses to allow.
 
 ## What broke, and the policy that came out of it
 
-**Sign-in was hard down from the first deploy, through three causes stacked on top of each other.** Each fix revealed the next one, which is the part that makes this worth writing down.
+On launch day nobody could sign in, and the real cause was hiding under two smaller ones.
 
-First, the sign-in secret had never been set on the host. That alone produced roughly 547 errors in about an hour. Setting it moved the failure rather than ending it. Second, the OAuth client secret was stale, so the sign-in handshake kept failing on credentials that looked correct. Rotating it got the handshake working, and that is when the real cause showed up: the production database was completely empty, because the schema had never been pushed to it. The moment sign-in got far enough to succeed, it crashed on a table that did not exist.
+**Nobody could sign in after the first deploy.** Each fix revealed the next problem, which is the part that makes this worth writing down.
 
-Two real problems sat on top of the actual one. Neither was the cause, and fixing either on its own looked like no progress at all. The fix was to push the schema to production and test the sign-in path end to end against the real environment, not a local one where the tables happen to exist.
+First, the sign-in secret had never been set on the server. That alone produced roughly 547 errors in about an hour. Setting it moved the failure rather than ending it. Second, the key the app uses to prove itself to the sign-in service was out of date, so sign-in kept failing on details that looked correct. Replacing it got sign-in working, and that is when the real cause showed up: the live database was completely empty, because its tables had never been created. The moment sign-in got far enough to succeed, it crashed on a table that did not exist.
 
-**A schema change merged before the production database had it.** The change only added things and was safe on its own, but the order was wrong: production started asking for a table that did not exist yet, which meant a short window of errors for signed-in users until the database caught up.
+Two real problems sat on top of the actual one. Neither was the cause, and fixing either on its own looked like no progress at all. The fix was to create the tables on the live database and test sign-in from start to finish on the live system, not on my own machine, where the tables happen to exist.
 
-That one produced the standing policy, and it is not negotiable now: **database changes go to production first, then the code merges.** Additive or not. The database leads, the deploy follows.
+**A code change went live before the database was ready for it.** The change only added things and was safe on its own, but the order was wrong: the live app started asking for a table that did not exist yet, which meant a short window of errors for signed-in users until the database caught up.
+
+That one produced the standing policy, and it is not negotiable now: **database changes go live first, then the code.** Even changes that only add something. The database leads, the deploy follows.
 
 ## What's next
 

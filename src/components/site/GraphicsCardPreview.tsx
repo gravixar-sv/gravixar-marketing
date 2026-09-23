@@ -23,6 +23,14 @@ import { useEffect, useRef, useState } from "react";
 // entry's own copy says the reduced-motion branch never fetches the clips, so
 // a card that quietly pulled 250kB anyway would make the page lie about
 // itself.
+//
+// ONCE PER ENTRY, NEVER A LOOP. The clip plays through one time each time the
+// card scrolls into view, then rests on its last frame. Scrolling it away
+// pauses it; bringing it back starts it again from the top. The reader's
+// scroll is the cause, so this is causal motion rather than ambient motion,
+// which is the same reason the detail page's player waits for a press. The
+// entry's MDX says "plays the showreel once as it scrolls into view", so a
+// loop coming back here would make that sentence false.
 export function GraphicsCardPreview({
   src,
   poster,
@@ -88,6 +96,9 @@ export function GraphicsCardPreview({
       setArmed(true);
       return;
     }
+    // A fresh entry into view is a fresh play from the top, whether the last
+    // one finished (resting on its final frame) or was scrolled away mid-way.
+    el.currentTime = 0;
     // Muted and inline, so no autoplay policy should reject this. Swallow it
     // if one does: the poster is still underneath, and a card that throws in
     // the console because a browser declined to play a decoration is worse
@@ -106,7 +117,6 @@ export function GraphicsCardPreview({
       // it is warm by the time a second card needs it.
       preload="none"
       muted
-      loop
       playsInline
       aria-label={label}
       className={`absolute inset-0 h-full w-full ${className}`}

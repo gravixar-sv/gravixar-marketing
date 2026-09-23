@@ -50,19 +50,22 @@ const COUNTED_AT = LIBRARY_STATS.map((s) => s.verifiedAt).sort()[0];
 const sentence = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 // Three properties of the library, not three steps, so they are ruled rows
-// rather than numbered cards.
+// rather than numbered cards. Written for the person who runs an agency, not
+// for a developer: "private package", "entry" and "build" were the builder's
+// words for the same facts (one shared copy, a page per module, the projects
+// it runs in).
 const HOW_THE_LIBRARY_WORKS = [
   {
-    title: "One copy of each module",
-    body: "A reused module lives in one private package, not as a copy pasted into each new project and left to drift. A fix lands once and reaches every build that uses it.",
+    title: "One copy of each building block",
+    body: "Each shared building block is kept in one place, not copied into every new project and left to drift. When I fix it, the fix reaches every project that uses it.",
   },
   {
     title: "You can read it before you talk to me",
-    body: "Every entry says what it does, what it is built with, and which builds it runs inside today. You don't need a call to work out whether it fits your problem.",
+    body: "Each module page says what it does, what it is built with, and which live projects use it today. You don't need a call to work out whether it fits your problem.",
   },
   {
     title: "A person approves before anything changes",
-    body: "The AI drafts, a person decides. That rule holds in every custom build and it will hold in anything hosted later. No 3am surprises, no auto-published garbage.",
+    body: "The AI drafts, a person decides. That rule holds in every system I build, and it will hold in anything I host for you later. No 3am surprises, and nothing published without a yes.",
   },
 ] as const;
 
@@ -76,7 +79,10 @@ export default function EarlyAccessPage() {
         accent="You can't buy it off the shelf yet."
         // Two sentences, two lines: the serif tail starts its own line.
         accentBreak
-        lede="The module library is real: each entry names the build it runs inside. What does not exist yet is a monthly plan you can rent, and I won't give a date I can't keep."
+        // Plain words first. About's "Join the list" link arrives here from
+        // the phrase "building blocks", so the lede picks up that phrase and
+        // only then gives it the name the rest of the page uses.
+        lede="The building blocks are real. I call them modules, and each one in the library has its own page that names the live projects it runs in. What does not exist yet is a monthly plan you can rent, and I won't give a date I can't keep."
       />
 
       <div className="mt-12 grid gap-16 md:mt-16 lg:grid-cols-12 lg:gap-16">
@@ -122,7 +128,7 @@ export default function EarlyAccessPage() {
             ))}
           </dl>
           <p className="mt-4 text-caption text-ink-400">
-            Counted from the module registry, not projected from a roadmap.
+            Counted from my list of modules, not projected from a roadmap.
           </p>
           {COUNTED_AT ? (
             <p className="mt-1.5 font-mono text-label-sm text-ink-500">
@@ -152,11 +158,17 @@ export default function EarlyAccessPage() {
       </section>
 
       {/* What you can do now. Was "while you wait", which only makes sense
-          under a launch this page no longer claims. */}
+          under a launch this page no longer claims.
+          NO CORAL HERE. "Join the list" is this page's one decision, so the
+          library is a ghost button and the demo and the call are quiet links:
+          a second coral button this far down pulled readers off the list the
+          page exists for.
+          The panel is capped at the width its words need (h2 at 22ch, body at
+          56ch). Full width, the right half of a lit panel sat empty. */}
       <Reveal className="mt-24 md:mt-32">
         <section
           aria-labelledby="now-title"
-          className="panel-lit relative isolate overflow-hidden rounded-3xl px-6 py-10 sm:p-10 md:p-14"
+          className="panel-lit relative isolate overflow-hidden rounded-3xl px-6 py-10 sm:p-10 md:max-w-3xl md:p-14"
         >
           <div aria-hidden className="ember-rise pointer-events-none absolute inset-0 -z-10" />
           <h2 id="now-title" className="max-w-[22ch] text-section font-semibold text-ink-50">
@@ -167,16 +179,21 @@ export default function EarlyAccessPage() {
             sample data, and nothing you do is saved. Look at both, then decide if it fits before
             you book a call.
           </p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-            <Link href="/modules" className={cn("group", buttonClass())}>
+          <div className="mt-8 flex flex-col gap-x-6 gap-y-3 sm:flex-row sm:flex-wrap sm:items-center">
+            <Link href="/modules" className={cn("group", buttonClass({ variant: "ghost" }))}>
               See the module library <Arrow />
             </Link>
-            <a href={SITE.demoUrl} rel="noreferrer" className={cn("group", buttonClass({ variant: "ghost" }))}>
-              Try the demo <Arrow external />
+            <a
+              href={SITE.demoUrl}
+              rel="noreferrer"
+              className="group inline-flex min-h-11 items-center justify-center gap-2 text-sm text-ink-200 transition-colors hover:text-ink-50 sm:justify-start"
+            >
+              <span className="link-draw">Try the demo</span>
+              <Arrow external />
             </a>
             <Link
               href="/contact"
-              className="group inline-flex min-h-11 items-center justify-center px-2 text-sm text-ink-300 transition-colors hover:text-ink-50 sm:justify-start"
+              className="group inline-flex min-h-11 items-center justify-center text-sm text-ink-300 transition-colors hover:text-ink-50 sm:justify-start"
             >
               <span className="link-draw">Or book a 30-minute call</span>
             </Link>

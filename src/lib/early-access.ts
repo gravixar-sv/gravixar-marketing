@@ -75,7 +75,10 @@ export const INTEREST_LABELS: Record<(typeof interestOptions)[number], string> =
   "agentic-email": "AI email drafts that a person approves before they send",
   "client-portal": "A client portal I can rent (sign-offs, change history)",
   "ai-intake-wizard": "AI client intake (asks follow-ups, drafts a brief from their website)",
-  "audit-log-restore": "Change history with one-click undo",
+  // Not "with one-click undo": restore is limited to an allowlist of fields,
+  // and status, money and ownership are never restorable
+  // (content/modules/audit-log-restore.mdx, the bs-hub case study).
+  "audit-log-restore": "Change history, with one-click undo on approved fields",
   "review-state-machine": "Sign-off flow for client work",
   "ops-consulting": "A custom build for my own business",
   "brand-visuals": "Brand and visual work (identity, motion, decks)",

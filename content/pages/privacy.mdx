@@ -18,11 +18,11 @@ I only collect what you choose to send through one of the forms on this site. I 
 
 - **Contact form.** Your name, email, and message. Optionally your company and the type of work you need. Used to read your enquiry and reply.
 - **Book a call.** Your name and email, the slot you pick, and an optional topic or note. I email you a one-time code to confirm the email is yours, then send a calendar invite with a Google Meet link. Used to schedule and run the call.
-- **Early-access waitlist.** Your email, and optionally your name, primary interest, team size, timeline, and a short note. Used to gauge interest and let you know when a module opens.
+- **Early-access waitlist.** Your email, and optionally your name, primary interest, team size, timeline, and a short note. Used to gauge interest and let you know when early access opens.
 - **Service inquiry.** The details you submit about the work you are scoping. Used to respond and prepare for a conversation.
 - **Job application (careers).** Your name, email, phone number, optional company, any links you add (LinkedIn, portfolio, GitHub, and similar), your answers to role screening questions, your message, and your CV file if you attach one. Used to review your application and contact you.
 
-For any form submission I also record a timestamp, your IP address, and your browser user-agent string. This is a standard server-side record kept for spam prevention and security.
+For any form submission I also record a timestamp, your IP address and which browser you used. This is a standard server-side record kept for spam prevention and security.
 
 ## Legal basis
 
@@ -41,15 +41,15 @@ I use what you send to reply to you, schedule and run calls, evaluate enquiries 
 I keep the stack small. The only third parties that touch your data are the services that actually run this site:
 
 - **Vercel** hosts the site and processes the requests you make. Vercel Analytics and Speed Insights run on the site's pages to measure traffic and performance. These are aggregate and privacy-first: they do not set advertising cookies and do not track you across other sites.
-- **Vercel Blob** stores form submissions (as an append-only log) and any CV file you upload, on Vercel's storage.
-- **Resend** sends the transactional email: the booking confirmation code, your calendar invite, and the notification that lands in my inbox when you submit a form.
+- **Vercel Blob** stores form submissions (kept as a running record that is added to, never edited) and any CV file you upload, on Vercel's storage.
+- **Resend** sends the emails this site sends: the booking confirmation code, your calendar invite, and the notification that lands in my inbox when you submit a form.
 - **Google** provides the Meet video link used for booked calls. The link is generated for the call; I do not connect to your Google account.
 
 Each of these processes your data only to provide its service to me, under its own terms.
 
 ## File storage and retention
 
-If you attach a CV to a job application, it is stored on Vercel Blob as a private file. The URL alone grants nothing: the file is not readable by anyone who has the link, and the only way to open it is through an admin route that authenticates first and then streams the file. Form submissions are kept as an append-only log so there is a record of who reached out.
+If you attach a CV to a job application, it is stored on Vercel Blob as a private file. The link alone opens nothing: the file can only be opened from my admin area, after signing in. Form submissions are kept as a running record that is added to, never edited, so there is a record of who reached out.
 
 Applications received before the last-updated date at the top of this page were stored under a different arrangement, at an address that was unlisted but not authenticated. If you applied earlier and want that file removed, ask and I will delete it.
 

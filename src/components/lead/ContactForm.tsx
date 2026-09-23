@@ -128,13 +128,22 @@ export function ContactForm() {
         </label>
       </div>
       {state.kind === "error" ? <FormError /> : null}
-      {/* Ghost, not primary: on desktop this sits beside the booking panel,
-          whose "Email me the code" is the page's one coral action. */}
+      {/* Primary on phones, ghost from md up. From md this sits beside the
+          booking panel, whose "Email me the code" is the page's one coral
+          action, so it steps back. Below md the two forms are stacked, the
+          booking panel shows no coral until a time is picked, and someone who
+          scrolled past the picker to write a note is making the page's
+          decision here, so it takes the coral. One element, one variant: the
+          ghost set is layered on at md (md:hover sorts after hover, so it
+          wins there). */}
       <Button
         type="submit"
-        variant="ghost"
         disabled={submitting}
-        className={cn("w-full sm:w-auto", submitting && "cursor-wait")}
+        className={cn(
+          "w-full sm:w-auto",
+          "md:border md:border-line-strong md:bg-ink-50/[0.02] md:text-ink-100 md:shadow-none md:hover:border-ink-400/60 md:hover:bg-ink-50/[0.06] md:hover:shadow-none md:active:bg-ink-50/[0.08]",
+          submitting && "cursor-wait",
+        )}
       >
         {submitting ? "Sending…" : "Send the note"}
       </Button>

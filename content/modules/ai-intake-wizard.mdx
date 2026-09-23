@@ -13,6 +13,6 @@ order: 5
 publishedAt: "2026-05-04"
 ---
 
-The intake wizard's job is to turn a cold form-fill into a warm discovery call. Visitor lands, types one or two sentences about their business, the wizard fetches their site, runs a Claude pass to draft a brand profile (tone, audience, current positioning, what they sell, what's missing), and asks adaptive follow-ups based on what's still ambiguous. Output: a concrete brief the PM reads before the call instead of starting from "tell me about your company."
+A form gets you a name and a budget. This gets your project manager a brief. The prospect writes a sentence or two, the wizard reads their website, drafts their tone, audience, what they sell and what is missing, then asks only about what is still unclear.
 
-The architecture is provider-agnostic via Vercel AI Gateway, so the model string `anthropic/claude-sonnet-4-6` is one line away from `openai/gpt-5` if a better option ships. AI fails open: if the API is down, the wizard collects answers normally and flags the brief as "human-drafted only." The flow never blocks on a third-party LLM.
+It is not tied to one AI company, so switching to a better model is a one-line change. If the AI is down, the wizard still collects the answers as a normal form and marks the brief as written without AI. A prospect is never left waiting on it.

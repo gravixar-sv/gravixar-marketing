@@ -13,6 +13,10 @@ order: 12
 publishedAt: "2026-05-04"
 ---
 
-The right shape for ops monitoring is "email me when something is off," not "email me a dashboard every night." The security-watch cron sweeps the previous day's audit log against a small set of anomaly patterns: signup volume vs. rolling baseline, DELETE bursts beyond a per-actor threshold, lockout cascades that might indicate a credential-stuffing attempt, AI classifier blackouts (model down, fallback path hit), inquiries stuck in a state past their stage SLA.
+The right shape for ops monitoring is "email me when something is off," not "email me a dashboard every night." This reads the day's activity every night and only writes when something looks wrong. Three months in, you stop reading emails for what's working and only look when there's a subject line.
 
-If nothing trips, the cron exits silently. If anything trips, an email lands with the matching audit rows inlined and a one-paragraph summary of what looks unusual. Three months in, you stop reading emails for what's working and only look when there's a subject line. That's the discipline.
+## Under the hood
+
+The security-watch cron sweeps the previous day's audit log against a small set of anomaly patterns: signup volume vs. rolling baseline, DELETE bursts beyond a per-actor threshold, lockout cascades that might indicate a credential-stuffing attempt, AI classifier blackouts (model down, fallback path hit), inquiries stuck in a state past their stage SLA.
+
+If nothing trips, the cron exits silently. If anything trips, an email lands with the matching audit rows inlined and a one-paragraph summary of what looks unusual.

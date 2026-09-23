@@ -39,10 +39,24 @@ function cropVars(box: CropBox, key: "n" | "w"): Record<string, string> {
 
 // layout "stack" (the default, and what /demos uses): the featured scene full
 // width, the other four as a 2x2 grid, stacking on phones.
-// layout "rail" (the homepage): the same on desktop, but on phones the four
-// followers become a horizontal scroll-snap row, so five tall cards stop being
-// a third of the page. Each card is 82vw, so the next one always peeks in and
-// the row explains itself without a counter.
+//
+// layout "rail" (the homepage): the featured scene is the section's ONE big
+// picture, and the four followers are not a second grid of it.
+//   - md and up, they are ROWS in the Selected Work idiom: hairlines between,
+//     the whole row is the link, the address, name, buyer and one line on the
+//     left, the open link under them, and a small frame (240px) on the right.
+//     A 2x2 of identical cards (frame, address, title, pill, two lines, link,
+//     four times over) was the one templated moment on the page.
+//   - on phones they are a horizontal scroll-snap row, so five tall cards
+//     stop being a third of the page. Each card is 82vw, so the next one
+//     always peeks in and the row explains itself without a counter.
+// It is one DOM for both (the same <a> is a card in the rail and a row from
+// md), so nothing is printed twice for assistive tech.
+//
+// Every row's thumbnail uses the scene's NARROW box at every width: one
+// column of the app at about 0.6x still reads as software, where a whole
+// 780px board squeezed into 240px is texture. None of the narrow boxes opens
+// on an idle "standing by" panel; two of the wide ones do (see demos.ts).
 export function DemoGrid({
   priority = false,
   layout = "stack",
@@ -52,7 +66,6 @@ export function DemoGrid({
 }) {
   const [featured, ...rest] = DEMO_SCENES;
   if (!featured) return null;
-  const rail = layout === "rail";
   // reveal-stagger sits on the outer pair (featured, then the followers as one
   // block) rather than on the rail's cards: a scroll-driven reveal binds to the
   // nearest scroll container, and inside a horizontal scroller that would be
@@ -62,23 +75,103 @@ export function DemoGrid({
       {/* On /demos (priority) the featured card is the fold: .reveal-skip keeps
           it out of the scroll reveal so it never starts part-faded. */}
       <SceneCard scene={featured} priority={priority} featured className={priority ? "reveal-skip" : undefined} />
+      {layout === "rail" ? (
+        <ul className="-mx-6 flex snap-x snap-mandatory scroll-pl-6 gap-4 overflow-x-auto px-6 pb-6 [scrollbar-width:none] md:mx-0 md:block md:snap-none md:overflow-visible md:border-b md:border-line md:px-0 md:pb-0 [&::-webkit-scrollbar]:hidden">
+          {rest.map((scene) => (
+            <li key={scene.slug} className="w-[82vw] shrink-0 snap-start md:w-auto">
+              <SceneRow scene={scene} />
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div className="grid gap-12 md:grid-cols-2 md:gap-x-6 md:gap-y-14">
+          {rest.map((scene, i) => (
+            <SceneCard key={scene.slug} scene={scene} priority={priority && i === 0} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function sceneLink(scene: DemoScene) {
+  return {
+    href: `${SITE.demoUrl}/${scene.slug}`,
+    address: `${SITE.demoUrl.replace(/^https?:\/\//, "")}/${scene.slug}`,
+  };
+}
+
+// The lit bezel and the cropped capture inside it. `wide` is the box used from
+// md up; rows pass the narrow box for both, so their thumbnail never swaps.
+function Frame({
+  scene,
+  wide,
+  sizes,
+  priority,
+  compact = false,
+  lift = true,
+  className,
+}: {
+  scene: DemoScene;
+  wide: CropBox;
+  sizes: string;
+  priority: boolean;
+  compact?: boolean;
+  lift?: boolean;
+  className?: string;
+}) {
+  const vars = { ...cropVars(scene.crop.narrow, "n"), ...cropVars(wide, "w") } as CSSProperties;
+  return (
+    // The frame is the only thing that moves on a card: a 4px lift on the way
+    // in (280ms) and a slower settle on the way out (420ms), with its edge
+    // brightening. motion-safe, so reduced motion keeps the edge light and
+    // drops the lift, on hover and on keyboard focus alike. Rows do not lift
+    // (their hairline answers the pointer), they only brighten the edge.
+    <div
+      className={`frame-lit relative transition-[translate] duration-[420ms] ease-out group-hover:duration-[280ms] group-focus-visible:duration-[280ms] ${
+        compact ? "rounded-2xl p-1.5 md:rounded-xl md:p-1" : "rounded-2xl p-1.5"
+      } ${lift ? "motion-safe:group-hover:-translate-y-1 motion-safe:group-focus-visible:-translate-y-1" : ""} ${
+        className ?? ""
+      }`}
+    >
+      <span
+        aria-hidden
+        className={`pointer-events-none absolute -inset-px border border-ink-50/20 opacity-0 transition-opacity duration-[420ms] ease-out group-hover:opacity-100 group-hover:duration-200 group-focus-visible:opacity-100 ${
+          compact ? "rounded-2xl md:rounded-xl" : "rounded-2xl"
+        }`}
+      />
       <div
-        className={
-          rail
-            ? "-mx-6 flex snap-x snap-mandatory scroll-pl-6 gap-4 overflow-x-auto px-6 pb-6 [scrollbar-width:none] md:mx-0 md:grid md:snap-none md:grid-cols-2 md:gap-x-6 md:gap-y-14 md:overflow-visible md:px-0 md:pb-0 [&::-webkit-scrollbar]:hidden"
-            : "grid gap-12 md:grid-cols-2 md:gap-x-6 md:gap-y-14"
-        }
+        className={`relative overflow-hidden bg-ink-950 [aspect-ratio:var(--ar-n)] [mask-image:linear-gradient(to_bottom,#000_90%,transparent)] md:[aspect-ratio:var(--ar-w)] ${
+          compact ? "rounded-[10px] md:rounded-lg" : "rounded-[10px]"
+        }`}
+        style={vars}
       >
-        {rest.map((scene, i) => (
-          <SceneCard
-            key={scene.slug}
-            scene={scene}
-            priority={priority && i === 0}
-            className={rail ? "w-[82vw] shrink-0 snap-start md:w-auto" : undefined}
+        <div className="shot-parallax absolute inset-0">
+          <Image
+            src={scene.shot}
+            alt={`${scene.name}: ${scene.whatItIs}`}
+            width={SRC.w}
+            height={SRC.h}
+            sizes={sizes}
+            priority={priority}
+            className="absolute h-auto max-w-none [left:var(--il-n)] [top:var(--it-n)] [width:var(--iw-n)] md:[left:var(--il-w)] md:[top:var(--it-w)] md:[width:var(--iw-w)]"
           />
-        ))}
+        </div>
       </div>
     </div>
+  );
+}
+
+function OpenLabel({ scene, className }: { scene: DemoScene; className?: string }) {
+  return (
+    <span
+      className={`inline-flex items-center gap-2 text-caption text-ink-300 transition-colors group-hover:text-ink-50 group-focus-visible:text-ink-50 ${
+        className ?? ""
+      }`}
+    >
+      <span className="link-draw group-focus-visible:[background-size:100%_1px]">{scene.openLabel}</span>
+      <Arrow external />
+    </span>
   );
 }
 
@@ -93,9 +186,7 @@ function SceneCard({
   featured?: boolean;
   className?: string;
 }) {
-  const href = `${SITE.demoUrl}/${scene.slug}`;
-  const address = `${SITE.demoUrl.replace(/^https?:\/\//, "")}/${scene.slug}`;
-  const vars = { ...cropVars(scene.crop.narrow, "n"), ...cropVars(scene.crop.wide, "w") } as CSSProperties;
+  const { href, address } = sceneLink(scene);
   // The rendered image is the frame width times (capture width / box width).
   // A narrow box is about a quarter of the capture, so on phones the image is
   // about four frame-widths wide; the optimiser never upscales past 1600.
@@ -105,32 +196,7 @@ function SceneCard({
   return (
     <a href={href} rel="noreferrer" className={`group block rounded-2xl ${className ?? ""}`}>
       <figure>
-        {/* The frame is the only thing that moves: a 4px lift on the way in
-            (280ms) and a slower settle on the way out (420ms), with its edge
-            brightening. motion-safe, so reduced motion keeps the edge light
-            and drops the lift, on hover and on keyboard focus alike. */}
-        <div className="frame-lit relative rounded-2xl p-1.5 transition-[translate] duration-[420ms] ease-out group-hover:duration-[280ms] group-focus-visible:duration-[280ms] motion-safe:group-hover:-translate-y-1 motion-safe:group-focus-visible:-translate-y-1">
-          <span
-            aria-hidden
-            className="pointer-events-none absolute -inset-px rounded-2xl border border-ink-50/20 opacity-0 transition-opacity duration-[420ms] ease-out group-hover:opacity-100 group-hover:duration-200 group-focus-visible:opacity-100"
-          />
-          <div
-            className="relative overflow-hidden rounded-[10px] bg-ink-950 [aspect-ratio:var(--ar-n)] [mask-image:linear-gradient(to_bottom,#000_90%,transparent)] md:[aspect-ratio:var(--ar-w)]"
-            style={vars}
-          >
-            <div className="shot-parallax absolute inset-0">
-              <Image
-                src={scene.shot}
-                alt={`${scene.name}: ${scene.whatItIs}`}
-                width={SRC.w}
-                height={SRC.h}
-                sizes={sizes}
-                priority={priority}
-                className="absolute h-auto max-w-none [left:var(--il-n)] [top:var(--it-n)] [width:var(--iw-n)] md:[left:var(--il-w)] md:[top:var(--it-w)] md:[width:var(--iw-w)]"
-              />
-            </div>
-          </div>
-        </div>
+        <Frame scene={scene} wide={scene.crop.wide} sizes={sizes} priority={priority} />
         <figcaption className="mt-3 px-1 font-mono text-xs text-ink-500">{address}</figcaption>
       </figure>
 
@@ -161,14 +227,51 @@ function SceneCard({
             {scene.whatItIs}. {scene.tryLine}
           </p>
         </div>
-        <span
-          className={`inline-flex items-center gap-2 text-caption text-ink-300 transition-colors group-hover:text-ink-50 group-focus-visible:text-ink-50 ${
-            featured ? "mt-4 md:mt-0" : "mt-3"
-          }`}
-        >
-          <span className="link-draw group-focus-visible:[background-size:100%_1px]">{scene.openLabel}</span>
-          <Arrow external />
-        </span>
+        <OpenLabel scene={scene} className={featured ? "mt-4 md:mt-0" : "mt-3"} />
+      </div>
+    </a>
+  );
+}
+
+// A follower on the homepage: a card in the phone rail, a hairline row from
+// md. The frame is DOM-first so it leads on phones, and is placed in column 2
+// from md. The buyer is a plain caption, not a pill: in a row it is a fact
+// about the scene, not a control. Hover is the Selected Work hairline (ivory,
+// from the left, transform only), never coral: a hover is not a decision.
+// The hairline's pseudo is declared at EVERY width, at scale 0, and only its
+// hover is md-scoped: scoped to md, it sat at scale 1 below md and swept
+// across the row whenever the viewport crossed md.
+function SceneRow({ scene }: { scene: DemoScene }) {
+  const { href, address } = sceneLink(scene);
+  // Phones: the narrow box at 82vw, about 4.1 frame-widths of image. From md
+  // the frame is 240px, so the image is about 990px wide.
+  const sizes = "(min-width: 768px) 990px, 340vw";
+  return (
+    <a
+      href={href}
+      rel="noreferrer"
+      className="group relative grid gap-4 rounded-2xl before:absolute before:inset-x-0 before:-top-px before:h-px before:origin-left before:scale-x-0 before:bg-ink-600 before:transition-transform before:duration-[240ms] before:ease-out md:grid-cols-[minmax(0,1fr)_240px] md:items-center md:gap-12 md:rounded-none md:border-t md:border-line md:py-8 md:hover:before:scale-x-100 motion-reduce:before:transition-none"
+    >
+      <Frame
+        scene={scene}
+        wide={scene.crop.narrow}
+        sizes={sizes}
+        priority={false}
+        compact
+        lift={false}
+        className="md:col-start-2 md:row-start-1"
+      />
+      <div className="px-1 md:col-start-1 md:row-start-1 md:px-0">
+        <p className="font-mono text-xs text-ink-500">{address}</p>
+        <h3 className="mt-3 text-lg font-semibold tracking-[-0.015em] text-ink-100 transition-colors duration-200 group-hover:text-ink-50 group-focus-visible:text-ink-50 md:text-xl">
+          {scene.name}
+          <span className="ml-2 font-normal text-ink-500">{scene.brand}</span>
+        </h3>
+        <p className="mt-1 text-caption text-ink-400">For {scene.personaLabel}</p>
+        <p className="mt-3 max-w-[56ch] text-[0.9375rem] leading-relaxed text-ink-400">
+          {scene.whatItIs}. {scene.tryLine}
+        </p>
+        <OpenLabel scene={scene} className="mt-4" />
       </div>
     </a>
   );

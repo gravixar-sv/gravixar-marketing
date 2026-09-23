@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import {
   Stack,
   Scales,
@@ -38,19 +38,6 @@ const TRAILING = [{ href: "/about", label: "About" }] as const;
 // a line that loads a third full before anyone scrolls says nothing.
 const LONG_FORM = /^\/(blog|work|compare|services)\/[^/]+$|^\/privacy$/;
 
-// One coral fill per viewport. On the homepage the hero publishes whether its
-// own "Start with the Ops Leak Audit" is on screen (html[data-hero-cta], set by
-// HeroCtaSignal); while it is, the header's audit button goes quiet. On the
-// audit page the page's own start button owns the coral. Server snapshot is
-// "visible", so SSR renders the quiet button on / and nothing flashes.
-function subscribeHeroCta(onChange: () => void) {
-  const mo = new MutationObserver(onChange);
-  mo.observe(document.documentElement, { attributes: true, attributeFilter: ["data-hero-cta"] });
-  return () => mo.disconnect();
-}
-const heroCtaSnapshot = () => document.documentElement.dataset.heroCta ?? "absent";
-const heroCtaServerSnapshot = () => "visible";
-
 function isActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
@@ -61,9 +48,6 @@ export function Navbar() {
   const moreRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const moreActive = MORE.some((m) => isActive(pathname, m.href));
-  const heroCta = useSyncExternalStore(subscribeHeroCta, heroCtaSnapshot, heroCtaServerSnapshot);
-  const quietAuditCta =
-    (pathname === "/" && heroCta !== "gone") || pathname === "/services/ops-leak-audit";
 
   // Close both menus on route change: the same DOM persists across client
   // navigations in the App Router.
@@ -112,7 +96,7 @@ export function Navbar() {
     // The header is its own view-transition group (see globals.css): held
     // still and painted above the page while <main> swaps beneath it.
     <header
-      className="site-header sticky top-0 z-40 border-b border-line-soft bg-bg/80 backdrop-blur-md"
+      className="site-header sticky top-0 z-40 border-b border-line-soft bg-bg/95"
       style={{ viewTransitionName: "site-header" } as CSSProperties}
     >
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
@@ -197,12 +181,13 @@ export function Navbar() {
           <Link href="/contact" className={cn(buttonClass({ variant: "ghost", size: "sm" }), "hidden lg:inline-flex")}>
             Book a call
           </Link>
+          {/* Quiet on every route. Every page now carries its own primary
+              action, and a coral fill in a sticky header sat beside it in
+              every viewport: two coral buttons, so neither read as the
+              decision. Coral in the chrome is the active-route dot only. */}
           <Link
             href="/services/ops-leak-audit"
-            className={cn(
-              buttonClass({ variant: quietAuditCta ? "ghost" : "primary", size: "sm" }),
-              "hidden lg:inline-flex",
-            )}
+            className={cn(buttonClass({ variant: "ghost", size: "sm" }), "hidden lg:inline-flex")}
           >
             Ops Leak Audit
           </Link>
@@ -235,7 +220,7 @@ export function Navbar() {
       {LONG_FORM.test(pathname) ? <span aria-hidden className="read-progress" /> : null}
 
       {mobileOpen ? (
-        <div className="mobile-sheet border-t border-line-soft bg-bg/95 backdrop-blur-md lg:hidden">
+        <div className="mobile-sheet border-t border-line-soft bg-bg lg:hidden">
           <nav aria-label="Mobile" className="mx-auto max-h-[calc(100dvh-4rem)] max-w-6xl overflow-y-auto px-6 pb-6 pt-3">
             <ul className="divide-y divide-line-soft">
               {[...PRIMARY, ...TRAILING].map((item, i) => {

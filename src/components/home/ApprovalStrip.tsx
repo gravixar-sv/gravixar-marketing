@@ -12,10 +12,20 @@ import styles from "./ApprovalStrip.module.css";
 //
 // Step titles come from ./hero/loopSteps.ts, the same module Loop.tsx prints,
 // so the fold and "how it works" cannot drift into saying different things
-// about the same mechanism. The card prints TITLES ONLY, at every width: the
-// Loop section one scroll below is the one place the three explanatory
-// sentences appear. Printing them here too put the same 40 words on screen
-// twice, 80px apart.
+// about the same mechanism. The card prints TITLES ONLY: the Loop section one
+// scroll below is the one place the three explanatory sentences appear.
+//
+// BELOW lg, THE DECISION ONLY. On a phone the card sits about 300px above the
+// Loop section, so its three step titles were the loop's second telling in
+// one and a half screens (the 3D scene is the first, the Loop the third).
+// Under lg the card keeps the header, the held chip, the Approve control and
+// the footnote; step 03, the titles, the numerals and the gutter rail carry
+// .wideOnly, and the step grid collapses to one column (both in
+// ApprovalStrip.module.css). Not Tailwind's max-lg:hidden: .step sets its
+// display in this unlayered module, which outranks any layered utility, so
+// a hidden step would have stayed in the flow as an empty grid. From lg, where the card sits beside the scene
+// and the Loop is a scroll away, all three steps print as before. One DOM at
+// every width, so the chip's flip and the live region are never duplicated.
 //
 // BASE VISIBILITY, the rule this component is most likely to break. Every
 // step, the chip and the control are server-rendered at full emphasis.
@@ -88,27 +98,30 @@ export function ApprovalStrip({ approved, held, onApprove, onReset, className }:
 
       <ol className="mt-5 space-y-3.5 lg:space-y-4">
         {LOOP_STEPS.map((step, i) => (
-          <li key={step.key} className={cx(styles.step, i === 2 && styles.wake)}>
-            {i < 2 ? <span aria-hidden className={cx(styles.rail, i === 1 && styles.wire)} /> : null}
+          <li key={step.key} className={cx(styles.step, i === 2 && styles.wake, i === 2 && styles.wideOnly)}>
+            {i < 2 ? (
+              <span aria-hidden className={cx(styles.rail, i === 1 && styles.wire, styles.wideOnly)} />
+            ) : null}
             {/* Decorative: the ordered list carries the sequence. */}
             <span
               aria-hidden
               className={cx(
                 styles.num,
                 i === 1 && styles.num2,
+                styles.wideOnly,
                 "pt-px text-caption font-medium",
               )}
             >
               {String(i + 1).padStart(2, "0")}
             </span>
             <div className="min-w-0">
-              <p className="text-[0.9375rem] font-medium leading-snug text-ink-50">{step.title}</p>
+              <p className={cx(styles.wideOnly, "text-[0.9375rem] font-medium leading-snug text-ink-50")}>{step.title}</p>
 
               {i === 0 ? (
                 <p
                   className={cx(
                     styles.chip,
-                    "mt-2.5 inline-flex max-w-full items-center gap-2 rounded-md px-2 py-1 font-mono text-label-sm text-ink-400",
+                    "inline-flex max-w-full items-center gap-2 rounded-md px-2 py-1 font-mono text-label-sm text-ink-400 lg:mt-2.5",
                   )}
                 >
                   <span aria-hidden className={styles.flip}>
@@ -130,7 +143,7 @@ export function ApprovalStrip({ approved, held, onApprove, onReset, className }:
                       things horizontally inside it. 44px for touch at every
                       width (an iPad at 1024 is still a finger); the compact
                       36px size is for a mouse or trackpad only. */}
-                  <div className="mt-3 flex h-11 items-center gap-2 pointer-fine:h-9">
+                  <div className="flex h-11 items-center gap-2 pointer-fine:h-9 lg:mt-3">
                     <button
                       ref={approveRef}
                       type="button"

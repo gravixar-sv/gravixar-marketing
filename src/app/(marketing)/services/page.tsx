@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PageHeader } from "@/components/site/PageHeader";
 import { Reveal } from "@/components/site/Reveal";
-import { SpotlightGrid } from "@/components/site/SpotlightGrid";
 import { ContactCTA } from "@/components/home/ContactCTA";
 import { FrontDoor } from "@/components/services/FrontDoor";
 import { TRACK_LABEL, type Track } from "@/components/services/model";
@@ -77,7 +76,7 @@ export default async function ServicesIndexPage() {
               {TRACK_LABEL[track]}
             </h2>
             <Reveal className="reveal-quiet">
-              <SpotlightGrid className="mt-3 border-t border-line">
+              <div className="mt-3 border-t border-line">
                 <div className="reveal-stagger divide-y divide-line-soft">
                   {inTrack.map((s) => (
                     <div key={s.meta.slug}>
@@ -85,7 +84,7 @@ export default async function ServicesIndexPage() {
                     </div>
                   ))}
                 </div>
-              </SpotlightGrid>
+              </div>
             </Reveal>
           </section>
         );

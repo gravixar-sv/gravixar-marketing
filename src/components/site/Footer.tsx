@@ -5,6 +5,8 @@ import { SITE } from "@/lib/seo";
 const SITE_LINKS = [
   { href: "/services", label: "Services" },
   { href: "/work", label: "Work" },
+  { href: "/demos", label: "Demos" },
+  { href: "/modules", label: "Modules" },
   // /compare was reachable only from the navbar's "More" menu, which left five
   // high-intent pages effectively orphaned. Keep it here.
   { href: "/compare", label: "Compare" },
@@ -20,8 +22,8 @@ const linkClass = "text-ink-400 transition-colors hover:text-ink-50";
 export function Footer() {
   return (
     <footer className="relative overflow-hidden border-t border-line-soft bg-ink-950/50">
-      <div className="mx-auto grid max-w-6xl gap-12 px-6 pb-10 pt-16 md:grid-cols-12 md:pt-20">
-        <div className="md:col-span-6">
+      <div className="mx-auto grid max-w-6xl grid-cols-2 gap-x-6 gap-y-12 px-6 pb-10 pt-16 md:grid-cols-12 md:pt-20">
+        <div className="col-span-2 md:col-span-6">
           <Image
             src="/logos/gravixar-wordmark.png"
             alt={SITE.name}
@@ -106,14 +108,18 @@ export function Footer() {
 
       {/* The closing brand moment: the wordmark set huge and cropped by the
           page edge, barely lit from below. Decorative, so aria-hidden. */}
-      <div aria-hidden className="pointer-events-none relative mx-auto -mb-[3vw] max-w-[88rem] select-none px-6">
+      <div aria-hidden className="pointer-events-none relative mx-auto -mb-[3vw] max-w-[88rem] select-none overflow-hidden px-6">
         <div className="ember-rise absolute inset-x-0 bottom-0 h-[70%] opacity-60" />
+        {/* 109% wide inside an overflow-hidden box, so the trademark glyph at
+            the far right falls outside the crop instead of rendering 70px tall. */}
         <Image
           src="/logos/gravixar-wordmark.png"
           alt=""
           width={1440}
           height={354}
-          className="relative w-full opacity-[0.06] [mask-image:linear-gradient(to_bottom,#000_20%,transparent_95%)]"
+          // Desaturated so the mark's red square does not read as a muddy
+          // dark-red block at this opacity: one quiet ivory shape.
+          className="relative w-[109%] max-w-none opacity-[0.07] [filter:grayscale(1)_brightness(1.6)] [mask-image:linear-gradient(to_bottom,#000_20%,transparent_95%)]"
         />
       </div>
     </footer>

@@ -10,9 +10,11 @@ import { cn } from "@/lib/cn";
 // One play/pause button instead.
 //
 // PRESS TO PLAY, for everyone. Nothing on this site moves on its own except the
-// client logo rail, and the page's own copy says the frames here are stills and
-// that a loop playing itself cannot stand in for the scroll-driven original.
-// An autoplaying hero made both of those untrue.
+// client logo rail (the /graphics card preview plays once when the reader
+// scrolls it into view, never on a loop), and the page's own copy says the
+// player at the top waits until you press play and that a clip playing itself
+// cannot stand in for the scroll-driven original. An autoplaying hero made
+// both of those untrue.
 //
 //   - The server renders a <video> carrying only its poster, so with no JS the
 //     still is correct and a <noscript> link opens the file.

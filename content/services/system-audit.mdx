@@ -26,25 +26,27 @@ pricing: "$6,500 fixed for one codebase, with the scope agreed in writing before
 
 A codebase written mostly with AI usually works. The question comes later, and from somebody else: an investor's technical diligence, a buyer's review, a compliance window, an enterprise client's security questionnaire. That is a bad week to find out. This review is for the weeks before it.
 
-{/* facts-ledger: the page renders the two reviews' figures as a ledger here */}
-
-## What it found in a live app
-
-On a healthcare platform, the method handled 14 bugs: 3 found by walking through the app the way a user does, 8 by the second pass, and 3 held back with the reason written down. Two of the 14 were already broken in the live app and nobody knew. One was a tab labeled "All" that crashed on any record using one of the newer statuses. The other was a back-end address that handed every client's credentials to anyone with access to a single module: one client's data open to the others, in a live app.
-
-That second one is the honest answer to "would this find anything in mine". It had gone unreported because the people who could trigger it were not looking, and the people looking did not have that access.
-
 ## How it works
 
 Point enough AI agents at a codebase and you have sixty findings by lunch. Sixty findings nobody reads is worth less than five that get fixed, so the count is not the product. The filter is.
 
 First, a group of AI agents reads the code at the same time, each looking for one kind of problem: data that goes wrong, people seeing what they should not, errors nobody handles, risky database changes, and the app used the way a real person uses it. Then every problem goes to a second pass whose only job is to prove it wrong: already handled, impossible to reach in practice, or simply mistaken. What survives gets ranked by how much it matters, and only that reaches your report.
 
+{/* facts-ledger: the page renders the two reviews' figures as a ledger here, after the terms they use are defined */}
+
+## What it found in two live apps
+
+On a healthcare platform, the method handled 14 bugs, 3 of them held back with the reason written down. Two of the 14 were already broken in the live app and nobody knew. One was a tab labeled "All" that crashed on any record using one of the newer statuses. The other was a back-end address that handed every client's credentials to anyone with access to a single module: one client's data open to the others, in a live app.
+
+That second one is the honest answer to "would this find anything in mine". It had gone unreported because the people who could trigger it were not looking, and the people looking did not have that access.
+
 On an agency portal, 14 parallel checks found 63 problems. The second pass killed none of them but changed the ranking on 11, and that is the number I watch more closely than the total, because a list in the wrong order is the list people stop reading. Two sets of changes closed 87 problems, older ones included, and the tests finished at 252 of 252 passing.
 
 ## The findings that are not bugs
 
-The review reads the data and the database changes too, because that is where failure stays quiet. On the same healthcare platform it found an import that had reported success while quietly dropping a third of its data: of 1,796 payer rows, only 1,123 made it in. Fixing it took the live system from 194 to 250 clients and from 1,521 to 2,042 records. Two calls during that recovery went against the obvious move. A spreadsheet color did not mean what everyone assumed, and mapping it automatically would have closed roughly 240 live records. And 42 of 98 stacked blocks repeated the first block's ID, so importing them all would have created 42 duplicate clients. That judgment is the part agents cannot do alone, and it is why a person signs the record.
+The review reads the data and the database changes too, because that is where failure stays quiet. On the same healthcare platform it found an import that had reported success while quietly dropping a third of its data: of 1,796 payer rows, only 1,123 made it in. Fixing it took the live system from 194 to 250 clients and from 1,521 to 2,042 records.
+
+Two calls during that recovery went against the obvious move. A spreadsheet color did not mean what everyone assumed, and mapping it automatically would have closed roughly 240 live records. And 42 of 98 stacked blocks repeated the first block's ID, so importing them all would have created 42 duplicate clients. That judgment is the part agents cannot do alone, and it is why a person signs the record.
 
 ## What you receive
 

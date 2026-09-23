@@ -89,8 +89,7 @@ export function ServiceInquiryForm({
     return (
       <div ref={doneRef} tabIndex={-1} className="rounded-xl outline-none">
         <FormSuccess flat title="Got it. I will reply within 24 hours.">
-          It reaches me tagged with the {serviceTitle} page, so there is nothing
-          to explain twice.
+          Your note came from the {serviceTitle} page, so I have the context.
         </FormSuccess>
       </div>
     );

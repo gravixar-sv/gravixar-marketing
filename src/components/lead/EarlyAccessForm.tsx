@@ -13,7 +13,8 @@
 // Payload keys, the honeypot and the source tag are the contract with
 // /api/early-access and HQ; do not rename them.
 
-import { useState } from "react";
+import Link from "next/link";
+import { useId, useState } from "react";
 import { cn } from "@/lib/cn";
 import { sourceTag } from "@/lib/source-tag";
 import { Button } from "@/components/ui/Button";
@@ -29,6 +30,13 @@ import {
   TIMELINE_LABELS,
 } from "@/lib/early-access";
 
+// Two of the interests are things I sell today, through /contact. Picking one
+// here used to put a buyer on a list that promises one email "when there is
+// something you can use", which is a wait for something already on offer. The
+// options and their stored values stay (HQ triages on them); the form now says
+// so and points at the booking panel instead.
+const AVAILABLE_NOW: ReadonlySet<string> = new Set(["ops-consulting", "brand-visuals"]);
+
 type FormState =
   | { kind: "idle" }
   | { kind: "submitting" }
@@ -37,6 +45,9 @@ type FormState =
 
 export function EarlyAccessForm() {
   const [state, setState] = useState<FormState>({ kind: "idle" });
+  const [interest, setInterest] = useState("");
+  const nowId = useId();
+  const availableNow = AVAILABLE_NOW.has(interest);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -66,6 +77,7 @@ export function EarlyAccessForm() {
         throw new Error(data.error ?? `request_failed_${res.status}`);
       }
       form.reset();
+      setInterest("");
       setState({ kind: "ok" });
     } catch (err) {
       // The code is for the logs. The visitor gets a sentence (FormError).
@@ -101,14 +113,36 @@ export function EarlyAccessForm() {
       </div>
       {/* No disabled placeholder option: an optional choice must be
           clearable, and a disabled "" option made the first pick permanent. */}
-      <SelectField label="What are you looking for?" optional name="interest" defaultValue="">
-        <option value="">Pick the closest match</option>
-        {interestOptions.map((v) => (
-          <option key={v} value={v}>
-            {INTEREST_LABELS[v]}
-          </option>
-        ))}
-      </SelectField>
+      <div>
+        <SelectField
+          label="What are you looking for?"
+          optional
+          name="interest"
+          defaultValue=""
+          onChange={(e) => setInterest(e.target.value)}
+          aria-describedby={availableNow ? nowId : undefined}
+        >
+          <option value="">Pick the closest match</option>
+          {interestOptions.map((v) => (
+            <option key={v} value={v}>
+              {INTEREST_LABELS[v]}
+            </option>
+          ))}
+        </SelectField>
+        {/* A live region that is always mounted, so the line is announced
+            when it appears and not only when the select is next focused. */}
+        <div aria-live="polite">
+          {availableNow ? (
+            <p id={nowId} className="fade-up mt-2 text-caption text-ink-300">
+              That is available now.{" "}
+              <Link href="/contact#book" className="link-quiet">
+                Book a call instead
+              </Link>
+              .
+            </p>
+          ) : null}
+        </div>
+      </div>
       <Disclosure summary="Add context">
         <div className="grid gap-6 sm:grid-cols-2">
           <SelectField label="Team size" optional name="teamSize" defaultValue="">

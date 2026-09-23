@@ -32,21 +32,26 @@ export function kindLabel(kind: GraphicsItem["kind"]): string {
 //
 // No coral in here. Coral marks a human decision on this site (the primary
 // action, an approval, the active route), and a provenance label is none of
-// those. It is a status chip, so it keeps the mono machine voice.
+// those.
+//
+// Sans, sentence case, plain words. It used to be tracked uppercase mono
+// ("SELF-DIRECTED, OWN BRAND"), which is the retired 10px terminal label the
+// identity page describes, and "self-directed" is a term a buyer has to
+// translate. Provenance is a label written for people, not machine output.
 const ORIGIN: Record<
   GraphicsItem["origin"],
   { label: string; className: string }
 > = {
   client: {
-    label: "client commission",
+    label: "Client work",
     className: "border-ink-500/70 bg-ink-800/70 text-ink-100",
   },
   "self-directed": {
-    label: "self-directed, own brand",
+    label: "My own brand",
     className: "border-line bg-ink-900/70 text-ink-300",
   },
   concept: {
-    label: "concept, unbuilt",
+    label: "Concept, not built",
     className: "border-line-soft text-muted",
   },
 };
@@ -75,7 +80,7 @@ export function OriginChip({ origin }: { origin: GraphicsItem["origin"] }) {
   const { label, className } = ORIGIN[origin];
   return (
     <span
-      className={`shrink-0 rounded-full border px-2.5 py-0.5 font-mono text-label-xs uppercase ${className}`}
+      className={`shrink-0 rounded-full border px-2.5 py-0.5 text-caption ${className}`}
     >
       {label}
     </span>

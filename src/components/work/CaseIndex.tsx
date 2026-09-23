@@ -4,7 +4,7 @@ import { Arrow } from "@/components/ui/Button";
 import type { CaseStudy } from "@/content/schema";
 import { cn } from "@/lib/cn";
 import { CaseCover } from "./CaseCover";
-import { keepCompounds } from "./model";
+import { keepCompounds, leadLine } from "./model";
 import styles from "./CaseIndex.module.css";
 
 // The /work index in three tiers, by curated order: the lead study as a wide
@@ -60,13 +60,13 @@ export function FeaturedCase({ study }: { study: Study }) {
   const { meta } = study;
   return (
     <Link href={`/work/${meta.slug}`} className="group grid gap-7 lg:grid-cols-12 lg:items-end lg:gap-12">
-      <CaseCover slug={meta.slug} variant="card" className="card-hover-glow lg:col-span-7" />
+      <CaseCover slug={meta.slug} variant="card" className="lg:col-span-7" />
       <div className="lg:col-span-5 lg:pb-1">
         <Meta meta={meta} />
         <Title slug={meta.slug} className="mt-3 max-w-[20ch] text-section font-semibold text-ink-50">
           {meta.title}
         </Title>
-        <p className="mt-4 max-w-[44ch] text-ink-300">{meta.homeLine ?? meta.summary}</p>
+        <p className="mt-4 max-w-[44ch] text-ink-300">{leadLine(meta)}</p>
         <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
           <ReadMore />
           {study.broke ? <BrokeMark /> : null}
@@ -80,13 +80,13 @@ export function PairCase({ study }: { study: Study }) {
   const { meta } = study;
   return (
     <Link href={`/work/${meta.slug}`} className="group block">
-      <CaseCover slug={meta.slug} variant="card" className="card-hover-glow" />
+      <CaseCover slug={meta.slug} variant="card" />
       <div className="mt-6">
         <Meta meta={meta} />
         <Title slug={meta.slug} className="mt-3 max-w-[26ch] text-[1.625rem] font-semibold leading-[1.15] tracking-[-0.02em] text-ink-50 md:text-subsection">
           {meta.title}
         </Title>
-        <p className="mt-3 max-w-[48ch] text-ink-300">{meta.homeLine ?? meta.summary}</p>
+        <p className="mt-3 max-w-[48ch] text-ink-300">{leadLine(meta)}</p>
         <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-3">
           <ReadMore />
           {study.broke ? <BrokeMark /> : null}
@@ -120,7 +120,7 @@ export function CaseRow({ study }: { study: Study }) {
             {meta.title}
           </Title>
           <p className="mt-3 max-w-[52ch] text-[0.9375rem] leading-relaxed text-ink-400">
-            {meta.homeLine ?? meta.summary}
+            {leadLine(meta)}
           </p>
           <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2">
             <span className="inline-flex items-center gap-2 text-sm font-medium text-ink-200">

@@ -6,9 +6,10 @@ import { termsFor } from "./model";
 
 // One service on the /services index as an editorial row, not a card: the
 // name and the deal on the left, the promise on the right, the whole row one
-// link. Hover lights the row's edge from the pointer (inside a SpotlightGrid)
-// and draws the underline under "See the details"; nothing lifts, nothing
-// expands, so there is no layout motion.
+// link. Hover is a faint ivory wash plus the underline drawing in under "See
+// the details"; nothing lifts, nothing expands, so there is no layout motion.
+// No pointer-tracked coral edge: coral marks a decision, not a hover, and a
+// lit rounded ring turned the row back into a card.
 //
 // The title carries the same view-transition name as the detail page's h1
 // (svc-{slug}), so opening a row morphs the title into the page heading. A
@@ -23,7 +24,7 @@ export function ServiceRow({ meta }: { meta: Service }) {
   return (
     <Link
       href={`/services/${meta.slug}`}
-      className="card-hover-glow group -mx-4 grid gap-x-10 gap-y-4 rounded-xl px-4 py-8 transition-colors duration-200 md:-mx-6 md:grid-cols-12 md:px-6 md:py-9 [@media(hover:hover)]:hover:bg-ink-50/[0.018]"
+      className="group -mx-4 grid gap-x-10 gap-y-4 rounded-xl px-4 py-8 transition-colors duration-200 md:-mx-6 md:grid-cols-12 md:px-6 md:py-9 [@media(hover:hover)]:hover:bg-ink-50/[0.018]"
     >
       <div className="md:col-span-5">
         <ViewTransition name={`svc-${meta.slug}`} share="morph-title" default="none">

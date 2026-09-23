@@ -7,7 +7,8 @@ import { cn } from "@/lib/cn";
 //
 // Ember Gate rules (2026-09-23):
 //   - primary is the ONLY coral fill on a screen: it is the human decision.
-//     It reads as a physical key: a lit top edge, a deep shadow, no glow ring.
+//     It reads as a physical key: a lit top edge and a neutral drop shadow.
+//     No coloured glow: depth comes from light and shadow, not from coral.
 //   - ghost is neutral at rest AND on hover. It used to turn coral on hover,
 //     which put two coral controls side by side and erased the hierarchy.
 //   - the press is a transform on the spring curve: it compresses in 100ms
@@ -41,7 +42,7 @@ export const buttonClass = cva(
         variant: "primary",
         size: "lg",
         class:
-          "shadow-[inset_0_1px_0_rgb(255_255_255/0.28),inset_0_-1px_0_rgb(0_0_0/0.12),0_10px_30px_-12px_rgb(230_90_46/0.55)] hover:shadow-[inset_0_1px_0_rgb(255_255_255/0.34),inset_0_-1px_0_rgb(0_0_0/0.12),0_14px_36px_-12px_rgb(230_90_46/0.6)]",
+          "shadow-[inset_0_1px_0_rgb(255_255_255/0.28),inset_0_-1px_0_rgb(0_0_0/0.12),0_10px_30px_-12px_rgb(0_0_0/0.6)] hover:shadow-[inset_0_1px_0_rgb(255_255_255/0.34),inset_0_-1px_0_rgb(0_0_0/0.12),0_14px_36px_-12px_rgb(0_0_0/0.65)]",
       },
     ],
     defaultVariants: { variant: "primary", size: "lg" },

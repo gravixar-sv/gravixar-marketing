@@ -1,5 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
 import { cn } from "@/lib/cn";
+import { keepCompounds } from "./model";
 import styles from "./CaseCover.module.css";
 
 // The cover for a case study. There is no product photography, and client
@@ -18,9 +19,12 @@ import styles from "./CaseCover.module.css";
 // padding. So the funnel cover says "12 fixed steps", not "~10 min".
 //
 // Variants:
-//   detail  full width under the case-study header: client, figure, caption,
-//           schematic with annotations (annotations from sm up)
-//   card    index tiers: figure plus schematic, no annotations
+//   detail  full width under the case-study header: figure, caption, and the
+//           schematic with annotations. The annotations need sm and up; on a
+//           phone they would collide, so a short key under the drawing
+//           says the same thing in words, one item per line.
+//   card    index tiers: figure, a short plain caption, schematic, no
+//           annotations
 //   thumb   rows and the next-study handoff: schematic only, heavier strokes
 //
 // Coral appears in exactly one drawing, the agency OS review loop, and only
@@ -40,6 +44,13 @@ type Spec = {
   figure: string;
   /** a plain line under the figure (detail only) */
   caption: string;
+  /** a few words under the figure on index cards, so the figure means
+   *  something before the study has been read. Restates the study, adds
+   *  nothing. */
+  cardCaption?: string;
+  /** the notes as a key, one short item per line, for phones, where the
+   *  notes are hidden. Each item fits one line at 320px. */
+  legend?: string[];
   art: (p: ArtProps) => ReactNode;
   /** annotations in viewBox units (1600 x 600), detail only */
   notes?: Note[];
@@ -336,6 +347,8 @@ const COVERS: Record<string, Spec> = {
   "bs-hub": {
     figure: "12 fixed steps",
     caption: "Every inquiry takes the same path to a live project, and every step is logged.",
+    cardCaption: "First inquiry to live project",
+    legend: ["first inquiry → live project", "dashed: revision loop"],
     art: Funnel,
     box: [110, 490],
     notes: [
@@ -347,6 +360,8 @@ const COVERS: Record<string, Spec> = {
   beeline: {
     figure: "125 vs 1,560",
     caption: "Applications waiting on the team, against applications waiting on insurers. The workbook could not tell them apart.",
+    cardCaption: "Waiting on the team vs on insurers",
+    legend: ["top: waiting on the team", "below: waiting on insurers", "1 square ≈ 20 applications"],
     art: TwoLanes,
     box: [40, 520],
     notes: [
@@ -358,6 +373,8 @@ const COVERS: Record<string, Spec> = {
   "agency-operations-platform": {
     figure: "Every version kept",
     caption: "So which draft a client approved is a lookup, not an argument.",
+    cardCaption: "Draft to client approval, with recall",
+    legend: ["submitted → internal review", "→ client approval", "dashed: recall"],
     art: ReviewLoop,
     box: [230, 570],
     notes: [
@@ -370,6 +387,8 @@ const COVERS: Record<string, Spec> = {
   "driving-school-booking-pwa": {
     figure: "Whole course, or no slot",
     caption: "A slot only appears when one instructor is free for every lesson day of the course.",
+    cardCaption: "One instructor for every lesson day",
+    legend: ["columns: mon to sun", "bar: one instructor throughout", "hatched: closed"],
     art: Week,
     box: [95, 570],
     notes: [
@@ -386,6 +405,8 @@ const COVERS: Record<string, Spec> = {
   "monday-rollout-agency": {
     figure: "Four phases",
     caption: "Delivery teams first, then Ops, then the Dubai managers, then the wider teams.",
+    cardCaption: "The rollout, team by team",
+    legend: ["phases 1 to 4, left to right"],
     art: Growth,
     box: [70, 570],
     notes: [
@@ -398,6 +419,8 @@ const COVERS: Record<string, Spec> = {
   "lucidlink-wasabi": {
     figure: "Like a local drive",
     caption: "Each seat streams only the files it opens. Finished work moves on to a cheaper archive.",
+    cardCaption: "Live projects, streamed to every seat",
+    legend: ["3 seats → live projects", "→ archive"],
     art: Stream,
     box: [110, 490],
     notes: [
@@ -407,7 +430,10 @@ const COVERS: Record<string, Spec> = {
   },
   "motion-design-portfolio": {
     figure: "Fast, clean, and theirs",
-    caption: "A motion studio is judged on how its work looks the moment it loads.",
+    // Describes the drawing (a reel running out of the frame) and the
+    // handoff; the study's own opening line stays in the study.
+    caption: "Built, then handed over whole: code and hosting.",
+    cardCaption: "Built, then handed over whole",
     art: FilmStrip,
     box: [130, 470],
   },
@@ -450,7 +476,13 @@ export function CaseCover({
         "frame-lit relative isolate m-0 overflow-hidden",
         // The detail cover is laid out in flow, caption above drawing, so the
         // caption can show at every width without ever sitting on the art.
-        detail ? "rounded-2xl" : "aspect-[16/10] rounded-xl",
+        // Cards run a touch taller below lg, so the caption under the figure
+        // clears the bottom-anchored drawing on a 320px phone.
+        detail
+          ? "rounded-2xl"
+          : thumb
+            ? "aspect-[16/10] rounded-xl"
+            : "aspect-[16/11] rounded-xl lg:aspect-[16/10]",
         className,
       )}
     >
@@ -460,28 +492,41 @@ export function CaseCover({
       <div aria-hidden className={cn("pointer-events-none absolute inset-0", styles.grid)} />
 
       {detail ? (
-        <figcaption className="relative flex items-start justify-between gap-6 px-5 pt-5 sm:px-8 sm:pt-8 lg:px-10 lg:pt-10">
-          <span className={cn("block min-w-0", animate && "hero-enter [animation-delay:160ms]")}>
-            {client ? <span className="block max-w-[40ch] text-caption text-ink-300">{client}</span> : null}
+        // The chip sits out of flow in the corner, so on a phone the figure
+        // gets the full width instead of wrapping into a stack beside it. The
+        // phone's top padding clears the chip; from sm up the figure keeps a
+        // chip-wide gutter on its right instead.
+        <figcaption className="relative block px-5 pt-12 sm:px-8 sm:pt-8 lg:px-10 lg:pt-10">
+          <span className="absolute right-5 top-5 font-mono text-label-xs uppercase text-ink-500 sm:right-8 sm:top-8 lg:right-10 lg:top-10">
+            schematic
+          </span>
+          <span className={cn("block min-w-0 sm:pr-24", animate && "hero-enter [animation-delay:160ms]")}>
+            {client ? <span className="block max-w-[40ch] text-caption text-ink-300">{keepCompounds(client)}</span> : null}
             {spec.figure ? (
-              <span className="mt-3 block font-display text-[clamp(2.5rem,1.4rem+3.6vw,4.75rem)] font-semibold leading-[0.95] tracking-[-0.035em] text-ink-50 [font-stretch:94%] sm:mt-4">
+              <span
+                className={cn(
+                  "block text-balance font-display text-[clamp(2rem,1.3rem+2.2vw,2.625rem)] font-semibold leading-[1] tracking-[-0.035em] text-ink-50 [font-stretch:94%]",
+                  client && "mt-3 sm:mt-4",
+                )}
+              >
                 {spec.figure}
               </span>
             ) : null}
             {spec.caption ? (
-              <span className="mt-3 block max-w-[34ch] text-caption text-ink-400">{spec.caption}</span>
+              <span className="mt-3 block max-w-[34ch] text-pretty text-caption text-ink-400">{spec.caption}</span>
             ) : null}
           </span>
-          <span className="shrink-0 pt-0.5 font-mono text-label-xs uppercase text-ink-500">schematic</span>
         </figcaption>
       ) : null}
 
       {!detail && !thumb && spec.figure ? (
-        <span
-          aria-hidden
-          className="absolute left-0 top-0 p-5 font-display text-[clamp(1.75rem,1.2rem+1.6vw,2.75rem)] font-semibold leading-none tracking-[-0.03em] text-ink-50 [font-stretch:94%] sm:p-6"
-        >
-          {spec.figure}
+        <span aria-hidden className="absolute left-0 top-0 block p-5 sm:p-6">
+          <span className="block font-display text-[clamp(1.75rem,1.2rem+1.6vw,2.75rem)] font-semibold leading-none tracking-[-0.03em] text-ink-50 [font-stretch:94%]">
+            {spec.figure}
+          </span>
+          {spec.cardCaption ? (
+            <span className="mt-2 block text-caption text-ink-400">{spec.cardCaption}</span>
+          ) : null}
         </span>
       ) : null}
 
@@ -529,6 +574,16 @@ export function CaseCover({
             ))
           : null}
       </div>
+
+      {detail && spec.legend ? (
+        <span aria-hidden className="block px-5 pb-5 font-mono text-label-xs leading-relaxed tracking-normal text-ink-400 sm:hidden">
+          {spec.legend.map((item) => (
+            <span key={item} className="block">
+              {item}
+            </span>
+          ))}
+        </span>
+      ) : null}
     </figure>
   );
 }

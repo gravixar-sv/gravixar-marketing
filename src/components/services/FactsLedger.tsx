@@ -7,10 +7,16 @@ import Link from "next/link";
 // prose can never leave a stale figure on the page.
 //
 // Placed by an MDX comment in the body, {/* facts-ledger */}; see
-// splitAtMarkers in ./body. On the AI Code Confidence Review it sits right
-// after the opening paragraph, as the scan-first summary of the two reviews
-// the article then tells in full. Directly under the paragraph that had just
+// splitAtMarkers in ./body. On the AI Code Confidence Review it sits after
+// "How it works", so the terms in its rows (second pass, parallel checks,
+// re-ranked) are defined before the numbers, and before the two reviews the
+// article then tells in full. Directly under the paragraph that had just
 // stated the same five numbers, it read as a repeat.
+//
+// No "found by" split on the healthcare review. The page defines the second
+// pass as a check whose only job is to prove a problem wrong, so crediting it
+// with finding 8 bugs contradicted the page. Restore the split only once it is
+// confirmed which pass found them and the article can name it the same way.
 
 type Row = { label: string; value: string };
 type Group = { title: string; href: string; rows: Row[] };
@@ -24,8 +30,6 @@ const LEDGERS: Record<string, { caption: string; groups: Group[] }> = {
         href: "/work/beeline",
         rows: [
           { label: "Bugs handled", value: "14" },
-          { label: "Found by walking through the app", value: "3" },
-          { label: "Found by the second pass", value: "8" },
           { label: "Held back, reason written down", value: "3" },
           { label: "Already broken in the live app", value: "2" },
         ],

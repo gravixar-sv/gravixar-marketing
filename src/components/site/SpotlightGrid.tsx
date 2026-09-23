@@ -6,8 +6,8 @@ import { useEffect, useRef, type ReactNode } from "react";
 // frame: it reads every card rect, then writes every --spot-x / --spot-y, so
 // there is no read/write interleaving and no layout thrash. The CSS in
 // globals.css (.card-hover-glow) turns those two numbers into an edge light:
-// the hovered card fills with a faint wash, its neighbours catch coral on their
-// near edges, and the whole band reads as one lit surface.
+// the hovered card fills with a faint wash, its neighbours catch ivory light on
+// their near edges, and the whole band reads as one lit surface.
 //
 // Touch and coarse pointers never attach the listener. Without JS the cards
 // simply fall back to a lit top edge on hover/focus, a correct static state.

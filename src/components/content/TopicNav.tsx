@@ -11,12 +11,14 @@ import { TopicStrip } from "./TopicStrip";
 // current item is marked by weight and an underline, not coral: coral on this
 // site means a person deciding something, and a filter is wayfinding.
 //
-// ORDER. Topics that actually narrow the list come first, by size. A topic on
-// nearly every post (the same share rule that keeps its hub out of the search
-// index) goes last: clicking it shows almost the same list as "All", so it
-// should not be the first thing offered. It stays in the row rather than
-// being dropped, because every post's "Filed under" line links to it and the
-// row is the one place that lists every sibling.
+// ONLY TOPICS THAT FILTER. A topic on nearly every post (the same share rule
+// that keeps its hub out of the search index) is left out of the row:
+// clicking it showed almost the same list as "All", and two of them sat next
+// to a near-synonym ("Operations", "Agency operations", "Ops infrastructure"),
+// so the row offered three ways to narrow nothing. Rows and a post's "Filed
+// under" line drop them for the same reason. The hub routes still exist
+// (noindex), and on a common hub's own page its item stays in the row, so the
+// reader can still see where they are. Order is by size, as loadTagHubs gives.
 //
 // On a phone the row scrolls sideways inside its own strip rather than
 // wrapping into four rows of 44px targets above the first post. The strip
@@ -35,11 +37,10 @@ export function TopicNav({
   current?: string;
 }) {
   const common = (h: TagHub) => total > 0 && h.posts.length / total > TAG_HUB_MAX_SHARE;
-  // Stable partition: each group keeps the count order loadTagHubs gave it.
-  const ordered = [...hubs.filter((h) => !common(h)), ...hubs.filter(common)];
+  const shown = hubs.filter((h) => !common(h) || h.slug === current);
   const items = [
     { href: "/blog", label: "All", count: total, active: !current },
-    ...ordered.map((h) => ({
+    ...shown.map((h) => ({
       href: `/blog/tag/${h.slug}`,
       label: h.label,
       count: h.posts.length,

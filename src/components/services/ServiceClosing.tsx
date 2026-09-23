@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Service } from "@/content/schema";
 import { ServiceInquiryForm } from "@/components/lead/ServiceInquiryForm";
 import { Reveal } from "@/components/site/Reveal";
-import { closingHeading, closingLine, termsFor } from "./model";
+import { closingHeading, closingLine, messagePlaceholder, termsFor } from "./model";
 
 // The decision point at the foot of every service page, and the target of the
 // header's primary button (#start). One heading, one sentence with one
@@ -12,6 +12,7 @@ export function ServiceClosing({ meta, sourcePage }: { meta: Service; sourcePage
   const terms = termsFor(meta);
   const [price, ...rest] = terms;
   const start = meta.track === "start";
+  const placeholder = messagePlaceholder(meta);
 
   return (
     <Reveal className="reveal-lead">
@@ -83,7 +84,9 @@ export function ServiceClosing({ meta, sourcePage }: { meta: Service; sourcePage
                         "How many people, which tools the work runs on, and the workflow you suspect costs the most.",
                       submitLabel: "Request a start date",
                     }
-                  : {})}
+                  : placeholder
+                    ? { messagePlaceholder: placeholder }
+                    : {})}
               />
             </div>
           </div>

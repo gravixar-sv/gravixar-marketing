@@ -15,7 +15,11 @@ order: 13
 publishedAt: "2026-07-30"
 ---
 
-A module library only compounds if there is one copy of each module. Otherwise "reused" means copied into the next repo and left to drift. So the reusable parts live in `@gravixar-sv/core`, a private versioned package: a repo consumes a module by depending on a version, and a check flags any repo still on an old one. The registry behind this page catalogues 24 modules, 18 at production status, and 11 shared through the package.
+Reuse only pays off if there is one copy of each part. Otherwise "reused" means copied into the next project and left to drift apart, and a fix made in one build never reaches the others.
+
+## Under the hood
+
+So the reusable parts live in `@gravixar-sv/core`, a private versioned package: a repo consumes a module by depending on a version, and a check flags any repo still on an old one. The registry behind this page catalogues 24 modules, 18 at production status, and 11 shared through the package.
 
 Auth is the clearest case. TOTP, WebAuthn passkeys, single-use recovery codes and step-up verification are one parity-tested engine, not a security-critical flow copied per repo. The consuming app injects its issuer and its routes, and its call sites don't change when the engine does.
 

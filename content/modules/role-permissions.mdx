@@ -14,6 +14,10 @@ order: 2
 publishedAt: "2026-05-04"
 ---
 
-Permission checks should be one line per route. They almost never are in production codebases I inherit. The pattern I ship is a four-rung role ladder (STAFF < TEAM_LEAD < MANAGER < ADMIN) plus an orthogonal isSuperAdmin tier, plus a small set of guard helpers: `requireAuth`, `requireRole`, `requireSuperAdmin`, `guardSuperAdminTarget` (so a manager can't promote-then-demote a super-admin), `guardAdminTarget` (so admins can't elevate themselves).
+Who can see and change what should be a one-line check on every page, and in most codebases I inherit it is not. Here it is. A new role slots in without breaking the old ones, and a blocked request always fails the same clear way.
+
+## Under the hood
+
+The pattern I ship is a four-rung role ladder (STAFF < TEAM_LEAD < MANAGER < ADMIN) plus an orthogonal isSuperAdmin tier, plus a small set of guard helpers: `requireAuth`, `requireRole`, `requireSuperAdmin`, `guardSuperAdminTarget` (so a manager can't promote-then-demote a super-admin), `guardAdminTarget` (so admins can't elevate themselves).
 
 Every guard throws a typed `AuthError` that the API surface translates into a 401/403 with the right message. No silent denials. No "user is null" landmines downstream. New roles slot into the ladder without breaking existing call sites.

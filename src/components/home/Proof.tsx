@@ -13,15 +13,17 @@ import { Clients } from "./Clients";
 // date goes stale. Only the wording around each number lives here, keyed by
 // stat key. The JSON's own labels are written for a dashboard ("automated jobs
 // in HQ"), and HQ means nothing to a visitor, so this line says what the
-// number is instead. A key missing from the JSON drops its phrase rather than
-// printing a hole.
+// number is instead, in the nav's own words ("the building blocks I reuse
+// across builds"), because "modules" and "scheduled jobs" are engineering
+// terms a non-technical owner skims past. A key missing from the JSON drops
+// its phrase rather than printing a hole.
 //
 // Static on purpose. The old hero rolled these up from zero, which made
 // audited figures read like a gimmick; here they sit still under a date.
 const LEDGER: { key: string; phrase: (value: string) => string }[] = [
-  { key: "modules-built", phrase: (v) => `${v} modules built` },
+  { key: "modules-built", phrase: (v) => `${v} building blocks built` },
   { key: "modules-reused", phrase: (v) => `${v} of them reused across products` },
-  { key: "automated-jobs", phrase: (v) => `${v} scheduled jobs running my own operations` },
+  { key: "automated-jobs", phrase: (v) => `${v} automated jobs running my own business` },
 ];
 
 function formatCounted(iso: string) {

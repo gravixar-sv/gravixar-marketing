@@ -1,4 +1,5 @@
 import Image from "next/image";
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { Arrow, buttonClass } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
@@ -32,6 +33,14 @@ import styles from "./ContactCTA.module.css";
 // still ends on the buttons. /about already leads with the full portrait, so
 // that page passes person={false}.
 //
+// THE BODY (`body`). Inner pages close on the default below, which names the
+// audit as the fixed-price first step. The homepage passes its own: its offer
+// panel one screen up already sells the audit, so a third description there
+// read as repetition, and "the fixed-price first step" printed straight under
+// "before you sign anything" read as a contradiction. The homepage body leads
+// with the free step instead, in facts the site already states (the demo
+// banner's "No sign-in", the call and its notes).
+//
 // THE BUTTON LABEL is "Start with the audit", the same words as the primary
 // button on /services and on the homepage's offer: one action, one label.
 //
@@ -39,19 +48,67 @@ import styles from "./ContactCTA.module.css";
 // which the two-tone version did on phones.
 const TAIL = "I\u00a0will show you the system running before you sign anything.";
 
+const DEFAULT_BODY = (
+  <>
+    The Ops Leak Audit is the fixed-price first step: I count the hours your
+    tools cost your team, then price the fix. Rather talk first? Book a{" "}
+    <span className="whitespace-nowrap">30-minute</span> call. If it is not a
+    fit, you still leave with notes you can use.
+  </>
+);
+
+// COMPACT (`compact`). The full panel closed about twenty routes, so on most of
+// them the page's one serif phrase was this same sentence: a template string,
+// not a voice. Long-form detail pages (posts, comparisons, modules, graphics)
+// close on this quieter version instead: a hairline, the headline in sans with
+// the tail muted, the body and the two buttons. No panel, no portrait, no
+// serif. The full panel stays for index pages and case studies.
 export function ContactCTA({
   voice = true,
   person = true,
   size = "section",
+  body = DEFAULT_BODY,
+  compact = false,
 }: {
   voice?: boolean;
   person?: boolean;
   size?: "section" | "statement";
+  /** The paragraph under the headline. Defaults to the audit-first line. */
+  body?: ReactNode;
+  compact?: boolean;
 }) {
+  if (compact) {
+    return (
+      <section aria-labelledby="closing-cta" className="border-t border-line pt-12 md:pt-16">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end lg:gap-16">
+          <div>
+            <h2 id="closing-cta" className="max-w-[26ch] text-section text-ink-50 [text-wrap:pretty]">
+              Bring me a real operations problem. <span className="text-ink-500">{TAIL}</span>
+            </h2>
+            <p className="mt-5 max-w-[56ch] text-ink-300">{body}</p>
+          </div>
+          <div className="grid gap-3 sm:flex sm:flex-wrap lg:justify-end">
+            <Link href="/services/ops-leak-audit" className={cn(buttonClass(), "group w-full sm:w-auto")}>
+              Start with the audit
+              <Arrow />
+            </Link>
+            <Link href="/contact" className={cn(buttonClass({ variant: "ghost" }), "w-full sm:w-auto")}>
+              Book a call
+            </Link>
+          </div>
+        </div>
+      </section>
+    );
+  }
   return (
     <section
       aria-labelledby="closing-cta"
-      className="panel-lit relative isolate overflow-hidden rounded-3xl p-6 py-10 sm:p-10 md:p-14 lg:p-16"
+      className={cn(
+        "panel-lit relative isolate overflow-hidden rounded-3xl p-6 py-10 sm:p-10 md:p-14 lg:p-16",
+        // Without the portrait the right column is empty, so the panel takes
+        // the width of its content instead of a half-empty full row.
+        !person && "md:max-w-3xl",
+      )}
     >
       <div aria-hidden className="ember-rise pointer-events-none absolute inset-0 -z-10" />
       <div aria-hidden className={cn(styles.grain, "pointer-events-none absolute inset-0 -z-10")} />
@@ -74,12 +131,7 @@ export function ContactCTA({
               <span className="text-ink-500">{TAIL}</span>
             )}
           </h2>
-          <p className="mt-6 max-w-[56ch] text-ink-300">
-            The Ops Leak Audit is the fixed-price first step: I count the hours
-            your tools cost your team, then price the fix. Rather talk first?
-            Book a <span className="whitespace-nowrap">30-minute</span> call. If it
-            is not a fit, you still leave with notes you can use.
-          </p>
+          <p className="mt-6 max-w-[56ch] text-ink-300">{body}</p>
           <div className="mt-8 grid gap-3 sm:flex sm:flex-wrap">
             <Link href="/services/ops-leak-audit" className={cn(buttonClass(), "group w-full sm:w-auto")}>
               Start with the audit

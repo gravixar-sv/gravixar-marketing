@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/site/PageHeader";
 import { Reveal } from "@/components/site/Reveal";
-import { SpotlightGrid } from "@/components/site/SpotlightGrid";
 import { ContactCTA } from "@/components/home/ContactCTA";
 import { CaseRow, FeaturedCase, PairCase } from "@/components/work/CaseIndex";
 import { hasWhatBroke } from "@/components/work/model";
@@ -19,6 +18,10 @@ export const metadata: Metadata = buildMetadata({
 
 // Curated order (frontmatter `order`) drives the tiers: the first study is
 // the feature, the next two a pair, the rest editorial rows.
+//
+// The feature and pair are not a <SpotlightGrid>: its edge light is coral, and
+// coral marks a human decision, never a hover. Each cover has its own causal
+// hover instead (the ember brightens and the drawing settles 4px).
 export default async function WorkIndexPage() {
   const studies = (await loadCaseStudies()).map((s) => ({ meta: s.meta, broke: hasWhatBroke(s.body) }));
   const [lead, ...others] = studies;
@@ -38,7 +41,7 @@ export default async function WorkIndexPage() {
       </PageHeader>
 
       {lead ? (
-        <SpotlightGrid className="mt-4 md:mt-6">
+        <div className="mt-4 md:mt-6">
           <div className="hero-enter [animation-delay:380ms]">
             <FeaturedCase study={lead} />
           </div>
@@ -51,7 +54,7 @@ export default async function WorkIndexPage() {
               </div>
             </Reveal>
           ) : null}
-        </SpotlightGrid>
+        </div>
       ) : (
         <p className="text-ink-400">No case studies published yet.</p>
       )}

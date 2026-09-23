@@ -5,23 +5,23 @@ competitor: "Notion"
 competitorUrl: "https://notion.so"
 category: "agency operations + client portal"
 summary: "Notion is fine until you bill clients. Once clients approve work, sign off, and expect to see your brand, Notion starts costing you in ways the invoice never shows. Here is where the wiki becomes the wrong tool, and what to use instead."
-metaDescription: "Keep Notion for the team wiki. Client-facing work needs state machines, audit rows and branded surfaces, and a status tag enforces none of that."
+metaDescription: "Keep Notion for the team wiki. Client-facing work needs enforced steps, a record of changes and your own brand, and a status tag gives you none of that."
 hook: "Notion is the best place to write your agency's playbook and the worst place to run client work through. The two jobs look similar; they aren't."
-whoForCompetitor: "Keep Notion for what it's actually good at: internal documentation, playbooks, knowledge base, the team wiki, project notes that don't need state-machine semantics. It is very good at this, and you shouldn't replace it."
+whoForCompetitor: "Keep Notion for what it's actually good at: internal documentation, playbooks, knowledge base, the team wiki, project notes where nothing has to be enforced. It is very good at this, and you shouldn't replace it."
 whoForCustom: "Go custom for the part of your work clients see: the inquiry funnel, the review handoff, the sign-off trail, the assets they download, the invoices they pay, the milestones they approve. Notion is the wrong shape for any of these and the workarounds get expensive fast."
 linkedCaseStudy: "bs-hub"
 linkedService: "operations-infrastructure"
 faqs:
   - question: "Why isn't Notion enough for client portals?"
-    answer: "Notion is a document tool. Client portals need state machines (a deliverable in DRAFT is not the same as one in CLIENT_APPROVED, and the difference must be enforced not just typed), audit trails (who approved what when), and branded surfaces (clients shouldn't feel like they're inside someone else's wiki). Notion gives you none of these natively. Workarounds exist (Super, Notion API, embeds) but they're expensive in time and brittle in production."
+    answer: "Notion is a document tool. Client portals need enforced steps (a draft is not the same as a client-approved deliverable, and the difference has to be enforced, not just typed), a record of who approved what and when, and your own brand (clients shouldn't feel like they're inside someone else's wiki). Notion gives you none of these natively. Workarounds exist (Super, Notion API, embeds) but they're expensive in time and brittle in production."
   - question: "Can a custom portal replace Notion entirely?"
-    answer: "It shouldn't. Keep Notion for internal documentation and playbooks. Replace it only for the client-facing surfaces and the workflow that needs state-machine semantics. The two tools live alongside each other. Notion is the team wiki. The custom portal is the production system."
+    answer: "It shouldn't. Keep Notion for internal documentation and playbooks. Replace it only for what clients see and the work that needs enforced steps. The two tools live alongside each other. Notion is the team wiki. The custom portal is the production system."
   - question: "What's the biggest mistake agencies make with Notion as a client portal?"
     answer: "Building 30 Notion pages with custom statuses, then maintaining a Notion-ops doc explaining how the statuses work. The Notion-ops doc is the tell. The moment you need a doc to explain your tool, your tool isn't the tool."
   - question: "How does the custom portal handle review handoffs that Notion can't?"
-    answer: "Through an explicit state machine. A deliverable transitions DRAFT → SUBMITTED_FOR_INTERNAL → INTERNAL_APPROVED → SUBMITTED_FOR_CLIENT → CLIENT_APPROVED with a CLIENT_REVISION_REQUESTED branch back into the loop. Each transition is a single function with explicit pre-conditions and side-effects (notifications, emails, audit rows). No state is implicit. No admin can flip the status by editing a free-text field."
+    answer: "Through fixed steps. A deliverable goes from draft, to internal review, to internal approval, to client review, to client approval, and loops back when the client asks for changes. Each move checks that the step before it happened and sets off what should follow (notifications, emails, a record of the change). Nothing is left implicit. No admin can flip the status by editing a free-text field."
   - question: "Will Notion's AI features eventually solve this?"
-    answer: "No. Notion AI is good at what Notion is good at (summarizing pages, drafting copy in-doc) and it's the wrong category for what client portals need (state machines, audit, multi-step approval flows). The category mismatch isn't a feature gap, it's a tool-purpose gap."
+    answer: "No. Notion AI is good at what Notion is good at (summarizing pages, drafting copy in-doc) and it's the wrong category for what client portals need (enforced steps, a record of changes, approvals in several stages). The category mismatch isn't a feature gap, it's a tool-purpose gap."
 publishedAt: "2026-05-04"
 updatedAt: "2026-07-30"
 ---
@@ -34,7 +34,7 @@ The question is whether Notion is the right tool for the part of your work your 
 
 ## Where Notion is the right tool
 
-Internal documentation. Playbooks. Knowledge base. Decision logs. Onboarding runbooks. Process diagrams. Project notes that don't need state-machine semantics. Notion is excellent at all of this, and a custom build can't catch up cheaply.
+Internal documentation. Playbooks. Knowledge base. Decision logs. Onboarding runbooks. Process diagrams. Project notes where nothing has to be enforced. Notion is excellent at all of this, and a custom build can't catch up cheaply.
 
 Cross-team referenceability. Notion's linking model is good and its search works. For team-internal knowledge work, the friction is low.
 
@@ -45,8 +45,8 @@ The team wiki. Just keep using Notion for the team wiki.
 Client-facing portals. The moment a client logs in, Notion's model fights you on three axes:
 
 - **Brand.** Your client should feel like they're in your product, not someone else's wiki. Super and other Notion-as-website tools approximate this; the approximation is the giveaway. Pixel-perfect branded surfaces aren't where Notion is invested.
-- **State.** Notion has tags and statuses, not state machines. A "status: approved" tag is a comment, not an enforcement. There's no audit row when it changes. There's no notification cascade. There's no scope-lock semantics. You can paper over this with Notion automations, and they break.
-- **Audit.** Compliance retention, who-changed-what, safe-restore on critical fields. Notion has a version history. It does not have an audit log in any sense a finance or legal team would accept.
+- **Steps.** Notion has tags and statuses, not rules. A "status: approved" tag is a note, not a lock. Nothing records who changed it. Nothing tells the next person. Nothing stops the scope changing after sign-off. You can paper over this with Notion automations, and they break.
+- **Records.** Keeping records as long as compliance requires, knowing who changed what, putting an important field back safely. Notion has a version history. It does not have a change log in any sense a finance or legal team would accept.
 
 The "Notion plus a wiki of how to use Notion" pattern. The moment your team needs internal docs to explain the tool, your tool isn't the tool. It's a thing you've built, badly, in a tool that wasn't designed for it.
 
@@ -56,16 +56,16 @@ The seat-cost arithmetic at scale. Notion is cheap per seat, but Notion plus Sup
 
 [The agency portal I built for a 4-year client](/work/bs-hub) is the production version of this division. Notion is their team wiki; the portal is where client work runs. Different tools for different jobs.
 
-The size of the gap is the part worth sitting with. A recount on 2026-07-21 put that portal at 84 database models, 255 endpoints and 9 scheduled jobs. No arrangement of Notion pages grows into that. You would be hand-maintaining the difference forever, and the maintenance is the invoice nobody quotes you.
+The size of the gap is the part worth sitting with. A recount on 21 July 2026 put that portal at 84 database models, 255 endpoints and 9 scheduled jobs. No arrangement of Notion pages grows into that. You would be hand-maintaining the difference forever, and the maintenance is the invoice nobody quotes you.
 
 The portal handles:
 
-- The 12-state inquiry funnel with hard transitions (no implicit status)
-- The review state machine on every deliverable, with audit rows on every transition
-- AI intake (adaptive questions, brand brief generated from the client's website)
-- The cancellation flow that keeps the row, deletes tasks, and issues a credit ledger entry rather than hard-deleting
-- The daily security-watch cron sweeping for anomalies
-- Two-tier audit retention (seven-year contract, one-year operational)
+- Every inquiry moving through 12 fixed steps, with no status left implicit
+- Sign-off on every deliverable, with a record of every step
+- AI intake (follow-up questions, a brand brief drafted from the client's website)
+- Cancellations that keep the record, remove the tasks and issue a credit, rather than deleting everything
+- A nightly check that emails the admins when something looks wrong
+- Change history kept for seven years on contracts and one year on everyday work
 
 Notion handles:
 
@@ -81,7 +81,7 @@ The split works because each tool is doing what it's actually good at.
 
 Run this in order:
 
-1. **List the things in your Notion that have a status field.** Anything with "Status: approved / pending / sent / etc." is a candidate for state-machine treatment elsewhere. Notion is the wrong tool for status-driven workflows.
+1. **List the things in your Notion that have a status field.** Anything with "Status: approved / pending / sent / etc." belongs somewhere that enforces the steps. Notion is the wrong tool for work that runs on statuses.
 2. **Check whether you have docs explaining your Notion setup.** If you have any, your Notion has stopped being a tool and started being a system you've built. That's the line.
 3. **Ask what your client sees.** If a client logs into Notion (via Super or invite-share), you're past the right line. Notion-as-portal is a workaround, not a fix.
 4. **Run the seat-cost-plus-time arithmetic.** Notion plus Super plus Zapier plus maintenance hours per quarter. Total it. Compare against a custom retainer.

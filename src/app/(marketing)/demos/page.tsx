@@ -19,14 +19,21 @@ export const metadata: Metadata = buildMetadata({
 // a <Reveal> so its stagger actually runs (.reveal-stagger only animates under
 // a .reveal ancestor, and this page used to have none). The sandbox line that
 // floated between the grid and the closing panel is folded into the lede.
-// The PageHeader has no serif accent, so the closing panel keeps its own.
+//
+// The h1 is two sentences on two lines. Set as one string it broke mid-idea
+// ("Five working apps. One / for each kind of desk."), and PageHeader's only
+// forced break is the one before its serif accent. So the second sentence is
+// the accent, which makes the h1 this page's one serif phrase, and the closing
+// panel passes voice={false} and sets its tail in the muted sans instead.
 export default function DemosIndexPage() {
   return (
     <div className="relative isolate">
       <PageLight />
       <PageHeader
         eyebrow="Demos"
-        title="Five working apps. One for each kind of desk."
+        title="Five working apps."
+        accent="One for each kind of desk."
+        accentBreak
         lede="Each one is a real app running live, not a recording. Sample data, no signup, and nothing you click is saved. Pick the one closest to your work and see how it runs before you ever talk to me."
       />
 
@@ -40,7 +47,7 @@ export default function DemosIndexPage() {
       </p>
 
       <div className="mt-12 md:mt-16">
-        <ContactCTA />
+        <ContactCTA voice={false} />
       </div>
     </div>
   );

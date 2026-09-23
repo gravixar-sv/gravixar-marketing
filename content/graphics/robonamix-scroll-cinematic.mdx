@@ -44,7 +44,7 @@ gallery:
     alt: "The camera past the display shelving and into a corridor, a lamp glowing on the top shelf and finished pieces below it, the wall opening into a bright empty room ahead."
     width: 1280
     height: 720
-processNote: "The encode is deliberately fat, and that is the point. Scrubbing needs a keyframe every 8 frames, because a long-GOP file that is cheap to stream will judder on every seek, so the file size here is a consequence of the interaction rather than something left unoptimized. Each clip is fetched as a whole Blob before it plays, which keeps it seekable without depending on the server honoring HTTP range requests, and that fetch is exactly why the WebP still has to double as a live poster: it holds the frame while the clip is still arriving. The known gap is mobile. The deployment ships one set of encodes and no mobile renditions, so a phone pulls desktop-sized clips. That is the next optimization and it is not done."
+processNote: "The video files are deliberately large. Smooth scrubbing needs a full frame every 8 frames, and a smaller file would stutter every time you scroll. Each clip downloads in full before it plays, so the still image holds the frame while it arrives. The gap I have not closed: phones get the same desktop-sized clips. That is the next fix."
 order: 1
 draft: false
 ---
@@ -71,8 +71,8 @@ When a visitor asks for reduced motion, the clips are never fetched at all. The 
 
 ## What you are looking at on this page
 
-These six frames are stills. The card that brought you here is not: it loops a showreel, 1.6 seconds lifted from each of the six scenes so the whole flight goes past in under ten. That clip is a recording of the move, not the move. Scroll drives the real thing, and a loop that plays itself cannot reproduce the part where you are the one steering it. It stays put until the card is on screen, and a reader who has asked for reduced motion never gets it at all, which is the same branch the live page takes.
+The five frames below are stills. The player at the top, and the card that brought you here, show a recording instead: 1.6 seconds lifted from each of the six scenes, so the whole flight goes past in under ten. That clip is a recording of the move, not the move. Scroll drives the real thing, and a clip that plays itself cannot reproduce the part where you are the one steering it. The card plays the showreel once as it scrolls into view, and never for a reader who has asked for reduced motion, which is the same branch the live page takes. The player at the top waits until you press play.
 
 So if the interaction is the part you want to judge, [go and scroll the real thing](https://robonamix.com/inside-the-studio).
 
-Robonamix is my own project, which is what the self-directed label above says. Nobody commissioned this. It exists because I wanted to find out how far a scroll cinematic gets without a 3D engine, and the answer turned out to be most of the way.
+Robonamix is my own project, which is what the own-brand label above says. Nobody commissioned this. It exists because I wanted to find out how far a scroll cinematic gets without a 3D engine, and the answer turned out to be most of the way.

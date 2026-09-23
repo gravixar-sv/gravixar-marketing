@@ -1,6 +1,6 @@
 import type { CaseStudy } from "@/content/schema";
 import { cn } from "@/lib/cn";
-import { glanceMetrics } from "./model";
+import { glanceMetrics, keepCompounds } from "./model";
 
 // "At a glance": the facts a reader wants before committing to the long read,
 // right under the cover on every viewport. Two quiet columns of label/value
@@ -14,7 +14,7 @@ import { glanceMetrics } from "./model";
 export function CaseLedger({ meta, className }: { meta: CaseStudy; className?: string }) {
   const numbers = glanceMetrics(meta);
   const facts = [
-    { label: "Client", value: meta.client },
+    { label: "Client", value: keepCompounds(meta.client) },
     { label: "Role", value: meta.role },
     { label: "Period", value: meta.period },
   ];
@@ -28,7 +28,7 @@ export function CaseLedger({ meta, className }: { meta: CaseStudy; className?: s
         At a glance
       </h2>
       <p className="mt-3 text-[0.9375rem] leading-snug text-ink-200 sm:hidden">
-        {meta.client}
+        {keepCompounds(meta.client)}
         <span className="mt-0.5 block text-caption text-ink-400">{meta.period}</span>
       </p>
       <div className="mt-4 grid gap-x-16 sm:mt-6 md:grid-cols-2">

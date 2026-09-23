@@ -21,7 +21,7 @@ export const revalidate = 3600;
 export const metadata: Metadata = buildMetadata({
   title: "Brand and visual work, a capability showcase",
   description:
-    "Identity, interface, motion, web and print, every piece labeled client work, self-directed or concept. What I build in visual systems, shown built.",
+    "Identity, interface, motion, web and print, every piece labeled client work, my own brand or concept. What I build in visual systems, shown built.",
   path: "/graphics",
 });
 
@@ -225,9 +225,9 @@ function GraphicsCard({
           }`}
         >
           {/* A piece whose subject is motion gets to move here.
-              The preview swaps the cover image for a muted loop
-              that starts itself once the card is on screen and
-              never runs for a reader who asked for reduced motion.
+              The preview swaps the cover image for a muted clip
+              that plays once each time the card scrolls into view
+              and never runs for a reader who asked for reduced motion.
               It degrades to the same frame either way: the poster
               is server-rendered, so the still cover is what a card
               shows before, and instead of, anything playing. */}

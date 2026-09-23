@@ -7,7 +7,7 @@ period: "Live since June 2026"
 summary: "Before a provider can bill an insurer, the insurer has to approve them. This company tracked those approvals in a workbook. Since June 2026, 250 clients and 2,042 applications sit in one system, and the team can see which wait on them and which wait on the insurer. Patient data stays out by design."
 metaDescription: "250 clients and 2,042 credentialing panels in production since June 2026, with a HIPAA guardrail on every Claude call and reproducible multi-currency finance."
 problem: |
-  Credentialing is where a growing practice group quietly loses money, and here it lived in a workbook: one row per provider per insurer, a color for status, a date somebody typed by hand. Nobody could answer the two questions that decide the month: which applications are waiting on the team, and which are waiting on the insurer. Follow-ups happened when someone remembered.
+  Before a provider can bill an insurer, the insurer has to approve them. That approval is credentialing, and each one, one client on one insurer, is called a panel. It is where a growing practice group quietly loses money, and here it lived in a workbook: one row per provider per insurer, a color for status, a date somebody typed by hand. Nobody could answer the two questions that decide the month: which applications are waiting on the team, and which are waiting on the insurer. Follow-ups happened when someone remembered.
 
   Around that sat separate tools for records, billing, messages, and compliance, where the handoffs caused the errors and the compliance tool was the one nobody opened. Money was messy too: staff are paid in Pakistani rupees, invoices go out in US dollars, and both sides have to add up. AI could save real time here, but dropped in carelessly it puts patient data at risk.
 approach: |
@@ -17,11 +17,11 @@ approach: |
 
   Every morning the system screens against the US government's list of excluded providers, all 83,665 rows, and flags any possible match. Every amount of money is stored with the exchange rate it was recorded at, so a report run again later matches the original line for line. Finance and credential records are kept for 7 years, everyday records for 1.
 outcome: |
-  Live on the client's own domain since June 2026, used every day by five credentialing staff. 250 clients and 2,042 applications, with 13,702 logged events behind them, now sit in one system instead of a workbook.
+  Live on the client's own domain since June 2026, used every day by five credentialing staff. By the end of July 2026 it held 250 clients and 2,042 applications, with 13,702 logged events behind them, in one system instead of a workbook.
 
-  And it answers questions the workbook never could. 125 applications are waiting on the team, and 1,560 on insurers. 147 coverage gaps have turned up, and 21 are active today: the provider is approved on an insurer's medical side but not its behavioral health side, so those claims are being denied, and the denials look like billing errors.
+  And it answers questions the workbook never could. At the end of July 2026, 125 applications were waiting on the team and 1,560 on insurers. 147 coverage gaps had turned up, and 21 were active then: the provider is approved on an insurer's medical side but not its behavioral health side, so those claims were being denied, and the denials looked like billing errors.
 
-  The insurer directory now covers 66% of active applications, up from 34%. The follow-up list went from nothing to about 60 due a day. Tests went from 185 to 448 in July 2026, and the 26 passwords and codes that sat unencrypted on the live system are now zero.
+  By then the insurer directory covered 66% of active applications, up from 34%, and the follow-up list had gone from nothing to about 60 due a day. Tests went from 185 to 448 in July 2026, and the 26 passwords and codes that sat unencrypted on the live system were all encrypted.
 metrics:
   - label: "Production scale"
     value: "250 clients, 2,042 credentialing panels"
@@ -88,14 +88,18 @@ cover:
 publishedAt: "2026-05-04"
 draft: false
 order: 2
-homeLine: "2,042 insurance panels moved out of a workbook, and the team can now see what waits on them and what waits on payers."
+homeLine: "2,042 insurance panels moved out of a workbook, and the team can now see what waits on them and what waits on insurers."
 ---
 
 ## What's running today
 
 Credentialing is the spine. A panel is one client on one insurer, which is one application, and everything in the module hangs off it. Five credentialing staff work out of it daily, on the client's own domain.
 
-Getting there was not a data problem, it was an adoption problem, and a check against the live data made that concrete: 0 of 1,066 panels had a follow-up date, no client was assigned to a named owner, and there were no insurer contacts on file. The module held the right data and nobody's day started in it. The fix was not more fields. Each person got a "my day" list, most overdue first, with an inline log that reschedules the row and clears it: the sticky note the team lead can also see. A call kit puts the insurer's phone line, their portal, the reference number, the expected turnaround and the last three touches on one screen, so a chase call takes one tab instead of six. Availability is tracked per insurer and per state, so an application that is doomed before it is filed can be caught before it is filed.
+Getting there was not a data problem, it was an adoption problem, and a check against the live data made that concrete: 0 of 1,066 panels had a follow-up date, no client was assigned to a named owner, and there were no insurer contacts on file. The module held the right data and nobody's day started in it.
+
+The fix was not more fields. Each person got a "my day" list, most overdue first, with an inline log that reschedules the row and clears it: the sticky note the team lead can also see.
+
+A call kit puts the insurer's phone line, their portal, the reference number, the expected turnaround and the last three touches on one screen, so a chase call takes one tab instead of six. Availability is tracked per insurer and per state, so an application that is doomed before it is filed can be caught before it is filed.
 
 Around that sits the daily ops layer, which was built first: a work-from-home, office or field check-in on the first visit of the Karachi day, leave with pro-rated balances for new joiners, credential expiry alerts at 90, 60, 30 and 7 days, team invites by role and region, and an activity feed where an admin can undo an allowed change in one click. Every reminder writes a log row, so nothing sends twice.
 
@@ -105,7 +109,7 @@ The finance module is the part I am most pleased with. It runs salaries, expense
 
 Four things went wrong that are worth writing down. They are the reason a signed-in walkthrough is now its own step in my process, not something I assume the tests cover.
 
-**The original import silently dropped a third of the source.** The workbook migration looked clean and was not. Re-checked against the source: 240 provider blocks across 141 tabs, of which 141 imported, and 1,796 insurer rows, of which 1,123 imported. The recovery on the live system took clients from 194 to 250 and panels from 1,521 to 2,042. It also showed that the credential-expiry reminders had had nothing to fire on since go-live, because zero credential records had come across at all. Two judgment calls became locked decisions during the recovery, because the obvious move was wrong both times: red in the sheet does not mean closed (mapping it automatically would have killed around 240 live panels), and a continuation block that repeats the first block's provider number is the same person, not a new client (importing all of them would have created 42 duplicate clients).
+**The original import silently dropped a third of the source.** The workbook migration looked clean and was not. The workbook held 240 provider blocks on 141 tabs. Only 141 of those blocks came across, and only 1,123 of its 1,796 insurer rows. The recovery on the live system took clients from 194 to 250 and panels from 1,521 to 2,042. It also showed that the credential-expiry reminders had had nothing to fire on since go-live, because zero credential records had come across at all. Two judgment calls became locked decisions during the recovery, because the obvious move was wrong both times: red in the sheet does not mean closed (mapping it automatically would have killed around 240 live panels), and a continuation block that repeats the first block's provider number is the same person, not a new client (importing all of them would have created 42 duplicate clients).
 
 **A screen that was dead, and no test could see it.** The panels page showed its loading state forever: no request ever made, nothing in the console, tests green. It only turned up in the first signed-in walkthrough the module had ever had. That same walkthrough caught a median arriving as -1 day, from mixing a date column with a date-and-time one.
 

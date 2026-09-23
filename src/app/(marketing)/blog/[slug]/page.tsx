@@ -121,10 +121,13 @@ export default async function BlogPostPage(
       </article>
 
       <footer className="mt-20 space-y-20 md:mt-28 md:space-y-24">
+        {/* Common topics (on most posts) are dropped here as they are on the
+            list rows and the topics row: they tell this post apart from
+            nothing, and the row would never have offered them. */}
         <AuthorNote
           name={SITE.author}
           aiAssisted={post.meta.aiAssisted}
-          topics={tagsFor(post.meta, tags)}
+          topics={tagsFor(post.meta, tags).filter((t) => !t.common)}
         />
 
         {related.length > 0 ? (
@@ -138,9 +141,9 @@ export default async function BlogPostPage(
           </section>
         ) : null}
 
-        {/* AuthorNote already shows Qamar, so the closing panel drops its
-            portrait: one face per footer, not two a screen apart. */}
-        <ContactCTA person={false} />
+        {/* The compact close: AuthorNote already shows Qamar, and a long
+            read ends better on a quiet ask than on a second lit panel. */}
+        <ContactCTA compact />
       </footer>
     </div>
   );

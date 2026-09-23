@@ -4,7 +4,7 @@ import type { BlogPost } from "@/content/schema";
 import { Arrow } from "@/components/ui/Button";
 import { Reveal } from "@/components/site/Reveal";
 import { tagsFor, type TagIndex } from "@/components/content/blog";
-import { readingMinutes } from "@/components/content/longform";
+import { longDate, readingMinutes } from "@/components/content/longform";
 import { cn } from "@/lib/cn";
 
 // The writing index, shared by /blog, the tag hubs and the related-reading
@@ -21,6 +21,11 @@ import { cn } from "@/lib/cn";
 // There is no "AI-assisted" flag on rows. Every published post carries it, so
 // on a list it says nothing; the index lede states it once and each post says
 // it under its own title.
+//
+// Dates read the way the post's own byline reads them ("8 September 2026"),
+// in the sans caption. The ISO string stays in dateTime for machines; set in
+// mono on the page it was a format the reader had to parse, and it changed
+// shape between the list and the post.
 export function PostList({
   posts,
   tags,
@@ -79,9 +84,7 @@ function LeadPost({ post }: { post: Loaded<BlogPost> }) {
       <p className="text-caption text-ink-500">
         <span className="font-medium text-ink-300">Newest</span>
         <span aria-hidden className="mx-2 text-ink-600">·</span>
-        <time dateTime={post.meta.publishedAt} className="font-mono text-label-sm tabular-nums">
-          {post.meta.publishedAt}
-        </time>
+        <time dateTime={post.meta.publishedAt}>{longDate(post.meta.publishedAt)}</time>
         <span aria-hidden className="mx-2 text-ink-600">·</span>
         {minutes} min read
       </p>
@@ -117,9 +120,9 @@ function PostRow({
     <li className="group grid gap-x-10 gap-y-2 border-t border-line-soft py-7 transition-colors hover:border-line md:grid-cols-[8.5rem_minmax(0,1fr)] md:py-8">
       <time
         dateTime={post.meta.publishedAt}
-        className="font-mono text-label-sm tabular-nums text-ink-500 md:pt-[0.4rem]"
+        className="text-caption text-ink-500 md:pt-[0.3rem]"
       >
-        {post.meta.publishedAt}
+        {longDate(post.meta.publishedAt)}
       </time>
       <div className="min-w-0">
         <Link href={`/blog/${post.meta.slug}`} className="block">

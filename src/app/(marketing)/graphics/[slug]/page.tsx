@@ -265,7 +265,7 @@ export default async function GraphicsItemPage(
       ) : null}
 
       <div className="mt-20 md:mt-28">
-        <ContactCTA />
+        <ContactCTA compact />
       </div>
     </div>
   );

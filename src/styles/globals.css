@@ -238,9 +238,10 @@
 
   /* Hover light for card GRIDS. Inside a <SpotlightGrid> the pointer position
      arrives as --spot-x / --spot-y on every card, so the hovered card fills
-     with a faint wash and its neighbours catch coral on their near edges: the
-     band reads as one lit surface. Outside a grid, or on touch, the fallback is
-     a lit top edge. No lift, no box-shadow transition, no per-frame layout. */
+     with a faint wash and its neighbours catch light on their near edges: the
+     band reads as one lit surface. The light is ivory, never coral: coral marks
+     a decision, not a hover. Outside a grid, or on touch, the fallback is a lit
+     top edge. No lift, no box-shadow transition, no per-frame layout. */
   .card-hover-glow {
     position: relative;
     isolation: isolate;
@@ -254,7 +255,7 @@
     pointer-events: none;
     background: radial-gradient(
       280px circle at var(--spot-x, 50%) var(--spot-y, -40%),
-      rgb(255 107 53 / 0.55),
+      rgb(243 239 232 / 0.26),
       transparent 70%
     );
     -webkit-mask:
@@ -277,7 +278,7 @@
     pointer-events: none;
     background: radial-gradient(
       520px circle at var(--spot-x, 50%) var(--spot-y, 0%),
-      rgb(255 138 92 / 0.06),
+      rgb(243 239 232 / 0.035),
       transparent 60%
     );
     opacity: 0;
@@ -325,8 +326,9 @@
 
   /* ---------- Links ---------- */
 
-  /* Inline link: ivory with a quiet underline that warms on hover. Links are
-     never told apart by colour alone. */
+  /* Inline link: ivory with a quiet underline that brightens on hover. Coral
+     is never a link or hover colour, and links are never told apart by colour
+     alone. */
   .link-quiet {
     color: var(--color-fg);
     text-decoration-line: underline;
@@ -336,7 +338,7 @@
     transition: text-decoration-color 200ms var(--ease-out), color 200ms var(--ease-out);
   }
   .link-quiet:hover {
-    text-decoration-color: var(--color-brand);
+    text-decoration-color: var(--color-ink-300);
   }
   /* Crafted link: the underline draws in from the left on hover. */
   .link-draw {
@@ -1027,6 +1029,31 @@
   ::view-transition-group(.morph-title),
   ::view-transition-group(.morph-media) {
     animation-duration: 0s;
+  }
+}
+
+/* After the whitelist on purpose: under reduced motion the phone launcher
+   still waits for the fold to scroll away, but only fades (no travel), so it
+   never sits over the hero's buttons for a reader who asked for less motion. */
+@media (prefers-reduced-motion: reduce) {
+  @supports (animation-timeline: scroll()) {
+    @media (max-width: 47.99rem) {
+      .bosun-launcher {
+        animation: launcher-fade linear both;
+        animation-timeline: scroll(root);
+        animation-range: 0 45vh;
+      }
+    }
+  }
+}
+@keyframes launcher-fade {
+  from {
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
+  }
+  60% {
+    visibility: visible;
   }
 }
 

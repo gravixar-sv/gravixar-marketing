@@ -4,7 +4,6 @@ import { loadServices } from "@/content/loaders";
 import { SetInType } from "@/components/site/SetInType";
 import { Arrow, buttonClass } from "@/components/ui/Button";
 import { HeroStage } from "./hero/HeroStage";
-import { HeroCtaSignal } from "./hero/HeroCtaSignal";
 import styles from "./hero/Hero.module.css";
 
 // The fold. One claim, one sentence, one decision, and the mechanism shown
@@ -22,10 +21,17 @@ import styles from "./hero/Hero.module.css";
 //     line lower on the page.
 //
 // Copy lives in content/home/hero.mdx: the title (split at its comma into the
-// sans claim and the serif tail, the page's one human-voice phrase), the
-// caption, and the lead as the body's first paragraph. The body is printed as
-// plain text, not MDX, because MDX paragraphs carry long-form prose styles and
-// the lead is a different rank.
+// sans claim and the serif tail, the page's one human-voice phrase) and the
+// lead as the body's first paragraph. No eyebrow since 2026-09-23: "The AI-ops
+// platform" told a buyer this was software to sign up for, one line above "I
+// build...", and the hosted version has no date. The slot still renders if a
+// plain fact is ever put back in the frontmatter. The body is printed as plain
+// text, not MDX, because MDX paragraphs carry long-form prose styles and the
+// lead is a different rank.
+//
+// The price line uses the audit's own pricing words ("a call to walk you
+// through it"), not a term of art like "readout call" that appears nowhere
+// else on the site.
 
 function splitTitle(title: string) {
   const i = title.indexOf(", ");
@@ -67,7 +73,6 @@ export async function Hero({ meta, body }: { meta: HomeBlock; body: string }) {
         aria-hidden
         className={`${styles.light} ember-horizon pointer-events-none absolute -inset-x-6 -top-12 -z-10 h-[52rem] md:-top-16`}
       />
-      <HeroCtaSignal />
 
       <div className="grid gap-y-4 sm:gap-y-10 lg:grid-cols-12 lg:items-start lg:gap-x-12">
         <div className="relative z-10 lg:col-span-6">
@@ -79,7 +84,7 @@ export async function Hero({ meta, body }: { meta: HomeBlock; body: string }) {
             text={text}
             accent={accent}
             delay={60}
-            className={`${styles.title} mt-5 text-display font-semibold text-ink-50`}
+            className={`${styles.title} ${meta.eyebrow ? "mt-5" : ""} text-display font-semibold text-ink-50`}
           />
           {lead ? (
             <p className="hero-enter mt-6 max-w-[34ch] text-lead text-ink-300 [animation-delay:260ms]">
@@ -94,7 +99,6 @@ export async function Hero({ meta, body }: { meta: HomeBlock; body: string }) {
           <div className="hero-enter mt-9 flex flex-col gap-3 [animation-delay:340ms] sm:flex-row">
             <Link
               href="/services/ops-leak-audit"
-              data-hero-primary
               className={`${buttonClass()} w-full sm:w-auto`}
             >
               Start with the Ops Leak Audit
@@ -105,7 +109,8 @@ export async function Hero({ meta, body }: { meta: HomeBlock; body: string }) {
             </Link>
           </div>
           <p className="hero-enter mt-4 text-sm text-ink-400 [animation-delay:400ms]">
-            {price ? `Fixed price, ${price}.` : "Fixed price."} A written report and a readout call.
+            {price ? `Fixed price, ${price}.` : "Fixed price."} A written report and a call to walk you
+            through it.
           </p>
         </div>
 

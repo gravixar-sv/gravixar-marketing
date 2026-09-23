@@ -12,11 +12,12 @@ import {
 import { extractPairings, splitAtMarkers } from "@/components/services/body";
 import { DemoFigure, hasDemoFigure } from "@/components/services/DemoFigure";
 import { FactsLedger, ledgerFor } from "@/components/services/FactsLedger";
+import { GalleryFigure, galleryPlacementFor } from "@/components/services/GalleryFigure";
 import { primaryCta, termsFor, TRACK_LABEL } from "@/components/services/model";
 import { ServiceAside } from "@/components/services/ServiceAside";
 import { ServiceClosing } from "@/components/services/ServiceClosing";
 import { TermsStrip } from "@/components/services/TermsStrip";
-import { loadServices } from "@/content/loaders";
+import { loadGraphics, loadServices } from "@/content/loaders";
 import { cn } from "@/lib/cn";
 import { buildMetadata, SITE } from "@/lib/seo";
 
@@ -44,10 +45,10 @@ export async function generateMetadata(
 // The detail template is built around the decision, in reading order:
 //   1. the headline, the one-line promise, and the deal (price, scope,
 //      timeline) with the primary action, all above the fold on any screen;
-//   2. the article in a reading column, with a spec aside beside it: what you
-//      get (md up), the proof, what it pairs with, then a small sticky deal
-//      card. MDX comment markers place a facts ledger or a real demo
-//      screenshot between runs of prose (see splitAtMarkers);
+//   2. the article in a reading column, with a spec aside beside it: the
+//      proof, what it pairs with, then a small sticky deal card. MDX comment
+//      markers place a facts ledger, a real demo screenshot, or a piece from
+//      the gallery between runs of prose (see splitAtMarkers);
 //   3. the closing panel (#start), where the header's button lands.
 // Before this, the $3,500 front door showed its price at the bottom of the
 // aside on desktop and after the whole article on a phone.
@@ -61,9 +62,19 @@ export default async function ServicePage(
 
   const { body, pairings } = extractPairings(s.body);
   const ledger = ledgerFor(slug, body);
+  // A published /graphics piece, only for pages that name one. Loaded, not
+  // hardcoded, so an unpublished or renamed piece drops the figure.
+  const placement = galleryPlacementFor(slug);
+  const galleryPiece = placement
+    ? (await loadGraphics()).find((g) => g.meta.slug === placement.piece)?.meta
+    : undefined;
   // Only markers this page can fill are split out; any other comment stays in
   // the MDX, where it renders nothing.
-  const markers = [...(ledger ? ["facts-ledger"] : []), ...(hasDemoFigure(slug) ? ["demo-shot"] : [])];
+  const markers = [
+    ...(ledger ? ["facts-ledger"] : []),
+    ...(hasDemoFigure(slug) ? ["demo-shot"] : []),
+    ...(galleryPiece ? ["gallery-shot"] : []),
+  ];
   const parts = splitAtMarkers(body, markers);
   const terms = termsFor(s.meta);
   // The back link names where the page sits on /services. The two
@@ -107,13 +118,14 @@ export default async function ServicePage(
               {primaryCta(s.meta)}
               <Arrow />
             </a>
-            {/* From md the navbar carries "Book a call" directly above this
-                row, so the page's own copy is for phones, where the navbar
-                folds into the menu. Class order matters: md:hidden goes after
-                buttonClass's inline-flex. */}
+            {/* From lg the navbar carries "Book a call" directly above this
+                row, so the page's own copy is for phones and tablets, where
+                the navbar folds into the menu (its button is
+                `hidden lg:inline-flex`). Class order matters: lg:hidden goes
+                after buttonClass's inline-flex. */}
             <Link
               href="/contact"
-              className={cn(buttonClass({ variant: "ghost" }), "w-full sm:w-auto md:hidden")}
+              className={cn(buttonClass({ variant: "ghost" }), "w-full sm:w-auto lg:hidden")}
             >
               Book a call
             </Link>
@@ -136,6 +148,13 @@ export default async function ServicePage(
               return (
                 <Reveal key={i}>
                   <DemoFigure slug={slug} />
+                </Reveal>
+              );
+            }
+            if (part.name === "gallery-shot" && galleryPiece && placement) {
+              return (
+                <Reveal key={i}>
+                  <GalleryFigure piece={galleryPiece} label={placement.label} />
                 </Reveal>
               );
             }

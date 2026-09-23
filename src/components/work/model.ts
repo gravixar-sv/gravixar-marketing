@@ -59,6 +59,15 @@ export function keepCompounds(text: string): string {
   return text.replace(/([\p{L}\d])-(?=[\p{L}\d])/gu, `$1-${WORD_JOINER}`);
 }
 
+/** The one sentence under a study's headline: its one-liner, or, for a study
+ *  without one, the first sentence of its summary. The full summary stays the
+ *  meta description and structured data. */
+export function leadLine(meta: Pick<CaseStudy, "homeLine" | "summary">): string {
+  if (meta.homeLine) return meta.homeLine;
+  const first = meta.summary.trim().split(/(?<=[.!?])\s+(?=[A-Z0-9])/)[0];
+  return first ?? meta.summary;
+}
+
 /** Frontmatter prose is written as short paragraphs separated by blank lines. */
 export function paragraphs(text: string): string[] {
   return text
@@ -72,8 +81,10 @@ export function paragraphs(text: string): string[] {
 // headline number already appears twice above it), and so does a row that
 // only an engineer would parse. Values are printed exactly as the frontmatter
 // has them.
+// bs-hub's code audit ("63 findings ... 87 closed") stays out: out of
+// context the two counts read as a mistake. The body explains them.
 const GLANCE: Record<string, string[]> = {
-  "bs-hub": ["Code audit"],
+  "bs-hub": ["Audit retention"],
   beeline: ["Production scale", "Coverage gaps", "Insurer directory"],
   "agency-operations-platform": ["Review flow", "Finance", "AI"],
   "driving-school-booking-pwa": ["First version", "Under 18"],

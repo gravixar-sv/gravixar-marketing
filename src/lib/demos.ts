@@ -55,10 +55,17 @@ export type DemoScene = {
  * renders close to 1:1 and stays readable. Shapes are shared on purpose:
  *   - the first scene is the featured card, and its wide box is the whole
  *     board (about 3.7:1), the three columns with their action buttons;
- *   - every other wide box is 780x320, so the 2x2 grid's frames line up;
- *   - every narrow box is 388x320.
+ *   - every other wide box is 780x320, so the 2x2 grid's frames on /demos
+ *     line up;
+ *   - every narrow box is 388x320. The homepage's follower rows use the
+ *     narrow box at EVERY width (a 240px thumbnail beside each row), because
+ *     one column at 0.6x still reads as an app where a whole board at 0.3x
+ *     reads as noise.
  * Keep the Approve-style controls above about 85% of the box height: the
  * frame dissolves into the page over its last 10%.
+ * No box may open on a sentence fragment. A box whose left edge lands inside
+ * a line of the demo's own copy (Care Ledger's ARCHITECTURE strip, a panel's
+ * mono subhead) reads as a broken product, so start at the line's first word.
  * Re-check each box by eye after every `pnpm capture` in the demo repo.
  */
 export type CropBox = { x: number; y: number; w: number; h: number };
@@ -68,7 +75,7 @@ export const DEMO_SCENES: DemoScene[] = [
     slug: "lattice",
     name: "Agency OS",
     brand: "Lattice",
-    whatItIs: "The operating system a real agency runs on",
+    whatItIs: "An operating system for an agency, on sample data",
     tryLine: "Reviews, invoices, commissions, and leave, each one waiting for a yes.",
     personaLabel: "agencies",
     accent: "#ff6b6b",
@@ -90,7 +97,10 @@ export const DEMO_SCENES: DemoScene[] = [
     openLabel: "Open the console",
     shot: "/scenes/studio-mix.png",
     crop: {
-      wide: { x: 200, y: 418, w: 780, h: 320 },
+      // The output panel and the audit log, so the wide frame carries logged
+      // work instead of opening on the idle output panel alone. x 600, not
+      // 612: at 612 the panel's "NO RUN YET" subhead is cut to "UN YET".
+      wide: { x: 600, y: 418, w: 780, h: 320 },
       narrow: { x: 172, y: 418, w: 388, h: 320 },
     },
   },
@@ -137,8 +147,14 @@ export const DEMO_SCENES: DemoScene[] = [
     openLabel: "Open the portal",
     shot: "/scenes/care-ledger.png",
     crop: {
-      wide: { x: 605, y: 410, w: 780, h: 320 },
-      narrow: { x: 1006, y: 410, w: 388, h: 320 },
+      // x 208 is the ARCHITECTURE strip's left edge, so both frames read it
+      // from its first words ("No PHI in the portal...") and show the
+      // Credentialing column. Any box that sits right of it opened on a
+      // fragment ("; patient records stay", "rtal moves money"). The capture
+      // is 738px tall and the strip covers y 408 to 478, so no 320px box can
+      // skip it: the lasting fix is a re-capture scrolled past the strip.
+      wide: { x: 208, y: 410, w: 780, h: 320 },
+      narrow: { x: 208, y: 410, w: 388, h: 320 },
     },
   },
 ];

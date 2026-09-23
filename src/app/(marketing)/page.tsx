@@ -90,9 +90,22 @@ export default async function HomePage() {
       {/* voice={false}: the hero h1 already spends this page's one serif
           phrase, so the closing line renders as a two-tone statement.
           size="statement": the ask opens the last act, so it takes the same
-          rank as every other homepage act opener. */}
+          rank as every other homepage act opener.
+          body: the offer panel one screen up already sells the audit, so the
+          close leads with the free step (the demos, then the call), which is
+          what "before you sign anything" promises. */}
       <Reveal className="reveal-lead mt-28 md:mt-40">
-        <ContactCTA voice={false} size="statement" />
+        <ContactCTA
+          voice={false}
+          size="statement"
+          body={
+            <>
+              Every demo above opens without a sign-in. Rather talk first? Book
+              a <span className="whitespace-nowrap">30-minute</span> call. If it
+              is not a fit, you still leave with notes you can use.
+            </>
+          }
+        />
       </Reveal>
     </div>
   );

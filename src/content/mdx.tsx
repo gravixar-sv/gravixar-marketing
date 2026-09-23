@@ -8,8 +8,8 @@
 // `max-w-[68ch]` on the wrapper; the elements carry their own rhythm).
 //
 // Links are ivory with an underline (never colour alone: coral on body text
-// measured 1.6:1, well under the 3:1 a colour-only link needs). Coral appears
-// only as the underline warms on hover.
+// measured 1.6:1, well under the 3:1 a colour-only link needs). On hover the
+// underline brightens; coral never appears on a link.
 
 import { MDXRemote, type MDXRemoteProps } from "next-mdx-remote/rsc";
 import { Children, isValidElement, type ComponentProps, type ReactNode } from "react";
@@ -161,7 +161,7 @@ export function Callout({
 }) {
   const palette =
     tone === "warn"
-      ? "border-brand/25 bg-brand/[0.06] text-ink-200"
+      ? "border-danger/30 bg-danger/[0.06] text-ink-200"
       : "border-line bg-ink-900/60 text-ink-200";
   return (
     <div className={`mt-6 rounded-xl border px-5 py-4 text-[0.9375rem] leading-relaxed ${palette}`}>

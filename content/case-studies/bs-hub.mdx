@@ -1,7 +1,7 @@
 ---
 title: "A digital agency portal that onboards clients in about 10 minutes"
 slug: "bs-hub"
-client: "Digital agency, 4-year engagement"
+client: "Digital agency"
 role: "Solo build, architecture, engineering, AI integration, brand"
 period: "Since early 2026"
 summary: "The agency ran on email, Notion, and a shared Drive, and new inquiries fell through the gaps. Now one portal takes a new client from first inquiry to an active project in about 10 minutes, down from 2 to 3 days of email. AI drafts the briefs. It never approves anything."
@@ -17,9 +17,9 @@ approach: |
 
   AI never publishes, never approves, and never messages a client without a person checking first.
 outcome: |
-  Live in production. A new client goes from first inquiry to an active project in about 10 minutes. By email, that took 2 to 3 days.
+  Live in production. A new client goes from first inquiry to an active project in about 10 minutes. By email, that took two to three days.
 
-  It is bigger than it looks: a July 2026 recount found 84 data models and 9 scheduled jobs. The same month, 14 agents working in parallel hunted for problems in the code, then a second pass tried to prove each finding wrong. None of the 63 findings was knocked down, and every test passed afterwards, 252 of 252.
+  It is bigger than it looks: a July 2026 recount found 84 data models and 9 scheduled jobs.
 
   Every digital agency I work with now starts from this build, and I cut or extend it to fit.
 metrics:
@@ -60,17 +60,11 @@ The portal handles four distinct surfaces in one codebase: **public marketing an
 
 Every named unit, from sign-in at the base to the daily security check at the top, is catalogued in the repository with a map of what depends on what. That catalogue is the recipe. When I build a portal for the next client, I work down the list and decide unit by unit what to keep, drop, or change. A plain task tracker needs a fraction of it. An internal HR tool needs less than that.
 
-The piece I'm proudest of is the review flow on tasks. Every deliverable moves through five fixed states:
+The piece I'm proudest of is the review flow on tasks. Every deliverable moves through five fixed steps:
 
-```
-DRAFT
-→ SUBMITTED_FOR_INTERNAL
-→ INTERNAL_APPROVED
-→ SUBMITTED_FOR_CLIENT
-→ CLIENT_APPROVED
-```
+Draft → sent for internal review → approved internally → sent to the client → approved by the client.
 
-A revision request from the client sends it back into the loop. Each step does one job: it sends its emails and notifications and writes a line to the audit log. No state is implied. No admin can flip a task to "approved" by editing a free-text field.
+A revision request from the client sends it back into the loop. Each step does one job: it sends its emails and notifications and writes a line to the audit log. No step is implied. No admin can flip a task to "approved" by editing a free-text field.
 
 ## Decisions I'd defend
 
@@ -82,7 +76,7 @@ A revision request from the client sends it back into the loop. Each step does o
 
 **Only some changes can be undone in one click.** The activity log has a Restore button on changed rows, but only for fields on a short approved list. Status, money amounts and who owns a task are never on it. Those need a human decision, and the list is where that line is drawn.
 
-**Every finding has to survive an attempt to disprove it.** The audit on 2026-07-29 ran 14 agents in parallel to hunt for problems, then a second pass tried to knock every finding down. 63 findings survived, none were disproved, and 11 came back with a corrected severity. Two rounds of fixes followed, closing 87 findings in total, and the tests finished 252 of 252. The second pass is the part that matters: it keeps an audit from becoming a list of things that merely sounded bad.
+**Every finding has to survive an attempt to disprove it.** On 29 July 2026, 14 agents working in parallel hunted for problems in the code, then a second pass tried to knock every finding down. All 63 findings survived, and 11 came back with a corrected severity. Two rounds of fixes followed. They closed all 63, plus older issues they pulled in along the way, 87 in total, and every test passed afterwards, 252 of 252. The second pass is the part that matters: it keeps an audit from becoming a list of things that merely sounded bad.
 
 ## What broke
 

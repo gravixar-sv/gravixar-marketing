@@ -15,7 +15,7 @@ approach: |
 
   The finance side ties money to the work: invoices, payment requests, partner and referral commissions, and revenue tracking, in the same system that holds the deliverables. Leave and work-from-home run alongside.
 
-  The team raises issues inside the app, and Claude sorts them first, so the founder opens an ordered queue instead of a pile. Sign-in is role-based with a second factor, and files sit on Wasabi storage. AI sorts the queue. A person still decides.
+  The team raises issues inside the app, and Claude sorts them first, so the founder opens an ordered queue instead of a pile. Everyone signs in with a second check, and files are kept in low-cost cloud storage.
 outcome: |
   Live and used every day by the agency's team, and the people who work in it have given strong feedback. The agency has even shown it to one of their own prospective clients as proof of how they run.
 
@@ -50,17 +50,13 @@ homeLine: "Clients approve deliverables, and the team runs invoicing, commission
 
 The portal carries the whole agency, and what you see depends on who you are. An account manager sees their own clients and their own workflow. A client sees only their projects, their deliverables, and the approval flow, nothing else. The founder sees across all of it.
 
-The piece that earns its keep is the review and approval loop. A deliverable is submitted, reviewed inside the agency, then sent to the client to approve. Every version is kept, so "which draft did you approve" is a lookup, not an argument. If something goes out before it should have, a recall pulls it back. The state is explicit at every step.
-
-The finance side ties money to the work it came from: invoices, payment requests, partner and referral commissions, and revenue tracking, in the same system that holds the projects. Leave and work-from-home live there too, so time off is not a separate tool nobody opens.
-
 ## Decisions I'd defend
 
-**Feedback gets AI sorting, not AI answers.** The team raises issues in the app. Claude does a first pass so the founder opens a sorted queue instead of a pile. The AI orders the work. A person still decides what happens to it. That line does not move.
+**Feedback gets AI sorting, not AI answers.** The AI orders the work. A person still decides what happens to it. That line does not move.
 
-**Role-based access with a second factor, from day one.** This portal holds client work and the agency's money. The permissions and the second factor were not a later hardening pass; they are how it shipped.
+**Access by role, and a second sign-in check, from day one.** This portal holds client work and the agency's money. The permissions and the second check were not added later. They are how it shipped.
 
-**Files live on Wasabi.** Cheap, portable object storage keeps large files affordable and out of the application database, where they do not belong.
+**Files live on Wasabi.** Cheap, portable cloud storage keeps large files affordable and out of the app's database, where they do not belong.
 
 ## What's next
 

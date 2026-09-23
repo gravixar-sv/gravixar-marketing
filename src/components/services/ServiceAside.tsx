@@ -5,19 +5,21 @@ import { cn } from "@/lib/cn";
 import type { Pairing } from "./body";
 import { isExternal, primaryCta, proofLabel, termsFor } from "./model";
 
-// The spec column beside a service's article: what you get, the proof, and
-// what it is often paired with, then a small card with the deal and the one
-// action, which sticks while the rest of the article scrolls past.
+// The spec column beside a service's article: the proof and what it is often
+// paired with, then a small card with the deal and the one action, which
+// sticks while the rest of the article scrolls past.
 //
-// Why only the card sticks and not the whole column: measured at 1440x900,
-// six of the seven asides are 840 to 1,360px tall. A sticky element taller
+// No "What you get" list, on any screen. The article's own list of the same
+// offer sat in the next column, word for word on Managed Services, and it
+// pushed the deal card a full screen down. Scope is carried by the terms strip,
+// the article and the closing panel, so the aside starts at the proof.
+//
+// Why only the card sticks and not the whole column: a sticky element taller
 // than the viewport hides its own bottom (here, the proof links) until the
 // article ends, which is worse than not sticking. So the lists sit in the flow
 // at the top, and once they have scrolled away the offer stays in view for the
 // rest of the read instead of leaving a dead column. On phones the card is
-// dropped (the header and the closing panel already carry the action), and so
-// is "What you get" (the terms strip and the article's own list carry scope),
-// so the aside starts at the proof.
+// dropped: the header and the closing panel already carry the action.
 //
 // Neutral on purpose. Coral is kept for the decision (the card's button), so
 // the lists are ivory on hairlines, with human labels instead of the enum
@@ -72,22 +74,6 @@ export function ServiceAside({
   return (
     <aside className={cn("flex flex-col", className)} aria-label={`About the ${meta.title}`}>
       <div className="space-y-12">
-        {/* Desktop only. On a phone this list landed directly under the
-            article's own list of the same offer; there the terms strip and the
-            article already cover scope, so the aside starts at the proof. */}
-        <section aria-labelledby="svc-get" className="hidden md:block">
-          <h2 id="svc-get" className={labelClass}>
-            What you get
-          </h2>
-          <ul className="mt-3 border-t border-line">
-            {meta.deliverables.map((d) => (
-              <li key={d} className="border-b border-line-soft py-3 text-[0.9375rem] leading-normal text-ink-200">
-                {d}
-              </li>
-            ))}
-          </ul>
-        </section>
-
         {meta.proof.length > 0 ? (
           <section aria-labelledby="svc-proof">
             <h2 id="svc-proof" className={labelClass}>

@@ -28,7 +28,7 @@ export function DemoBanner() {
           {sceneCountCap} working apps with sample data. No sign-in, click anything.
         </span>
         <span className="md:hidden">Try {sceneCount} live demos</span>
-        <span className="font-medium text-ink-100 underline decoration-ink-600 underline-offset-[3px] transition-colors group-hover:decoration-brand">
+        <span className="font-medium text-ink-100 underline decoration-ink-600 underline-offset-[3px] transition-colors group-hover:decoration-ink-300">
           demo.gravixar.com
         </span>
       </a>

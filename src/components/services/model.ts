@@ -9,10 +9,15 @@ export type Track = Service["track"];
 // The track in plain words. The index labels its groups with these and each
 // detail page uses the same words as its back-link eyebrow, so a visitor sees
 // where an offer sits on the path before reading anything else.
+//
+// "ongoing" has to be true of both offers in it: the retainer that watches a
+// system after launch, and the code review that happens before an investor
+// reads the code. "After it ships" sat directly above a lede that opens with
+// "before", so the label names the state both share instead of a moment.
 export const TRACK_LABEL: Record<Track, string> = {
   start: "Where to start",
   build: "What I build",
-  ongoing: "After it ships",
+  ongoing: "Once it is running",
   maintain: "Keeping it running",
 };
 
@@ -24,6 +29,9 @@ export type Term = { label: string; value: string };
 // in that service's pricing line (see termsFor), so if a price moves in the
 // MDX and nobody updates this map, the strip falls back to the pricing line
 // verbatim instead of showing a stale number.
+//
+// "I see" is glued with a non-breaking space so a line can never end on a
+// lone "I" ("Priced once I / see the scope"), the fix ContactCTA already uses.
 const TERMS: Record<string, Term[]> = {
   "ops-leak-audit": [
     { label: "Price", value: "$3,500 fixed" },
@@ -36,7 +44,7 @@ const TERMS: Record<string, Term[]> = {
     { label: "Price agreed", value: "Before the build starts" },
   ],
   "ai-tooling": [
-    { label: "Price", value: "Priced once I see the scope" },
+    { label: "Price", value: "Priced once I see the scope" },
     { label: "First build", value: "Usually 2 to 4 weeks" },
   ],
   "fractional-ai-ops-lead": [
@@ -52,7 +60,7 @@ const TERMS: Record<string, Term[]> = {
   "managed-services": [
     { label: "Billing", value: "Monthly retainer" },
     { label: "Levels", value: "Full stack, or maintenance only" },
-    { label: "Price", value: "Scoped after I see what you run" },
+    { label: "Price", value: "Scoped after I see what you run" },
   ],
   "brand-visuals": [
     { label: "Price", value: "Per project" },
@@ -105,11 +113,24 @@ export function closingHeading(meta: Service): string {
 }
 
 // One sentence, one promise. No routing jargon: the visitor does not need to
-// know which inbox it lands in.
+// know which inbox it lands in, or that the page travels with the note.
 export function closingLine(meta: Service): string {
   return meta.track === "start"
-    ? "Tell me how big the team is and which tools it runs on, and I reply within 24 hours to confirm the scope and a start date."
-    : "It reaches me with this page attached, so you will not have to explain which service you mean. I reply within 24 hours.";
+    ? "Tell me how big the team is and which tools it runs on, and I reply within 24 hours to confirm the scope and a start date."
+    : "Send a few lines about where things stand. I reply within 24 hours.";
+}
+
+// The closing form's prompt, where the generic one asks the wrong questions.
+// "What is broken" and "your team size and tools" fit a portal or an AI build;
+// they do not fit a logo, a deck or a hosting account. Anything not listed
+// keeps the form's default.
+const MESSAGE_PLACEHOLDER: Record<string, string> = {
+  "brand-visuals": "What you need made, where it will be used, and when you need it.",
+  "managed-services": "What your site runs on, who hosts it, and what keeps going wrong.",
+};
+
+export function messagePlaceholder(meta: Service): string | undefined {
+  return MESSAGE_PLACEHOLDER[meta.slug];
 }
 
 export type ProofKind = Service["proof"][number]["kind"];

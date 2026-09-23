@@ -22,7 +22,7 @@
 // A picked time is a human decision, so it takes the coral selected state;
 // nothing else in the picker is coral.
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SERVICE_LABELS, SERVICE_OPTIONS } from "@/lib/services";
 import { Arrow, Button, buttonClass } from "@/components/ui/Button";
 import {
@@ -38,6 +38,11 @@ import { cn } from "@/lib/cn";
 
 type Slot = { startUtc: string; pktLabel: string };
 type Step = "pick" | "verify" | "done";
+
+// Said when "Confirm the call" is pressed without a full code. The button is
+// never disabled for this: a disabled coral button gives no reason, so the
+// press is allowed and the reason is shown.
+const CODE_SHORT = "Enter the 6-digit code from the email.";
 
 // Days shown before "Show later dates". Five business days is a full week of
 // choice and keeps the picker to one screen on a phone.
@@ -289,6 +294,7 @@ export function BookCall() {
 
   const [token, setToken] = useState("");
   const [code, setCode] = useState("");
+  const codeRef = useRef<HTMLInputElement>(null);
   const [slots, setSlots] = useState<Slot[] | null>(null);
   const [slotsFailed, setSlotsFailed] = useState(false);
   const [picked, setPicked] = useState<string>("");
@@ -355,6 +361,11 @@ export function BookCall() {
     e.preventDefault();
     if (!picked) {
       setError("Pick a time first.");
+      return;
+    }
+    if (code.length !== 6) {
+      setError(CODE_SHORT);
+      codeRef.current?.focus();
       return;
     }
     setBusy(true);
@@ -532,7 +543,10 @@ export function BookCall() {
       ) : null}
 
       {step === "verify" ? (
-        <form onSubmit={confirm} className="space-y-6">
+        // noValidate: the code check is ours (CODE_SHORT, in words), not the
+        // browser's "match the requested format" bubble. The pattern stays for
+        // :user-invalid styling and for assistive tech.
+        <form onSubmit={confirm} noValidate className="space-y-6">
           {picked ? (
             <div className="flex flex-wrap items-end justify-between gap-3 border-b border-line-soft pb-5">
               {/* "Chosen time", not "Your slot": nothing is held until
@@ -573,7 +587,9 @@ export function BookCall() {
               Enter the 6-digit code sent to <span className="text-ink-50">{email}</span>
             </label>
             <input
+              ref={codeRef}
               id="booking-code"
+              aria-invalid={error === CODE_SHORT || undefined}
               className={cn(controlClass, "mt-2 h-12 max-w-[14rem] text-center text-lg tracking-[0.4em] tabular-nums md:text-lg")}
               inputMode="numeric"
               pattern="\d{6}"
@@ -582,7 +598,10 @@ export function BookCall() {
               // mail notification instead of making people switch apps.
               autoComplete="one-time-code"
               value={code}
-              onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
+              onChange={(e) => {
+                setCode(e.target.value.replace(/\D/g, ""));
+                if (error === CODE_SHORT) setError(null);
+              }}
               placeholder="••••••"
               required
             />
@@ -592,9 +611,12 @@ export function BookCall() {
           </div>
           {error ? <FormError>{error}</FormError> : null}
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+            {/* Disabled only while a request is in flight (the
+                no-disabled-submit rule). A short code or a missing time is
+                answered in words by confirm(). */}
             <Button
               type="submit"
-              disabled={busy || !picked || code.length !== 6}
+              disabled={busy}
               className={cn("group w-full sm:w-auto", busy && "cursor-wait")}
             >
               {busy ? "Confirming…" : "Confirm the call"}

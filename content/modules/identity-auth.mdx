@@ -15,6 +15,10 @@ order: 1
 publishedAt: "2026-05-04"
 ---
 
+Sign-in is the front door of every portal I build, and it gets the full set of locks from the first release, not one or two now and the rest later. The shape changes per product (healthcare adds locking by region, agencies add more than one organization); the security defaults don't.
+
+## Under the hood
+
 A real auth module isn't a sign-in form. It's the boring set of defenses that keep accounts honest: 5-attempt-per-30-minute lockout, HIBP password breach check (k-anonymity, fails open), dummy bcrypt-compare on unknown emails so attackers can't enumerate accounts by timing, invite-only signup that closes the public registration surface entirely, session augmentation with role + region + department + isSuperAdmin tier so every guard down the line has the context it needs.
 
-I ship this on every build. The shape changes per product (healthcare adds region-locking, agencies add multi-org); the security defaults don't. There's no clever new pattern here. There's just the discipline of doing the right things together rather than picking one or two and shipping the rest later.
+There's no clever new pattern here. There's just the discipline of doing the right things together rather than picking one or two and shipping the rest later.

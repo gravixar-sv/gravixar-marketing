@@ -29,6 +29,16 @@
   display: grid;
   grid-template-columns: 1.75rem minmax(0, 1fr);
 }
+/* Below lg the numerals and the rail are hidden (the card shows the decision
+   only, see ApprovalStrip.tsx), so the gutter would be an empty 28px indent. */
+@media (max-width: 63.99rem) {
+  .step {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .wideOnly {
+    display: none;
+  }
+}
 
 /* The rail in the gutter: a hairline from under one numeral to the top of the
    next. Static between 01 and 02; the 02 to 03 segment carries the wire. */

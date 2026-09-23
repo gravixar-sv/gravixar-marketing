@@ -64,7 +64,8 @@ export function CaseAside({
             <div className="mt-10 border-t border-line-soft pt-6">
               <p className="text-caption text-ink-500">Try the demo version</p>
               <DemoLink label={demo.label} href={demo.href} />
-              <p className="mt-2 font-mono text-label-xs text-ink-500">sample data, not the client&apos;s system</p>
+              {/* The demo label already says "sample data". */}
+              <p className="mt-2 font-mono text-label-xs text-ink-500">not the client&apos;s system</p>
             </div>
           ) : null}
         </div>
@@ -115,7 +116,7 @@ export function PageIndex({ toc, demo }: { toc: TocItem[]; demo: CaseStudy["demo
           <div className={cn(toc.length > 0 && "mt-4 border-t border-line-soft pt-4")}>
             <p className="text-caption text-ink-500">Try the demo version</p>
             <DemoLink label={demo.label} href={demo.href} />
-            <p className="mt-2 font-mono text-label-xs text-ink-500">sample data, not the client&apos;s system</p>
+            <p className="mt-2 font-mono text-label-xs text-ink-500">not the client&apos;s system</p>
           </div>
         ) : null}
       </div>

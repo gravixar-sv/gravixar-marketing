@@ -13,7 +13,7 @@ import { CaseBody, type ShortSection } from "@/components/work/CaseBody";
 import { CaseAside, PageIndex, type TocItem } from "@/components/work/CaseAside";
 import { DemoShot } from "@/components/work/DemoShot";
 import { NextStudy } from "@/components/work/NextStudy";
-import { demoSceneFor, keepCompounds, splitBody } from "@/components/work/model";
+import { demoSceneFor, keepCompounds, leadLine, splitBody } from "@/components/work/model";
 import { loadCaseStudies } from "@/content/loaders";
 import { buildMetadata, SITE } from "@/lib/seo";
 
@@ -49,7 +49,7 @@ export async function generateMetadata(
 //
 // The lede is the study's one-liner (homeLine), the same promise its index
 // card makes. The long summary stays the meta description and structured
-// data, and is the fallback for a study without a one-liner.
+// data; a study without a one-liner leads with its summary's first sentence.
 export default async function CaseStudyPage(
   { params }: { params: Promise<{ slug: string }> },
 ) {
@@ -98,11 +98,12 @@ export default async function CaseStudyPage(
         eyebrowHref="/work"
         title={keepCompounds(cs.meta.title)}
         titleTransition={`case-${slug}`}
-        lede={keepCompounds(cs.meta.homeLine ?? cs.meta.summary)}
+        lede={keepCompounds(leadLine(cs.meta))}
         rule={false}
       />
 
-      <CaseCover slug={slug} client={cs.meta.client} variant="detail" animate />
+      {/* No client line on the cover: "At a glance" prints it just below. */}
+      <CaseCover slug={slug} variant="detail" animate />
 
       <CaseLedger meta={cs.meta} className="mt-10 md:mt-14" />
       <PageIndex toc={toc} demo={cs.meta.demo} />

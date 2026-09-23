@@ -24,6 +24,20 @@ import { separatorBefore } from "@/lib/prose";
 // difference is deliberate: this panel lists the deliverables, because the
 // homepage has nowhere else that says what the audit hands over.
 //
+// NO TRACK LABEL ON THE FRONT DOOR HERE. /services names the track ("Where to
+// start") because there it opens a menu. Here it sat under the h2 "Start with
+// an audit." and over the button "Start with the audit": "start" three times
+// in 200px, and the label added nothing the heading had not said. The panel
+// opens on the service name.
+//
+// BUYING ORDER ON PHONES. The button is its own grid child, AFTER the price
+// and the list, so a phone reads promise, price, what you get, then the ask,
+// instead of being asked to click before it sees the number. From md it sits
+// under the promise (column 1, row 2) and the deal spans both rows on the
+// right, the same arrangement as /services. Row 2 is 1fr, so any extra
+// height from the deal column lands below the button, never between the
+// promise and the button.
+//
 // THE LADDER. The section h2 is a statement (the homepage act-opener rank), the
 // panel title is a subsection, the row titles are text-xl. Three sizes, three
 // jobs, so the panel never reads as a second headline under the first.
@@ -73,18 +87,13 @@ function FrontDoor({ service }: { service: Service }) {
   return (
     <div className="panel-lit relative overflow-hidden rounded-2xl">
       <div aria-hidden className="ember-horizon pointer-events-none absolute inset-0" />
-      <div className="relative grid gap-10 p-6 py-8 sm:p-8 md:grid-cols-12 md:gap-0 md:p-12">
-        <div className="md:col-span-6 md:pr-12">
-          <p className="text-caption text-ink-400">{TRACK_LABEL[service.track]}</p>
-          <Title service={service} className="mt-3 w-fit text-subsection font-semibold text-ink-50" />
+      <div className="relative grid gap-10 p-6 py-8 sm:p-8 md:grid-cols-12 md:grid-rows-[auto_1fr] md:gap-0 md:p-12">
+        <div className="md:col-span-6 md:col-start-1 md:row-start-1 md:pr-12">
+          <Title service={service} className="w-fit text-subsection font-semibold text-ink-50" />
           <p className="mt-4 max-w-[44ch] text-lead text-ink-300">{service.tagline}</p>
-          <Link href={href} className={cn(buttonClass(), "group mt-8 w-full sm:w-auto")}>
-            Start with the audit
-            <Arrow />
-          </Link>
         </div>
 
-        <div className="md:col-span-6 md:border-l md:border-line md:pl-12">
+        <div className="md:col-span-6 md:col-start-7 md:row-span-2 md:row-start-1 md:border-l md:border-line md:pl-12">
           {lead ? (
             <p className="flex items-baseline gap-2.5">
               <span className="text-[2.75rem] font-semibold leading-none tracking-[-0.03em] text-ink-50 [font-stretch:94%] md:text-[3.25rem]">
@@ -127,6 +136,13 @@ function FrontDoor({ service }: { service: Service }) {
               ) : null}
             </>
           ) : null}
+        </div>
+
+        <div className="md:col-span-6 md:col-start-1 md:row-start-2 md:pr-12 md:pt-8">
+          <Link href={href} className={cn(buttonClass(), "group w-full sm:w-auto")}>
+            Start with the audit
+            <Arrow />
+          </Link>
         </div>
       </div>
     </div>

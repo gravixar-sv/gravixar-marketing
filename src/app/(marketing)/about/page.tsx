@@ -120,8 +120,10 @@ export default async function AboutPage() {
       </p>
 
       {/* The portrait already leads this page and the h1 carries its serif
-          phrase, so the closing panel shows neither. */}
-      <div className="mt-24 md:mt-32">
+          phrase, so the closing panel shows neither. Without the portrait the
+          panel's words fill about 580px, so the panel is capped to fit them:
+          at full width the right half of the lit panel sat empty. */}
+      <div className="mt-24 md:mt-32 md:max-w-3xl">
         <ContactCTA voice={false} person={false} />
       </div>
     </div>

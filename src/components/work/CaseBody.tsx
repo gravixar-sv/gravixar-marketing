@@ -91,10 +91,11 @@ function LongVersion() {
   );
 }
 
-// "What broke" is the most honest writing on the site, so it gets its own
-// setting: a flat lit surface with an ivory hairline along its top edge, and
-// a small caption. No coral: coral marks a human decision, and a callout edge
-// is decoration. Not a card in a card: the reading column is not a card.
+// "What broke" gets its own setting: a flat lit surface with an ivory hairline
+// along its top edge. No caption over its h2: the inset already sets it apart,
+// and a label calling one section honest implies the rest is less so. No
+// coral: coral marks a human decision, and a callout edge is decoration. Not a
+// card in a card: the reading column is not a card.
 //
 // The bleed stays inside main's 24px gutter (20px) until the container has
 // side margin of its own (xl, 1280px and up), so the inset never clips or
@@ -108,7 +109,6 @@ function Broke({ children }: { children: ReactNode }) {
       )}
     >
       <span aria-hidden className={styles.brokeLine} />
-      <p className="mb-5 text-caption text-ink-300">The honest section</p>
       <div>{children}</div>
     </div>
   );
