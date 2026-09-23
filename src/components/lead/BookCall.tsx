@@ -28,7 +28,7 @@ const LABEL = "font-mono text-label-sm uppercase text-muted";
 // that globals.css sets deliberately, leaving a border tint as the only focus
 // signal, which is colour alone and fails a keyboard user outright.
 const INPUT =
-  "mt-1.5 w-full rounded-md border border-line bg-zinc-950/60 px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 focus:border-brand/50";
+  "mt-1.5 w-full rounded-md border border-line bg-ink-950/60 px-3 py-2.5 text-sm text-ink-100 placeholder:text-ink-600 focus:border-brand/50";
 
 function fmtLocal(iso: string): string {
   try {
@@ -65,7 +65,7 @@ function SlotGrid({
     return (
       <p className="mt-2 text-xs text-muted">
         Couldn&apos;t load the slots.{" "}
-        <button type="button" onClick={onRetry} className="underline underline-offset-2 hover:text-zinc-300">
+        <button type="button" onClick={onRetry} className="underline underline-offset-2 hover:text-ink-300">
           Try again
         </button>
       </p>
@@ -84,7 +84,7 @@ function SlotGrid({
             caused it, so it is the one thing guaranteed to reach that
             visitor. */}
         <noscript>
-          <p className="mt-2 text-sm text-zinc-300">
+          <p className="mt-2 text-sm text-ink-300">
             Picking a time needs JavaScript, which is not running here. Email{" "}
             <a className="text-brand-soft underline" href="mailto:gravixar@gmail.com?subject=Book%20a%20call">
               gravixar@gmail.com
@@ -115,7 +115,7 @@ function SlotGrid({
           className={`rounded-md border px-2 py-2 text-left text-xs transition-colors ${
             picked === s.startUtc
               ? "border-brand bg-brand/10 text-brand-soft"
-              : "border-line bg-zinc-950/60 text-zinc-300 hover:border-zinc-600"
+              : "border-line bg-ink-950/60 text-ink-300 hover:border-ink-600"
           }`}
         >
           {fmtLocal(s.startUtc)}
@@ -256,10 +256,10 @@ export function BookCall() {
     return (
       <div className="rounded-xl border border-brand-deep/30 bg-brand-deep/5 p-6">
         <p className="font-mono text-label-sm uppercase text-brand">booked</p>
-        <h3 className="mt-1 text-lg font-medium tracking-[-0.01em] text-zinc-100">
+        <h3 className="mt-1 text-lg font-medium tracking-[-0.01em] text-ink-100">
           You&apos;re set for {fmtLocal(confirmed.startUtc)}.
         </h3>
-        <p className="mt-2 text-sm text-zinc-400">
+        <p className="mt-2 text-sm text-ink-400">
           A calendar invite is on its way to {email}. Join with Google Meet:
         </p>
         <a
@@ -275,14 +275,14 @@ export function BookCall() {
   }
 
   return (
-    <div className="rounded-xl border border-line bg-zinc-950/40 p-6">
+    <div className="rounded-xl border border-line bg-ink-950/40 p-6">
       <p className="font-mono text-label-sm uppercase text-brand">
         30 min · google meet
       </p>
-      <h3 className="mt-1 text-base font-medium tracking-[-0.01em] text-zinc-100">
+      <h3 className="mt-1 text-base font-medium tracking-[-0.01em] text-ink-100">
         Book a call with Qamar
       </h3>
-      <p className="mt-1 text-sm text-zinc-400">
+      <p className="mt-1 text-sm text-ink-400">
         Pick a slot, confirm your email, get the Meet link. No prep needed.
       </p>
 
@@ -360,14 +360,14 @@ export function BookCall() {
               {/* "Chosen slot", not "Your slot": nothing is held until
                   confirm, and a possessive would claim otherwise. */}
               <span className={LABEL}>Chosen slot</span>
-              <p className="mt-1.5 text-sm text-zinc-100">{fmtLocal(picked)}</p>
+              <p className="mt-1.5 text-sm text-ink-100">{fmtLocal(picked)}</p>
               <button
                 type="button"
                 onClick={() => {
                   setPicked("");
                   void refreshSlots();
                 }}
-                className="mt-1 text-xs text-muted hover:text-zinc-300"
+                className="mt-1 text-xs text-muted hover:text-ink-300"
               >
                 change slot
               </button>
@@ -431,7 +431,7 @@ export function BookCall() {
                 setCode("");
                 void refreshSlots();
               }}
-              className="text-xs text-muted hover:text-zinc-300"
+              className="text-xs text-muted hover:text-ink-300"
             >
               ← back
             </button>

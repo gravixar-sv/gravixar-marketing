@@ -163,7 +163,7 @@ export function JobApplicationForm({
           Thanks for applying for {roleTitle}. I read every application myself
           and reply if it is a fit.
         </h3>
-        <p className="mt-2 text-sm text-zinc-400">
+        <p className="mt-2 text-sm text-ink-400">
           If you have more to share, you can also email me directly at{" "}
           <a
             href="mailto:gravixar@gmail.com"
@@ -185,7 +185,7 @@ export function JobApplicationForm({
         <h3 className="text-xl font-semibold tracking-tight">
           Apply for {roleTitle}
         </h3>
-        <p className="mt-1 text-sm text-zinc-400">
+        <p className="mt-1 text-sm text-ink-400">
           Quick form, lands in my inbox and HQ at the same time. I read every
           one myself.
         </p>
@@ -223,10 +223,10 @@ export function JobApplicationForm({
         autoComplete="organization"
       />
       <div>
-        <span className="font-mono text-label uppercase text-zinc-400">
+        <span className="font-mono text-label uppercase text-ink-400">
           Links (optional)
         </span>
-        <p className="mt-1 text-xs text-zinc-600">
+        <p className="mt-1 text-xs text-ink-600">
           LinkedIn, portfolio, online CV, GitHub, socials. Paste any, no
           https:// needed.
         </p>
@@ -240,14 +240,14 @@ export function JobApplicationForm({
                 onChange={(e) => setLinkAt(i, e.target.value)}
                 placeholder="linkedin.com/in/you"
                 autoComplete="off"
-                className="block w-full rounded-md border border-line bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none transition-colors placeholder:text-zinc-600 focus:border-brand"
+                className="block w-full rounded-md border border-line bg-ink-950 px-3 py-2 text-sm text-ink-100 outline-none transition-colors placeholder:text-ink-600 focus:border-brand"
               />
               {links.length > 1 ? (
                 <button
                   type="button"
                   onClick={() => removeLink(i)}
                   aria-label="Remove link"
-                  className="shrink-0 rounded-md border border-line px-3 py-2 text-sm text-muted transition hover:border-zinc-600 hover:text-zinc-300"
+                  className="shrink-0 rounded-md border border-line px-3 py-2 text-sm text-muted transition hover:border-ink-600 hover:text-ink-300"
                 >
                   ×
                 </button>
@@ -272,11 +272,11 @@ export function JobApplicationForm({
       />
       {screeningQuestions.map((q) => {
         const cls =
-          "mt-2 block w-full rounded-md border border-line bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none transition-colors placeholder:text-zinc-600 focus:border-brand";
+          "mt-2 block w-full rounded-md border border-line bg-ink-950 px-3 py-2 text-sm text-ink-100 outline-none transition-colors placeholder:text-ink-600 focus:border-brand";
         const name = `sq_${q.id}`;
         return (
           <label key={q.id} className="block">
-            <span className="font-mono text-label uppercase text-zinc-400">
+            <span className="font-mono text-label uppercase text-ink-400">
               {q.label}
               {q.required ? " *" : ""}
             </span>
@@ -372,7 +372,7 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="font-mono text-label uppercase text-zinc-400">
+      <span className="font-mono text-label uppercase text-ink-400">
         {label}
       </span>
       <input
@@ -386,7 +386,7 @@ function Field({
         inputMode={inputMode}
         autoComplete={autoComplete}
         placeholder={placeholder}
-        className="mt-2 block w-full rounded-md border border-line bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none transition-colors placeholder:text-zinc-600 focus:border-brand"
+        className="mt-2 block w-full rounded-md border border-line bg-ink-950 px-3 py-2 text-sm text-ink-100 outline-none transition-colors placeholder:text-ink-600 focus:border-brand"
       />
     </label>
   );
@@ -403,14 +403,14 @@ function FileField({
 }) {
   return (
     <label className="block">
-      <span className="font-mono text-label uppercase text-zinc-400">
+      <span className="font-mono text-label uppercase text-ink-400">
         {label}
       </span>
       <input
         name={name}
         type="file"
         accept={accept}
-        className="mt-2 block w-full cursor-pointer rounded-md border border-line bg-zinc-950 px-3 py-2 text-sm text-zinc-300 outline-none transition-colors file:mr-3 file:rounded file:border-0 file:bg-zinc-800 file:px-3 file:py-1 file:text-xs file:font-medium file:text-zinc-100 hover:file:bg-zinc-700 focus:border-brand"
+        className="mt-2 block w-full cursor-pointer rounded-md border border-line bg-ink-950 px-3 py-2 text-sm text-ink-300 outline-none transition-colors file:mr-3 file:rounded file:border-0 file:bg-ink-800 file:px-3 file:py-1 file:text-xs file:font-medium file:text-ink-100 hover:file:bg-ink-700 focus:border-brand"
       />
     </label>
   );
@@ -433,7 +433,7 @@ function Textarea({
 }) {
   return (
     <label className="block">
-      <span className="font-mono text-label uppercase text-zinc-400">
+      <span className="font-mono text-label uppercase text-ink-400">
         {label}
       </span>
       <textarea
@@ -442,7 +442,7 @@ function Textarea({
         minLength={minLength}
         rows={rows}
         placeholder={placeholder}
-        className="mt-2 block w-full rounded-md border border-line bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none transition-colors placeholder:text-zinc-600 focus:border-brand"
+        className="mt-2 block w-full rounded-md border border-line bg-ink-950 px-3 py-2 text-sm text-ink-100 outline-none transition-colors placeholder:text-ink-600 focus:border-brand"
       />
     </label>
   );

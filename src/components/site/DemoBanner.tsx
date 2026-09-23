@@ -1,8 +1,12 @@
 // Top-of-site banner pointing visitors at the live demo subdomain.
-// demo.gravixar.com is live: five interactive scenes you can click
-// through, no sign-in and no accounts. Scene count is read from
-// DEMO_SCENES so it cannot drift when a sixth scene lands.
-// Keep the framing active.
+// demo.gravixar.com is live: five interactive scenes you can click through, no
+// sign-in and no accounts. Scene count is read from DEMO_SCENES so it cannot
+// drift when a sixth scene lands.
+//
+// Quiet on purpose (2026-09-23). It used to wear a coral border, a coral link
+// and an emerald dot, three colours in the first 40px of every page, and it
+// repeated the nav's own tag. Now the only colour is the live dot, which
+// breathes three times and rests, because demo.gravixar.com really is live.
 
 import { DEMO_SCENES } from "@/lib/demos";
 import { SITE } from "@/lib/seo";
@@ -13,19 +17,21 @@ const sceneCountCap = sceneCount.charAt(0).toUpperCase() + sceneCount.slice(1);
 
 export function DemoBanner() {
   return (
-    <div className="border-y border-brand/20 bg-zinc-950">
-      <div className="mx-auto flex max-w-6xl items-center justify-center gap-2 px-6 py-2 text-xs text-zinc-300 md:text-sm">
-        <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-400" />
-        <span className="hidden md:inline">{sceneCountCap} working apps, not a walkthrough. Sample data, no sign-in, click anything at</span>
-        <span className="md:hidden">Try {sceneCount} live demos at</span>
-        <a
-          href={SITE.demoUrl}
-          className="font-medium text-brand-soft underline-offset-4 hover:underline"
-          rel="noreferrer"
-        >
+    <div className="border-b border-line-soft bg-ink-950/60">
+      <a
+        href={SITE.demoUrl}
+        rel="noreferrer"
+        className="group mx-auto flex max-w-6xl items-center justify-center gap-2.5 px-6 py-2 text-[0.8125rem] text-ink-400 transition-colors hover:text-ink-100"
+      >
+        <span aria-hidden className="live-dot inline-block h-1.5 w-1.5 rounded-full bg-emerald-400 text-emerald-400" />
+        <span className="hidden md:inline">
+          {sceneCountCap} working apps with sample data. No sign-in, click anything.
+        </span>
+        <span className="md:hidden">Try {sceneCount} live demos</span>
+        <span className="font-medium text-ink-100 underline decoration-ink-600 underline-offset-[3px] transition-colors group-hover:decoration-brand">
           demo.gravixar.com
-        </a>
-      </div>
+        </span>
+      </a>
     </div>
   );
 }

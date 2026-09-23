@@ -71,7 +71,7 @@ export default function EarlyAccessPage() {
           <h2 className="font-mono text-label uppercase text-brand">
             join the list
           </h2>
-          <p className="mt-2 text-sm text-zinc-400">
+          <p className="mt-2 text-sm text-ink-400">
             One email when a module becomes something you can run yourself. No
             drip sequence, no marketing list, no sharing your address with
             anyone.
@@ -89,34 +89,34 @@ export default function EarlyAccessPage() {
           <h2 className="font-mono text-label uppercase text-brand">
             what exists today
           </h2>
-          <p className="mt-2 text-sm text-zinc-400">
+          <p className="mt-2 text-sm text-ink-400">
             Counted from the module registry, not projected from a roadmap.
           </p>
-          <div className="mt-6 rounded-xl border border-line bg-zinc-950/40 p-5">
+          <div className="mt-6 rounded-xl border border-line bg-ink-950/40 p-5">
             <dl className="grid grid-cols-2 gap-4">
               {LIBRARY_STATS.map((s) => (
                 <div key={s.key} className="flex flex-col">
-                  <dt className="font-mono text-label-sm uppercase text-zinc-400">
+                  <dt className="font-mono text-label-sm uppercase text-ink-400">
                     {s.label}
                   </dt>
-                  <dd className="mt-1 font-mono text-xl text-zinc-100">
+                  <dd className="mt-1 font-mono text-xl text-ink-100">
                     {s.value}
                   </dd>
                 </div>
               ))}
             </dl>
             {COUNTED_AT ? (
-              <p className="mt-4 border-t border-line-soft pt-3 font-mono text-label-sm uppercase text-zinc-400">
+              <p className="mt-4 border-t border-line-soft pt-3 font-mono text-label-sm uppercase text-ink-400">
                 counted {COUNTED_AT}
               </p>
             ) : null}
           </div>
-          <p className="mt-4 text-sm text-zinc-400">
+          <p className="mt-4 text-sm text-ink-400">
             No price list here, because there is nothing priced to sell. Today a
             module reaches you inside a build, and a build starts with a
             conversation about what you already have.
           </p>
-          <p className="mt-4 font-mono text-label-sm uppercase text-zinc-400">
+          <p className="mt-4 font-mono text-label-sm uppercase text-ink-400">
             want one in your own build? <Link href="/contact" className="text-brand-soft underline-offset-4 hover:underline">book a call →</Link>
           </p>
         </aside>
@@ -136,10 +136,10 @@ export default function EarlyAccessPage() {
               <p className="font-mono text-label-sm uppercase text-muted">
                 {step.n}
               </p>
-              <h3 className="mt-3 text-lg font-medium tracking-[-0.01em] text-zinc-100">
+              <h3 className="mt-3 text-lg font-medium tracking-[-0.01em] text-ink-100">
                 {step.title}
               </h3>
-              <p className="mt-2 text-sm leading-relaxed text-zinc-400">
+              <p className="mt-2 text-sm leading-relaxed text-ink-400">
                 {step.body}
               </p>
             </div>
@@ -149,14 +149,14 @@ export default function EarlyAccessPage() {
 
       {/* What you can do now. Was "while you wait", which only makes sense
           under a launch this page no longer claims. */}
-      <section className="rounded-2xl border border-line bg-zinc-950/40 p-8 md:p-10">
+      <section className="rounded-2xl border border-line bg-ink-950/40 p-8 md:p-10">
         <h2 className="font-mono text-label uppercase text-brand">
           what you can do now
         </h2>
         <h3 className="mt-3 max-w-3xl text-2xl font-medium tracking-[-0.015em] md:text-3xl">
           The library is readable today, and the demo is runnable today.
         </h3>
-        <p className="mt-3 max-w-2xl text-sm text-zinc-300">
+        <p className="mt-3 max-w-2xl text-sm text-ink-300">
           Each module has a page naming what it does and where it runs. The demo
           site holds sandboxes of the same patterns with nothing saved. Read
           one, run the other, then decide whether the shape fits before you
@@ -165,13 +165,13 @@ export default function EarlyAccessPage() {
         <div className="mt-6 flex flex-wrap gap-3">
           <Link
             href="/modules"
-            className="rounded-md border border-zinc-700 px-5 py-2.5 text-sm text-zinc-200 transition-colors hover:border-brand hover:text-brand-soft"
+            className="rounded-md border border-ink-700 px-5 py-2.5 text-sm text-ink-200 transition-colors hover:border-brand hover:text-brand-soft"
           >
             See the module library →
           </Link>
           <Link
             href="/contact"
-            className="rounded-md border border-zinc-700 px-5 py-2.5 text-sm text-zinc-200 transition-colors hover:border-brand hover:text-brand-soft"
+            className="rounded-md border border-ink-700 px-5 py-2.5 text-sm text-ink-200 transition-colors hover:border-brand hover:text-brand-soft"
           >
             Book a custom-build call →
           </Link>

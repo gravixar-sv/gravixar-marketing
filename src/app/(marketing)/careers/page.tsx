@@ -26,8 +26,8 @@ export default async function CareersIndexPage() {
       />
 
       {jobs.length === 0 ? (
-        <div className="rounded-xl border border-line bg-zinc-950/40 p-8 text-center">
-          <p className="text-zinc-300">No open roles right now.</p>
+        <div className="rounded-xl border border-line bg-ink-950/40 p-8 text-center">
+          <p className="text-ink-300">No open roles right now.</p>
           <p className="mt-2 text-sm text-muted">
             If you think you should be working with me anyway,{" "}
             <Link
@@ -51,13 +51,13 @@ export default async function CareersIndexPage() {
                 {job.team} · {employmentLabel(job.employmentType)} ·{" "}
                 {job.location}
               </p>
-              <h2 className="mt-2 text-2xl font-semibold tracking-[-0.015em] text-zinc-100">
+              <h2 className="mt-2 text-2xl font-semibold tracking-[-0.015em] text-ink-100">
                 {job.title}
               </h2>
-              <p className="mt-3 text-sm leading-relaxed text-zinc-400">
+              <p className="mt-3 text-sm leading-relaxed text-ink-400">
                 {job.summary}
               </p>
-              <p className="mt-4 font-mono text-label-sm uppercase text-zinc-400 group-hover:text-brand">
+              <p className="mt-4 font-mono text-label-sm uppercase text-ink-400 group-hover:text-brand">
                 View role + apply
                 <span className="ml-1 inline-block transition-transform group-hover:translate-x-0.5">
                   →

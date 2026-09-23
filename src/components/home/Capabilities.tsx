@@ -67,13 +67,13 @@ export function Capabilities() {
         capabilities &amp; integrations
       </p>
       {/* Reference rank, held in lockstep with Proof's h2: unprefixed 24px at
-          every width, medium weight, zinc-200. One rank means one look, so the
+          every width, medium weight, ink-200. One rank means one look, so the
           two call sites change together or not at all. globals.css has why this
           rank alone ships without a breakpoint prefix. */}
-      <h2 className="mt-3 text-reference font-medium tracking-[-0.01em] text-zinc-200">
+      <h2 className="mt-3 text-reference font-medium tracking-[-0.01em] text-ink-200">
         The surface area I build with.
       </h2>
-      <p className="mt-4 max-w-2xl text-zinc-400">
+      <p className="mt-4 max-w-2xl text-ink-400">
         Not a logo wall for its own sake. Every tool below is wired into
         something that ships: a client portal, a demo you can click, or the
         platform itself.
@@ -107,7 +107,7 @@ export function Capabilities() {
               {group.items.map((item) => (
                 <li
                   key={item}
-                  className="rounded-sm border border-line bg-zinc-900/60 px-2.5 py-1 font-mono text-[11px] text-zinc-300"
+                  className="rounded-sm border border-line bg-ink-900/60 px-2.5 py-1 font-mono text-[11px] text-ink-300"
                 >
                   {item}
                 </li>

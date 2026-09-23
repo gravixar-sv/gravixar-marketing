@@ -33,13 +33,13 @@ export default async function CompareIndexPage() {
             <p className="font-mono text-label-sm uppercase text-muted group-hover:text-brand">
               {c.meta.competitor} vs custom
             </p>
-            <h2 className="mt-2 text-xl font-semibold tracking-[-0.015em] text-zinc-100 md:text-2xl">
+            <h2 className="mt-2 text-xl font-semibold tracking-[-0.015em] text-ink-100 md:text-2xl">
               {c.meta.title}
             </h2>
-            <p className="mt-3 text-sm leading-relaxed text-zinc-400">
+            <p className="mt-3 text-sm leading-relaxed text-ink-400">
               {c.meta.summary}
             </p>
-            <p className="mt-4 font-mono text-label-sm uppercase text-zinc-400 group-hover:text-brand">
+            <p className="mt-4 font-mono text-label-sm uppercase text-ink-400 group-hover:text-brand">
               {c.meta.category}
               <span className="ml-1 inline-block transition-transform group-hover:translate-x-0.5">→</span>
             </p>

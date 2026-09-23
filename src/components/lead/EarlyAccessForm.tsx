@@ -77,7 +77,7 @@ export function EarlyAccessForm() {
         <h3 className="mt-2 text-xl font-semibold tracking-[-0.01em]">
           Got you. I&apos;ll email when there is something you can actually run.
         </h3>
-        <p className="mt-2 text-sm text-zinc-400">
+        <p className="mt-2 text-sm text-ink-400">
           No drip sequence, no marketing list. One email when there&apos;s
           something for you to try, that&apos;s it.
         </p>
@@ -174,7 +174,7 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="font-mono text-label uppercase text-zinc-400">
+      <span className="font-mono text-label uppercase text-ink-400">
         {label}
       </span>
       <input
@@ -182,7 +182,7 @@ function Field({
         type={type}
         required={required}
         placeholder={placeholder}
-        className="mt-2 block w-full rounded-md border border-line bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none transition-colors placeholder:text-zinc-600 focus:border-brand"
+        className="mt-2 block w-full rounded-md border border-line bg-ink-950 px-3 py-2 text-sm text-ink-100 outline-none transition-colors placeholder:text-ink-600 focus:border-brand"
       />
     </label>
   );
@@ -201,13 +201,13 @@ function Select({
 }) {
   return (
     <label className="block">
-      <span className="font-mono text-label uppercase text-zinc-400">
+      <span className="font-mono text-label uppercase text-ink-400">
         {label}
       </span>
       <select
         name={name}
         defaultValue=""
-        className="mt-2 block w-full rounded-md border border-line bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none transition-colors focus:border-brand"
+        className="mt-2 block w-full rounded-md border border-line bg-ink-950 px-3 py-2 text-sm text-ink-100 outline-none transition-colors focus:border-brand"
       >
         <option value="" disabled>
           {placeholder ?? "Select…"}
@@ -235,14 +235,14 @@ function Textarea({
 }) {
   return (
     <label className="block">
-      <span className="font-mono text-label uppercase text-zinc-400">
+      <span className="font-mono text-label uppercase text-ink-400">
         {label}
       </span>
       <textarea
         name={name}
         rows={rows}
         placeholder={placeholder}
-        className="mt-2 block w-full rounded-md border border-line bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none transition-colors placeholder:text-zinc-600 focus:border-brand"
+        className="mt-2 block w-full rounded-md border border-line bg-ink-950 px-3 py-2 text-sm text-ink-100 outline-none transition-colors placeholder:text-ink-600 focus:border-brand"
       />
     </label>
   );

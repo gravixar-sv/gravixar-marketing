@@ -46,7 +46,7 @@ export type LightboxFrame = {
 };
 
 const CONTROL =
-  "inline-flex h-8 w-8 items-center justify-center rounded-md border border-line text-zinc-300 transition-colors hover:border-brand hover:text-brand-soft";
+  "inline-flex h-8 w-8 items-center justify-center rounded-md border border-line text-ink-300 transition-colors hover:border-brand hover:text-brand-soft";
 
 export function Lightbox({
   title,
@@ -193,12 +193,12 @@ export function Lightbox({
           frame ? `${title}, frame ${(index ?? 0) + 1} of ${count}` : title
         }
         style={{ width: `min(92vw, ${(72 * ratio).toFixed(2)}vh, 68rem)` }}
-        className="live-panel m-auto min-w-[16rem] max-h-none max-w-none rounded-xl p-0 text-fg backdrop:bg-[#0a0a0a]/90"
+        className="live-panel m-auto min-w-[16rem] max-h-none max-w-none rounded-xl p-0 text-fg backdrop:bg-bg/90"
       >
         {frame ? (
           <div className="flex flex-col">
             <div className="flex items-center justify-between gap-4 border-b border-line-soft px-4 py-3">
-              <p className="font-mono text-label-sm uppercase text-zinc-400">
+              <p className="font-mono text-label-sm uppercase text-ink-400">
                 frame {(index ?? 0) + 1} / {count}
               </p>
               <div className="flex items-center gap-1.5">
@@ -249,7 +249,7 @@ export function Lightbox({
                 browser: without it the element sits at currentSrc "" while the
                 upgrade fetches. */}
             <div
-              className={`relative w-full ${frame.onLight ? "bg-zinc-200" : "bg-zinc-950"}`}
+              className={`relative w-full ${frame.onLight ? "bg-ink-200" : "bg-ink-950"}`}
               style={{ aspectRatio: `${ratio}` }}
             >
               <Image

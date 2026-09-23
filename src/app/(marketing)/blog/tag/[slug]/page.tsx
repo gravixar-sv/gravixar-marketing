@@ -70,7 +70,7 @@ export default async function BlogTagPage(
             <li key={h.slug}>
               <Link
                 href={`/blog/tag/${h.slug}`}
-                className="block rounded-sm border border-line bg-zinc-900 px-1.5 py-0.5 font-mono text-[10px] text-zinc-400 transition-colors hover:border-brand-deep hover:text-brand-soft"
+                className="block rounded-sm border border-line bg-ink-900 px-1.5 py-0.5 font-mono text-[10px] text-ink-400 transition-colors hover:border-brand-deep hover:text-brand-soft"
               >
                 {h.tag}
               </Link>

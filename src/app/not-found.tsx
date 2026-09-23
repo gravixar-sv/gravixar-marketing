@@ -9,7 +9,7 @@ export default function NotFound() {
       <h1 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">
         That page doesn&apos;t exist.
       </h1>
-      <p className="mx-auto mt-3 max-w-md text-zinc-400">
+      <p className="mx-auto mt-3 max-w-md text-ink-400">
         Maybe it moved, maybe it never existed. Either way, back to the homepage.
       </p>
       <Link

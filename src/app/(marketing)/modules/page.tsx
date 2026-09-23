@@ -53,23 +53,23 @@ export default async function ModulesIndexPage() {
                 className="card-surface card-hover-glow group rounded-xl p-6"
               >
                 <div className="flex items-baseline justify-between gap-3">
-                  <h2 className="text-lg font-semibold tracking-[-0.01em] text-zinc-100 md:text-xl">
+                  <h2 className="text-lg font-semibold tracking-[-0.01em] text-ink-100 md:text-xl">
                     {m.meta.title}
                   </h2>
-                  <span className="font-mono text-[10px] text-zinc-700">
+                  <span className="font-mono text-[10px] text-ink-700">
                     {String(m.meta.order).padStart(2, "0")}
                   </span>
                 </div>
-                <p className="mt-3 text-sm leading-relaxed text-zinc-400">
+                <p className="mt-3 text-sm leading-relaxed text-ink-400">
                   {m.meta.summary}
                 </p>
-                <div className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-2 font-mono text-label-sm uppercase text-zinc-400">
+                <div className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-2 font-mono text-label-sm uppercase text-ink-400">
                   <span className="flex items-center gap-1.5">
                     <span className="h-1 w-1 rounded-full bg-brand" />
                     running in
                   </span>
                   {m.meta.runningIn.map((r, i) => (
-                    <span key={`${r.client}-${i}`} className="text-zinc-400">
+                    <span key={`${r.client}-${i}`} className="text-ink-400">
                       {r.client}
                       {i < m.meta.runningIn.length - 1 ? " ·" : ""}
                     </span>

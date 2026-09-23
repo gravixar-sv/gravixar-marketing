@@ -42,7 +42,7 @@ export function Hero({ meta, body }: { meta: HomeBlock; body: string }) {
           the gradient rides up into the copy. */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-10 bg-gradient-to-b from-transparent to-[#0a0a0a] md:h-12"
+        className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-10 bg-gradient-to-b from-transparent to-bg md:h-12"
       />
 
       <div className="grid items-start gap-12 md:grid-cols-[minmax(0,1fr)_minmax(340px,440px)] md:gap-14 lg:gap-16">
@@ -59,7 +59,7 @@ export function Hero({ meta, body }: { meta: HomeBlock; body: string }) {
           <h1 className="hero-enter mt-5 text-[2.5rem] font-semibold leading-[1.02] tracking-[-0.02em] [animation-delay:80ms] md:text-5xl lg:text-display">
             {meta.title}
           </h1>
-          <div className="hero-enter mt-6 max-w-xl text-lg leading-relaxed text-zinc-300 [animation-delay:160ms]">
+          <div className="hero-enter mt-6 max-w-xl text-lg leading-relaxed text-ink-300 [animation-delay:160ms]">
             <MDX source={body} />
           </div>
           {/* The fill sits on the diagnostic since 2026-09-14, same reasoning as
@@ -86,15 +86,15 @@ export function Hero({ meta, body }: { meta: HomeBlock; body: string }) {
           {/* Detail strip, what I do, in mono */}
           <div className="hero-enter mt-10 flex flex-wrap items-center gap-x-4 gap-y-2 font-mono text-label-sm uppercase text-muted [animation-delay:320ms]">
             <span className="flex items-center gap-1.5">
-              <span className="h-1 w-1 rounded-full bg-zinc-700" />
+              <span className="h-1 w-1 rounded-full bg-ink-700" />
               ops leak audit
             </span>
-            <span className="text-zinc-700">·</span>
+            <span className="text-ink-700">·</span>
             <span>operations infrastructure</span>
-            <span className="text-zinc-700">·</span>
+            <span className="text-ink-700">·</span>
             <span>ai tooling</span>
-            <span className="text-zinc-700">·</span>
-            <span className="text-zinc-400">this site runs its own ai agents</span>
+            <span className="text-ink-700">·</span>
+            <span className="text-ink-400">this site runs its own ai agents</span>
           </div>
         </div>
 
@@ -115,11 +115,11 @@ function DemoPanel() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="flex gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-zinc-700" />
-            <span className="h-2 w-2 rounded-full bg-zinc-700" />
-            <span className="h-2 w-2 rounded-full bg-zinc-700" />
+            <span className="h-2 w-2 rounded-full bg-ink-700" />
+            <span className="h-2 w-2 rounded-full bg-ink-700" />
+            <span className="h-2 w-2 rounded-full bg-ink-700" />
           </span>
-          <span className="ml-2 font-mono text-[11px] text-zinc-400">
+          <span className="ml-2 font-mono text-[11px] text-ink-400">
             demo.gravixar.com
           </span>
         </div>
@@ -144,17 +144,17 @@ function DemoPanel() {
           <p className="font-mono text-label-sm uppercase text-muted">
             system signal
           </p>
-          <p className="font-mono text-label-xs uppercase text-zinc-400">
+          <p className="font-mono text-label-xs uppercase text-ink-400">
             counted {COUNTED_AT}
           </p>
         </div>
         <dl className="mt-3 grid grid-cols-2 gap-3">
           {SYSTEM_STATS.map((s) => (
             <div key={s.key} className="flex flex-col">
-              <dt className="font-mono text-label-xs uppercase text-zinc-400">
+              <dt className="font-mono text-label-xs uppercase text-ink-400">
                 {s.label}
               </dt>
-              <dd className="mt-1 font-mono text-base text-zinc-100">
+              <dd className="mt-1 font-mono text-base text-ink-100">
                 <StatValue value={s.value} />
               </dd>
             </div>
@@ -166,7 +166,7 @@ function DemoPanel() {
       <a
         href={SITE.demoUrl}
         rel="noreferrer"
-        className="group mt-5 flex items-center justify-between border-t border-line-soft pt-4 text-sm text-zinc-200 transition-colors hover:text-brand-soft"
+        className="group mt-5 flex items-center justify-between border-t border-line-soft pt-4 text-sm text-ink-200 transition-colors hover:text-brand-soft"
       >
         <span>open the demo</span>
         <span aria-hidden className="font-mono text-[11px] transition-transform group-hover:translate-x-0.5">↗</span>

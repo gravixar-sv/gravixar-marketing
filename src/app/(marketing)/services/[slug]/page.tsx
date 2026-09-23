@@ -70,7 +70,7 @@ export default async function ServicePage(
             <h2 className="font-mono text-label uppercase text-brand">
               what you get
             </h2>
-            <ul className="mt-3 space-y-2 text-sm text-zinc-300">
+            <ul className="mt-3 space-y-2 text-sm text-ink-300">
               {s.meta.deliverables.map((d) => (
                 <li key={d} className="flex gap-2">
                   <span className="text-brand-deep">→</span>
@@ -121,7 +121,7 @@ export default async function ServicePage(
               <h2 className="font-mono text-label uppercase text-brand">
                 pricing
               </h2>
-              <p className="mt-3 text-sm text-zinc-300">{s.meta.pricing}</p>
+              <p className="mt-3 text-sm text-ink-300">{s.meta.pricing}</p>
             </div>
           ) : null}
         </aside>
@@ -146,7 +146,7 @@ export default async function ServicePage(
                 <h2 className="mt-3 text-3xl font-semibold tracking-[-0.015em] md:text-4xl">
                   Start the {s.meta.title}.
                 </h2>
-                <p className="mt-4 text-zinc-400">
+                <p className="mt-4 text-ink-400">
                   Tell me the size of the team and the tools it runs on. It
                   lands in my HQ inbox tagged with this page, and I reply
                   within 24 hours to confirm the scope and a start date.
@@ -157,7 +157,7 @@ export default async function ServicePage(
                 <h2 className="mt-3 text-3xl font-semibold tracking-[-0.015em] md:text-4xl">
                   Tell me about your {s.meta.title.toLowerCase()} problem.
                 </h2>
-                <p className="mt-4 text-zinc-400">
+                <p className="mt-4 text-ink-400">
                   Lands in my HQ inbox tagged with this page, so when I reply I
                   already know which service we&apos;re talking about. Replies
                   within 24 hours.

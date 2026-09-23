@@ -23,14 +23,14 @@ export function PostList({
 }) {
   if (posts.length === 0) {
     return (
-      <div className="rounded-lg border border-line bg-zinc-950 p-8 text-center">
-        <p className="text-zinc-400">{emptyMessage}</p>
+      <div className="rounded-lg border border-line bg-ink-950 p-8 text-center">
+        <p className="text-ink-400">{emptyMessage}</p>
       </div>
     );
   }
 
   return (
-    <ul className="divide-y divide-zinc-900">
+    <ul className="divide-y divide-ink-900">
       {posts.map((p) => (
         <li key={p.meta.slug} className="py-6">
           <Link href={`/blog/${p.meta.slug}`} className="group block">
@@ -44,10 +44,10 @@ export function PostList({
                 </p>
               ) : null}
             </div>
-            <h2 className="mt-2 text-xl font-semibold tracking-tight text-zinc-100 group-hover:text-brand-soft">
+            <h2 className="mt-2 text-xl font-semibold tracking-tight text-ink-100 group-hover:text-brand-soft">
               {p.meta.title}
             </h2>
-            <p className="mt-2 text-sm leading-relaxed text-zinc-400">{p.meta.excerpt}</p>
+            <p className="mt-2 text-sm leading-relaxed text-ink-400">{p.meta.excerpt}</p>
           </Link>
           {showTags && p.meta.tags.length > 0 ? (
             <ul className="mt-3 flex flex-wrap gap-1.5">
@@ -55,7 +55,7 @@ export function PostList({
                 <li key={t}>
                   <Link
                     href={`/blog/tag/${tagSlug(t)}`}
-                    className="block rounded-sm border border-line bg-zinc-900 px-1.5 py-0.5 font-mono text-[10px] text-zinc-400 transition-colors hover:border-brand-deep hover:text-brand-soft"
+                    className="block rounded-sm border border-line bg-ink-900 px-1.5 py-0.5 font-mono text-[10px] text-ink-400 transition-colors hover:border-brand-deep hover:text-brand-soft"
                   >
                     {t}
                   </Link>

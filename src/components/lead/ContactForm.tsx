@@ -65,7 +65,7 @@ export function ContactForm() {
         <h3 className="mt-2 text-xl font-semibold tracking-tight">
           Got it. I&apos;ll reply within 24 hours.
         </h3>
-        <p className="mt-2 text-sm text-zinc-400">
+        <p className="mt-2 text-sm text-ink-400">
           If you&apos;d rather skip the email and just book the call,
           the slots are right next to this form.
         </p>
@@ -81,13 +81,13 @@ export function ContactForm() {
       <Field label="Email" name="email" type="email" required />
       <Field label="Company (optional)" name="company" />
       <label className="block">
-        <span className="font-mono text-label uppercase text-zinc-400">
+        <span className="font-mono text-label uppercase text-ink-400">
           What do you need? (optional)
         </span>
         <select
           name="service"
           defaultValue=""
-          className="mt-2 block w-full rounded-md border border-line bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none transition-colors focus:border-brand"
+          className="mt-2 block w-full rounded-md border border-line bg-ink-950 px-3 py-2 text-sm text-ink-100 outline-none transition-colors focus:border-brand"
         >
           <option value="">Pick the closest match</option>
           {SERVICE_OPTIONS.map((s) => (
@@ -100,13 +100,13 @@ export function ContactForm() {
       {/* Optional qualifiers. Deliberately non-gating: no required flags, no
           extra step. They pre-arm the reply and the call, nothing more. */}
       <label className="block">
-        <span className="font-mono text-label uppercase text-zinc-400">
+        <span className="font-mono text-label uppercase text-ink-400">
           Team size (optional)
         </span>
         <select
           name="teamSize"
           defaultValue=""
-          className="mt-2 block w-full rounded-md border border-line bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none transition-colors focus:border-brand"
+          className="mt-2 block w-full rounded-md border border-line bg-ink-950 px-3 py-2 text-sm text-ink-100 outline-none transition-colors focus:border-brand"
         >
           <option value="">Prefer not to say</option>
           {teamSizeOptions.map((t) => (
@@ -117,14 +117,14 @@ export function ContactForm() {
         </select>
       </label>
       <fieldset>
-        <legend className="font-mono text-label uppercase text-zinc-400">
+        <legend className="font-mono text-label uppercase text-ink-400">
           What are you running on today? (optional)
         </legend>
         <div className="mt-2 flex flex-wrap gap-1.5">
           {TOOL_OPTIONS.map((t) => (
             <label key={t} className="cursor-pointer">
               <input type="checkbox" name="tools" value={t} className="peer sr-only" />
-              <span className="inline-block rounded-md border border-line bg-zinc-950 px-2.5 py-1.5 text-xs text-zinc-400 transition-colors peer-checked:border-brand peer-checked:bg-brand/10 peer-checked:text-brand-soft peer-focus-visible:border-brand hover:border-zinc-600">
+              <span className="inline-block rounded-md border border-line bg-ink-950 px-2.5 py-1.5 text-xs text-ink-400 transition-colors peer-checked:border-brand peer-checked:bg-brand/10 peer-checked:text-brand-soft peer-focus-visible:border-brand hover:border-ink-600">
                 {t}
               </span>
             </label>
@@ -177,7 +177,7 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="font-mono text-label uppercase text-zinc-400">
+      <span className="font-mono text-label uppercase text-ink-400">
         {label}
       </span>
       <input
@@ -185,7 +185,7 @@ function Field({
         type={type}
         required={required}
         minLength={minLength}
-        className="mt-2 block w-full rounded-md border border-line bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none transition-colors placeholder:text-zinc-600 focus:border-brand"
+        className="mt-2 block w-full rounded-md border border-line bg-ink-950 px-3 py-2 text-sm text-ink-100 outline-none transition-colors placeholder:text-ink-600 focus:border-brand"
       />
     </label>
   );
@@ -208,7 +208,7 @@ function Textarea({
 }) {
   return (
     <label className="block">
-      <span className="font-mono text-label uppercase text-zinc-400">
+      <span className="font-mono text-label uppercase text-ink-400">
         {label}
       </span>
       <textarea
@@ -217,7 +217,7 @@ function Textarea({
         minLength={minLength}
         rows={rows}
         placeholder={placeholder}
-        className="mt-2 block w-full rounded-md border border-line bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none transition-colors placeholder:text-zinc-600 focus:border-brand"
+        className="mt-2 block w-full rounded-md border border-line bg-ink-950 px-3 py-2 text-sm text-ink-100 outline-none transition-colors placeholder:text-ink-600 focus:border-brand"
       />
     </label>
   );

@@ -73,7 +73,7 @@ export default async function CaseStudyPage(
 
           {cs.meta.testimonial ? (
             <figure className="border-l-2 border-brand/60 pl-5">
-              <blockquote className="text-lg leading-relaxed text-zinc-200">
+              <blockquote className="text-lg leading-relaxed text-ink-200">
                 &ldquo;{cs.meta.testimonial.quote}&rdquo;
               </blockquote>
               <figcaption className="mt-3 font-mono text-label uppercase text-muted">
@@ -105,7 +105,7 @@ export default async function CaseStudyPage(
                 href={cs.meta.demo.href}
                 target="_blank"
                 rel="noreferrer"
-                className="mt-2 inline-flex items-center gap-1.5 text-sm text-zinc-200 transition-colors hover:text-brand-soft"
+                className="mt-2 inline-flex items-center gap-1.5 text-sm text-ink-200 transition-colors hover:text-brand-soft"
               >
                 {cs.meta.demo.label} <span aria-hidden>↗</span>
               </a>
@@ -120,7 +120,7 @@ export default async function CaseStudyPage(
                 {cs.meta.stack.map((s) => (
                   <li
                     key={s}
-                    className="rounded-sm border border-line bg-zinc-900 px-2 py-1 font-mono text-[10px] text-zinc-300"
+                    className="rounded-sm border border-line bg-ink-900 px-2 py-1 font-mono text-[10px] text-ink-300"
                   >
                     {s}
                   </li>
@@ -137,7 +137,7 @@ export default async function CaseStudyPage(
                 {cs.meta.metrics.map((m) => (
                   <div key={m.label}>
                     <dt className="text-muted">{m.label}</dt>
-                    <dd className="text-zinc-100">{m.value}</dd>
+                    <dd className="text-ink-100">{m.value}</dd>
                   </div>
                 ))}
               </dl>
@@ -159,7 +159,7 @@ function Section({ title, body }: { title: string; body: string }) {
           reference headings. Set from the named scale so the ladder stays
           retunable from @theme rather than drifting per page. */}
       <h2 className="text-2xl font-semibold tracking-tight md:text-subsection">{title}</h2>
-      <p className="mt-3 leading-relaxed text-zinc-300">{body}</p>
+      <p className="mt-3 leading-relaxed text-ink-300">{body}</p>
     </div>
   );
 }
@@ -170,7 +170,7 @@ function Meta({ label, value }: { label: string; value: string }) {
       <p className="font-mono text-label uppercase text-brand">
         {label}
       </p>
-      <p className="mt-2 text-sm text-zinc-200">{value}</p>
+      <p className="mt-2 text-sm text-ink-200">{value}</p>
     </div>
   );
 }

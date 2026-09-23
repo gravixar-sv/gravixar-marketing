@@ -93,7 +93,7 @@ export default async function CareerPage({
 
       <div className="grid gap-12 md:grid-cols-3">
         <article className="prose-invert space-y-10 md:col-span-2">
-          <p className="text-zinc-300">{job.about}</p>
+          <p className="text-ink-300">{job.about}</p>
 
           <Section title="What you will do" items={job.responsibilities} />
           <Section title="What I am looking for" items={job.requirements} />
@@ -139,7 +139,7 @@ export default async function CareerPage({
             <h2 className="mt-3 text-3xl font-semibold tracking-[-0.015em] md:text-4xl">
               Apply for {job.title}.
             </h2>
-            <p className="mt-4 text-zinc-400">
+            <p className="mt-4 text-ink-400">
               Lands in my HQ inbox tagged with this role, so when I reply I
               already know what you applied for. I read every application
               myself.
@@ -162,7 +162,7 @@ function Section({ title, items }: { title: string; items: string[] }) {
       <h2 className="font-mono text-label uppercase text-brand">
         {title}
       </h2>
-      <ul className="mt-3 space-y-2 text-sm text-zinc-300">
+      <ul className="mt-3 space-y-2 text-sm text-ink-300">
         {items.map((it) => (
           <li key={it} className="flex gap-2">
             <span className="text-brand-deep">→</span>
@@ -180,7 +180,7 @@ function Meta({ label, value }: { label: string; value: string }) {
       <dt className="font-mono text-label uppercase text-brand">
         {label}
       </dt>
-      <dd className="mt-1 text-sm text-zinc-300">{value}</dd>
+      <dd className="mt-1 text-sm text-ink-300">{value}</dd>
     </div>
   );
 }

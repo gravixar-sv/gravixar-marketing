@@ -24,7 +24,7 @@ export default function DemosIndexPage() {
 
       <DemoGrid priority />
 
-      <p className="font-mono text-label-sm uppercase text-zinc-400">
+      <p className="font-mono text-label-sm uppercase text-ink-400">
         sandbox · each scene has its own brand and sample data, and nothing you press is saved
       </p>
 

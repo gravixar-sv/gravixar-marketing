@@ -78,7 +78,7 @@ export function ServicesPreview({ services }: { services: Service[] }) {
       <h2 className="mt-3 text-3xl font-semibold tracking-[-0.015em] md:text-section">
         Where to start, what I build, and what I keep honest after it ships.
       </h2>
-      <p className="mt-4 max-w-xl text-zinc-400">
+      <p className="mt-4 max-w-xl text-ink-400">
         Not sure which one maps to your problem? Start with the audit. Every
         card links to the real thing: a system in production, a live demo you
         can click, or a client engagement with the parts that broke written
@@ -112,14 +112,14 @@ export function ServicesPreview({ services }: { services: Service[] }) {
                     <p className="font-mono text-label-sm uppercase text-muted group-hover:text-brand">
                       {service.bucket}
                     </p>
-                    <span className="font-mono text-[10px] text-zinc-700">
+                    <span className="font-mono text-[10px] text-ink-700">
                       {number}
                     </span>
                   </div>
-                  <h3 className="mt-3 text-xl font-semibold tracking-[-0.01em] text-zinc-100">
+                  <h3 className="mt-3 text-xl font-semibold tracking-[-0.01em] text-ink-100">
                     {service.title}
                   </h3>
-                  <p className="mt-3 text-sm leading-relaxed text-zinc-400">
+                  <p className="mt-3 text-sm leading-relaxed text-ink-400">
                     {service.tagline}
                   </p>
                   {service.deliverables.length > 0 ? (
@@ -128,7 +128,7 @@ export function ServicesPreview({ services }: { services: Service[] }) {
                         .slice(0, DELIVERABLES_SHOWN)
                         .map((d) => (
                           <li key={d} className="flex gap-2">
-                            <span className="text-zinc-700 transition-colors group-hover:text-brand-deep">
+                            <span className="text-ink-700 transition-colors group-hover:text-brand-deep">
                               →
                             </span>
                             <span>{d}</span>
@@ -139,7 +139,7 @@ export function ServicesPreview({ services }: { services: Service[] }) {
                   {/* self-start, because the card is a flex column and a
                       stretched item would draw the link-draw underline across
                       the whole card instead of under the two words. */}
-                  <span className="link-draw mt-6 self-start font-mono text-label-sm uppercase text-zinc-400 group-hover:text-brand">
+                  <span className="link-draw mt-6 self-start font-mono text-label-sm uppercase text-ink-400 group-hover:text-brand">
                     learn more
                   </span>
                 </Link>
@@ -149,7 +149,7 @@ export function ServicesPreview({ services }: { services: Service[] }) {
         })}
       </div>
       {forExistingClients.length > 0 ? (
-        <p className="mt-6 text-sm leading-relaxed text-zinc-400">
+        <p className="mt-6 text-sm leading-relaxed text-ink-400">
           <span className="font-mono text-label-sm uppercase text-muted">
             also available to existing clients
           </span>{" "}

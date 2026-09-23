@@ -76,7 +76,7 @@ export default async function ModulePage(
                       {r.client} →
                     </Link>
                   ) : (
-                    <span className="text-zinc-200">{r.client}</span>
+                    <span className="text-ink-200">{r.client}</span>
                   )}
                 </li>
               ))}
@@ -92,7 +92,7 @@ export default async function ModulePage(
                 {m.meta.stack.map((s) => (
                   <li
                     key={s}
-                    className="rounded-sm border border-zinc-800/80 bg-zinc-900/60 px-2 py-1 font-mono text-[10px] text-zinc-300"
+                    className="rounded-sm border border-ink-800/80 bg-ink-900/60 px-2 py-1 font-mono text-[10px] text-ink-300"
                   >
                     {s}
                   </li>

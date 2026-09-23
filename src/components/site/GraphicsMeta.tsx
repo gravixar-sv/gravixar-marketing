@@ -31,11 +31,11 @@ const ORIGIN: Record<
 > = {
   client: {
     label: "client commission",
-    className: "border-zinc-500/70 bg-zinc-800/70 text-zinc-100",
+    className: "border-ink-500/70 bg-ink-800/70 text-ink-100",
   },
   "self-directed": {
     label: "self-directed, own brand",
-    className: "border-line bg-zinc-900/70 text-zinc-300",
+    className: "border-line bg-ink-900/70 text-ink-300",
   },
   concept: {
     label: "concept, unbuilt",

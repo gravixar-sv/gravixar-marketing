@@ -45,13 +45,13 @@ function SceneCard({
       rel="noreferrer"
       className={`group block rounded-xl ${featured ? "md:col-span-2" : ""}`}
     >
-      <div className="overflow-hidden rounded-xl border border-line bg-zinc-950/60 shadow-[0_24px_50px_-24px_rgba(0,0,0,0.85)] transition-[transform,border-color,box-shadow] duration-500 ease-out group-hover:-translate-y-1 group-hover:border-brand/40 group-hover:shadow-[0_36px_72px_-30px_rgba(0,0,0,0.9)]">
+      <div className="overflow-hidden rounded-xl border border-line bg-ink-950/60 shadow-[0_24px_50px_-24px_rgba(0,0,0,0.85)] transition-[transform,border-color,box-shadow] duration-500 ease-out group-hover:-translate-y-1 group-hover:border-brand/40 group-hover:shadow-[0_36px_72px_-30px_rgba(0,0,0,0.9)]">
         {/* Window chrome */}
         <div className="flex items-center justify-between border-b border-line-soft px-4 py-2.5">
           <span className="flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-zinc-700" />
-            <span className="h-2 w-2 rounded-full bg-zinc-700" />
-            <span className="h-2 w-2 rounded-full bg-zinc-700" />
+            <span className="h-2 w-2 rounded-full bg-ink-700" />
+            <span className="h-2 w-2 rounded-full bg-ink-700" />
+            <span className="h-2 w-2 rounded-full bg-ink-700" />
             <span className="ml-2 font-mono text-[10px] text-muted">
               demo.gravixar.com/{scene.slug}
             </span>
@@ -75,7 +75,7 @@ function SceneCard({
 
       <div className="px-1 pb-1 pt-4">
         <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-2">
-          <h3 className="text-lg font-semibold tracking-[-0.015em] text-zinc-100">
+          <h3 className="text-lg font-semibold tracking-[-0.015em] text-ink-100">
             {scene.name}
             <span className="ml-2 font-mono text-xs font-normal text-muted">
               · {scene.brand}
@@ -88,7 +88,7 @@ function SceneCard({
             for {scene.personaLabel}
           </span>
         </div>
-        <p className="mt-1.5 text-sm leading-relaxed text-zinc-400">
+        <p className="mt-1.5 text-sm leading-relaxed text-ink-400">
           {scene.whatItIs}
         </p>
         <div className="mt-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-t border-line-soft pt-3">
@@ -117,12 +117,12 @@ export function Demos() {
           <h2 className="mt-3 text-3xl font-semibold tracking-[-0.015em] md:text-section">
             Pick the scene closest to your desk.
           </h2>
-          <p className="mt-4 max-w-xl text-zinc-400">
+          <p className="mt-4 max-w-xl text-ink-400">
             Five working apps with sample data, one for each kind of buyer. Click
             in, press the buttons, watch the loop run. No signup.
           </p>
         </div>
-        <p className="font-mono text-label-sm uppercase text-zinc-400">
+        <p className="font-mono text-label-sm uppercase text-ink-400">
           sandbox · nothing is saved
         </p>
       </div>

@@ -8,7 +8,7 @@ import Image from "next/image";
 
 export function Portrait() {
   return (
-    <div className="relative aspect-[4/5] overflow-hidden rounded-xl border border-zinc-800/80 bg-zinc-950/40">
+    <div className="relative aspect-[4/5] overflow-hidden rounded-xl border border-ink-800/80 bg-ink-950/40">
       <Image
         src="/about/qamar.jpg"
         alt="Qamar"

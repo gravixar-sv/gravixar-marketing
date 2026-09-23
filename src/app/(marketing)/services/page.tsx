@@ -98,7 +98,7 @@ export default async function ServicesIndexPage() {
                   <p className="font-mono text-label-sm uppercase text-muted group-hover:text-brand">
                     {s.meta.bucket}
                   </p>
-                  <h2 className="mt-2 text-2xl font-semibold tracking-[-0.015em] text-zinc-100">
+                  <h2 className="mt-2 text-2xl font-semibold tracking-[-0.015em] text-ink-100">
                     {s.meta.title}
                   </h2>
                   {/* Measured, not free. A third of the row is ~34 characters a
@@ -107,7 +107,7 @@ export default async function ServicesIndexPage() {
                       cross 110 characters, which is a line nobody tracks back
                       from. The cap costs the halves about four characters and
                       makes any span readable. */}
-                  <p className="mt-3 max-w-[54ch] text-sm leading-relaxed text-zinc-400">
+                  <p className="mt-3 max-w-[54ch] text-sm leading-relaxed text-ink-400">
                     {s.meta.tagline}
                   </p>
                   {/* Price sits ABOVE the proof row, inside the mt-auto block,
@@ -123,7 +123,7 @@ export default async function ServicesIndexPage() {
                       themselves in or out without a click. */}
                   <div className="mt-auto pt-5">
                     {s.meta.pricing ? (
-                      <p className="text-sm leading-relaxed text-zinc-300">{s.meta.pricing}</p>
+                      <p className="text-sm leading-relaxed text-ink-300">{s.meta.pricing}</p>
                     ) : null}
                     {s.meta.proof.length > 0 ? (
                       <p
@@ -144,7 +144,7 @@ export default async function ServicesIndexPage() {
       })}
 
       {forExistingClients.length > 0 ? (
-        <p className="max-w-2xl text-sm leading-relaxed text-zinc-400">
+        <p className="max-w-2xl text-sm leading-relaxed text-ink-400">
           <span className="font-mono text-label-sm uppercase text-muted">
             also available to existing clients
           </span>{" "}

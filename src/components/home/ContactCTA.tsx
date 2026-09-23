@@ -55,7 +55,7 @@ export function ContactCTA() {
             I've shipped" left this panel then: by the time someone reaches the
             closing ask they have scrolled past the proof, and the nav carries
             Work on every page. */}
-        <p className="mt-4 max-w-2xl text-zinc-400">
+        <p className="mt-4 max-w-2xl text-ink-400">
           The Ops Leak Audit is the fixed-price first step: I count the hours
           your tools cost your team and price the fix. Rather talk first? A
           30-minute call works too, and if we&apos;re not a fit, you walk with

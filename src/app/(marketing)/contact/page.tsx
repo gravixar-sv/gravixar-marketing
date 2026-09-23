@@ -25,7 +25,7 @@ export default function ContactPage() {
           <h2 className="font-mono text-eyebrow uppercase text-brand">
             send a note
           </h2>
-          <p className="mt-2 text-sm text-zinc-400">
+          <p className="mt-2 text-sm text-ink-400">
             Best for complex briefs, operations problems, AI integrations, or
             anything where context matters.
           </p>
@@ -38,7 +38,7 @@ export default function ContactPage() {
           <h2 className="font-mono text-eyebrow uppercase text-brand">
             book a 30-min call
           </h2>
-          <p className="mt-2 text-sm text-zinc-400">
+          <p className="mt-2 text-sm text-ink-400">
             Pick a slot. No prep needed, bring the problem, I&apos;ll bring
             the questions.
           </p>

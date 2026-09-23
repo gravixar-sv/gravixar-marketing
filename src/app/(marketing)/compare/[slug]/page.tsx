@@ -62,7 +62,7 @@ export default async function ComparePage(
 
       <div className="grid gap-12 md:grid-cols-3">
         <article className="prose-invert md:col-span-2">
-          <blockquote className="rounded-lg border-l-2 border-brand bg-zinc-950/60 px-5 py-4 text-zinc-200">
+          <blockquote className="rounded-lg border-l-2 border-brand bg-ink-950/60 px-5 py-4 text-ink-200">
             <p className="text-base italic leading-relaxed">{c.meta.hook}</p>
           </blockquote>
 
@@ -77,10 +77,10 @@ export default async function ComparePage(
             <dl className="mt-6 space-y-6">
               {c.meta.faqs.map((f) => (
                 <div key={f.question}>
-                  <dt className="text-base font-medium text-zinc-100">
+                  <dt className="text-base font-medium text-ink-100">
                     {f.question}
                   </dt>
-                  <dd className="mt-2 text-sm leading-relaxed text-zinc-400">
+                  <dd className="mt-2 text-sm leading-relaxed text-ink-400">
                     {f.answer}
                   </dd>
                 </div>
@@ -96,7 +96,7 @@ export default async function ComparePage(
             <p className="font-mono text-label uppercase text-brand">
               when to pick {c.meta.competitor}
             </p>
-            <p className="mt-2 text-sm leading-relaxed text-zinc-300">
+            <p className="mt-2 text-sm leading-relaxed text-ink-300">
               {c.meta.whoForCompetitor}
             </p>
           </div>
@@ -104,7 +104,7 @@ export default async function ComparePage(
             <p className="font-mono text-label uppercase text-brand">
               when to go custom
             </p>
-            <p className="mt-2 text-sm leading-relaxed text-zinc-300">
+            <p className="mt-2 text-sm leading-relaxed text-ink-300">
               {c.meta.whoForCustom}
             </p>
           </div>
@@ -152,7 +152,7 @@ function Meta({ label, value }: { label: string; value: string }) {
       <p className="font-mono text-label uppercase text-brand">
         {label}
       </p>
-      <p className="mt-2 text-sm text-zinc-200">{value}</p>
+      <p className="mt-2 text-sm text-ink-200">{value}</p>
     </div>
   );
 }

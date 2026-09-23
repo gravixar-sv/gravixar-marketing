@@ -36,7 +36,7 @@ export function Loop() {
             One loop runs everything.
           </h2>
         </div>
-        <p className="mt-4 max-w-md text-zinc-400 md:mt-0">
+        <p className="mt-4 max-w-md text-ink-400 md:mt-0">
           Every module I ship, from the demos to the client portals, moves work
           through the same three steps. It is the reason the AI gets trusted
           with real operations.
@@ -47,7 +47,7 @@ export function Loop() {
         {/* Connector hairline + traveling pulse (desktop only) */}
         <div
           aria-hidden
-          className="absolute inset-x-0 top-[5px] hidden h-px overflow-hidden bg-zinc-800 md:block"
+          className="absolute inset-x-0 top-[5px] hidden h-px overflow-hidden bg-ink-800 md:block"
         >
           <span className="loop-pulse absolute inset-y-0 left-0 w-[12%]" />
         </div>
@@ -63,15 +63,15 @@ export function Loop() {
             <li key={step.n} className="relative md:pt-8">
               <span
                 aria-hidden
-                className="absolute left-0 top-0 hidden h-[11px] w-[11px] rounded-full border border-brand/60 bg-[#0a0a0a] md:block"
+                className="absolute left-0 top-0 hidden h-[11px] w-[11px] rounded-full border border-brand/60 bg-bg md:block"
               />
-              <p className="font-mono text-label-sm uppercase text-zinc-400">
+              <p className="font-mono text-label-sm uppercase text-ink-400">
                 {step.n}
               </p>
-              <h3 className="mt-2 text-lg font-semibold tracking-[-0.01em] text-zinc-100">
+              <h3 className="mt-2 text-lg font-semibold tracking-[-0.01em] text-ink-100">
                 {step.title}
               </h3>
-              <p className="mt-2 max-w-sm text-sm leading-relaxed text-zinc-400">
+              <p className="mt-2 max-w-sm text-sm leading-relaxed text-ink-400">
                 {step.body}
               </p>
             </li>

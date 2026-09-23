@@ -66,7 +66,7 @@ export function ServiceInquiryForm({ sourcePage, serviceTitle }: Props) {
         <h3 className="mt-2 text-xl font-semibold tracking-tight">
           Got it. I&apos;ll reply within 24 hours about {serviceTitle}.
         </h3>
-        <p className="mt-2 text-sm text-zinc-400">
+        <p className="mt-2 text-sm text-ink-400">
           If you&apos;d rather chat than email, you can also{" "}
           <a
             href="/contact"
@@ -88,7 +88,7 @@ export function ServiceInquiryForm({ sourcePage, serviceTitle }: Props) {
         <h3 className="text-xl font-semibold tracking-tight">
           Talk about {serviceTitle}
         </h3>
-        <p className="mt-1 text-sm text-zinc-400">
+        <p className="mt-1 text-sm text-ink-400">
           Quick form, lands in my inbox and HQ at the same time. I reply within
           24 hours.
         </p>
@@ -143,7 +143,7 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="font-mono text-label uppercase text-zinc-400">
+      <span className="font-mono text-label uppercase text-ink-400">
         {label}
       </span>
       <input
@@ -151,7 +151,7 @@ function Field({
         type={type}
         required={required}
         minLength={minLength}
-        className="mt-2 block w-full rounded-md border border-line bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none transition-colors placeholder:text-zinc-600 focus:border-brand"
+        className="mt-2 block w-full rounded-md border border-line bg-ink-950 px-3 py-2 text-sm text-ink-100 outline-none transition-colors placeholder:text-ink-600 focus:border-brand"
       />
     </label>
   );
@@ -174,7 +174,7 @@ function Textarea({
 }) {
   return (
     <label className="block">
-      <span className="font-mono text-label uppercase text-zinc-400">
+      <span className="font-mono text-label uppercase text-ink-400">
         {label}
       </span>
       <textarea
@@ -183,7 +183,7 @@ function Textarea({
         minLength={minLength}
         rows={rows}
         placeholder={placeholder}
-        className="mt-2 block w-full rounded-md border border-line bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none transition-colors placeholder:text-zinc-600 focus:border-brand"
+        className="mt-2 block w-full rounded-md border border-line bg-ink-950 px-3 py-2 text-sm text-ink-100 outline-none transition-colors placeholder:text-ink-600 focus:border-brand"
       />
     </label>
   );

@@ -25,8 +25,8 @@ export default async function WorkIndexPage() {
       />
 
       {studies.length === 0 ? (
-        <div className="rounded-lg border border-line bg-zinc-950 p-8 text-center">
-          <p className="text-zinc-400">No case studies published yet.</p>
+        <div className="rounded-lg border border-line bg-ink-950 p-8 text-center">
+          <p className="text-ink-400">No case studies published yet.</p>
         </div>
       ) : (
         <div className="grid gap-6 md:grid-cols-2">
@@ -40,12 +40,12 @@ export default async function WorkIndexPage() {
                 <p className="font-mono text-label-sm uppercase text-muted group-hover:text-brand">
                   {cs.meta.client}
                 </p>
-                <p className="font-mono text-[10px] text-zinc-600">{cs.meta.period}</p>
+                <p className="font-mono text-[10px] text-ink-600">{cs.meta.period}</p>
               </div>
-              <h2 className="mt-2 text-xl font-semibold tracking-[-0.015em] text-zinc-100">
+              <h2 className="mt-2 text-xl font-semibold tracking-[-0.015em] text-ink-100">
                 {cs.meta.title}
               </h2>
-              <p className="mt-3 text-sm leading-relaxed text-zinc-400">
+              <p className="mt-3 text-sm leading-relaxed text-ink-400">
                 {cs.meta.summary}
               </p>
               {cs.meta.stack.length > 0 ? (
@@ -53,7 +53,7 @@ export default async function WorkIndexPage() {
                   {cs.meta.stack.slice(0, 5).map((s) => (
                     <li
                       key={s}
-                      className="rounded-sm border border-zinc-800/80 bg-zinc-900/60 px-1.5 py-0.5 font-mono text-[10px] text-zinc-400"
+                      className="rounded-sm border border-ink-800/80 bg-ink-900/60 px-1.5 py-0.5 font-mono text-[10px] text-ink-400"
                     >
                       {s}
                     </li>

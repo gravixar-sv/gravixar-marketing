@@ -82,18 +82,18 @@ export function ApprovalStrip() {
                   labels read in order without the digits. */}
               <span
                 aria-hidden
-                className="font-mono text-label-sm uppercase text-zinc-400"
+                className="font-mono text-label-sm uppercase text-ink-400"
               >
                 {step.n}
               </span>
-              <p className="text-sm font-medium text-zinc-100">{step.title}</p>
+              <p className="text-sm font-medium text-ink-100">{step.title}</p>
             </div>
-            <p className="mt-1 text-[11px] leading-snug text-zinc-300">
+            <p className="mt-1 text-[11px] leading-snug text-ink-300">
               {step.body}
             </p>
 
             {step.n === "01" ? (
-              <p className="mt-1.5 font-mono text-[10px] leading-snug text-zinc-400">
+              <p className="mt-1.5 font-mono text-[10px] leading-snug text-ink-400">
                 {/* Width-locked so a four-to-four character swap still cannot
                     reflow the line, and colour-only on the transition, because
                     the whole point of the fixed slot below is that nothing in
@@ -105,7 +105,7 @@ export function ApprovalStrip() {
                 >
                   {approved ? "sent" : "held"}
                 </span>
-                <span aria-hidden className="text-zinc-600"> · </span>
+                <span aria-hidden className="text-ink-600"> · </span>
                 {step.artifact}
               </p>
             ) : null}
@@ -151,7 +151,7 @@ export function ApprovalStrip() {
                           // takes the secondary treatment exactly. The active
                           // colour shift carries the press on its own, since
                           // scale is separately reset under reduced motion.
-                          "border-zinc-700 text-zinc-100 hover:border-brand hover:text-brand-soft active:scale-[0.98] active:border-brand active:bg-brand/15"
+                          "border-ink-700 text-ink-100 hover:border-brand hover:text-brand-soft active:scale-[0.98] active:border-brand active:bg-brand/15"
                     }`}
                   >
                     {approved ? "Approved" : "Approve the draft"}
@@ -161,7 +161,7 @@ export function ApprovalStrip() {
                     <button
                       type="button"
                       onClick={() => setApproved(false)}
-                      className="whitespace-nowrap font-mono text-label-sm uppercase text-muted transition-colors duration-200 ease-out hover:text-zinc-300"
+                      className="whitespace-nowrap font-mono text-label-sm uppercase text-muted transition-colors duration-200 ease-out hover:text-ink-300"
                     >
                       {/* Short on screen, complete to a screen reader, and the
                           visible words are the start of the accessible name, so

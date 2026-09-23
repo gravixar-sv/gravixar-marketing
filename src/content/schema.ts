@@ -129,6 +129,16 @@ export const caseStudySchema = z.object({
   cover: baseImage,
   publishedAt: isoDate,
   draft: z.boolean().default(false),
+  // Where the study sits on /work and in the homepage's selected work. Lower
+  // comes first. Added 2026-09-23: newest-first by publishedAt put the thinnest
+  // study third and the strongest proof fourth. Studies without an order sort
+  // after every ordered one, newest first among themselves.
+  order: z.number().int().nonnegative().optional(),
+  // One plain sentence of OUTCOME for the homepage's selected-work rows, in the
+  // reader's terms ("New clients go live in about 10 minutes."). A compression
+  // of what the study already says, never a new claim; optional, and a study
+  // without one is simply not eligible for the homepage.
+  homeLine: z.string().min(20).max(160).optional(),
 });
 export type CaseStudy = z.infer<typeof caseStudySchema>;
 

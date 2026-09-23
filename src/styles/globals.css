@@ -1,254 +1,379 @@
 @import "tailwindcss";
 
-@theme {
-  --color-bg: #0a0a0a;
-  --color-fg: #fafafa;
-  /* Adopted 2026-09-02. This token had ZERO consumers for four months while
-     `text-zinc-500`, which is the same #71717a, was hardcoded at 47 call
-     sites. A token nobody calls is not a token, it is a comment. All 47 now
-     read `text-muted`, so the value has one definition and changing the muted
-     tier is one edit rather than a find-and-replace. */
-  --color-muted: #71717a;
+/* EMBER GATE (2026-09-23). The site shows the business model instead of
+   describing it: the machine drafts, a person decides. Three consequences run
+   through every token below.
+     1. Coral has ONE job. It marks a human decision: the primary action, the
+        Approve control, the approved state, the active route. It is not a
+        label colour and not a hover colour.
+     2. Mono is machine output only (URLs, timestamps, status chips, figure
+        captions, code). People-facing labels are sans.
+     3. Depth comes from light and material (grain, an ember horizon, top-lit
+        edges), never from coloured glows or more boxes.
+   `static` so every token is emitted on :root: component CSS modules read
+   these with var() and must not depend on Tailwind having seen a utility. */
+@theme static {
+  /* Ground and surfaces. Warm ink, not neutral black: a stone-tinted ramp
+     reads human next to the coral instead of clinical. */
+  --color-bg: #0c0a09;
+  --color-surface: #151311;
+  --color-surface-2: #1c1a17;
 
-  /* Brand coral-orange, softer than pure red, plays beside the logo's red square */
+  /* Text. Contrast on --color-bg / on --color-surface-2:
+       fg 17.2 / 15.2, body 11.7 / 10.3, muted 6.0 / 5.3 (AA at any size),
+       faint 3.6 / 3.2 (NON-TEXT ONLY: dividers, disabled borders, glyphs).
+     The old muted (#71717a) measured 4.1:1 and failed AA at the 10 to 12px it
+     was used at; nothing readable may use faint. */
+  --color-fg: #f3efe8;
+  --color-body: #cdc6bc;
+  --color-muted: #948d85;
+  --color-faint: #6e6861;
+
+  /* The ink ramp replaces Tailwind's zinc everywhere in src/. Same steps, so a
+     sweep from zinc-N to ink-N is value-for-value in role, warmer in hue, and
+     500 is lifted to pass AA. */
+  --color-ink-50: #f7f4ee;
+  --color-ink-100: #f3efe8;
+  --color-ink-200: #e3ded5;
+  --color-ink-300: #cdc6bc;
+  --color-ink-400: #aba49b;
+  --color-ink-500: #948d85;
+  --color-ink-600: #6e6861;
+  --color-ink-700: #4a4540;
+  --color-ink-800: #2b2825;
+  --color-ink-900: #1d1b18;
+  --color-ink-950: #110f0d;
+
+  /* The accent. Hue unchanged from the brand (continuity with the logo's red
+     square), 7.0:1 on the ground. */
   --color-brand: #ff6b35;
   --color-brand-soft: #ff8a5c;
   --color-brand-deep: #e65a2e;
 
-  /* Hairlines. Two ranks only, ratifying the container-vs-divider hierarchy
-     the pages already draw by hand: --color-line for anything that encloses
-     (section frames, panel edges), --color-line-soft for anything that only
-     separates inside an enclosure (row rules, list dividers). Deliberately
-     unrelated to the .card-surface / .live-panel inset rings below, which are
-     elevation tiers, not hairlines.
+  /* Hairlines, three ranks: soft separates inside an enclosure, line encloses,
+     strong marks an approved or focused edge. */
+  --color-line-soft: rgb(243 239 232 / 0.05);
+  --color-line: rgb(243 239 232 / 0.09);
+  --color-line-strong: rgb(243 239 232 / 0.16);
 
-     ADOPTION, and an honest note about it. Until 2026-09-02 this pair was 26%
-     adopted: 18 uses against 51 of `border-zinc-800` / `border-zinc-900`, so
-     the hierarchy this comment describes was enforced almost nowhere and the
-     two systems produced visually indistinguishable results. The 45 plain
-     forms were swept onto the tokens (zinc-800 composites to #27272a against
-     --color-line's #262626, zinc-900 to #18181b against --color-line-soft's
-     #1a1a1a, so the sweep is value-preserving to the eye). What that sweep
-     did NOT do is verify that each site is on the semantically correct tier;
-     it mapped by weight, which is where those sites already sat. Treat the
-     container-vs-divider rule as the intent to hold new code to, not as
-     something already audited across the site.
-
-     FIVE call sites are deliberately still on zinc, and should stay: the
-     alpha-modified forms (`border-zinc-800/80`, `border-zinc-900/80`).
-     Stacking a modifier on an already-translucent token compounds alpha, and
-     on the sticky navbar, which is `bg-[#0a0a0a]/80` with a backdrop blur, a
-     white-alpha hairline composites over whatever scrolls beneath it while a
-     dark zinc one does not. That is a behaviour difference, not a shade. */
-  --color-line: rgba(250, 250, 250, 0.1);
-  --color-line-soft: rgba(250, 250, 250, 0.05);
-
-  /* Display + body: Hubot Sans + Mona Sans (GitHub's open variable
-     grotesks), self-hosted via @fontsource-variable (imported in
-     layout.tsx). Chosen over Geist/Inter so the type does not read as a
-     default generated stack. Mono stays Geist Mono for field labels. */
+  /* Type. Mona Sans is the single family, loaded with its width axis so
+     display sizes can run slightly condensed. Newsreader italic is the human
+     voice: one phrase per page at most (the hero h1 tail, pull quotes, the
+     About opening, the closing CTA line), never UI, never under 20px. */
   --font-sans: "Mona Sans Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-display: "Hubot Sans Variable", "Mona Sans Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Mona Sans Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-newsreader), ui-serif, Georgia, "Times New Roman", serif;
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", monospace;
 
-  /* Heading ranks, named after the job rather than the size, because the
-     page reads as a sequence of peaks and every ad hoc `text-3xl md:text-4xl`
-     flattened them into one. Each rank has exactly one consumer:
-       display    -> Hero h1, the only rank-1 on the site
-       statement  -> Loop h2, the second peak, deliberately near the Hero
-       page       -> the h1 of every page that is not the homepage, which is
-                     PageHeader plus the MDX h1 that long-form bodies emit
-       section    -> the act-opener h2s
-       subsection -> the Problem / Approach / Outcome headings on a case
-                     study, and the MDX h2 inside any long-form body
-       reference  -> Proof + Capabilities h2, the quietest headings
-
-     `page` was added 2026-09-02 and is the one rank that did NOT exist when
-     this block was written. It is not a new size: PageHeader and mdx.tsx were
-     already shipping `text-4xl md:text-5xl`, an unnamed 48px sitting between
-     statement and section, on more pages than any named rank reached. The
-     claim above that each rank has exactly one consumer was true only on the
-     homepage; everywhere else the ad-hoc sizes this table exists to abolish
-     were still in place. Naming it changes nothing visually and makes the
-     table describe the whole site rather than one page of it.
-     Line heights ship with each rank so a rank swap does not silently fall
-     back to `normal`; call sites can still override with leading-*.
-
-     Ranks 1 to 4 ship behind a breakpoint prefix over a smaller literal base,
-     because 60px or 36px of display type has to come down on a narrow column
-     or it wraps into a wall. Rank 5 is the exception and ships UNPREFIXED: it
-     is already the smallest heading on the site, so there is no smaller base
-     left to fall to that still reads as a heading. It used to ship as
-     `text-xl md:text-reference`, and that 20px base sat 4px over body copy and
-     exactly level with the ServicesPreview card h3, which is heavier and
-     brighter, so below md the quietest rank lost every axis except the tag
-     name. 24px at every width is the fix. Do not put a `md:` back on it.
-     One number to keep in view: subsection's base is text-2xl, also 24px, so
-     below md rank 4 leads rank 5 on weight and colour rather than on size.
-     That pairing never renders, since subsection is case-study-only and
-     reference is homepage-only, but it is the ceiling that stops rank 5 from
-     growing again: rank 5 gets louder by colour and weight, never by size. */
-  --text-display: 3.75rem;
-  --text-display--line-height: 1.04;
-  --text-statement: 3.25rem;
-  --text-statement--line-height: 1.06;
-  --text-page: 3rem;
-  --text-page--line-height: 1.1;
-  --text-section: 2.25rem;
-  --text-section--line-height: 1.12;
+  /* Heading ranks, named by job. display is the homepage h1 only; statement is
+     an act-opening h2 on the homepage; page is the h1 of every inner page;
+     section is an h2 that opens a section; subsection sits inside long pages;
+     reference is the quietest heading. Display is fluid so it never needs a
+     breakpoint ladder at the call site. */
+  --text-display: clamp(2.75rem, 1.55rem + 4.4vw, 5.25rem);
+  --text-display--line-height: 0.98;
+  --text-display--letter-spacing: -0.035em;
+  --text-statement: clamp(2.25rem, 1.5rem + 2.6vw, 3.5rem);
+  --text-statement--line-height: 1.02;
+  --text-statement--letter-spacing: -0.03em;
+  --text-page: clamp(2.25rem, 1.6rem + 2.2vw, 3.5rem);
+  --text-page--line-height: 1.04;
+  --text-page--letter-spacing: -0.03em;
+  --text-section: clamp(1.875rem, 1.45rem + 1.5vw, 2.625rem);
+  --text-section--line-height: 1.08;
+  --text-section--letter-spacing: -0.025em;
   --text-subsection: 1.75rem;
-  --text-subsection--line-height: 1.2;
-  --text-reference: 1.5rem;
+  --text-subsection--line-height: 1.18;
+  --text-subsection--letter-spacing: -0.02em;
+  --text-reference: 1.375rem;
   --text-reference--line-height: 1.3;
+  --text-reference--letter-spacing: -0.015em;
+  /* Reading sizes. lead is the one sentence under a headline; prose is long
+     form body copy. */
+  --text-lead: clamp(1.125rem, 1.05rem + 0.3vw, 1.3125rem);
+  --text-lead--line-height: 1.5;
+  --text-prose: 1.0625rem;
+  --text-prose--line-height: 1.72;
 
-  /* Label ranks, the same idea as the heading ranks above applied to the mono
-     uppercase eyebrow, which is the MOST repeated element on the site: 108
-     call sites, four times more than every heading combined. Before these
-     existed it carried NINE uncoordinated variants, five sizes crossed with
-     three trackings, and the split was visible rather than subtle: 41 of the
-     108 shipped `tracking-widest` (0.1em) against 66 at 0.18em, nearly double.
-     That is the exact failure the heading block below describes and fixes, on
-     the element where it happens most often, so the fix is the same one.
-
-     Named by job, like the heading ranks:
-       eyebrow   -> the page or panel eyebrow, one per surface (PageHeader,
-                    the form success headings, the /contact section heads)
-       label     -> section and card labels
-       label-sm  -> inline meta, card footer rows, nav counters
-       label-xs  -> the quietest rank, the stat-card labels
-
-     Tracking is deliberately CONSTANT at 0.18em across all four rather than
-     graduated by size. These are one register, not four, and 0.18em is both
-     the plurality (66 of 108) and the value the 11px rank already used at 24
-     call sites, so it is the settled look rather than a new one. Size alone
-     separates the ranks; colour and weight do the rest at the call site. */
+  /* Labels. Nothing below 11px anywhere. The old nine-variant mono ladder at
+     0.18em read as a terminal; the machine voice is now quieter and rarer.
+     caption is the sans people-facing label; the mono ranks are for machine
+     output only. */
+  --text-caption: 0.8125rem;
+  --text-caption--line-height: 1.4;
   --text-eyebrow: 0.75rem;
-  --text-eyebrow--letter-spacing: 0.18em;
-  --text-label: 0.6875rem;
-  --text-label--letter-spacing: 0.18em;
-  --text-label-sm: 0.625rem;
-  --text-label-sm--letter-spacing: 0.18em;
-  --text-label-xs: 0.5625rem;
-  --text-label-xs--letter-spacing: 0.18em;
+  --text-eyebrow--letter-spacing: 0.12em;
+  --text-label: 0.75rem;
+  --text-label--letter-spacing: 0.1em;
+  --text-label-sm: 0.6875rem;
+  --text-label-sm--letter-spacing: 0.1em;
+  --text-label-xs: 0.6875rem;
+  --text-label-xs--letter-spacing: 0.08em;
 
-  /* Motion: strong custom curves. Never raw linear / ease-in-out on UI. */
+  /* Motion. One curve family, four duration bands:
+       press 100ms, micro 180 to 200ms, UI surfaces 220 to 260ms (exits about
+       60% of entries, on ease-exit), narrative 420 to 820ms on ease-out-expo.
+     Things move because the reader scrolled, pointed or clicked. */
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+  /* A damped spring (about 5% overshoot), for presses and small pops. */
+  --ease-spring: linear(0, 0.0395, 0.1428, 0.2856 6.8%, 0.5608 11.3%, 0.7708 16%, 0.9118, 1.0025 25.4%, 1.0435 30.3%, 1.0543 35.7%, 1.0452 42.6%, 1.0217 52.8%, 1.0036 66.3%, 0.9985 82%, 1);
+  --default-transition-duration: 200ms;
+  --default-transition-timing-function: var(--ease-out);
 }
 
 @layer base {
   html {
-    background: #0a0a0a;
-    color: #fafafa;
+    background-color: var(--color-bg);
+    color: var(--color-fg);
     color-scheme: dark;
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
+  /* Smooth anchor scrolling only for readers who did not ask for less motion.
+     Next reads data-scroll-behavior on <html> to suspend it during route
+     changes, so a client navigation never animates the jump to the top. */
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+  /* Grain is a background image, not an overlay: no compositing layer, no
+     repaint on scroll, rasterised once per tile. It also breaks up the 8-bit
+     banding in every ember gradient. Alpha .04 is the ceiling. */
   body {
     min-height: 100dvh;
+    background-color: var(--color-bg);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 .96 0 0 0 0 .9 0 0 0 .04 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    font-size: 1rem;
+    line-height: 1.6;
   }
-  /* Headings carry the display face; body stays on Mona.
-     text-wrap: balance evens the last line of a multi-line heading, which is
-     where a one-word final line reads as a mistake rather than a line break.
-     Every engine that ships it caps balancing at a handful of lines and falls
-     back to normal wrapping past the cap, so it cannot become a layout cost on
-     long text; the Hero h1 (the LCP element) is two or three lines, well inside
-     the cap and a single block's worth of extra line-breaking work.
-     The one heading balance is arguably wrong for is ContactCTA's h2: two
-     sentences over three lines, where balance chases equal line widths and will
-     break mid-clause, while `pretty` would keep the natural rag and only fix
-     the orphan. That is a one-line call-site override ([text-wrap:pretty] on
-     that h2, utilities beat base), not a reason to demote the default for every
-     heading on the site, most of which are one or two lines of display type. */
   h1,
   h2,
   h3,
   h4 {
     font-family: var(--font-display);
     text-wrap: balance;
+    font-weight: 600;
   }
-  /* Body copy gets `pretty`, which kills the orphaned last word without
-     touching the lines above it, so paragraph rhythm is unchanged. Both
-     properties degrade to normal wrapping where unsupported. */
+  /* Display sizes run slightly condensed; smaller headings stay at normal
+     width, where condensing only costs legibility. */
+  h1,
+  h2 {
+    font-stretch: 94%;
+    letter-spacing: -0.03em;
+  }
+  h3,
+  h4 {
+    letter-spacing: -0.012em;
+  }
   p {
     text-wrap: pretty;
   }
   ::selection {
-    background: #ff6b35;
-    color: #0a0a0a;
+    background: var(--color-brand);
+    color: var(--color-bg);
   }
-  /* Visible focus ring everywhere. Never removed, only restyled. */
+  /* Visible focus ring everywhere. Never removed, only restyled. Coral is
+     right here: a focus ring marks where a human is about to act. */
   :focus-visible {
-    outline: 2px solid rgba(255, 107, 53, 0.75);
-    outline-offset: 2px;
-    border-radius: 2px;
+    outline: 2px solid rgb(255 107 53 / 0.8);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+  ::placeholder {
+    color: var(--color-ink-500);
+    opacity: 1;
   }
 }
 
 @layer utilities {
-  /* Static brand corner wash. No idle drift animation; the glow is a
-     fixed, subtle accent rather than generated ambient motion. */
-  .bg-brand-glow {
-    background: radial-gradient(58% 78% at 100% 0%, rgba(255, 107, 53, 0.13) 0%, rgba(255, 107, 53, 0) 60%);
-  }
-  /* Hairline-bordered panel for cards. Interior uses a 1px ring at low
-     opacity so cards feel inset rather than boxed. Pairs with hover
-     gradient via .card-hover-glow. */
-  .card-surface {
-    background: linear-gradient(180deg, rgba(24, 24, 27, 0.4) 0%, rgba(10, 10, 10, 0.6) 100%);
-    box-shadow:
-      inset 0 0 0 1px rgba(255, 255, 255, 0.04),
-      0 1px 0 0 rgba(255, 255, 255, 0.02);
-  }
-  /* Hover: brand-tinted ring + subtle outward glow + a small lift. */
-  .card-hover-glow {
-    transition:
-      box-shadow 240ms var(--ease-out),
-      background 240ms var(--ease-out),
-      transform 240ms var(--ease-out);
-  }
-  .card-hover-glow:hover {
-    background: linear-gradient(180deg, rgba(34, 24, 22, 0.5) 0%, rgba(14, 10, 10, 0.65) 100%);
-    box-shadow:
-      inset 0 0 0 1px rgba(255, 107, 53, 0.35),
-      0 0 0 1px rgba(255, 107, 53, 0.18),
-      0 8px 32px -8px rgba(255, 107, 53, 0.18);
-    transform: translateY(-2px);
-  }
-  /* Live-system panel, terminal-leaning, not consumer-marketing. */
-  .live-panel {
-    background:
-      radial-gradient(120% 80% at 0% 0%, rgba(255, 107, 53, 0.08) 0%, rgba(255, 107, 53, 0) 50%),
-      linear-gradient(180deg, rgba(24, 24, 27, 0.7) 0%, rgba(10, 10, 10, 0.85) 100%);
-    box-shadow:
-      inset 0 0 0 1px rgba(255, 255, 255, 0.06),
-      0 24px 60px -20px rgba(0, 0, 0, 0.6);
-  }
-  /* Horizontal marquee for client logos. Logos array is duplicated in the
-     component so the loop appears seamless when it wraps. */
-  @keyframes marquee {
-    from { transform: translateX(0); }
-    to { transform: translateX(-50%); }
-  }
-  .animate-marquee {
-    animation: marquee 38s linear infinite;
-  }
-  .animate-marquee:hover {
-    animation-play-state: paused;
+  /* The human voice. An italic serif phrase inside a sans headline. */
+  .voice {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 400;
+    font-stretch: normal;
+    letter-spacing: -0.012em;
   }
 
-  /* Scroll reveal, FALLBACK PATH: a section fades and rises once when it enters
-     the viewport. Driven by an IntersectionObserver (<Reveal>), not a scroll
-     listener. GPU-only (opacity + transform). Distance and duration are
-     custom properties, so a section picks its weight with one extra class
-     instead of a second transition rule.
-     Engines with scroll-driven animation take the @supports path further down
-     instead, which needs no JS at all. This version is what Firefox (still
-     flag-gated as of mid-2026) and older Safari get. */
+  /* ---------- Light and material ---------- */
+
+  /* Ember horizon: light falling from above the fold, warm core plus a
+     paler hot spot. Replaces the old corner wash; the old class name stays as
+     an alias so existing call sites inherit the new light. */
+  .ember-horizon,
+  .bg-brand-glow {
+    background:
+      radial-gradient(38% 30% at 72% -4%, rgb(255 196 160 / 0.07), transparent 70%),
+      radial-gradient(62% 55% at 70% -12%, rgb(255 107 53 / 0.16), transparent 72%);
+  }
+  /* The same light rising from below, for closing panels: it points forward. */
+  .ember-rise {
+    background:
+      radial-gradient(40% 60% at 50% 118%, rgb(255 196 160 / 0.08), transparent 70%),
+      radial-gradient(70% 80% at 50% 125%, rgb(255 107 53 / 0.2), transparent 72%);
+  }
+
+  /* Flat surface: one luminance step up, a hairline, and a top highlight so it
+     reads lit from above. No gradient, no glow. */
+  .card-surface {
+    background-color: var(--color-surface);
+    box-shadow:
+      inset 0 0 0 1px var(--color-line),
+      inset 0 1px 0 0 rgb(255 255 255 / 0.04);
+  }
+
+  /* Hover light for card GRIDS. Inside a <SpotlightGrid> the pointer position
+     arrives as --spot-x / --spot-y on every card, so the hovered card fills
+     with a faint wash and its neighbours catch coral on their near edges: the
+     band reads as one lit surface. Outside a grid, or on touch, the fallback is
+     a lit top edge. No lift, no box-shadow transition, no per-frame layout. */
+  .card-hover-glow {
+    position: relative;
+    isolation: isolate;
+  }
+  .card-hover-glow::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    pointer-events: none;
+    background: radial-gradient(
+      280px circle at var(--spot-x, 50%) var(--spot-y, -40%),
+      rgb(255 107 53 / 0.55),
+      transparent 70%
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 320ms var(--ease-out);
+  }
+  .card-hover-glow::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    pointer-events: none;
+    background: radial-gradient(
+      520px circle at var(--spot-x, 50%) var(--spot-y, 0%),
+      rgb(255 138 92 / 0.06),
+      transparent 60%
+    );
+    opacity: 0;
+    transition: opacity 260ms var(--ease-out);
+  }
+  [data-spot-group]:hover .card-hover-glow::before,
+  .card-hover-glow:hover::before,
+  .card-hover-glow:focus-visible::before {
+    opacity: 1;
+  }
+  .card-hover-glow:hover::after,
+  .card-hover-glow:focus-visible::after {
+    opacity: 1;
+  }
+
+  /* A raised panel lit from the top edge: a gradient hairline that is bright
+     at the top and gone by the bottom, plus a deep neutral shadow. Used for
+     the hero's approval card, the closing CTA, dropdowns and dialogs. The old
+     name stays so existing call sites inherit it. */
+  .live-panel,
+  .panel-lit {
+    border: 1px solid transparent;
+    background:
+      linear-gradient(var(--color-surface-2), var(--color-surface)) padding-box,
+      linear-gradient(180deg, rgb(243 239 232 / 0.2), rgb(243 239 232 / 0.06) 38%, rgb(243 239 232 / 0.03)) border-box;
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.05),
+      0 30px 70px -30px rgb(0 0 0 / 0.85);
+  }
+  /* A product frame: same top-lit edge, darker interior, for screenshots. */
+  .frame-lit {
+    border: 1px solid transparent;
+    background:
+      linear-gradient(var(--color-ink-950), var(--color-ink-950)) padding-box,
+      linear-gradient(180deg, rgb(243 239 232 / 0.22), rgb(243 239 232 / 0.05) 40%, transparent) border-box;
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.06),
+      0 40px 80px -40px rgb(0 0 0 / 0.9);
+  }
+  /* Screenshots melt into the ground instead of ending on a hard edge. */
+  .dissolve {
+    -webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent);
+    mask-image: linear-gradient(to bottom, #000 70%, transparent);
+  }
+
+  /* ---------- Links ---------- */
+
+  /* Inline link: ivory with a quiet underline that warms on hover. Links are
+     never told apart by colour alone. */
+  .link-quiet {
+    color: var(--color-fg);
+    text-decoration-line: underline;
+    text-decoration-thickness: 1px;
+    text-decoration-color: var(--color-ink-600);
+    text-underline-offset: 0.22em;
+    transition: text-decoration-color 200ms var(--ease-out), color 200ms var(--ease-out);
+  }
+  .link-quiet:hover {
+    text-decoration-color: var(--color-brand);
+  }
+  /* Crafted link: the underline draws in from the left on hover. */
+  .link-draw {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    background-size: 0% 1px;
+    transition: background-size 320ms var(--ease-out);
+  }
+
+  /* ---------- Client logo rail ---------- */
+
+  /* The row is w-max, so -50% is exactly one period (the list is printed
+     twice); the old row was container-width and snapped back after half a
+     period, which meant phones never saw four of the seven clients. */
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  .animate-marquee {
+    width: max-content;
+    animation: marquee 46s linear infinite;
+  }
+  .marquee-viewport:hover .animate-marquee,
+  .marquee-viewport:focus-within .animate-marquee {
+    animation-play-state: paused;
+  }
+  .marquee-viewport {
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  }
+
+  /* ---------- Entrances ---------- */
+
+  /* Scroll reveal, FALLBACK PATH (Firefox, older Safari): fades and rises once
+     when <Reveal> flips data-revealed. Engines with scroll-driven animation
+     take the @supports path below, which needs no JS at all. Distances are
+     deliberately small: whole sections floating 40px is template motion. */
   .reveal {
-    --reveal-y: 24px;
-    --reveal-dur: 640ms;
+    --reveal-y: 16px;
+    --reveal-dur: 620ms;
     opacity: 0;
     transform: translateY(var(--reveal-y));
     transition:
@@ -259,33 +384,24 @@
   .reveal[data-revealed="true"] {
     opacity: 1;
     transform: none;
-    /* Release the compositor layer once the section has landed. Without this
-       every revealed section holds a promoted layer for the rest of the
-       page's life, which is most of the page by the time you reach the CTA. */
     will-change: auto;
   }
-  /* Weight modifiers. They set the two custom properties and nothing else,
-     which is what keeps the reduced-motion guard on .reveal sufficient for
-     them: there is no transform / transition / animation / opacity here to
-     outrank it. --reveal-y is read by both paths; --reveal-dur only by this
-     one (see the @supports block for why duration cannot mean anything on a
-     scroll timeline). */
   .reveal-lead {
-    --reveal-y: 40px;
-    --reveal-dur: 820ms;
+    --reveal-y: 24px;
+    --reveal-dur: 760ms;
   }
+  /* Reference material only fades. */
   .reveal-quiet {
-    --reveal-y: 12px;
-    --reveal-dur: 480ms;
+    --reveal-y: 0px;
+    --reveal-dur: 520ms;
   }
 
-  /* Hero entrance: pure CSS keyframes (no JS gate), so the fold renders
-     even if scripting never runs. Staggered per element via
-     [animation-delay:*] utilities at the call site. */
+  /* Page-load entrance for above-the-fold elements that are not the h1 (the
+     h1 uses .sit). Pure CSS keyframes, so the fold renders without JS. */
   @keyframes rise-in {
     from {
       opacity: 0;
-      transform: translateY(14px);
+      transform: translateY(12px);
     }
     to {
       opacity: 1;
@@ -293,24 +409,54 @@
     }
   }
   .hero-enter {
-    animation: rise-in 700ms var(--ease-out) both;
+    animation: rise-in 720ms var(--ease-out-expo) both;
   }
 
-  /* Child stagger inside a <Reveal>, FALLBACK PATH: the parent's data-revealed
-     flips all .reveal-stagger children with an incremental delay. Where
-     scroll-driven animation exists the children take their own view() timelines
-     instead and this whole ladder goes inert; see the @supports block. Scoped under
-     .reveal so the same grid renders statically when used outside one.
-     The step is a registered property rather than a declaration on
-     .reveal-stagger on purpose: registering it gives the 70ms default zero
-     specificity, so a call site can widen the beat with [--stagger:110ms] on
-     the grid. A `.reveal .reveal-stagger` declaration would outrank that
-     utility and the override would silently do nothing.
-     Every call below still writes the 70ms fallback into the var() itself.
-     Without it, an engine that ignores @property leaves --stagger unregistered,
-     `calc(var(--stagger, 70ms) * 1)` is invalid at computed-value time, and the whole
-     grid lands at once. The registration carries the specificity argument; the
-     fallback carries the default. */
+  /* SET IN TYPE: the page-arrival signature. <SetInType> splits a headline
+     into words; each word rises out of its own clip. Server-rendered, no JS,
+     and the full string is in an sr-only twin so assistive tech reads one
+     sentence. The padding/negative margin keep descenders inside the clip at
+     tight leading. The index is capped so a long title settles in ~400ms. */
+  .sit-w {
+    display: inline-block;
+    overflow: clip;
+    vertical-align: top;
+    padding-bottom: 0.14em;
+    margin-bottom: -0.14em;
+  }
+  .sit-w > span {
+    display: inline-block;
+    animation: sit-rise 860ms var(--ease-out-expo) both;
+    animation-delay: calc(var(--sit-d, 40ms) + var(--i, 0) * 32ms);
+  }
+  @keyframes sit-rise {
+    from {
+      transform: translateY(106%);
+    }
+  }
+
+  /* Hairline that draws itself from the left instead of fading. */
+  .rule-draw {
+    position: relative;
+  }
+  .rule-draw::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    height: 1px;
+    background: var(--color-line);
+    transform-origin: left;
+    animation: rule-draw 1000ms var(--ease-out-expo) 260ms both;
+  }
+  @keyframes rule-draw {
+    from {
+      transform: scaleX(0);
+    }
+  }
+
+  /* Child stagger inside a <Reveal>, FALLBACK PATH. See the @supports block
+     for the scroll-driven version. */
   @property --stagger {
     syntax: "<time>";
     inherits: true;
@@ -318,10 +464,10 @@
   }
   .reveal .reveal-stagger > * {
     opacity: 0;
-    transform: translateY(14px);
+    transform: translateY(12px);
     transition:
-      opacity 550ms var(--ease-out),
-      transform 550ms var(--ease-out);
+      opacity 560ms var(--ease-out),
+      transform 560ms var(--ease-out);
   }
   .reveal[data-revealed="true"] .reveal-stagger > * {
     opacity: 1;
@@ -339,46 +485,19 @@
   .reveal[data-revealed="true"] .reveal-stagger > *:nth-child(5) {
     transition-delay: calc(var(--stagger, 70ms) * 4);
   }
-  /* Cap: past the fifth child the wait stops growing, so a long grid does not
-     end on a child that lands a second and a half late. */
   .reveal[data-revealed="true"] .reveal-stagger > *:nth-child(n + 6) {
     transition-delay: calc(var(--stagger, 70ms) * 5);
   }
 
-  /* SCROLL-DRIVEN REVEALS. This block REMOVES a JS dependency from base
-     visibility rather than adding one, which is the whole reason it exists.
-     The transition path above cannot resolve unless <Reveal> flips
-     data-revealed, so if hydration fails or frames never composite, every
-     section below the fold stays at opacity 0 for the life of the page: the
-     1400ms rescue timer in Reveal.tsx only covers what happens to be in the
-     viewport when it fires. A view() timeline is driven by scroll offset and
-     needs no script at all, so on engines that support it nothing about base
-     visibility runs through JS. Firefox still gates scroll-driven animation
-     behind a flag as of mid-2026, so the transition path stays the fallback.
-
-     The base state is INVERTED here (opacity 1 / transform none) and ALL the
+  /* SCROLL-DRIVEN REVEALS. The base state is INVERTED (visible) and all the
      hiding is done by the animation's backwards fill. That inversion is the
-     safety property, not a style choice: a view() timeline is inactive when its
-     scroll container has no scrollable overflow, in paged contexts (print), and
-     whenever the subject is not being rendered. An animation on an inactive
-     timeline has an unresolved local time and therefore applies no effect at
-     all, fill-mode notwithstanding. Written the obvious way, with opacity: 0 as
-     the base, a short page and every printout would resolve to invisible
-     content. Written this way they resolve to a fully visible page, and the
-     animation is purely additive.
-
-     Cascade, since it decides whether data-revealed fights this: animations
-     outrank every normal author declaration regardless of specificity, so the
-     animation beats both this rule and .reveal[data-revealed="true"] (0,2,0)
-     for its entire lifetime, and `both` makes that lifetime cover the before
-     phase (from-keyframe, hidden) and the after phase (to-keyframe, visible)
-     as well as the active range. Before the range is entered the section is
-     below the viewport bottom, so the backwards fill hiding it is correct even
-     when JS has already flipped the attribute; after the range is exited the
-     forwards fill holds it visible. data-revealed goes inert on this path and
-     never contradicts it. Transitions, however, outrank animations, which is
-     why the fallback transition is switched off here rather than left to
-     compete for opacity and transform. */
+     safety property: a view() timeline is inactive when there is no scroll
+     overflow, in print, and when the subject is not rendered, and an animation
+     on an inactive timeline applies no effect at all. So every failure mode
+     resolves to visible content and the animation is purely additive.
+     Range: starts when the top edge crosses the viewport bottom and ends 40vh
+     later, which leaves any section's top 60% of the way down the window when
+     it finishes, whatever the section's height. */
   @supports (animation-timeline: view()) {
     @keyframes reveal-rise {
       from {
@@ -394,53 +513,15 @@
       opacity: 1;
       transform: none;
       transition: none;
-      /* --reveal-y still does its job: the keyframe reads it, so .reveal-lead
-         and .reveal-quiet keep their 40px / 12px weights. --reveal-dur is INERT
-         on this path. Progress comes from scroll offset, not elapsed time, so
-         editing --reveal-dur changes nothing in Chrome no matter how it looks;
-         the knob for how fast a reveal resolves is animation-range below. */
       animation-name: reveal-rise;
       animation-timing-function: var(--ease-out);
-      /* `both`, for exactly the reason the .loop-pulse comment below gives:
-         outside the active range a fill of `none` drops the transform and the
-         section snaps to an un-animated state. Here it also does the hiding. */
       animation-fill-mode: both;
       animation-timeline: view();
-      /* Range: starts when the section's top edge crosses the bottom of the
-         viewport, ends 40vh of scrolling later. Deliberately a LENGTH rather
-         than a percentage of a named range, because several of these sections
-         are taller than the viewport. The geometry, stated properly because it
-         is easy to get wrong: the `entry` range is min(subject, viewport) long,
-         so `entry 100%` resolves the moment the subject's top edge reaches the
-         TOP of the window, by which point the heading has already left the
-         comfortable reading band. `cover N%` is worse still, since cover length
-         is subject + viewport. What a length end offset buys is an invariant:
-         with progress measured over cover, p_end = 0.4V / (V + H), and at that
-         progress the subject's top always sits at 0.6V regardless of section
-         height H. So a 20vh card and a 250vh section both finish with their top
-         edge 60% of the way down the window, comfortably on screen.
-         The var(--ease-out) curve above is front-loaded, which is a second
-         safety net here: even at 40% of the range a section is already near
-         full opacity, so no plausible resting scroll position leaves visible
-         content looking unfinished. */
       animation-range: entry 0% entry 40vh;
-      /* Back to auto. The de-promotion hook was [data-revealed], which is no
-         longer guaranteed to fire on this path, and a permanent compositor
-         layer on every section is worse than letting the UA promote the
-         animation it is already running. */
       will-change: auto;
     }
-    /* Stagger children. The transition-delay ladder above is time-based and
-       does not translate to a scroll timeline, so the children get their own
-       view() timelines instead of riding the wrapper's. That is the version
-       that keeps the JS out: leaving them on the transition path would leave
-       precisely the bug this block removes, one level down, and a grid of
-       invisible cards inside a visible section is worse than either. Because
-       each child's timeline is its own box, a grid's second row reveals after
-       its first for free, and on mobile every stacked card reveals as it
-       arrives. --stagger (a <time>) now governs the fallback path only. */
     .reveal .reveal-stagger > * {
-      --reveal-y: 14px;
+      --reveal-y: 12px;
       opacity: 1;
       transform: none;
       transition: none;
@@ -450,24 +531,8 @@
       animation-timeline: view();
       animation-range: entry 0% entry 32vh;
     }
-    /* The within-a-row beat, md+ only (48rem to match Tailwind's md, which is
-       where every .reveal-stagger grid goes multi-column: Loop, Demos, and the two
-       ServicesPreview track bands, whose 12-column shape the cycle also suits,
-       a band of 3 landing 0/6/12vh and a band of 2 landing 0/6vh). Below md they are
-       single-column, layout position already staggers them, and an extra offset
-       would only make the last card arrive late. At md+ a row's children share a
-       top edge and so share a timeline position, which without this lands them
-       together, exactly what Loop.tsx forbids for its three steps. Offsets, not
-       delays: animation-delay is as meaningless here as duration.
-       A mod-3 CYCLE, not a two-step cap, because the offset has to track column
-       position rather than absolute index. Demos is md:grid-cols-2 with its
-       featured card at md:col-span-2, so its rows are {1}, {2,3}, {4,5}: an
-       nth-child(n + 3) catch-all would hand cards 4 and 5 the same offset, and
-       since they share a row they share a top edge, so they would arrive
-       together, reintroducing the very problem this ladder exists to fix. The
-       cycle gives Loop and ServicesPreview 0/6/12vh across their three columns,
-       Demos row 2 a 6/12vh beat and row 3 a 0/6vh beat. Max offset stays 12vh,
-       so the scroll budget the last section needs is unchanged. */
+    /* Within-a-row beat at md+, on a mod-3 cycle so the offset tracks column
+       position rather than absolute index. */
     @media (min-width: 48rem) {
       .reveal .reveal-stagger > *:nth-child(3n + 2) {
         animation-range: entry 6vh entry 38vh;
@@ -476,117 +541,377 @@
         animation-range: entry 12vh entry 44vh;
       }
     }
+    /* A hairline that draws as it arrives rather than on page load. */
+    .rule-draw-scroll::after {
+      animation-name: rule-draw;
+      animation-duration: auto;
+      animation-delay: 0s;
+      animation-timing-function: linear;
+      animation-timeline: view();
+      animation-range: entry 0% entry 45%;
+    }
   }
 
-  /* The approval-loop connector: a soft brand pulse travels the hairline.
-     Transform-only (the pulse is 12% wide, so 950% clears the far edge). */
-  @keyframes loop-pulse {
+  /* ---------- The Loop rail ---------- */
+
+  /* A rail that fills as the reader moves through "how it works", lighting
+     each step's node as the fill reaches it. Mechanical progress, so linear.
+     The base state is the COMPLETED rail (every node lit): engines without
+     scroll timelines, print and reduced motion all get the finished state. */
+  .loop-fill {
+    transform-origin: left;
+  }
+  .loop-fill-y {
+    transform-origin: top;
+  }
+  .loop-node::after {
+    content: "";
+    position: absolute;
+    inset: 2px;
+    border-radius: 9999px;
+    background: var(--color-brand);
+  }
+  @supports (animation-timeline: view()) {
+    .loop-track {
+      view-timeline: --loop block;
+    }
+    @keyframes loop-fill {
+      from {
+        transform: scaleX(0);
+      }
+    }
+    @keyframes loop-fill-y {
+      from {
+        transform: scaleY(0);
+      }
+    }
+    @keyframes node-on {
+      from {
+        transform: scale(0);
+      }
+    }
+    .loop-fill {
+      animation: loop-fill linear both;
+      animation-timeline: --loop;
+      animation-range: cover 18% cover 50%;
+    }
+    .loop-fill-y {
+      animation: loop-fill-y linear both;
+      animation-timeline: --loop;
+      animation-range: cover 12% cover 62%;
+    }
+    .loop-node::after {
+      animation: node-on 1ms var(--ease-spring) both;
+      animation-timeline: --loop;
+    }
+    /* Node ranges sit at 0, 1/3 and 2/3 of the fill range, matching the three
+       equal columns at md. Retune together if the column ratio changes. */
+    .loop-step:nth-child(1) .loop-node::after {
+      animation-range: cover 18% cover 21%;
+    }
+    .loop-step:nth-child(2) .loop-node::after {
+      animation-range: cover 28.5% cover 31.5%;
+    }
+    .loop-step:nth-child(3) .loop-node::after {
+      animation-range: cover 39% cover 42%;
+    }
+    @media (max-width: 47.99rem) {
+      .loop-step:nth-child(1) .loop-node::after {
+        animation-range: cover 12% cover 15%;
+      }
+      .loop-step:nth-child(2) .loop-node::after {
+        animation-range: cover 30% cover 33%;
+      }
+      .loop-step:nth-child(3) .loop-node::after {
+        animation-range: cover 48% cover 51%;
+      }
+    }
+  }
+
+  /* ---------- Live indicators ---------- */
+
+  /* A true-live dot breathes three times after load, then rests. Only on
+     things that are actually live (the demo subdomain), never on
+     illustrative panels. */
+  .live-dot {
+    position: relative;
+  }
+  .live-dot::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 9999px;
+    background: currentColor;
+    animation: live-breath 2.4s var(--ease-out) 1.2s 3 both;
+  }
+  @keyframes live-breath {
     from {
-      transform: translateX(-100%);
+      transform: scale(1);
+      opacity: 0.55;
     }
     to {
-      transform: translateX(950%);
+      transform: scale(2.8);
+      opacity: 0;
     }
   }
-  .loop-pulse {
-    background: linear-gradient(
-      90deg,
-      rgba(255, 107, 53, 0) 0%,
-      rgba(255, 107, 53, 0.65) 50%,
-      rgba(255, 107, 53, 0) 100%
-    );
-    /* Parked until the section reveals. Left running from page load it has
-       already looped a dozen times before anyone scrolls here, so it reads as
-       wallpaper instead of as the loop closing. Gating on JS is safe here in a
-       way it never is for content: the pulse is aria-hidden decoration, so no
-       base visibility depends on the ticker. */
-    animation: loop-pulse 4.6s var(--ease-in-out) 200ms both infinite;
-    animation-play-state: paused;
+
+  /* ---------- Chrome ---------- */
+
+  /* The sticky header is clear at the top of the page, so the hero's light
+     runs up behind it, and turns solid over the first 96px of scroll. The
+     base state is the solid bar, so engines without scroll timelines (and a
+     page too short to scroll) simply get the solid bar. */
+  @supports (animation-timeline: scroll()) {
+    .site-header {
+      animation: header-solid linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 96px;
+    }
+    @keyframes header-solid {
+      from {
+        background-color: rgb(12 10 9 / 0);
+        border-bottom-color: rgb(243 239 232 / 0);
+      }
+    }
   }
-  .reveal[data-revealed="true"] .loop-pulse {
-    animation-play-state: running;
+
+  /* The active-route marker. One element on the page carries the name, so it
+     glides between nav items as part of the route's view transition. */
+  .nav-dot {
+    position: absolute;
+    left: 50%;
+    bottom: -9px;
+    width: 4px;
+    height: 4px;
+    margin-left: -2px;
+    border-radius: 9999px;
+    background: var(--color-brand);
+    view-transition-name: nav-active;
   }
-  /* No <Reveal> ancestor means no gate to wait for, so run rather than sit
-     dead forever. Keeps the pulse correct if the connector is ever used
-     outside a revealed section. */
-  .loop-pulse:not(.reveal *) {
-    animation-play-state: running;
+
+  /* Reading progress along the header's bottom edge on long-form routes. The
+     article carries .read-track; the timeline is hoisted to <html> so the
+     header (a sibling subtree) can read it. Base is scaleX(0), so engines
+     without scroll timelines simply never show it. */
+  .read-progress {
+    position: absolute;
+    inset-inline: 0;
+    bottom: -1px;
+    height: 2px;
+    background: var(--color-brand);
+    transform-origin: left;
+    transform: scaleX(0);
+    pointer-events: none;
   }
-  /* Where scroll-driven animation exists, hand the pulse to the reader's
-     scroll position instead of a timer: one pass, tied to the element's own
-     view progress, so it travels as the loop comes into view rather than
-     beside it. No JS and no scroll listener. Must set play-state back to
-     running, since a paused animation ignores its timeline too. Overriding
-     iteration-count matters more than it looks: an infinite scroll-driven
-     animation would restart every time the element re-entered view.
-     The `both` fill on the shorthand above is load-bearing here, not tidiness:
-     with iteration-count 1 and a view() range, the animation is outside its
-     active phase both before `entry 20%` and after `cover 60%`, and a fill of
-     `none` would drop the transform entirely and leave the 12%-wide coral span
-     sitting at left:0 as a static smear on the hairline. `both` clamps it to
-     translateX(-100%) before and 950% after, both of which the parent clips.
-     Browsers without support keep the timed version above. */
   @supports (animation-timeline: view()) {
-    .loop-pulse {
-      animation-timeline: view();
-      animation-range: entry 20% cover 60%;
-      animation-iteration-count: 1;
-      animation-play-state: running;
+    html {
+      timeline-scope: --article;
+    }
+    .read-track {
+      view-timeline: --article block;
+    }
+    @keyframes read-progress {
+      to {
+        transform: scaleX(1);
+      }
+    }
+    .read-progress {
+      animation: read-progress linear both;
+      animation-timeline: --article;
+      animation-range: contain 0% contain 100%;
     }
   }
 
-  /* Approval strip in the hero panel (ApprovalStrip.tsx): the step that has not
-     happened yet sits de-emphasised until the visitor approves the draft.
-     Opacity only, and switched by an attribute the CLIENT writes, so the server
-     paint is all three rows at full emphasis. That inversion is why this needs
-     no @media (scripting: none) entry the way .reveal does: there is no state
-     here that resolves to hidden content when the script never arrives.
-     0.55 rather than a deeper fade because the row still has to be read, not
-     just seen: composited on #0a0a0a it leaves the payoff (zinc-300) at about
-     4.6:1 and the label (zinc-100) near 5.8:1, where 0.5 over zinc-400 body copy
-     would land at 2.6:1 and the row would read as disabled rather than as next.
-     No idle motion: the transition only ever runs from the click. */
-  .approval-step {
-    transition: opacity 200ms var(--ease-out);
-  }
-  .approval-step[data-dimmed="true"] {
-    opacity: 0.55;
-  }
-
-  /* Crafted link: the underline draws in from the left on hover. Replaces
-     the repeated "text followed by a → arrow" micro-interaction. */
-  .link-draw {
-    background-image: linear-gradient(currentColor, currentColor);
-    background-position: 0 100%;
-    background-repeat: no-repeat;
-    background-size: 0% 1.5px;
-    transition: background-size 300ms var(--ease-out);
+  /* Screenshot depth: the app appears to sit behind glass inside its frame as
+     the card crosses the viewport. Transform only, inside overflow-hidden. */
+  @supports (animation-timeline: view()) {
+    .shot-parallax {
+      scale: 1.06;
+      animation: shot-drift linear both;
+      animation-timeline: view();
+      animation-range: cover 0% cover 100%;
+    }
+    @keyframes shot-drift {
+      from {
+        translate: 0 -2.5%;
+      }
+      to {
+        translate: 0 2.5%;
+      }
+    }
   }
 }
 
+/* ---------- Overlay entrances (unlayered, so @starting-style is never dropped) ---------- */
+
+/* Surfaces that mount when opened grow from their trigger. Entries on the
+   ease-out-expo curve, no stagger inside menus (menus must be instant to
+   scan). */
+.menu-pop {
+  transform-origin: top right;
+  transition:
+    opacity 220ms var(--ease-out),
+    scale 240ms var(--ease-out-expo),
+    translate 240ms var(--ease-out-expo);
+}
+@starting-style {
+  .menu-pop {
+    opacity: 0;
+    scale: 0.97;
+    translate: 0 -4px;
+  }
+}
+.mobile-sheet {
+  transition:
+    opacity 240ms var(--ease-out),
+    clip-path 360ms var(--ease-out-expo);
+  clip-path: inset(0 0 0 0);
+}
+@starting-style {
+  .mobile-sheet {
+    opacity: 0;
+    clip-path: inset(0 0 100% 0);
+  }
+}
+.mobile-sheet .sheet-item {
+  transition:
+    opacity 260ms var(--ease-out),
+    translate 260ms var(--ease-out-expo);
+  transition-delay: calc(min(var(--i, 0), 8) * 22ms + 60ms);
+}
+@starting-style {
+  .mobile-sheet .sheet-item {
+    opacity: 0;
+    translate: 0 -6px;
+  }
+}
+.pop-in {
+  transform-origin: bottom right;
+  transition:
+    opacity 200ms var(--ease-out),
+    scale 260ms var(--ease-out-expo),
+    translate 260ms var(--ease-out-expo);
+}
+@starting-style {
+  .pop-in {
+    opacity: 0;
+    scale: 0.96;
+    translate: 0 8px;
+  }
+}
+.fade-up {
+  transition:
+    opacity 320ms var(--ease-out),
+    translate 420ms var(--ease-out-expo);
+}
+@starting-style {
+  .fade-up {
+    opacity: 0;
+    translate: 0 8px;
+  }
+}
+
+/* On phones the Bosun launcher waits until the fold has scrolled away, so it
+   never sits on the hero's buttons. If the timeline is inactive (short page,
+   unsupported engine) it is simply visible. */
+@supports (animation-timeline: scroll()) {
+  @media (max-width: 47.99rem) {
+    .bosun-launcher {
+      animation: launcher-in linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 45vh;
+    }
+  }
+}
+@keyframes launcher-in {
+  from {
+    opacity: 0;
+    translate: 0 12px;
+    pointer-events: none;
+    visibility: hidden;
+  }
+  60% {
+    visibility: visible;
+  }
+}
+
+/* Hover rules gated to real pointers, so touch never gets a sticky state. */
 @media (hover: hover) and (pointer: fine) {
   .link-draw:hover,
   .group:hover .link-draw {
-    background-size: 100% 1.5px;
+    background-size: 100% 1px;
   }
 }
 
-/* WHITELIST, hand-maintained: this block names every animated class one by
-   one, so anything animated added above stays in motion for readers who asked
-   it not to until it is added here too. Extend it in the same commit.
-   Unlayered on purpose, so it outranks anything in @layer utilities whatever
-   the specificity there. .reveal-lead / .reveal-quiet need no entry: they
-   declare only --reveal-y / --reveal-dur, and the .reveal reset below zeroes
-   the transform, the transition and the animation that would have read them. */
+/* ---------- Route transitions ---------- */
+
+/* <main> is wrapped in <ViewTransition default="page-swap">. Without these
+   rules the UA default tweened main's group from the old scroll offset, so
+   both snapshots slid ~1,700px down the screen and over the sticky header on
+   every navigation from a scrolled page. Now nothing travels: the old page
+   drops out and the new one rises 8px. The header is its own named group,
+   held still and painted above the page. Named children (title morphs, the
+   nav dot) still animate on their own. */
+::view-transition {
+  pointer-events: none;
+}
+::view-transition-group(.page-swap) {
+  animation: none;
+}
+::view-transition-old(.page-swap) {
+  display: none;
+}
+::view-transition-new(.page-swap) {
+  animation: page-in 360ms var(--ease-out-expo) both;
+}
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+::view-transition-group(site-header) {
+  animation: none;
+  z-index: 10;
+}
+::view-transition-old(site-header) {
+  display: none;
+}
+::view-transition-new(site-header) {
+  animation: none;
+}
+::view-transition-old(root) {
+  animation-duration: 140ms;
+  animation-timing-function: var(--ease-exit);
+}
+::view-transition-new(root) {
+  animation-duration: 200ms;
+}
+::view-transition-group(nav-active) {
+  animation-duration: 420ms;
+  animation-timing-function: var(--ease-in-out);
+}
+/* Shared-element title morphs (card title into page h1). */
+::view-transition-group(.morph-title) {
+  animation-duration: 460ms;
+  animation-timing-function: var(--ease-out-expo);
+}
+::view-transition-group(.morph-media) {
+  animation-duration: 500ms;
+  animation-timing-function: var(--ease-in-out);
+}
+::view-transition-old(.morph-media),
+::view-transition-new(.morph-media) {
+  height: 100%;
+  object-fit: cover;
+  overflow: clip;
+}
+
+/* WHITELIST, hand-maintained: every animated class is named here, so anything
+   new stays in motion for readers who asked it not to until it is added. Extend
+   it in the same commit. Unlayered, so it outranks @layer utilities on cascade
+   order alone. */
 @media (prefers-reduced-motion: reduce) {
-  /* .reveal and its stagger children have to kill the animation, not just the
-     transition: unlayered or not, a normal declaration cannot outrank an
-     animation, so the scroll-driven variant would keep fading sections in and
-     out under the reader's scroll while this block sat there being ignored.
-     `animation: none` drops the name (no name, no effect, so the opacity and
-     transform below finally apply) and resets animation-timeline as a side
-     effect; the timeline is reset by hand anyway, because this is the guard
-     block and it says what it means rather than leaning on the shorthand. */
   .reveal,
   .reveal .reveal-stagger > * {
     opacity: 1;
@@ -596,109 +921,101 @@
     animation-timeline: auto;
     will-change: auto;
   }
-  .animate-marquee,
   .hero-enter,
-  .loop-pulse {
-    /* `animation: none` resets animation-timeline too, so this also kills the
-       scroll-driven .loop-pulse variant. Reset it by hand as well: this is the
-       guard block, so it says what it means rather than leaning on the
-       shorthand. */
+  .site-header,
+  .bosun-launcher,
+  .sit-w > span,
+  .rule-draw::after,
+  .live-dot::after,
+  .shot-parallax,
+  .loop-fill,
+  .loop-fill-y,
+  .loop-node::after {
     animation: none;
     animation-timeline: auto;
   }
-  /* .approval-step keeps its data-dimmed opacity, so approving still promotes
-     the last row; only the fade between the two states goes. The strip's
-     control transitions colour at its call site, which this block deliberately
-     leaves alone, for the reason spelled out below. */
-  .approval-step,
+  /* The rail is shown complete: every node lit, the fill at full length. */
+  .shot-parallax {
+    scale: 1;
+    translate: none;
+  }
+  /* The rail stays still and complete. The logo rail becomes a wrapped roster
+     so every client is visible without motion. */
+  .animate-marquee {
+    animation: none;
+    width: auto;
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: 2rem;
+  }
+  .animate-marquee > [data-dup] {
+    display: none;
+  }
   .link-draw,
-  .card-hover-glow {
+  .link-quiet,
+  .card-hover-glow::before,
+  .card-hover-glow::after {
     transition: none;
   }
-  /* The half a whitelist structurally cannot cover. Movement at call sites is
-     written as Tailwind utilities on the element itself (active:scale-[0.98],
-     hover:-translate-y-0.5, group-hover:translate-x-0.5), so naming classes
-     here would never keep up with the components. Drop the movement and leave
-     colour and opacity alone, which is the trade this media query is actually
-     asking for. `transition: none` above only made the same movement instant;
-     it never stopped it. Unlayered, so it outranks the utilities in
-     @layer utilities on cascade order alone, with no !important needed. */
+  .menu-pop,
+  .mobile-sheet,
+  .mobile-sheet .sheet-item,
+  .pop-in,
+  .fade-up {
+    transition: opacity 120ms linear;
+    transition-delay: 0s;
+  }
+  /* Movement at call sites is written as Tailwind utilities on the element
+     (active:scale-[0.97], hover:-translate-y-0.5, group-hover:translate-x-0.5),
+     so the whitelist cannot name them all. Drop the movement, keep colour and
+     opacity. */
   a:hover,
   a:active,
   button:hover,
   button:active,
-  .card-hover-glow:hover,
   .group:hover [class*="translate-"],
   .group:hover [class*="scale-"] {
-    /* .card-hover-glow's lift is a real transform, so this half is needed. The
-       other half is below, and the split between them is load-bearing. */
     transform: none;
   }
-  /* An intervening rule. Do not delete it and do not merge the two blocks back
-     together, however redundant they look side by side. */
+  /* An intervening rule. Do not merge the two blocks around it. */
   .link-draw:hover,
   .group:hover .link-draw {
-    background-size: 0% 1.5px;
+    background-size: 0% 1px;
   }
-  /* THE OTHER HALF, and the reason it is a separate rule.
-     Tailwind v4 compiles scale-*, translate-* and rotate-* to the INDEPENDENT
-     properties, so `active:scale-[0.98]` emits `scale: .98` and never touches
-     `transform`. Resetting transform alone left every press and every card lift
-     still moving under reduced motion. That was found and "fixed" by adding the
-     three resets next to `transform: none` in one block, and the fix silently
-     did nothing in production: Lightning CSS merged all four into the single
-     shorthand `transform: scale(1) translate(0) rotate(0)`, and per CSS
-     Transforms 2 the individual properties COMPOSE with transform rather than
-     being overridden by it, so the merged rule cancels nothing. Source correct,
-     build wrong, comment asserting the opposite, which is worse than the
-     original bug.
-     Splitting the declarations across two non-adjacent rules is what stops the
-     merge. THE ACCEPTANCE TEST IS THE BUILD OUTPUT, NOT THIS FILE: run
-     pnpm build, then grep .next/static/chunks/*.css for translate:none,
-     scale:none and rotate:none. Each must appear at least once. If they do not,
-     the minifier has merged them again and reduced motion is a no-op. */
+  /* THE OTHER HALF, split on purpose. Tailwind v4 compiles scale-*, translate-*
+     and rotate-* to the INDEPENDENT properties, which compose with transform
+     rather than being overridden by it, and Lightning CSS merges adjacent
+     resets into one transform shorthand that cancels nothing. Two
+     non-adjacent rules stop the merge. THE ACCEPTANCE TEST IS THE BUILD
+     OUTPUT: grep .next/static/chunks/*.css for translate:none, scale:none and
+     rotate:none; each must appear. */
   a:hover,
   a:active,
   button:hover,
   button:active,
-  .card-hover-glow:hover,
   .group:hover [class*="translate-"],
-  .group:hover [class*="scale-"] {
+  .group:hover [class*="scale-"],
+  .menu-pop,
+  .mobile-sheet .sheet-item,
+  .pop-in,
+  .fade-up {
     scale: none;
     translate: none;
     rotate: none;
   }
-  /* Cross-route view transitions (experimental.viewTransition, wrapped around
-     <main> in the marketing layout). The default UA animation cross-fades the
-     old and new snapshots AND tweens a group whose transform, width and height
-     interpolate between the two routes. All of it is movement a reader asked
-     not to see. Zero duration on all three pseudos leaves the navigation
-     itself untouched: the page still changes, it just changes instantly. This
-     cannot ride the class whitelist above, because the animating things are UA
-     pseudo-elements with no class to name.
-     The group needs its own entry and did not have one. Zeroing old and new
-     alone left the transform/width/height tween running at the UA default
-     250ms, confirmed against a live transition. It is invisible today only
-     because <main> is mx-auto max-w-6xl px-6 on every route, so nothing but
-     height differs. Give one route a different width or offset and a
-     reduced-motion reader gets a visible slide with nothing here to stop it. */
   ::view-transition-old(*),
   ::view-transition-new(*),
-  ::view-transition-group(*) {
+  ::view-transition-group(*),
+  ::view-transition-new(.page-swap),
+  ::view-transition-group(nav-active),
+  ::view-transition-group(.morph-title),
+  ::view-transition-group(.morph-media) {
     animation-duration: 0s;
   }
 }
 
-/* Scripting off entirely: reveals must never gate base visibility
-   (ledger: ui-css-first-reveals-no-ticker-gated-visibility). .hero-enter,
-   .animate-marquee and .link-draw are pure CSS and need nothing here.
-   This block is now load-bearing for the FALLBACK path only. Where
-   animation-timeline: view() exists the reveals are already scriptless, and the
-   animation outranks the two declarations below, so sections there still fade
-   in as the reader scrolls rather than snapping visible, which is the intended
-   no-JS behaviour and not a conflict. Keep the block: without support there is
-   no timeline, only the JS-gated transition, and this is the only thing that
-   makes the page readable. */
+/* Scripting off entirely: the fallback reveal path must never gate base
+   visibility (ledger: ui-css-first-reveals-no-ticker-gated-visibility). */
 @media (scripting: none) {
   .reveal,
   .reveal .reveal-stagger > * {
@@ -706,10 +1023,5 @@
     transform: none;
     transition: none;
     will-change: auto;
-  }
-  /* The pulse is decoration, so no content was gated on it, but with no JS to
-     flip data-revealed it would stay parked. Spell the no-JS path out. */
-  .loop-pulse {
-    animation-play-state: running;
   }
 }

@@ -96,7 +96,7 @@ export default async function GraphicsItemPage(
         <h1 className="mt-3 text-4xl font-semibold tracking-tight md:text-page">
           {g.meta.title}
         </h1>
-        <p className="mt-4 max-w-2xl text-lg leading-relaxed text-zinc-400">
+        <p className="mt-4 max-w-2xl text-lg leading-relaxed text-ink-400">
           {g.meta.summary}
         </p>
       </header>
@@ -113,7 +113,7 @@ export default async function GraphicsItemPage(
           cross-origin source would be blocked at runtime after shipping green.
           See the note on the video field in src/content/schema.ts. */}
       {g.meta.video ? (
-        <div className="overflow-hidden rounded-xl border border-line bg-zinc-950">
+        <div className="overflow-hidden rounded-xl border border-line bg-ink-950">
           <video
             src={g.meta.video.src}
             poster={g.meta.video.poster}
@@ -123,7 +123,7 @@ export default async function GraphicsItemPage(
           />
         </div>
       ) : (
-        <div className="relative aspect-[16/10] overflow-hidden rounded-xl border border-line bg-zinc-950">
+        <div className="relative aspect-[16/10] overflow-hidden rounded-xl border border-line bg-ink-950">
           <Image
             src={g.meta.cover.src}
             alt={g.meta.cover.alt}
@@ -168,7 +168,7 @@ export default async function GraphicsItemPage(
                   href={img.src}
                   data-lightbox-index={i}
                   className={`relative block aspect-[4/3] overflow-hidden rounded-xl border border-line transition-[border-color,translate] duration-200 ease-[var(--ease-out)] hover:border-brand/40 hover:-translate-y-0.5 ${
-                    img.onLight ? "bg-zinc-200" : "bg-zinc-950"
+                    img.onLight ? "bg-ink-200" : "bg-ink-950"
                   }`}
                 >
                   <Image
@@ -199,7 +199,7 @@ export default async function GraphicsItemPage(
                   {g.meta.tools.map((t) => (
                     <li
                       key={t}
-                      className="rounded-sm border border-line-soft bg-zinc-900/60 px-2 py-1 font-mono text-[10px] text-zinc-300"
+                      className="rounded-sm border border-line-soft bg-ink-900/60 px-2 py-1 font-mono text-[10px] text-ink-300"
                     >
                       {t}
                     </li>
@@ -212,7 +212,7 @@ export default async function GraphicsItemPage(
                 <p className="font-mono text-label uppercase text-brand">
                   process
                 </p>
-                <p className="mt-3 text-sm leading-relaxed text-zinc-300">
+                <p className="mt-3 text-sm leading-relaxed text-ink-300">
                   {g.meta.processNote}
                 </p>
               </div>
@@ -224,7 +224,7 @@ export default async function GraphicsItemPage(
       <div>
         <Link
           href="/graphics"
-          className="font-mono text-label-sm uppercase text-zinc-400 transition-colors hover:text-brand"
+          className="font-mono text-label-sm uppercase text-ink-400 transition-colors hover:text-brand"
         >
           ← Back to the showcase
         </Link>
