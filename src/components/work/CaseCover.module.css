@@ -209,7 +209,7 @@
 }
 .spanThumb {
   --r0: 26%;
-  --rk: 0.0463%;
+  --rk: 0.0462%;
 }
 @supports (animation-timeline: view()) {
   /* On the frame itself. The frame is overflow-hidden, which makes it a

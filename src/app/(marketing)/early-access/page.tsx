@@ -107,11 +107,11 @@ export default function EarlyAccessPage() {
             so the <dt> still leads for a screen reader), which pins both
             numbers to the same line even when one label wraps.
             The two numbers are set in type. From lg this column sits beside
-            the form, and by the layout's arithmetic the numbers sit about 700
-            to 750px down at 1440x900, inside the first viewport, so they set
-            on arrival, after the lede (220ms). Below lg the column stacks
-            under the form, well below the fold, so there they set as they
-            scroll in instead. */}
+            the form, and by the layout's arithmetic the numbers sit roughly
+            700 to 820px down at 1440x900 (the range is how the h1 wraps),
+            inside the first viewport, so they set on arrival, after the lede
+            (220ms). Below lg the column stacks under the form, well below the
+            fold, so there they set as they scroll in instead. */}
         <aside aria-labelledby="exists-title" className="min-w-0 lg:col-span-5 lg:pt-1.5">
           {/* A label-sized h2, so it opts out of the global h1/h2 display
               treatment (94% width, -0.03em), which only suits large sizes. */}
