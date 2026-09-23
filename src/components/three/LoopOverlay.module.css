@@ -1,0 +1,223 @@
+/* The DOM layer over the 3D queue. Positions arrive per frame as an inline
+   `transform` (translate3d to the anchor point); the anchoring offsets below
+   use the independent `translate` property, which composes with it, so the
+   two never fight. Nothing here animates position: the scene already eases
+   every move, and a CSS transition on top would lag the card it follows. */
+
+.layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* ---------- Card hit areas ---------- */
+
+.card {
+  position: absolute;
+  left: 0;
+  top: 0;
+  translate: -50% -50%;
+  min-width: 36px;
+  min-height: 32px;
+  border-radius: 6px;
+  background: transparent;
+  pointer-events: auto;
+  cursor: help;
+  /* Parked until the scene has placed it, so it never flashes at 0,0. */
+  visibility: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+.card[data-placed="true"] {
+  visibility: visible;
+}
+@media (pointer: coarse) {
+  .card {
+    min-width: 44px;
+    min-height: 44px;
+    cursor: pointer;
+  }
+}
+
+/* The version badge rides the card's top-right corner. Machine output, so
+   mono; ivory, because a rewrite is not a decision. */
+.badge {
+  position: absolute;
+  top: -9px;
+  right: -9px;
+  padding: 1px 5px;
+  border-radius: 999px;
+  border: 1px solid var(--color-line-strong);
+  background: rgb(21 19 17 / 0.92);
+  color: var(--color-ink-100);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  line-height: 1.35;
+  letter-spacing: 0.04em;
+  pointer-events: none;
+  animation: badge-in 260ms var(--ease-spring) both;
+}
+@keyframes badge-in {
+  from {
+    opacity: 0;
+    scale: 0.6;
+  }
+}
+
+/* ---------- The gate's label ---------- */
+
+.gate {
+  position: absolute;
+  left: 0;
+  top: 0;
+  translate: -50% 10px;
+  display: grid;
+  justify-items: center;
+  pointer-events: none;
+  visibility: hidden;
+  white-space: nowrap;
+}
+.gate[data-placed="true"] {
+  visibility: visible;
+}
+.gate > span {
+  grid-area: 1 / 1;
+  transition:
+    opacity 220ms var(--ease-out),
+    translate 260ms var(--ease-out-expo);
+}
+.wait {
+  font-size: 0.75rem;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+  color: var(--color-ink-500);
+}
+/* "Sent", the one coral thing under the ring: something just got a yes. */
+.sent {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid rgb(255 107 53 / 0.45);
+  background: rgb(255 107 53 / 0.1);
+  color: var(--color-brand-soft);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  line-height: 1.4;
+  letter-spacing: 0.06em;
+  opacity: 0;
+  translate: 0 4px;
+}
+.gate[data-sent="true"] .wait {
+  opacity: 0;
+  translate: 0 -4px;
+}
+.gate[data-sent="true"] .sent {
+  opacity: 1;
+  translate: 0 0;
+}
+
+/* ---------- Pop-up ---------- */
+
+.pop {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 2;
+  translate: -50% -100%;
+  width: max-content;
+  max-width: min(16rem, calc(100vw - 2rem));
+  padding: 0.7rem 0.85rem 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--color-surface-2), var(--color-surface)) padding-box,
+    linear-gradient(180deg, rgb(243 239 232 / 0.22), rgb(243 239 232 / 0.06) 40%, rgb(243 239 232 / 0.04)) border-box;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.05),
+    0 18px 40px -18px rgb(0 0 0 / 0.9);
+  pointer-events: none;
+  opacity: 0;
+  scale: 0.96;
+  transform-origin: 50% 100%;
+  transition:
+    opacity 140ms var(--ease-exit),
+    scale 140ms var(--ease-exit);
+}
+.pop[data-side="below"] {
+  translate: -50% 0;
+  transform-origin: 50% 0;
+}
+.pop[data-open="true"] {
+  opacity: 1;
+  scale: 1;
+  transition:
+    opacity 180ms var(--ease-out),
+    scale 220ms var(--ease-out-expo);
+}
+.popName {
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--color-ink-50);
+}
+.popMeta {
+  margin-top: 0.3rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--color-ink-300);
+}
+.dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 999px;
+  flex: none;
+}
+.sep {
+  color: var(--color-ink-600);
+}
+.bars {
+  color: var(--color-ink-200);
+  flex: none;
+}
+.popVersion {
+  margin-top: 0.45rem;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  line-height: 1.45;
+  letter-spacing: 0.02em;
+  color: var(--color-ink-400);
+}
+.popPos {
+  margin-top: 0.15rem;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--color-ink-200);
+}
+
+/* ---------- Reduced motion: fades only, nothing travels or grows ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .badge {
+    animation: none;
+  }
+  .gate > span,
+  .pop,
+  .pop[data-open="true"] {
+    transition: opacity 120ms linear;
+  }
+}
+/* Separate on purpose: Lightning CSS merges adjacent resets of the
+   independent transform properties into one shorthand that cancels nothing. */
+@media (prefers-reduced-motion: reduce) {
+  .sent,
+  .gate[data-sent="true"] .wait {
+    translate: 0 0;
+  }
+  .pop {
+    scale: 1;
+  }
+}

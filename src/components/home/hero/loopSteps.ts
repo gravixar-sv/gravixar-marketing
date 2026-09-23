@@ -1,12 +1,13 @@
-// The three steps of the approval loop, in ONE place. The hero's approval card
-// (ApprovalStrip.tsx, a client component) prints the titles from lg up, where
-// it sits beside the scene (below lg it shows the decision only); the "how it
-// works" rail (Loop.tsx, a server component) prints the titles and is the one
-// place the bodies appear. They used to carry two hand-synced copies with a
-// comment asking editors to "edit both or neither". A plain module (no
-// "use client") is the only kind both can
-// import as data: a const exported from a client module arrives in a server
-// component as a client reference, not as the array.
+// The three steps of the approval loop, as the "how it works" rail
+// (Loop.tsx) prints them: titles, the one place the bodies appear, and a
+// machine-output chip under each. A plain module (no "use client") so a
+// server component can import it as data: a const exported from a client
+// module arrives in a server component as a client reference, not the array.
+//
+// The hero's panel no longer prints these (2026-09-23). It runs one sample
+// task at a time through its own four steps (the task, the draft, the
+// decision, where it went; ApprovalStrip.tsx), which show the mechanism
+// rather than name it, so the two cannot read as the same list twice.
 //
 // Voice: plain words a non-technical owner can say back after one read on a
 // phone. "Write", "stack", "prompt" and "queue" are gone on purpose.

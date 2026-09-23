@@ -14,11 +14,11 @@ import styles from "./Loop.module.css";
 // decision, lights coral (Loop.module.css), so the one coral node and the one
 // coral check in the row mark the same thing.
 //
-// The step titles come from ./hero/loopSteps.ts, the same module the hero's
-// approval card prints, so the two cannot drift. This section is the ONE
-// place the three explanatory sentences are printed (the card shows titles
-// only), plus a concrete thing to look at under each step: the
-// machine-output chip that step produces. Illustrative, no numbers.
+// The steps come from ./hero/loopSteps.ts. This section is the ONE place the
+// three explanatory sentences are printed (the hero's panel runs a sample
+// task instead of naming the steps), plus a concrete thing to look at under
+// each step: the machine-output chip that step produces. Illustrative, no
+// numbers.
 
 function Artifact({ step, index }: { step: LoopStep; index: number }) {
   const { state, detail } = step.artifact;

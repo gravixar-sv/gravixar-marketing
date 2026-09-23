@@ -1,97 +1,74 @@
 "use client";
 
-import { useCallback, useEffect, useImperativeHandle, useRef, useState, type CSSProperties, type Ref } from "react";
+import { useEffect, useImperativeHandle, useRef, useState, type CSSProperties, type Ref } from "react";
 import { cn } from "@/lib/cn";
 import { LoopFallback } from "./LoopFallback";
-import { QUEUE_START } from "./loopShape";
-import type { LoopSceneController } from "./loopSceneCore";
+import { LoopOverlay, type LoopItem, type LoopOverlayHandle } from "./LoopOverlay";
+import type { LoopSceneController, SceneItem, SceneSnapshot } from "./loopSceneCore";
 
-/** Window event that approves the lead held draft: `window.dispatchEvent(new CustomEvent(APPROVE_EVENT))`. */
-export const APPROVE_EVENT = "gravixar:approve";
+export type { LoopItem } from "./LoopOverlay";
 
 export interface LoopSceneHandle {
-  /** Release the lead held draft through the gate. Flashes the gate even when nothing is waiting. */
-  approve: () => void;
-  /** Alias of approve(). */
-  pulse: () => void;
   /** Same as the `progress` prop, without a React render (for scroll handlers). */
   setProgress: (p: number) => void;
 }
 
 export interface LoopSceneProps {
+  /** The queue, front first. The first item is the task waiting at the gate. */
+  items: LoopItem[];
   /** 0..1, drives a gentle camera dolly only. */
   progress?: number;
-  /** Clicking the gate approves. Default true. */
+  /** Clicking the gate asks for an approval. Default true. */
   interactive?: boolean;
   className?: string;
   style?: CSSProperties;
-  /** Fires after each draft actually approved, with the running total. */
-  onApprove?: (count: number) => void;
-  /** Fires when the number of drafts held at the gate changes. */
-  onQueueChange?: (held: number) => void;
+  /** The visitor clicked the gate ring itself. */
+  onGateClick?: () => void;
   ref?: Ref<LoopSceneHandle>;
 }
 
 const FADE = "opacity 600ms cubic-bezier(0.22, 1, 0.36, 1)";
 
+const toScene = (items: LoopItem[]): SceneItem[] =>
+  items.map(({ id, category, priority, version }) => ({ id, category, priority, version }));
+
 /**
- * "The approval loop": drafts travel a loop and queue at a gate until a human
- * approves them. Renders a static SVG first; three.js loads after the page's
- * load event and an idle callback, then cross-fades in.
+ * "The approval loop": tasks wait on a ring for a person to say yes at the
+ * gate. The queue itself is owned by the caller (HeroStage); this draws it.
+ * Renders a static SVG first; three.js loads after the page's load event and
+ * an idle callback, then cross-fades in, and only then does the DOM layer
+ * (hover, tap and keyboard on each card) appear, because until then there is
+ * no live card for it to sit on.
  */
-export function LoopScene({
-  progress = 0,
-  interactive = true,
-  className,
-  style,
-  onApprove,
-  onQueueChange,
-  ref,
-}: LoopSceneProps) {
+export function LoopScene({ items, progress = 0, interactive = true, className, style, onGateClick, ref }: LoopSceneProps) {
   const hostRef = useRef<HTMLDivElement>(null);
   const ctlRef = useRef<LoopSceneController | null>(null);
-  const liveRef = useRef(false);
+  const overlayRef = useRef<LoopOverlayHandle>(null);
+  const snapRef = useRef<SceneSnapshot | null>(null);
   const progressRef = useRef(progress);
   const interactiveRef = useRef(interactive);
   const visibleRef = useRef(true);
-  const countRef = useRef(0);
+  const itemsRef = useRef(items);
+  const gateRef = useRef(onGateClick);
+  const prevCount = useRef(items.length);
   const litTimer = useRef(0);
-  const callbacks = useRef({ onApprove, onQueueChange });
   const [live, setLive] = useState(false);
-  const [fallbackLit, setFallbackLit] = useState(false);
+  const [lit, setLit] = useState(false);
+  const [highlight, setHighlight] = useState<string | null>(null);
 
   useEffect(() => {
-    callbacks.current = { onApprove, onQueueChange };
+    gateRef.current = onGateClick;
   });
-
-  const approve = useCallback(() => {
-    const ctl = ctlRef.current;
-    let approved = true;
-    if (ctl && liveRef.current) {
-      approved = ctl.approve();
-    } else {
-      // Static drawing: light its gate briefly.
-      setFallbackLit(true);
-      window.clearTimeout(litTimer.current);
-      litTimer.current = window.setTimeout(() => setFallbackLit(false), 900);
-    }
-    if (approved) {
-      countRef.current += 1;
-      callbacks.current.onApprove?.(countRef.current);
-    }
-  }, []);
 
   useImperativeHandle(
     ref,
     () => ({
-      approve,
-      pulse: approve,
       setProgress: (p: number) => {
         progressRef.current = p;
         ctlRef.current?.setProgress(p);
       },
     }),
-    [approve],
+    [],
   );
 
   useEffect(() => {
@@ -105,14 +82,35 @@ export function LoopScene({
   }, [interactive]);
 
   useEffect(() => {
+    itemsRef.current = items;
+    ctlRef.current?.setItems(toScene(items));
+    // The static drawing has no motion to show an approval with, so its gate
+    // lights for a moment instead (no WebGL, or before three.js has loaded).
+    if (items.length < prevCount.current && !ctlRef.current) {
+      setLit(true);
+      window.clearTimeout(litTimer.current);
+      litTimer.current = window.setTimeout(() => setLit(false), 900);
+    }
+    prevCount.current = items.length;
+  }, [items]);
+
+  useEffect(() => {
+    ctlRef.current?.setHighlight(highlight);
+  }, [highlight]);
+
+  // The overlay mounts with `live`; give it the last frame straight away, since
+  // a still scene (reduced motion) may not render another for a while.
+  useEffect(() => {
+    if (live && snapRef.current) overlayRef.current?.update(snapRef.current);
+  }, [live]);
+
+  useEffect(() => {
     const host = hostRef.current;
     if (!host) return;
     let disposed = false;
     let idleId = 0;
     let timeoutId = 0;
     const reduceMq = window.matchMedia("(prefers-reduced-motion: reduce)");
-
-    callbacks.current.onQueueChange?.(QUEUE_START);
 
     const boot = () => {
       import("./loopSceneCore")
@@ -124,17 +122,19 @@ export function LoopScene({
             progress: progressRef.current,
             visible: visibleRef.current,
             interactive: interactiveRef.current,
+            items: toScene(itemsRef.current),
             onReady: () => {
               if (disposed) return;
-              liveRef.current = true;
               setLive(true);
             },
             onLost: () => {
-              liveRef.current = false;
               if (!disposed) setLive(false);
             },
-            onRequestApprove: approve,
-            onQueueChange: (held) => callbacks.current.onQueueChange?.(held),
+            onGateClick: () => gateRef.current?.(),
+            onFrame: (snap) => {
+              snapRef.current = snap;
+              overlayRef.current?.update(snap);
+            },
           });
           ctlRef.current = ctl;
         })
@@ -155,7 +155,6 @@ export function LoopScene({
 
     const onReduce = () => ctlRef.current?.setReducedMotion(reduceMq.matches);
     reduceMq.addEventListener("change", onReduce);
-    window.addEventListener(APPROVE_EVENT, approve);
 
     const io = new IntersectionObserver(
       (entries) => {
@@ -174,22 +173,24 @@ export function LoopScene({
       window.clearTimeout(timeoutId);
       window.clearTimeout(litTimer.current);
       reduceMq.removeEventListener("change", onReduce);
-      window.removeEventListener(APPROVE_EVENT, approve);
       io.disconnect();
       ctlRef.current?.dispose();
       ctlRef.current = null;
-      liveRef.current = false;
     };
-  }, [approve]);
+  }, []);
 
   return (
-    <div className={cn("relative isolate overflow-hidden", className)} style={style} aria-hidden="true">
-      <LoopFallback
-        lit={fallbackLit}
-        className="pointer-events-none absolute inset-0 h-full w-full"
-        style={{ opacity: live ? 0 : 1, transition: FADE }}
-      />
-      <div ref={hostRef} className="absolute inset-0" style={{ opacity: live ? 1 : 0, transition: FADE }} />
+    <div className={cn("relative isolate", className)} style={style}>
+      <div aria-hidden="true" className="absolute inset-0 overflow-hidden">
+        <LoopFallback
+          categories={items.map((i) => i.category)}
+          lit={lit}
+          className="pointer-events-none absolute inset-0 h-full w-full"
+          style={{ opacity: live ? 0 : 1, transition: FADE }}
+        />
+        <div ref={hostRef} className="absolute inset-0" style={{ opacity: live ? 1 : 0, transition: FADE }} />
+      </div>
+      {live ? <LoopOverlay ref={overlayRef} items={items} onHighlight={setHighlight} /> : null}
     </div>
   );
 }

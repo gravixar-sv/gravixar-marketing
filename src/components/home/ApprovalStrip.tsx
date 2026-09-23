@@ -1,213 +1,533 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { LOOP_STEPS } from "./hero/loopSteps";
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { PriorityBars } from "@/components/three/LoopOverlay";
+import { PRIORITIES, draftSegments, optionLabel, taskDef, type DraftSegment } from "./hero/approvalTasks";
+import { learningLine, summaryLine, type QueueState } from "./hero/approvalQueue";
+import { CATEGORIES } from "./hero/taskPalette";
 import styles from "./ApprovalStrip.module.css";
 
-// The approval card on the homepage fold: the thesis ("asks before it acts")
-// as something you can do, not something you are told. It sits on the lower
-// left edge of the 3D loop and is wired to it both ways (see HeroStage.tsx):
-// Approve here releases the lead draft at the scene's gate, and approving at
-// the gate in the scene flips this card.
+// The approval panel on the homepage fold: the task waiting at the 3D loop's
+// gate, in four steps, and the decision a person makes about it. It is the
+// thesis ("asks before it acts") as something you can do. HeroStage owns the
+// queue (hero/approvalQueue.ts); this panel and the scene both read it, so
+// they can never disagree about what is waiting.
 //
-// Step titles come from ./hero/loopSteps.ts, the same module Loop.tsx prints,
-// so the fold and "how it works" cannot drift into saying different things
-// about the same mechanism. The card prints TITLES ONLY: the Loop section one
-// scroll below is the one place the three explanatory sentences appear.
+//   01 The task         name, category, priority
+//   02 The AI drafts    the draft types out; a rewrite marks what changed
+//   03 A person decides Approve, or Send back for revision (three options
+//                       for that task, each editing one named part)
+//   04 It goes out      nothing, until someone says yes; then where it went
 //
-// BELOW lg, THE DECISION ONLY. On a phone the card sits about 300px above the
-// Loop section, so its three step titles were the loop's second telling in
-// one and a half screens (the 3D scene is the first, the Loop the third).
-// Under lg the card keeps the header, the held chip, the Approve control and
-// the footnote; step 03, the titles, the numerals and the gutter rail carry
-// .wideOnly, and the step grid collapses to one column (both in
-// ApprovalStrip.module.css). Not Tailwind's max-lg:hidden: .step sets its
-// display in this unlayered module, which outranks any layered utility, so
-// a hidden step would have stayed in the flow as an empty grid. From lg, where the card sits beside the scene
-// and the Loop is a scroll away, all three steps print as before. One DOM at
-// every width, so the chip's flip and the live region are never duplicated.
+// BASE VISIBILITY. The server renders the first task complete: its draft is
+// already written, nothing is typed on load. Typing only ever happens for a
+// draft that arrives after the visitor has acted, and the untyped letters are
+// in the DOM at opacity 0, so the text is always whole for a screen reader
+// and the box never changes height mid-sentence.
 //
-// BASE VISIBILITY, the rule this component is most likely to break. Every
-// step, the chip and the control are server-rendered at full emphasis.
-// Hydration adds exactly one thing, data-armed, which lets step 3 wait by
-// OPACITY alone until someone approves. Nothing is revealed by a click, so
-// with scripting off, a failed hydration or a frozen tab the card still reads
-// as a correct and complete description of the loop.
-//
-// The count ("3 drafts waiting") comes from the scene's queue while nothing
-// is approved. Once someone approves, the same slot shows the static result,
-// "1 sent", until they run it again: the scene keeps delivering new drafts to
-// the gate, and a count that climbs back to 5 under "Approved" read as the
-// click having done nothing. Neither is a live region: the queue would be
-// noise, and the approval itself is announced once, below.
+// No em dashes, first person, plain words: the drafts are written in
+// hero/approvalTasks.ts, and every label here is a word an owner would say.
 
 type Props = {
-  approved: boolean;
-  /** Drafts held at the gate, from the scene. */
-  held: number;
+  state: QueueState;
+  reduced: boolean;
   onApprove: () => void;
-  onReset: () => void;
+  onRevise: () => void;
+  onCancel: () => void;
+  onChoose: (option: string) => void;
+  onRefill: () => void;
   className?: string;
 };
 
-// A plain joiner, not cn(): tailwind-merge (unconfigured) reads the custom
-// size utilities (text-caption, text-label-sm) as colours and drops them when
-// a text colour follows in the same call.
-const cx = (...parts: (string | false | undefined)[]) => parts.filter(Boolean).join(" ");
+// A plain joiner, not cn(): keeps the custom size utilities next to colours.
+const cx = (...parts: (string | false | undefined | null)[]) => parts.filter(Boolean).join(" ");
 
-function waitingLabel(held: number) {
-  if (held <= 0) return "nothing waiting";
-  if (held === 1) return "1 draft waiting";
-  return `${held} drafts waiting`;
+/** Letters per second. A two-line draft lands in about a second. */
+const CPS = 110;
+
+function useTypewriter(total: number, from: number, key: string, animate: boolean): number {
+  const [run, setRun] = useState({ key, count: total });
+  let count = run.count;
+  if (run.key !== key) {
+    // A new draft: start where it starts in this same render, so the whole
+    // text never flashes up before the typing begins.
+    count = animate ? Math.min(from, total) : total;
+    setRun({ key, count });
+  }
+  useEffect(() => {
+    const base = Math.min(from, total);
+    if (!animate || base >= total) {
+      setRun((r) => (r.key === key && r.count === total ? r : { key, count: total }));
+      return;
+    }
+    const start = performance.now();
+    let raf = 0;
+    const tick = (now: number) => {
+      const c = Math.min(total, base + Math.floor(((now - start) / 1000) * CPS));
+      setRun((r) => (r.key === key && r.count === c ? r : { key, count: c }));
+      if (c < total) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    // A frozen or throttled tab runs no frames: finish on a timer anyway, so a
+    // draft can never be left half written.
+    const done = window.setTimeout(
+      () => setRun({ key, count: total }),
+      ((total - base) / CPS) * 1000 + 600,
+    );
+    return () => {
+      cancelAnimationFrame(raf);
+      window.clearTimeout(done);
+    };
+  }, [key, animate, total, from]);
+  return count;
 }
 
-export function ApprovalStrip({ approved, held, onApprove, onReset, className }: Props) {
-  const [armed, setArmed] = useState(false);
-  const [live, setLive] = useState(false);
-  const approveRef = useRef<HTMLButtonElement>(null);
+function Typed({ segments, count, typing }: { segments: DraftSegment[]; count: number; typing: boolean }) {
+  const out: ReactNode[] = [];
+  let offset = 0;
+  let caretPlaced = false;
+  segments.forEach((seg, i) => {
+    const shown = Math.max(0, Math.min(seg.text.length, count - offset));
+    const head = seg.text.slice(0, shown);
+    const tail = seg.text.slice(shown);
+    if (head) {
+      out.push(
+        seg.changed ? (
+          <mark key={`h${i}`} className={styles.mark}>
+            {head}
+          </mark>
+        ) : (
+          <span key={`h${i}`}>{head}</span>
+        ),
+      );
+    }
+    if (typing && !caretPlaced && tail) {
+      out.push(<span key="caret" aria-hidden="true" className={styles.caret} />);
+      caretPlaced = true;
+    }
+    if (tail) {
+      out.push(
+        <span key={`t${i}`} className={styles.ghost}>
+          {tail}
+        </span>,
+      );
+    }
+    offset += seg.text.length;
+  });
+  return <>{out}</>;
+}
 
-  // Not a content gate. It buys the right to de-emphasise the step that has
-  // not happened yet, which only means something once the click that
-  // completes it can actually happen.
+function Check({ className }: { className?: string }) {
+  return (
+    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true" className={className}>
+      <path d="M3 8.5l3.2 3L13 4.5" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+/**
+ * Something that arrives in the panel (the next task, a rewrite's version
+ * line, where an approval went) animates when it MOUNTS, and only if the
+ * panel was already live when it did. Callers key it by what it shows, so a
+ * new task is a new mount. Not a CSS animation gated on data-armed: that
+ * starts on every element already on the page the moment the attribute
+ * flips, which re-faded the first task a beat after hydration, and on a slow
+ * phone after it had already been read.
+ */
+function Swap({
+  armed,
+  reduced,
+  as: Tag = "p",
+  from = "0 5px",
+  className,
+  children,
+}: {
+  armed: boolean;
+  reduced: boolean;
+  as?: "p" | "span";
+  /** Where it travels from, as a `translate` value. */
+  from?: string;
+  className?: string;
+  children: ReactNode;
+}) {
+  const node = useRef<HTMLElement | null>(null);
+  const liveAtMount = useRef(armed);
+  const motion = useRef({ reduced, from });
+  // Mount only, by design: the values it reads are the ones it mounted with.
+  useLayoutEffect(() => {
+    const el = node.current;
+    if (!el || !liveAtMount.current) return;
+    const { reduced: still, from: start } = motion.current;
+    el.animate(
+      still ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 0, translate: start }, { opacity: 1, translate: "0 0" }],
+      { duration: still ? 150 : 260, easing: still ? "linear" : "cubic-bezier(0.16, 1, 0.3, 1)" },
+    );
+  }, []);
+  return (
+    <Tag
+      ref={(el: HTMLElement | null) => {
+        node.current = el;
+      }}
+      className={className}
+    >
+      {children}
+    </Tag>
+  );
+}
+
+/** "6 waiting", the new figure rolling up out of a clip when it changes. */
+function Waiting({ n, armed, reduced }: { n: number; armed: boolean; reduced: boolean }) {
+  return (
+    <p className="font-mono text-label-sm tabular-nums text-ink-400">
+      <span className={styles.count}>
+        <Swap key={n} as="span" armed={armed} reduced={reduced} from="0 70%">
+          {n}
+        </Swap>
+      </span>{" "}
+      waiting
+    </p>
+  );
+}
+
+function Step({
+  n,
+  title,
+  aside,
+  wire,
+  children,
+}: {
+  n: string;
+  title: string;
+  /** Metadata that rides the title row on the right (chips, the version),
+   *  wrapping under the title when it does not fit. */
+  aside?: ReactNode;
+  /** The rail below this step, when the step has one. */
+  wire?: "plain" | "coral";
+  children: ReactNode;
+}) {
+  return (
+    <li className={styles.step}>
+      {wire ? <span aria-hidden="true" className={cx(styles.rail, wire === "coral" && styles.wire)} /> : null}
+      <span aria-hidden="true" className={cx(styles.num, "pt-px text-caption font-medium")}>
+        {n}
+      </span>
+      <div className="min-w-0">
+        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+          <p className="text-caption text-ink-400">{title}</p>
+          {aside}
+        </div>
+        <div className="mt-1">{children}</div>
+      </div>
+    </li>
+  );
+}
+
+export function ApprovalStrip({ state, reduced, onApprove, onRevise, onCancel, onChoose, onRefill, className }: Props) {
+  const { phase } = state;
+  const rootRef = useRef<HTMLDivElement>(null);
+  const approveRef = useRef<HTMLButtonElement>(null);
+  const reviseRef = useRef<HTMLButtonElement>(null);
+  const firstOptionRef = useRef<HTMLButtonElement>(null);
+  const refillRef = useRef<HTMLButtonElement>(null);
+  const [armed, setArmed] = useState(false);
+  const lastFocus = useRef(state.focus);
+  if (state.focus) lastFocus.current = state.focus;
+
+  // Transitions and the idle nudge only once hydrated: the server paints the
+  // finished resting state.
   useEffect(() => setArmed(true), []);
 
-  // Transitions switch on in the SAME render as the first approval, whether
-  // the click came from this card or from the gate in the scene. A transition
-  // uses the after-change style's timing, so flipping data-live and
-  // data-approved together still animates; setting live in an effect would
-  // land one render late and the first approval from the scene would snap.
-  if (approved && !live) setLive(true);
+  const task = lastFocus.current ? state.tasks[lastFocus.current] : undefined;
+  const def = task ? taskDef(task.key) : undefined;
+  const segments = def && task ? draftSegments(def, task) : [];
+  const total = segments.reduce((n, s) => n + s.text.length, 0);
+
+  // Typing. A task arriving at the gate types from the start; a rewrite types
+  // in from where its changed part begins. Nothing types on first load.
+  const rewriting = phase === "returned";
+  let from = 0;
+  if (rewriting) {
+    let offset = 0;
+    for (const seg of segments) {
+      if (seg.changed) {
+        from = offset;
+        break;
+      }
+      offset += seg.text.length;
+      from = total;
+    }
+  }
+  const key = rewriting ? `r${state.rewrite}` : `s${state.seq}:${lastFocus.current}`;
+  const animate = !reduced && (rewriting || state.seq > 0);
+  const count = useTypewriter(total, from, key, animate);
+  const typing = count < total;
+
+  // The nudge: three seconds after the draft is written, if nobody has
+  // decided, Approve starts to pulse, gently, until someone does.
+  const [nudge, setNudge] = useState(false);
+  useEffect(() => {
+    setNudge(false);
+    if (phase !== "review" || typing || reduced || !armed) return;
+    const id = window.setTimeout(() => setNudge(true), 3000);
+    return () => window.clearTimeout(id);
+  }, [phase, typing, reduced, armed, state.seq]);
+
+  // Keep the keyboard where the visitor is: into the options when they open,
+  // back to the button that opened them, onto "Bring in new tasks" when the
+  // queue empties under their focus, and back to Approve when tasks return.
+  // Only when focus was inside this panel as the change rendered (the control
+  // that had it may have just gone inert), and never with a scroll: a refill
+  // on its timer must not pull a reader back up from further down the page.
+  const prevPhase = useRef(phase);
+  const focusedAtRender = useRef<Element | null>(null);
+  focusedAtRender.current = typeof document === "undefined" ? null : document.activeElement;
+  useEffect(() => {
+    const was = prevPhase.current;
+    prevPhase.current = phase;
+    if (was === phase) return;
+    const root = rootRef.current;
+    if (!root || !focusedAtRender.current || !root.contains(focusedAtRender.current)) return;
+    const go = (el: HTMLElement | null) => el?.focus({ preventScroll: true });
+    if (phase === "choosing") go(firstOptionRef.current);
+    else if (was === "choosing" && phase === "review") go(reviseRef.current);
+    else if (was === "choosing" && phase === "returned") go(approveRef.current);
+    else if (phase === "clear") go(refillRef.current);
+    else if (was === "clear" && phase === "review") go(approveRef.current);
+  }, [phase]);
+
+  const clear = phase === "clear";
+  const decided = phase === "sent";
+  const held = phase === "sent" || phase === "returned";
+  const choosing = phase === "choosing";
+
+  let announce = "";
+  if (phase === "sent" && def) announce = `Approved. ${def.done.text}${def.done.target ? ` ${def.done.target}` : ""}.`;
+  else if (phase === "returned" && task) announce = `Sent back. Version ${task.version} goes to the back of the queue.`;
+  else if (phase === "review" && def && state.seq > 0)
+    announce = `At the gate: ${def.name}. ${CATEGORIES[def.category].long}, ${PRIORITIES[def.priority].label.toLowerCase()} priority.`;
+  else if (clear) announce = `All clear. ${summaryLine(state.stats)}`;
+
+  const version =
+    task && task.version > 1 && task.reason ? (
+      <>
+        <span className="text-ink-200">V{task.version}</span> · you asked: {task.reason}
+      </>
+    ) : (
+      <>
+        <span className="text-ink-200">V1</span> · first draft
+      </>
+    );
 
   return (
     <div
+      ref={rootRef}
       role="group"
       aria-labelledby="approval-card-title"
       data-armed={armed || undefined}
-      data-live={live || undefined}
-      data-approved={approved || undefined}
+      data-phase={phase}
+      data-nudge={nudge || undefined}
       className={cx(styles.card, "panel-lit rounded-2xl p-5 sm:p-6 lg:p-5", className)}
     >
       <div className="flex items-baseline justify-between gap-4">
         <p id="approval-card-title" className="text-caption font-medium text-ink-200">
           The approval loop
         </p>
-        <p className="font-mono text-label-sm tabular-nums text-ink-400">
-          {approved ? "1 sent" : waitingLabel(held)}
-        </p>
+        <Waiting n={state.order.length} armed={armed} reduced={reduced} />
       </div>
 
-      <ol className="mt-5 space-y-3.5 lg:space-y-4">
-        {LOOP_STEPS.map((step, i) => (
-          <li key={step.key} className={cx(styles.step, i === 2 && styles.wake, i === 2 && styles.wideOnly)}>
-            {i < 2 ? (
-              <span aria-hidden className={cx(styles.rail, i === 1 && styles.wire, styles.wideOnly)} />
-            ) : null}
-            {/* Decorative: the ordered list carries the sequence. */}
-            <span
-              aria-hidden
+      <div className={styles.body}>
+        <ol className={styles.steps} inert={clear || undefined} aria-hidden={clear || undefined}>
+          {def && task ? (
+            <>
+              <Step
+                n="01"
+                title="The task"
+                wire="plain"
+                aside={
+                  <Swap key={task.id} armed={armed} reduced={reduced} className="flex flex-wrap items-center gap-1.5">
+                    <span className={styles.chip}>
+                      <span aria-hidden="true" className={styles.dot} style={{ background: CATEGORIES[def.category].hex }} />
+                      {CATEGORIES[def.category].label}
+                    </span>
+                    <span className={styles.chip}>
+                      <PriorityBars level={PRIORITIES[def.priority].level} className="text-ink-200" />
+                      {PRIORITIES[def.priority].label}
+                      <span className="sr-only"> priority</span>
+                    </span>
+                  </Swap>
+                }
+              >
+                <Swap
+                  key={task.id}
+                  armed={armed}
+                  reduced={reduced}
+                  className="text-[0.9375rem] font-medium leading-snug text-ink-50"
+                >
+                  {def.name}
+                </Swap>
+              </Step>
+
+              <Step
+                n="02"
+                title="The AI drafts"
+                wire="plain"
+                aside={
+                  <Swap
+                    key={`${task.id}:${task.version}`}
+                    armed={armed}
+                    reduced={reduced}
+                    className={cx(styles.version, "font-mono text-label-sm text-ink-400")}
+                  >
+                    {version}
+                  </Swap>
+                }
+              >
+                <div className={styles.draft}>
+                  <p className="text-[0.875rem] leading-[1.45rem] text-ink-200">
+                    <Typed segments={segments} count={count} typing={typing} />
+                  </p>
+                </div>
+              </Step>
+
+              <Step n="03" title="A person decides" wire={decided ? "coral" : "plain"}>
+                <div className={styles.swap} data-open={choosing || undefined}>
+                  <div className={styles.pane} inert={choosing || undefined}>
+                    <div className={styles.paneInner}>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <button
+                          ref={approveRef}
+                          type="button"
+                          onClick={onApprove}
+                          aria-disabled={held || undefined}
+                          className={cx(
+                            styles.approve,
+                            "inline-flex h-11 items-center justify-center whitespace-nowrap rounded-lg px-4 text-[0.875rem] font-medium pointer-fine:h-9 pointer-fine:px-3.5",
+                          )}
+                        >
+                          <span className={styles.labels}>
+                            {/* Both labels stay in the DOM so the button never
+                                changes width; only the one showing is exposed. */}
+                            <span aria-hidden={decided || undefined} className={styles.idle}>
+                              Approve
+                            </span>
+                            <span aria-hidden={!decided || undefined} className={styles.done}>
+                              <Check />
+                              Approved
+                            </span>
+                          </span>
+                        </button>
+                        <button
+                          ref={reviseRef}
+                          type="button"
+                          onClick={onRevise}
+                          aria-disabled={held || undefined}
+                          aria-expanded={choosing}
+                          className={cx(
+                            styles.revise,
+                            "inline-flex h-11 items-center justify-center whitespace-nowrap rounded-lg px-3.5 text-[0.875rem] font-medium pointer-fine:h-9",
+                          )}
+                        >
+                          Send back for revision
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <div className={styles.pane} inert={!choosing || undefined}>
+                    <div className={styles.paneInner}>
+                      <p className="text-caption text-ink-200">What should change?</p>
+                      <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                        {def.options.map((opt, i) => (
+                          <button
+                            key={opt.id}
+                            ref={i === 0 ? firstOptionRef : undefined}
+                            type="button"
+                            onClick={() => onChoose(opt.id)}
+                            className={cx(
+                              styles.option,
+                              "inline-flex h-11 items-center rounded-lg px-3 text-[0.8125rem] pointer-fine:h-8",
+                            )}
+                          >
+                            {optionLabel(opt, task)}
+                          </button>
+                        ))}
+                        <button
+                          type="button"
+                          onClick={onCancel}
+                          className="inline-flex h-11 items-center px-2 text-[0.8125rem] text-ink-400 transition-colors hover:text-ink-100 pointer-fine:h-8"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </Step>
+
+              <Step n="04" title="It goes out">
+                <div className={styles.outcome}>
+                  {phase === "sent" ? (
+                    <Swap
+                      key={`sent-${task.id}`}
+                      armed={armed}
+                      reduced={reduced}
+                      className="flex items-baseline gap-2 text-[0.875rem] text-ink-100"
+                    >
+                      <Check className="translate-y-[1px] shrink-0 text-brand" />
+                      <span className="min-w-0">
+                        {def.done.text}
+                        {def.done.target ? (
+                          <>
+                            {" "}
+                            <span className="break-all font-mono text-[0.8125rem] text-ink-50">{def.done.target}</span>
+                          </>
+                        ) : null}
+                      </span>
+                    </Swap>
+                  ) : phase === "returned" ? (
+                    <Swap
+                      key={`back-${task.id}-${task.version}`}
+                      armed={armed}
+                      reduced={reduced}
+                      className="text-[0.875rem] text-ink-300"
+                    >
+                      Nothing went out. V{task.version} goes to the back of the queue.
+                    </Swap>
+                  ) : (
+                    <p className="text-[0.875rem] text-ink-400">Nothing goes out until someone says yes.</p>
+                  )}
+                </div>
+              </Step>
+            </>
+          ) : null}
+        </ol>
+
+        {clear ? (
+          <div className={styles.clear}>
+            <p className="flex items-center gap-2 text-[1.0625rem] font-medium text-ink-50">
+              <Check className="text-brand" />
+              All clear
+            </p>
+            <p className="mt-2 text-[0.875rem] leading-relaxed text-ink-200">{summaryLine(state.stats)}</p>
+            <p className="mt-2 text-[0.875rem] leading-relaxed text-ink-400">{learningLine(state.stats)}</p>
+            <button
+              ref={refillRef}
+              type="button"
+              onClick={onRefill}
               className={cx(
-                styles.num,
-                i === 1 && styles.num2,
-                styles.wideOnly,
-                "pt-px text-caption font-medium",
+                styles.refill,
+                "mt-5 inline-flex h-11 items-center rounded-lg px-4 text-[0.875rem] font-medium pointer-fine:h-9",
               )}
             >
-              {String(i + 1).padStart(2, "0")}
-            </span>
-            <div className="min-w-0">
-              <p className={cx(styles.wideOnly, "text-[0.9375rem] font-medium leading-snug text-ink-50")}>{step.title}</p>
+              Bring in new tasks
+              <span aria-hidden="true" key={state.batch} className={styles.timer} />
+            </button>
+          </div>
+        ) : null}
+      </div>
 
-              {i === 0 ? (
-                <p
-                  className={cx(
-                    styles.chip,
-                    "inline-flex max-w-full items-center gap-2 rounded-md px-2 py-1 font-mono text-label-sm text-ink-400 lg:mt-2.5",
-                  )}
-                >
-                  <span aria-hidden className={styles.flip}>
-                    <span className={styles.held}>held</span>
-                    <span className={styles.sent}>sent</span>
-                  </span>
-                  <span className="sr-only">{approved ? "sent" : "held"}: </span>
-                  <span aria-hidden className="text-ink-600">
-                    ·
-                  </span>
-                  <span className="truncate">reply to a new inquiry</span>
-                </p>
-              ) : null}
-
-              {i === 1 ? (
-                <>
-                  {/* Fixed-height slot: both controls live on one line of a
-                      box whose height never changes, so the click only swaps
-                      things horizontally inside it. 44px for touch at every
-                      width (an iPad at 1024 is still a finger); the compact
-                      36px size is for a mouse or trackpad only. */}
-                  <div className="flex h-11 items-center gap-2 pointer-fine:h-9 lg:mt-3">
-                    <button
-                      ref={approveRef}
-                      type="button"
-                      onClick={() => {
-                        if (!approved) onApprove();
-                      }}
-                      // aria-disabled, not disabled: `disabled` would drop
-                      // focus off the control the visitor just pressed.
-                      aria-disabled={approved || undefined}
-                      className={cx(
-                        styles.approve,
-                        "inline-flex h-11 items-center justify-center whitespace-nowrap rounded-lg px-4 text-[0.875rem] font-medium pointer-fine:h-9 pointer-fine:px-3.5",
-                      )}
-                    >
-                      <span className={styles.labels}>
-                        {/* Both labels stay in the DOM so the button never changes
-                            width; only the one showing is exposed. */}
-                        <span aria-hidden={approved || undefined} className={styles.idle}>
-                          Approve the draft
-                        </span>
-                        <span aria-hidden={!approved || undefined} className={styles.done}>
-                          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden>
-                            <path
-                              d="M3 8.5l3.2 3L13 4.5"
-                              stroke="currentColor"
-                              strokeWidth="1.8"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            />
-                          </svg>
-                          Approved
-                        </span>
-                      </span>
-                    </button>
-
-                    {approved ? (
-                      <button
-                        type="button"
-                        // This button unmounts on reset, so focus goes back
-                        // to the control that starts the loop again.
-                        onClick={() => {
-                          onReset();
-                          approveRef.current?.focus();
-                        }}
-                        className="h-11 whitespace-nowrap px-2 text-caption text-ink-400 transition-colors hover:text-ink-100 pointer-fine:h-9"
-                      >
-                        Run it again
-                        <span className="sr-only"> from the draft</span>
-                      </button>
-                    ) : null}
-                  </div>
-
-                  {/* The outcome, in the same words the step uses. Empty and
-                      present on the server, so the region exists before it
-                      fills. */}
-                  <p className="sr-only" aria-live="polite">
-                    {approved ? "Draft approved. The rules get sharper, and the next draft follows them." : ""}
-                  </p>
-                </>
-              ) : null}
-            </div>
-          </li>
-        ))}
-      </ol>
+      <p className="sr-only" aria-live="polite">
+        {announce}
+      </p>
 
       <p className="mt-5 border-t border-line-soft pt-3.5 text-caption text-ink-500 lg:mt-4 lg:pt-3">
         Illustrative sample data, not a live system.

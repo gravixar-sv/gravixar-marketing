@@ -33,7 +33,8 @@ export const VIEW = {
   dolly: 0.93,
 } as const;
 
-export const CARD = { w: 0.44, h: 0.3, lift: 0.05 } as const;
+/** A task card, 18% larger than the anonymous drafts it replaced (0.44 x 0.3). */
+export const CARD = { w: 0.52, h: 0.354, lift: 0.05 } as const;
 
 /**
  * Camera elevation for a container aspect: a wide hero looks across the loop,
@@ -47,14 +48,12 @@ export function elevationFor(aspect: number): number {
 }
 export const GATE_RADIUS = 0.33;
 
-/** Minimum centre-to-centre spacing between cards along the path (world units). */
-export const SPACING_WORLD = 0.54;
-/** The lead held card stops with its centre this far before the gate. */
+/** The card at the gate stops with its centre this far before the ring. */
 export const STOP_WORLD = CARD.w / 2 + 0.1;
-/** Free-flow travel speed along the path (world units per second). */
-export const SPEED_WORLD = 0.34;
-/** Cards already waiting at the gate in the opening composition. */
-export const QUEUE_START = 3;
+/** The clear stretch after the gate, kept for departures (fraction of the loop). */
+export const EXIT_ZONE = 0.26;
+/** The widest spacing between queued cards (fraction of the loop). */
+export const GAP_MAX = 0.25;
 
 /** Looser "earlier drafts" of the rule, drawn faintly around the loop. */
 export const ECHOES = [
@@ -90,24 +89,18 @@ export const hash01 = (i: number) => {
 };
 
 /**
- * Opening composition, shared by the fallback and the live scene so the
- * cross-fade lines up. Arc positions ascend inside (GATE_U, GATE_U + 1):
- * index 0 is the freshly approved card just through the gate, the last
- * QUEUE_START are held in front of it, the rest are in flight between.
+ * Where queued card `k` of `n` sits, as an arc fraction in [0, 1). Slot 0
+ * stops just before the gate; the others are spaced back from it round the
+ * ring, evenly, leaving EXIT_ZONE clear after the gate. With fewer cards the
+ * spacing opens up, capped at GAP_MAX so the next card is never most of a lap
+ * away. Shared by the SVG still and the live scene so the cross-fade lines up.
+ * `perimeter` is in the card's own scale (the live scene passes perimeter / K).
  */
-export function initialLayout(n: number, perimeter: number, out: Float64Array): void {
-  const sp = SPACING_WORLD / perimeter;
-  const lead = GATE_U + 1 - STOP_WORLD / perimeter;
-  const q = Math.min(QUEUE_START, n - 1);
-  for (let k = 0; k < q; k++) out[n - 1 - k] = lead - k * sp;
-  const first = GATE_U + (STOP_WORLD + 0.16) / perimeter;
-  out[0] = first;
-  const tail = lead - (q - 1) * sp - sp * 1.9;
-  const free = n - 1 - q;
-  const gap = (tail - first) / (free + 1);
-  for (let k = 0; k < free; k++) {
-    out[1 + k] = first + (k + 1) * gap + (hash01(k + 3) - 0.5) * 0.24 * gap;
-  }
+export function queueSlot(k: number, n: number, perimeter: number): number {
+  const stop = GATE_U - STOP_WORLD / perimeter;
+  const gap = n > 1 ? Math.min((1 - EXIT_ZONE) / (n - 1), GAP_MAX) : 0;
+  const u = stop - k * gap;
+  return u - Math.floor(u);
 }
 
 /** Unit normal of the loop's plane after tilt (the cards' "up"). */

@@ -7,8 +7,9 @@ import { HeroStage } from "./hero/HeroStage";
 import styles from "./hero/Hero.module.css";
 
 // The fold. One claim, one sentence, one decision, and the mechanism shown
-// rather than described: the 3D approval loop on the right, with the card that
-// runs it breaking out of the stage's lower-left edge.
+// rather than described: the 3D approval loop on the right, six sample tasks
+// queued at its gate, with the panel that runs them hanging off the stage's
+// left edge (see hero/HeroStage.tsx).
 //
 // What left the fold on 2026-09-23, and why:
 //   - the mono service strip (it wrapped with dangling separators and repeated
