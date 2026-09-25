@@ -25,7 +25,9 @@ import { SITE } from "@/lib/seo";
 // swap at md, so there is one image and no JS.
 //
 // The dissolve starts at 90%, below every box's action buttons.
-const SRC = { w: 1600, h: 738 };
+// Every capture is a 1600x1000 CSS-pixel view of the scene (stored at 1.5x);
+// crop boxes in demos.ts are in these units.
+const SRC = { w: 1600, h: 1000 };
 const pct = (n: number) => `${(n * 100).toFixed(3)}%`;
 
 function cropVars(box: CropBox, key: "n" | "w"): Record<string, string> {
@@ -189,7 +191,8 @@ function SceneCard({
   const { href, address } = sceneLink(scene);
   // The rendered image is the frame width times (capture width / box width).
   // A narrow box is about a quarter of the capture, so on phones the image is
-  // about four frame-widths wide; the optimiser never upscales past 1600.
+  // about four frame-widths wide; the source is 2400px, so the optimiser has
+  // real pixels for it.
   const sizes = featured
     ? "(min-width: 1200px) 1460px, (min-width: 768px) 125vw, 400vw"
     : "(min-width: 1200px) 1090px, (min-width: 768px) 100vw, 400vw";

@@ -10,7 +10,9 @@
 // the demo's own card claims.
 //
 // Screenshots are real captures pulled from the live demo's /scenes/<slug>.png
-// into /public/scenes here, refreshed with the demo repo's `pnpm capture`.
+// into /public/scenes here, refreshed with the demo repo's `pnpm capture:scenes`
+// (which also writes public/scenes/geometry.json there: the measured workspace
+// frame and pane boxes every crop below is derived from).
 // Re-capture whenever the demo has a visual pass, or these cards quietly
 // advertise a version of the product that no longer exists.
 //
@@ -45,28 +47,27 @@ export type DemoScene = {
 };
 
 /**
- * A region of a scene capture, in the capture's own pixels (every capture is
- * 1600x738, see Demos.tsx). The frame on the card shows exactly this box, so
- * the crop IS the picture: pick the working board, never the scene's intro
- * copy (its eyebrow, headline and paragraph are the demo describing itself,
- * and as a picture of text they read as noise at card size).
+ * A region of a scene capture, in the capture's own CSS pixels (every capture
+ * is a 1600x1000 view, stored at 1.5x, see Demos.tsx). The frame on the card
+ * shows exactly this box, so the crop IS the picture: the scene's workspace
+ * (its app window), never the scene's intro copy above it.
  *
- * `wide` is used from md up, `narrow` on phones, where one column of the app
- * renders close to 1:1 and stays readable. Shapes are shared on purpose:
+ * Boxes come from the demo's measured geometry (public/scenes/geometry.json
+ * in gravixar-demo), not from eyeballing: each wraps the workspace frame or a
+ * pane, then grows 7% about its centre, because .shot-parallax scales the
+ * picture 1.06 inside the frame and would otherwise trim the app's own edge.
+ * `wide` is used from md up, `narrow` on phones. Shapes are shared on purpose:
  *   - the first scene is the featured card, and its wide box is the whole
- *     board (about 3.7:1), the three columns with their action buttons;
- *   - every other wide box is 780x320, so the 2x2 grid's frames on /demos
- *     line up;
- *   - every narrow box is 388x320. The homepage's follower rows use the
- *     narrow box at EVERY width (a 240px thumbnail beside each row), because
- *     one column at 0.6x still reads as an app where a whole board at 0.3x
- *     reads as noise.
+ *     board (3.7:1), all three panes with their action buttons;
+ *   - every other wide box is 2.4375:1 (the old 780x320), two panes of the
+ *     board, so the 2x2 grid's frames on /demos line up;
+ *   - every narrow box is 1.2125:1 (the old 388x320), one pane. The homepage's
+ *     follower rows use the narrow box at EVERY width.
  * Keep the Approve-style controls above about 85% of the box height: the
- * frame dissolves into the page over its last 10%.
- * No box may open on a sentence fragment. A box whose left edge lands inside
- * a line of the demo's own copy (Care Ledger's ARCHITECTURE strip, a panel's
- * mono subhead) reads as a broken product, so start at the line's first word.
- * Re-check each box by eye after every `pnpm capture` in the demo repo.
+ * frame dissolves into the page over its last 10%. Two captures are staged by
+ * the demo's capture script so their pane shows work rather than an idle
+ * panel: Studio Mix has run ECHO (a draft waiting for approval), Northbeam has
+ * generated the spring promo. Re-check each box by eye after a re-capture.
  */
 export type CropBox = { x: number; y: number; w: number; h: number };
 
@@ -82,8 +83,9 @@ export const DEMO_SCENES: DemoScene[] = [
     openLabel: "Open the OS",
     shot: "/scenes/lattice.png",
     crop: {
-      wide: { x: 196, y: 385, w: 1208, h: 330 },
-      narrow: { x: 200, y: 392, w: 388, h: 320 },
+      // The whole review board: client, PM and editor panes.
+      wide: { x: 64, y: 364, w: 1472, h: 398 },
+      narrow: { x: 101, y: 416, w: 492, h: 407 },
     },
   },
   {
@@ -97,11 +99,9 @@ export const DEMO_SCENES: DemoScene[] = [
     openLabel: "Open the console",
     shot: "/scenes/studio-mix.png",
     crop: {
-      // The output panel and the audit log, so the wide frame carries logged
-      // work instead of opening on the idle output panel alone. x 600, not
-      // 612: at 612 the panel's "NO RUN YET" subhead is cut to "UN YET".
-      wide: { x: 600, y: 418, w: 780, h: 320 },
-      narrow: { x: 172, y: 418, w: 388, h: 320 },
+      // Wide: the agents pane and ECHO's draft waiting for approval. Narrow: the draft with Approve & publish.
+      wide: { x: 82, y: 412, w: 1017, h: 417 },
+      narrow: { x: 485, y: 454, w: 610, h: 503 },
     },
   },
   {
@@ -115,8 +115,9 @@ export const DEMO_SCENES: DemoScene[] = [
     openLabel: "Open the cockpit",
     shot: "/scenes/cockpit.png",
     crop: {
-      wide: { x: 200, y: 346, w: 780, h: 320 },
-      narrow: { x: 605, y: 346, w: 388, h: 320 },
+      // Wide: inbox and today. Narrow: today, the draft waiting on Approve & send.
+      wide: { x: 84, y: 368, w: 997, h: 409 },
+      narrow: { x: 534, y: 416, w: 530, h: 437 },
     },
   },
   {
@@ -130,8 +131,9 @@ export const DEMO_SCENES: DemoScene[] = [
     openLabel: "Open the workspace",
     shot: "/scenes/northbeam.png",
     crop: {
-      wide: { x: 590, y: 395, w: 780, h: 320 },
-      narrow: { x: 1010, y: 395, w: 388, h: 320 },
+      // Wide: the briefs and the generated promo. Narrow: the promo itself.
+      wide: { x: 82, y: 367, w: 1038, h: 426 },
+      narrow: { x: 495, y: 414, w: 610, h: 503 },
     },
   },
   {
@@ -147,14 +149,9 @@ export const DEMO_SCENES: DemoScene[] = [
     openLabel: "Open the portal",
     shot: "/scenes/care-ledger.png",
     crop: {
-      // x 208 is the ARCHITECTURE strip's left edge, so both frames read it
-      // from its first words ("No PHI in the portal...") and show the
-      // Credentialing column. Any box that sits right of it opened on a
-      // fragment ("; patient records stay", "rtal moves money"). The capture
-      // is 738px tall and the strip covers y 408 to 478, so no 320px box can
-      // skip it: the lasting fix is a re-capture scrolled past the strip.
-      wide: { x: 208, y: 410, w: 780, h: 320 },
-      narrow: { x: 208, y: 410, w: 388, h: 320 },
+      // Wide: credentialing and the billing gate. Narrow: a provider's credential chips and Verify & credential.
+      wide: { x: 84, y: 384, w: 996, h: 409 },
+      narrow: { x: 100, y: 432, w: 530, h: 437 },
     },
   },
 ];
