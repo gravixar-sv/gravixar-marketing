@@ -13,13 +13,13 @@ import studioMixShot from "./shots/studio-mix-2x.png";
 // comment, {/* demo-shot */}, so the article decides where the picture sits
 // (see splitAtMarkers in ./body).
 //
-// THE PIXELS ARE LOCAL, AT 2x. The shared captures in /public/scenes are 1x
-// (1600x738), and a 388px phone crop of them rendered about 1.8x upscaled on a
-// 2x phone: card titles and the Approve buttons went soft. ./shots holds only
-// the region each figure shows, captured from the live demo at 1600x738 CSS
-// and deviceScaleFactor 2 (so every box below is in the same 1x coordinates
-// as demos.ts, doubled in the file), with the demo's pulsing hint ring parked
-// in its invisible phase to match the shared captures. A figure owns its boxes
+// THE PIXELS ARE LOCAL, AT 2x. The shared captures in /public/scenes are
+// 1.5x, and a phone crop of them rendered upscaled on a 2x phone: card titles
+// and the Approve buttons went soft. ./shots holds only the region each figure
+// shows, captured from the live demo at a 1600x1000 CSS view and
+// deviceScaleFactor 2 (so every box below is in 1x CSS pixels of that region,
+// doubled in the file), with the demo's pulsing hint ring parked in its
+// invisible phase. A figure owns its boxes
 // and its pixels together, so a re-capture of /public/scenes can never slide a
 // box off these files. The scene's name, brand and address still come from
 // demos.ts. Re-capture ./shots when the demo has a visual pass.
@@ -30,11 +30,9 @@ import studioMixShot from "./shots/studio-mix-2x.png";
 //
 // A figure with no wide box shows its phone crop at every width, capped near
 // the crop's own width so it is never stretched across the reading column.
-// Studio Mix is that case: its wide box was half the empty output pane ("No
-// run yet"), a picture of nothing on the page that argues a person approves.
-// The agents column alone (Echo: "Lands in review, never auto-published")
-// makes the point. When a capture with a draft waiting for approval exists,
-// give it a wide box again.
+// Studio Mix used to be that case (its output pane was empty); its capture is
+// now staged with ECHO's draft waiting for approval, so it has a wide box
+// again: the agents pane beside the draft and its Approve & publish.
 //
 // The frame is a link to the live scene. Hover brightens its edge and draws
 // the caption's underline; nothing lifts, so the column never shifts.
@@ -50,26 +48,27 @@ type Figure = {
 };
 
 const FIGURES: Record<string, Figure> = {
-  // Region x 200..1000, y 392..712 of the Lattice board: the client and
-  // project-manager columns, a review card with Approve and Request revision,
+  // Region x 117..1031, y 430..730 of the Lattice view: the client and
+  // project-manager panes, a review card with Approve and Request revision,
   // and a queue card with Approve & send to client. The article and the proof
   // list call it a portal, and to a non-technical owner "OS" reads as
   // operating system.
   "operations-infrastructure": {
     scene: "lattice",
     shot: latticeShot,
-    region: { w: 800, h: 320 },
-    narrow: { x: 0, y: 0, w: 388, h: 320 },
-    wide: { x: 0, y: 0, w: 800, h: 320 },
+    region: { w: 914, h: 300 },
+    narrow: { x: 0, y: 0, w: 460, h: 300 },
+    wide: { x: 0, y: 0, w: 914, h: 300 },
     label: "Click through the portal",
   },
-  // Region x 172..560, y 418..738 of Studio Mix: the agents column only (Echo
-  // with its Run button). See the note above.
+  // Region x 117..1065, y 474..944 of the staged Studio Mix view: the agents
+  // pane and ECHO's draft waiting on Approve & publish. Phones get the draft.
   "ai-tooling": {
     scene: "studio-mix",
     shot: studioMixShot,
-    region: { w: 388, h: 320 },
-    narrow: { x: 0, y: 0, w: 388, h: 320 },
+    region: { w: 948, h: 470 },
+    narrow: { x: 390, y: 0, w: 558, h: 470 },
+    wide: { x: 0, y: 0, w: 948, h: 470 },
   },
 };
 

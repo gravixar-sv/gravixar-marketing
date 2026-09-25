@@ -33,7 +33,7 @@ export function DemoShot({ scene, href }: { scene: DemoScene; href: string }) {
 
       <figure className="mt-10 hidden sm:block md:mt-12">
         <div className="frame-lit overflow-clip rounded-2xl">
-          <div className="dissolve relative aspect-[1600/738] overflow-clip">
+          <div className="dissolve relative aspect-[1600/1000] overflow-clip">
             <Image
               src={scene.shot}
               alt={`The ${scene.brand} demo on demo.gravixar.com, running on sample data`}
