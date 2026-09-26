@@ -48,10 +48,12 @@ export const REFUSALS: Record<RefusalReason, string> = {
   client_identity:
     "I do not name clients. The case studies describe each engagement as far as it has been cleared, and that is as specific as it gets from me.",
 
-  // MANDATE CLAUSE 9b. Contracts, terms, references, insurance. None of it is
-  // published, so any answer would be invented.
+  // MANDATE CLAUSE 9b. Contracts, terms, references, insurance. Since
+  // 2026-09-26 the Ops Leak Audit publishes how it is paid, its NDA and its
+  // credit against a build, so this points there rather than calling all of
+  // it unpublished. Everything else still is, so any answer would be invented.
   client_commercials:
-    `None of that is published, so I would be inventing it. Qamar can answer it properly, ${RESPONSE_CEILING} if you leave your details, or sooner on a call.`,
+    `The Ops Leak Audit's terms are on its page: how it is paid, the NDA, and when the fee comes off a build. Anything beyond that, like contracts, references or insurance, is not published, so I would be inventing it. Qamar can answer it properly, ${RESPONSE_CEILING} if you leave your details, or sooner on a call.`,
 
   // MANDATE CLAUSE 8. There is no identity layer on this site, so Bosun cannot
   // confirm or deny that anyone is a client, and must not try.
