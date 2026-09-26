@@ -24,6 +24,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { SERVICE_LABELS, SERVICE_OPTIONS } from "@/lib/services";
+import { sourceTag } from "@/lib/source-tag";
 import { Arrow, Button, buttonClass } from "@/components/ui/Button";
 import {
   FieldLabel,
@@ -382,6 +383,7 @@ export function BookCall() {
           startUtc: picked,
           service: service || undefined,
           note: note || undefined,
+          source: sourceTag("booking"),
           website,
         }),
       });

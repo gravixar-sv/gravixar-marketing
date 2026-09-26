@@ -28,7 +28,7 @@ export async function POST(req: Request) {
   if (!parsed.success) {
     return NextResponse.json({ error: "invalid_input" }, { status: 422 });
   }
-  const { name, email, code, token, startUtc, service, note, website } = parsed.data;
+  const { name, email, code, token, startUtc, service, note, source, website } = parsed.data;
   if (website) return NextResponse.json({ ok: true }); // honeypot
 
   // 0. Without the secret, verifyCode() cannot distinguish a real token from a
@@ -66,6 +66,7 @@ export async function POST(req: Request) {
     startUtc,
     service,
     note,
+    source,
     ip: req.headers.get("x-forwarded-for")?.split(",")[0]?.trim(),
   };
   // NOT best-effort. This used to be `.catch(() => null)` followed by an
@@ -143,6 +144,7 @@ export async function POST(req: Request) {
           `When:   ${whenPretty}`,
           `Service:${service ?? "not specified"}`,
           `Note:   ${note ?? "none"}`,
+          `Source: ${source ?? "booking"}`,
           `Meet:   ${link}`,
         ].join("\n"),
         attachments: icsAttachment,

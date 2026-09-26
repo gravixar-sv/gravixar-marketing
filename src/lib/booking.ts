@@ -248,6 +248,9 @@ export const confirmSchema = z.object({
   startUtc: z.string().datetime(),
   service: z.enum(SERVICE_OPTIONS).optional(),
   note: z.string().max(2000).optional(),
+  // The channel tag from src/lib/source-tag.ts ("booking:linkedin"), same cap
+  // as every lead schema.
+  source: z.string().max(80).optional(),
   website: z.string().max(0).optional(), // honeypot
 });
 
@@ -261,6 +264,10 @@ export type BookingRecord = {
   startUtc: string;
   service?: string;
   note?: string;
+  // Added 2026-09-26. Booked calls were the one lead kind with no channel, so
+  // a call that came from a LinkedIn post read the same as every other. HQ's
+  // sync still labels every booking "booking" until it reads this field.
+  source?: string;
   ip?: string;
   // Added 2026-09-02, ahead of any UI that sets it. Every row written from
   // now on carries a status, so when cancel or reschedule does ship it does
