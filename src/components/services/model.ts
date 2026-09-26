@@ -82,6 +82,23 @@ export function termsFor(meta: Service): Term[] {
   return pricing ? [{ label: "Price", value: pricing }] : [];
 }
 
+// How the price is paid, shown in the closing panel beside the form and not in
+// the header strip, which stays at three facts. Added 2026-09-26: the audit's
+// button asked for a start date while the page said nothing about paying.
+// Guarded like TERMS: a row whose figures the pricing line does not carry is
+// dropped rather than shown stale.
+const DEAL: Record<string, Term[]> = {
+  "ops-leak-audit": [
+    { label: "Payment", value: "Half to book, half after the readout, if it was useful" },
+    { label: "Credit", value: "The fee comes off a build started within 90 days" },
+  ],
+};
+
+export function dealFor(meta: Service): Term[] {
+  const published = new Set(digitRuns(meta.pricing ?? ""));
+  return (DEAL[meta.slug] ?? []).filter((t) => digitRuns(t.value).every((n) => published.has(n)));
+}
+
 /** The headline figure for the index's front door, e.g. "$3,500". */
 export function leadFigure(meta: Service): { figure: string; qualifier?: string } | null {
   const m = meta.pricing?.match(/^\$\d+(?:,\d{3})*/);

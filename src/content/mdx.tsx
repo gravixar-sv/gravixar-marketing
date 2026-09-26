@@ -13,6 +13,7 @@
 
 import { MDXRemote, type MDXRemoteProps } from "next-mdx-remote/rsc";
 import { Children, isValidElement, type ComponentProps, type ReactNode } from "react";
+import { LeakExample } from "@/components/services/LeakExample";
 
 // Heading anchors, so long pages can deep-link and carry a table of contents.
 function textOf(node: ReactNode): string {
@@ -191,6 +192,9 @@ export const mdxComponents = {
   td: TD,
   img: Img,
   Callout,
+  // The Ops Leak Audit's sample report excerpt. Invented figures, labelled as
+  // such, kept in code; see the component.
+  LeakExample,
 };
 
 export function MDX({ source }: { source: string }) {

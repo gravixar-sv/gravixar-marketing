@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Service } from "@/content/schema";
 import { ServiceInquiryForm } from "@/components/lead/ServiceInquiryForm";
 import { Reveal } from "@/components/site/Reveal";
-import { closingHeading, closingLine, messagePlaceholder, termsFor } from "./model";
+import { closingHeading, closingLine, dealFor, messagePlaceholder, termsFor } from "./model";
 
 // The decision point at the foot of every service page, and the target of the
 // header's primary button (#start). One heading, one sentence with one
@@ -10,7 +10,8 @@ import { closingHeading, closingLine, messagePlaceholder, termsFor } from "./mod
 // the quiet alternative. Lit from below: the light points forward.
 export function ServiceClosing({ meta, sourcePage }: { meta: Service; sourcePage: string }) {
   const terms = termsFor(meta);
-  const [price, ...rest] = terms;
+  const [price, ...scope] = terms;
+  const rest = [...scope, ...dealFor(meta)];
   const start = meta.track === "start";
   const placeholder = messagePlaceholder(meta);
 
