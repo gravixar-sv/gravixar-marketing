@@ -11,23 +11,29 @@ export const config: VercelConfig = {
     // SEO agent: drafts a blog post once a week, Tuesday 14:00 UTC.
     // Email notification fires; nothing publishes until I git-commit it.
     //
-    // Was Tuesday AND Friday until 2026-09-08. A second generator now runs
-    // on Friday, a scheduled Claude Code agent on the operator's machine
-    // that writes the draft with the whole repo and the brain in context,
-    // so it can check every figure against the case study or ledger it came
-    // from. Leaving both at full rate would push three drafts a week into a
-    // queue whose bottleneck was never generation: 8 posts published in June,
-    // 1 in August, with this cron producing throughout.
+    // Was Tuesday AND Friday until 2026-09-08. A second generator runs on
+    // the operator's machine: since 2026-09-19 the scheduled Claude Code
+    // task `gravixar-weekly-research-draft`, Mondays 13:00 PKT (08:00 UTC),
+    // which researches with sources, writes the Trend Brief, and drafts with
+    // the whole repo and the brain in context, so it can check every figure
+    // against the case study or ledger it came from. (It replaced a Friday
+    // task of the same kind.) Leaving both at full rate would push three
+    // drafts a week into a queue whose bottleneck was never generation: 8
+    // posts published in June, 1 in August, with this cron producing
+    // throughout.
     //
     // This one stays as the reliable floor rather than being retired. It runs
     // in the cloud whether or not any machine is switched on, and the failure
-    // this pipeline actually had was going silent for two months. The Friday
-    // agent is the better writer; this is the one that always turns up.
+    // this pipeline actually had was going silent for two months. The Monday
+    // routine is the better writer; this is the one that always turns up.
     { path: "/api/cron/seo-agent", schedule: "0 14 * * 2" },
-    // Trend Radar: biweekly market scan on the 1st and 15th at 10:00 UTC.
-    // Produces a ranked Trend Brief (3-5 signals) committed to Blob.
-    // Human triages each signal; nothing auto-acts.
-    { path: "/api/cron/trend-radar", schedule: "0 10 1,15 * *" },
+    // Trend Radar's schedule (1st and 15th, 10:00 UTC) was RETIRED on
+    // 2026-09-26: the Monday routine above writes a sourced Trend Brief
+    // every week to the same Blob path HQ reads, so this unsourced one on a
+    // small serverless model only competed with it. The route stays, because
+    // HQ's /content "Run now" button calls it on demand. Decision:
+    // trend-radar-cron-retired-weekly-routine-writes-the-brief (HQ brain).
+    //
     // Job indexing: daily ping to Google's Indexing API for open JobPosting
     // URLs (and removals for closed roles) so Google for Jobs picks up changes
     // fast. No-ops without GOOGLE_INDEXING_CREDENTIALS.
