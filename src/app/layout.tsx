@@ -7,6 +7,7 @@ import { Geist_Mono, Newsreader } from "next/font/google";
 import "@fontsource-variable/mona-sans/wdth.css";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { SourceCapture } from "@/components/site/SourceCapture";
 import { StructuredDataGlobal } from "@/components/site/StructuredData";
 import { SITE } from "@/lib/seo";
 import "@/styles/globals.css";
@@ -73,6 +74,7 @@ export default function RootLayout({
       </head>
       <body className="text-fg">
         {children}
+        <SourceCapture />
         <Analytics />
         <SpeedInsights />
       </body>

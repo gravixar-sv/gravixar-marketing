@@ -19,6 +19,7 @@
 // payload and does nothing until the visitor presses the button (clause 10).
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { sourceTag } from "@/lib/source-tag";
 
 type Turn = {
   role: "bosun" | "visitor";
@@ -355,6 +356,12 @@ function CaptureCard({
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [state, setState] = useState<"idle" | "sending" | "error">("idle");
+  // Stamped so HQ Inbox can tell a chat handoff from a form fill, with the
+  // visit's channel when it has one ("chat:bosun:linkedin"). The card only
+  // mounts after a click, so this never renders on the server. The channel is
+  // part of the payload, so it is shown with the rest of it below.
+  const source = sourceTag("chat:bosun");
+  const via = source.startsWith("chat:bosun:") ? source.slice("chat:bosun:".length) : null;
 
   // The existing service-inquiry endpoint requires 20 characters, and telling
   // someone that up front beats a rejection after they press send.
@@ -372,8 +379,7 @@ function CaptureCard({
           email: email.trim(),
           message: message.trim(),
           sourcePage,
-          // Stamped so HQ Inbox can tell a chat handoff from a form fill.
-          source: "chat:bosun",
+          source,
         }),
       });
       if (!res.ok) throw new Error("failed");
@@ -417,7 +423,8 @@ function CaptureCard({
         />
       </div>
       <p className="mt-2 font-mono text-[0.6875rem] leading-snug text-ink-500">
-        sending: name, email, your message, and this page ({sourcePage})
+        sending: name, email, your message, and this page ({sourcePage}
+        {via ? `, arrived via ${via}` : ""})
       </p>
       {state === "error" ? (
         <p className="mt-1 text-[0.75rem] text-danger">
