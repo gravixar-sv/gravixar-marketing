@@ -146,6 +146,11 @@ export const serviceBucket = z.enum(["operations", "ai", "brand", "audit"]);
 
 export const serviceSchema = z.object({
   title: z.string().min(3).max(80),
+  // Optional <title> for search results, for a service whose name is not what
+  // buyers type (the S217 keyword map: "custom client portal" for Operations
+  // Infrastructure). Only the browser tab and search results read it; the H1,
+  // the cards and every list keep `title`, so the site's naming never changes.
+  seoTitle: z.string().min(3).max(70).optional(),
   slug,
   bucket: serviceBucket,
   // Which tier of engagement this is. Four of them, because they are

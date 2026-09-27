@@ -74,7 +74,10 @@ export const PACK_EXCLUDED: Record<PackKind, readonly string[]> = {
   // sit on the menu for existing clients only is said once, in the overview
   // constant in gate.ts, where a reviewer reads it as a sentence rather than
   // Bosun reciting an enum value.
-  service: ["proof", "order", "updatedAt", "metaDescription", "audience"],
+  // seoTitle: the search-result label for a service whose name is not what
+  // buyers type (the HQ brain's S217 keyword map). Bosun names every service
+  // by its title, so a visitor never meets two names for the same offer.
+  service: ["proof", "order", "updatedAt", "metaDescription", "audience", "seoTitle"],
   compare: [
     "competitorUrl",
     "linkedCaseStudy",
