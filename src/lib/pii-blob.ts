@@ -17,7 +17,15 @@
 // throws instead. getVercelOidcToken reads the per-request header, so a
 // per-call fetch is never stale.
 
-import { get, list, put, type ListBlobResultBlob, type PutCommandOptions } from "@vercel/blob";
+import {
+  BlobNotFoundError,
+  get,
+  head,
+  list,
+  put,
+  type ListBlobResultBlob,
+  type PutCommandOptions,
+} from "@vercel/blob";
 import { getVercelOidcToken } from "@vercel/oidc";
 import { env } from "./env";
 
@@ -109,17 +117,35 @@ async function privateOptions(): Promise<{ access: "private" } & PiiAuth> {
 }
 
 /**
- * The private store as a ConditionalStore. Reads go to origin
- * (`useCache: false`): a CDN copy can trail the last write by up to a minute,
- * and an append built on it would be refused by the version check and retried
- * until the copy caught up.
+ * The private store as a ConditionalStore.
+ *
+ * The version tag comes from head(), NOT from get()'s response. On a month
+ * file past a few hundred bytes, the ETag get() returns does not match the one
+ * put()'s ifMatch compares against (the response is served in another
+ * encoding), so every append to a real month file was refused ten times and
+ * dropped. This shipped in #179 and a robonamix preview test caught it: the
+ * platform selftest had only appended to tiny files. head() reads the
+ * store's own metadata, which is what Vercel's conditional-write example uses.
+ *
+ * Order matters: the tag first, the body second. A write landing in between
+ * can only make the body NEWER than the tag, which makes the conditional put
+ * refuse and retry. The reverse order could pair an old body with a new tag
+ * and overwrite the line that landed. The body is read from origin
+ * (`useCache: false`), because a CDN copy can trail the last write.
  */
 const privateStore = (contentType: string): ConditionalStore => ({
   async read(pathname) {
+    let etag: string;
+    try {
+      etag = (await head(pathname, await privateOptions())).etag;
+    } catch (err) {
+      if (err instanceof BlobNotFoundError) return null;
+      throw err;
+    }
     const res = await get(pathname, { ...(await privateOptions()), useCache: false });
     if (!res) return null;
     if (res.statusCode !== 200) throw new Error(`private get ${pathname} -> ${res.statusCode}`);
-    return { text: await new Response(res.stream).text(), etag: res.blob.etag };
+    return { text: await new Response(res.stream).text(), etag };
   },
   async write(pathname, body, ifMatch) {
     const options: PutCommandOptions = {
