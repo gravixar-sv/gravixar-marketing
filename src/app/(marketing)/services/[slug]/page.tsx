@@ -36,7 +36,7 @@ export async function generateMetadata(
   const s = services.find((x) => x.meta.slug === slug);
   if (!s) return { title: "Not found" };
   return buildMetadata({
-    title: s.meta.title,
+    title: s.meta.seoTitle ?? s.meta.title,
     description: s.meta.metaDescription ?? s.meta.tagline,
     path: `/services/${slug}`,
   });
