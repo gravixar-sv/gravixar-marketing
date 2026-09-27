@@ -9,7 +9,14 @@ const schema = z.object({
   RESEND_API_KEY: z.string().optional(),
   RESEND_FROM_EMAIL: z.string().email().optional(),
   LEAD_NOTIFY_EMAIL: z.string().email().optional(),
+  // The PUBLIC store (careers snapshot, index-jobs state, trend briefs, SEO
+  // drafts, and the pre-move lead files HQ still reads). Never personal data.
   BLOB_READ_WRITE_TOKEN: z.string().optional(),
+  // The PRIVATE store every lead, booking, CV and chat miss is written to
+  // (src/lib/pii-blob.ts). Set by connecting the store to this project with
+  // the prefix PII_BLOB, Production and Preview. Reached over Vercel OIDC, so
+  // there is no token to set; without the id, those writes fail loudly.
+  PII_BLOB_STORE_ID: z.string().optional(),
   // Fine-grained GitHub PAT for the SEO agent (Phase 6.B4).
   // Scope: Contents Read + Write on gravixar-sv/gravixar-marketing.
   // When set, the agent commits drafts directly to

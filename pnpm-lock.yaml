@@ -37,7 +37,7 @@ importers:
         version: 5.2.8
       '@gravixar-sv/core':
         specifier: ^0.8.1
-        version: 0.8.1(@simplewebauthn/server@13.3.2)(@vercel/blob@2.5.0)(bcryptjs@3.0.3)(eslint-config-next@16.2.10(@typescript-eslint/parser@8.62.1(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3))(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3))(eslint@9.39.4(jiti@2.7.0))(next@16.3.4(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@types/node@24.13.2)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(otplib@13.4.1)(qrcode@1.5.4)(resend@6.16.0(@react-email/render@2.0.9(react-dom@19.2.7(react@19.2.7))(react@19.2.7)))
+        version: 0.8.1(@simplewebauthn/server@13.3.2)(@vercel/blob@2.8.0)(bcryptjs@3.0.3)(eslint-config-next@16.2.10(@typescript-eslint/parser@8.62.1(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3))(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3))(eslint@9.39.4(jiti@2.7.0))(next@16.3.4(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@types/node@24.13.2)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(otplib@13.4.1)(qrcode@1.5.4)(resend@6.16.0(@react-email/render@2.0.9(react-dom@19.2.7(react@19.2.7))(react@19.2.7)))
       '@mdx-js/react':
         specifier: ^3.1.1
         version: 3.1.1(@types/react@19.2.17)(react@19.2.7)
@@ -51,8 +51,11 @@ importers:
         specifier: ^2.0.1
         version: 2.0.1(next@16.3.4(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@types/node@24.13.2)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)
       '@vercel/blob':
-        specifier: ^2.5.0
-        version: 2.5.0
+        specifier: ^2.8.0
+        version: 2.8.0
+      '@vercel/oidc':
+        specifier: ^3.8.9
+        version: 3.8.9
       '@vercel/speed-insights':
         specifier: ^2.0.0
         version: 2.0.0(next@16.3.4(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@types/node@24.13.2)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)
@@ -1262,15 +1265,15 @@ packages:
       vue-router:
         optional: true
 
-  '@vercel/blob@2.5.0':
-    resolution: {integrity: sha512-ke6WnMMYlUu9nBFmyjwEkC2o03Ku2X7QIeJ3KtlOJzblS/8Xau209zt0ic76rd7IvV5nrKCH/BzP4MkFmoSLuw==}
+  '@vercel/blob@2.8.0':
+    resolution: {integrity: sha512-Nu+HWKpkgovCh/ezlG7wCVwF7RErTzLzZMbGKFBdGBCbTKyK+s5VXPLl+0+TpNEQPH8AVaGzOpIsXUOtkqylCQ==}
     engines: {node: '>=20.0.0'}
 
-  '@vercel/cli-config@0.2.0':
-    resolution: {integrity: sha512-fJRRRB7734BDuXZ89yBEaA2ncYhH7bWX30mk04W80J6VAfQc+4iB8lyzAdaGpFV3/vNlkt9VZt+/uoQoWX6UsQ==}
+  '@vercel/cli-config@0.3.0':
+    resolution: {integrity: sha512-kQLt5Pm8wKd7/imzDY9/9u0tf8OuRkAuXI+s7j057FSUrXapAmumJSKwDqnR4ZZqdWoUcNLlFAgVIAdiwcGTcw==}
 
-  '@vercel/cli-exec@1.0.0':
-    resolution: {integrity: sha512-kQF8LGie/Hbdq9/psJxLE7owRTcqMQMhgybU04gCeR7cbQAr5t8OrjefDNColJv1QSSucFt4pLwRiARVmlOnug==}
+  '@vercel/cli-exec@1.0.1':
+    resolution: {integrity: sha512-g9XerViJ/paZujufXYcu5XYI2vU2rtB4sgdpjUHde5RnOkdmpu0ngH46LCFGHoPXO/C+qDPSczIHIRN+8Q2YKQ==}
     engines: {node: '>= 18'}
 
   '@vercel/config@0.7.0':
@@ -1281,8 +1284,8 @@ packages:
     resolution: {integrity: sha512-UycprH3T6n3jH0k44NHMa7pnFHGu/N05MjojYr+Mc6I7obkoLIJujSWwin1pCvdy/eOxrI/l3uDLQsmcrOb4ug==}
     engines: {node: '>= 20'}
 
-  '@vercel/oidc@3.8.0':
-    resolution: {integrity: sha512-r00laGW6Pv778RoR6M2NxX91ycSj+PBwVo+fOb9Bif+F0IyUKt25zrvBzfEzQpeAzbqOgPZyQibEWDdDFApd+A==}
+  '@vercel/oidc@3.8.9':
+    resolution: {integrity: sha512-TcbdH3YtGS2KU98T99dN4sbf+E4vbJZsJTRN97wKQ7QWQ0BR7U02QX3KN4+5GHxBtKTj1c5CnvTTitc2ZRad0A==}
     engines: {node: '>= 20'}
 
   '@vercel/routing-utils@6.5.0':
@@ -3799,14 +3802,14 @@ snapshots:
 
   '@fontsource-variable/mona-sans@5.2.8': {}
 
-  '@gravixar-sv/core@0.8.1(@simplewebauthn/server@13.3.2)(@vercel/blob@2.5.0)(bcryptjs@3.0.3)(eslint-config-next@16.2.10(@typescript-eslint/parser@8.62.1(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3))(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3))(eslint@9.39.4(jiti@2.7.0))(next@16.3.4(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@types/node@24.13.2)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(otplib@13.4.1)(qrcode@1.5.4)(resend@6.16.0(@react-email/render@2.0.9(react-dom@19.2.7(react@19.2.7))(react@19.2.7)))':
+  '@gravixar-sv/core@0.8.1(@simplewebauthn/server@13.3.2)(@vercel/blob@2.8.0)(bcryptjs@3.0.3)(eslint-config-next@16.2.10(@typescript-eslint/parser@8.62.1(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3))(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3))(eslint@9.39.4(jiti@2.7.0))(next@16.3.4(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@types/node@24.13.2)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(otplib@13.4.1)(qrcode@1.5.4)(resend@6.16.0(@react-email/render@2.0.9(react-dom@19.2.7(react@19.2.7))(react@19.2.7)))':
     dependencies:
       eslint: 9.39.4(jiti@2.7.0)
       eslint-config-next: 16.2.10(@typescript-eslint/parser@8.62.1(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3))(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3)
       next: 16.3.4(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@types/node@24.13.2)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
     optionalDependencies:
       '@simplewebauthn/server': 13.3.2
-      '@vercel/blob': 2.5.0
+      '@vercel/blob': 2.8.0
       bcryptjs: 3.0.3
       otplib: 13.4.1
       qrcode: 1.5.4
@@ -4612,21 +4615,21 @@ snapshots:
       next: 16.3.4(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@types/node@24.13.2)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       react: 19.2.7
 
-  '@vercel/blob@2.5.0':
+  '@vercel/blob@2.8.0':
     dependencies:
-      '@vercel/oidc': 3.8.0
+      '@vercel/oidc': 3.8.9
       async-retry: 1.3.3
       is-buffer: 2.0.5
       is-node-process: 1.2.0
       throttleit: 2.1.0
       undici: 6.28.0
 
-  '@vercel/cli-config@0.2.0':
+  '@vercel/cli-config@0.3.0':
     dependencies:
       xdg-app-paths: 5.5.1
       zod: 4.1.11
 
-  '@vercel/cli-exec@1.0.0':
+  '@vercel/cli-exec@1.0.1':
     dependencies:
       execa: 5.1.1
 
@@ -4638,10 +4641,10 @@ snapshots:
 
   '@vercel/oidc@3.2.0': {}
 
-  '@vercel/oidc@3.8.0':
+  '@vercel/oidc@3.8.9':
     dependencies:
-      '@vercel/cli-config': 0.2.0
-      '@vercel/cli-exec': 1.0.0
+      '@vercel/cli-config': 0.3.0
+      '@vercel/cli-exec': 1.0.1
       jose: 5.10.0
 
   '@vercel/routing-utils@6.5.0':
