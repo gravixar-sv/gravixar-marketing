@@ -1,9 +1,15 @@
-// Append-only lead log on Vercel Blob. One JSON file per month, the
-// log is small, write-light, and easy to read later. When the volume
-// outgrows this, move to Neon Postgres via the Marketplace.
+// Lead logs on Vercel Blob. One JSON file per month and kind, append-only,
+// written to the PRIVATE store (./pii-blob.ts) and pulled into HQ's inbox by
+// its sync-leads cron every 15 minutes.
+//
+// These files used to live on the public store, where fixed paths made every
+// submission readable by anyone with the store's address. HQ reads both
+// stores while the move completes (HQ task lead-pii-private-blob-store), so a
+// lead lands in the inbox whichever store it was written to.
 
-import { put, list } from "@vercel/blob";
+import { BlobNotFoundError, head, list } from "@vercel/blob";
 import { env } from "./env";
+import { appendPrivateLine, createPrivateOnce, listPrivate, readPrivateJson } from "./pii-blob";
 import type { LeadRecord } from "./lead";
 import type { EarlyAccessRecord } from "./early-access";
 import type { ServiceInquiryRecord } from "./service-inquiry";
@@ -20,43 +26,22 @@ const BOOKING_PREFIX = "bookings/";
 // the questions it could not answer, scrubbed of emails, phone numbers, URLs
 // and long digit runs before the write. See src/lib/chat/scrub.ts for what is
 // deliberately absent, and privacy.mdx for the published promise about it.
+// Private too: a question typed into a chat box can still name a person.
 const CHAT_MISS_PREFIX = "chat-misses/";
 
 function monthKey(d = new Date()) {
   return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
 }
 
-// Generic JSONL append. Reads the current month's file (if any), appends
-// the record as a new line, PUTs the full document back. Vercel Blob is
-// immutable per write, so we re-PUT each call. Cheap until volume grows.
-async function appendJsonl<T>(
-  prefix: string,
-  record: T,
-): Promise<{ url: string } | null> {
-  if (!env.BLOB_READ_WRITE_TOKEN) return null;
-  const key = `${prefix}${monthKey()}.jsonl`;
-
-  let existing = "";
-  try {
-    const found = await list({ prefix: key, token: env.BLOB_READ_WRITE_TOKEN });
-    const match = found.blobs.find((b) => b.pathname === key);
-    if (match) {
-      const res = await fetch(match.url);
-      if (res.ok) existing = await res.text();
-    }
-  } catch {
-    // first write of the month
-  }
-
-  const next = `${existing}${existing && !existing.endsWith("\n") ? "\n" : ""}${JSON.stringify(record)}\n`;
-  const blob = await put(key, next, {
-    access: "public",
-    addRandomSuffix: false,
-    contentType: "application/x-ndjson",
-    token: env.BLOB_READ_WRITE_TOKEN,
-    allowOverwrite: true,
-  });
-  return { url: blob.url };
+// Append one record to this month's file for its kind.
+//
+// Throws when the private store cannot be reached (PII_BLOB_STORE_ID unset, or
+// no OIDC token). Every caller runs this beside the notification email and
+// logs a rejection, so a failed append is loud in the runtime logs while the
+// visitor still gets their confirmation. It never falls back to the public
+// store: a lead that cannot be written privately is not written at all.
+function appendJsonl<T>(prefix: string, record: T): Promise<{ url: string }> {
+  return appendPrivateLine(`${prefix}${monthKey()}.jsonl`, JSON.stringify(record));
 }
 
 export const appendLead = (record: LeadRecord) =>
@@ -74,56 +59,6 @@ export const appendJobApplication = (record: JobApplicationRecord) =>
 export const appendChatMiss = (record: ChatMissRecord) =>
   appendJsonl(CHAT_MISS_PREFIX, record);
 
-// ---- Read helpers (admin dashboard) -------------------------------
-
-// Generic JSONL read for a single month. Returns parsed records or [].
-async function readJsonl<T>(prefix: string, month: string): Promise<T[]> {
-  if (!env.BLOB_READ_WRITE_TOKEN) return [];
-  const key = `${prefix}${month}.jsonl`;
-  try {
-    const found = await list({ prefix: key, token: env.BLOB_READ_WRITE_TOKEN });
-    const match = found.blobs.find((b) => b.pathname === key);
-    if (!match) return [];
-    const res = await fetch(match.url, { cache: "no-store" });
-    if (!res.ok) return [];
-    const text = await res.text();
-    return text
-      .split("\n")
-      .filter((line) => line.trim().length > 0)
-      .map((line) => JSON.parse(line) as T);
-  } catch {
-    return [];
-  }
-}
-
-// List all months for a prefix, newest first.
-async function listMonths(prefix: string): Promise<string[]> {
-  if (!env.BLOB_READ_WRITE_TOKEN) return [];
-  try {
-    const found = await list({ prefix, token: env.BLOB_READ_WRITE_TOKEN });
-    return found.blobs
-      .map((b) => b.pathname.slice(prefix.length).replace(".jsonl", ""))
-      .filter((m) => /^\d{4}-\d{2}$/.test(m))
-      .sort((a, b) => b.localeCompare(a));
-  } catch {
-    return [];
-  }
-}
-
-export const readLeads = (month: string) =>
-  readJsonl<LeadRecord>(LEAD_LOG_PREFIX, month);
-
-export const readEarlyAccess = (month: string) =>
-  readJsonl<EarlyAccessRecord>(EARLY_ACCESS_PREFIX, month);
-
-export const listLeadMonths = () => listMonths(LEAD_LOG_PREFIX);
-
-export const listEarlyAccessMonths = () => listMonths(EARLY_ACCESS_PREFIX);
-
-export function currentMonthKey() {
-  return monthKey();
-}
-
 // ---- Bookings -----------------------------------------------------
 
 export const appendBooking = (record: BookingRecord) =>
@@ -139,25 +74,39 @@ export const appendBooking = (record: BookingRecord) =>
 //      the write, so both passed and both persisted. Two strangers, one Meet
 //      room, same minute.
 //   2. WORSE, and the reason this needed changing rather than locking: the
-//      write underneath is appendJsonl, which reads the whole month document
-//      and PUTs it back. Two concurrent confirms that both read the same
-//      `existing` text produce a last-writer-wins overwrite, so the loser's
-//      booking is erased from the file. That also removes it from
-//      readTakenSlots(), which re-opens the slot, leaving a visitor who was
-//      told they were booked on no record anywhere.
+//      write underneath read the whole month document and PUT it back. Two
+//      concurrent confirms that both read the same text produced a
+//      last-writer-wins overwrite, so the loser's booking was erased from the
+//      file. That also removed it from readTakenSlots(), which re-opened the
+//      slot, leaving a visitor who was told they were booked on no record.
 //
 // The fix is not a lock, because there is nothing here to lock with. It is to
-// make the collision impossible to express: `allowOverwrite` is left OFF, so
-// the store itself rejects the second write to the same key. Timing stops
+// make the collision impossible to express: the claim is a create-only write,
+// so the store itself rejects the second write to the same key. Timing stops
 // mattering. The claim carries the full record, so a slot that is taken and a
 // booking that exists are the same fact rather than two facts that can drift.
 //
 // The month JSONL is still written, because HQ and the operator read it, but
-// it is now a SECONDARY copy. If it loses a line the slot stays claimed.
+// it is a SECONDARY copy. If it loses a line the slot stays claimed.
 const SLOT_PREFIX = "bookings/slots/";
 
 const slotKey = (startUtc: string) =>
   `${SLOT_PREFIX}${startUtc.replace(/[:.]/g, "-")}.json`;
+
+// A slot claimed on the PUBLIC store before the move is still taken. Read-only,
+// and only until the public copies are deleted, after which it finds nothing
+// and costs one lookup. Anything other than a clean "not there" refuses the
+// booking, like every other doubt in this flow.
+async function publicClaimExists(key: string): Promise<boolean> {
+  if (!env.BLOB_READ_WRITE_TOKEN) throw new Error("BLOB_READ_WRITE_TOKEN unset");
+  try {
+    await head(key, { token: env.BLOB_READ_WRITE_TOKEN });
+    return true;
+  } catch (err) {
+    if (err instanceof BlobNotFoundError) return false;
+    throw err;
+  }
+}
 
 /**
  * Atomically claim a slot. Resolves the stored record on success, or null if
@@ -166,41 +115,40 @@ const slotKey = (startUtc: string) =>
 export async function claimSlot(
   record: BookingRecord,
 ): Promise<BookingRecord | null> {
-  if (!env.BLOB_READ_WRITE_TOKEN) return null;
+  const key = slotKey(record.startUtc);
   try {
-    await put(slotKey(record.startUtc), JSON.stringify(record), {
-      access: "public",
-      addRandomSuffix: false,
-      // NOT set to true, deliberately. This is the entire mechanism: a second
-      // write to an existing key throws, and that throw IS the collision
-      // being detected by the store instead of by us.
-      allowOverwrite: false,
-      contentType: "application/json",
-      token: env.BLOB_READ_WRITE_TOKEN,
-    });
-    return record;
-  } catch {
-    // Already claimed. Deliberately not distinguished from a transport fault:
-    // the caller's only correct response to either is to refuse the booking
-    // and refresh the grid, and guessing which one happened would be the
+    if (await publicClaimExists(key)) return null;
+    return (await createPrivateOnce(key, JSON.stringify(record))) ? record : null;
+  } catch (err) {
+    // Refused, and deliberately not distinguished from "already claimed": the
+    // caller's only correct response to either is to refuse the booking and
+    // refresh the grid, and guessing which one happened would be the
     // fail-open that the availability check must never do.
+    console.error("[book] slot not claimed, the stores could not be checked:", err);
     return null;
   }
 }
 
-// Taken slot start-times across this month + next (the booking horizon
-// can cross a month boundary). Used to filter the available slots.
-export async function readTakenSlots(): Promise<string[]> {
+// Slot claims on the private store. Claim markers are authoritative, because
+// they are what a confirm actually competes for.
+async function readPrivateClaims(): Promise<BookingRecord[]> {
+  const blobs = await listPrivate(SLOT_PREFIX);
+  const rows = await Promise.all(
+    blobs.map(async (b) => {
+      try {
+        return await readPrivateJson<BookingRecord>(b.pathname);
+      } catch {
+        return null;
+      }
+    }),
+  );
+  return rows.filter((r): r is BookingRecord => r !== null);
+}
+
+// Slot claims still on the public store, read until its copies are deleted.
+async function readPublicClaims(): Promise<BookingRecord[]> {
   if (!env.BLOB_READ_WRITE_TOKEN) return [];
-
-  // Claim markers are authoritative, because they are what a confirm actually
-  // competes for. Reading them also drops the month-boundary special case the
-  // JSONL version needed: one prefix covers the whole horizon.
-  const claims = await list({
-    prefix: SLOT_PREFIX,
-    token: env.BLOB_READ_WRITE_TOKEN,
-  });
-
+  const claims = await list({ prefix: SLOT_PREFIX, token: env.BLOB_READ_WRITE_TOKEN });
   const rows = await Promise.all(
     claims.blobs.map(async (b) => {
       try {
@@ -212,13 +160,22 @@ export async function readTakenSlots(): Promise<string[]> {
       }
     }),
   );
+  return rows.filter((r): r is BookingRecord => r !== null);
+}
 
-  return rows
-    .filter((r): r is BookingRecord => r !== null)
+// Taken slot start-times across both stores. One prefix covers the whole
+// booking horizon, so there is no month-boundary special case.
+export async function readTakenSlots(): Promise<string[]> {
+  const [privateClaims, publicClaims] = await Promise.all([
+    readPrivateClaims(),
+    readPublicClaims(),
+  ]);
+  const taken = new Set<string>();
+  for (const r of [...privateClaims, ...publicClaims]) {
     // An absent status means active; only an explicit "cancelled" frees the
-    // slot. Nothing writes that value yet, so this is inert today and the
-    // behaviour is unchanged, but a cancel flow will not need to touch this
-    // function to work.
-    .filter((r) => r.status !== "cancelled")
-    .map((r) => r.startUtc);
+    // slot. Nothing writes that value yet, so this is inert today, but a
+    // cancel flow will not need to touch this function to work.
+    if (r.status !== "cancelled") taken.add(r.startUtc);
+  }
+  return [...taken];
 }

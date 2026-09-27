@@ -17,7 +17,6 @@
 import { NextResponse } from "next/server";
 import { checkBotId } from "botid/server";
 import { randomUUID } from "node:crypto";
-import { put } from "@vercel/blob";
 import {
   jobApplicationSchema,
   CV_CONTENT_TYPES,
@@ -26,7 +25,7 @@ import {
 } from "@/lib/job-application";
 import { FROM_EMAIL, NOTIFY_EMAIL, getResend } from "@/lib/resend";
 import { appendJobApplication } from "@/lib/blob";
-import { env } from "@/lib/env";
+import { putPrivateFile } from "@/lib/pii-blob";
 import JobApplicationEmail from "../../../../emails/JobApplicationEmail";
 
 export const runtime = "nodejs";
@@ -102,42 +101,30 @@ export async function POST(req: Request) {
     if (cv.size > CV_MAX_BYTES) {
       return NextResponse.json({ error: "cv_too_large" }, { status: 400 });
     }
-    if (env.BLOB_READ_WRITE_TOKEN) {
-      try {
-        const safe = cv.name.replace(/[^a-zA-Z0-9._-]+/g, "-").slice(0, 80);
-        const blob = await put(`job-applications/cv/${safe}`, cv, {
-          // PRIVATE. The URL alone grants nothing, so a leaked link is not a
-          // leaked CV. This replaces access: "public" + addRandomSuffix, whose
-          // only protection was that the URL was hard to guess: it carried no
-          // authentication and never expired, so anyone who came across one
-          // could read the CV forever, and HQ's owner gate in front of it was
-          // decorative.
-          //
-          // Requires HQ to READ it correctly, which is why the two shipped as a
-          // pair (gravixar-hq #645). head().downloadUrl is NOT a signed URL, it
-          // is just the blob URL with ?download=1, so HQ can no longer redirect
-          // to it; /api/inbox/leads/[id]/cv now streams the blob server-side
-          // with the read-write token. Merge HQ first.
-          //
-          // addRandomSuffix stays: it keeps filenames unique so two applicants
-          // named cv.pdf do not collide. It is no longer load-bearing security.
-          access: "private",
-          addRandomSuffix: true,
-          contentType: cv.type,
-          token: env.BLOB_READ_WRITE_TOKEN,
-        });
-        cvUrl = blob.url;
-      } catch (err) {
-        // SWALLOWED ON PURPOSE, so an applicant never loses a completed form
-        // to a storage fault. But it was swallowed SILENTLY until 2026-09-02,
-        // and that is the part that was wrong: cvUrl simply stayed undefined,
-        // the application was stored and emailed as normal, and a failed
-        // upload looked exactly like an applicant who chose not to attach a
-        // CV. Vercel's runtime errors show this firing on production from
-        // 2026-08-23 to at least 2026-09-01.
-        cvError = err instanceof Error ? err.message : String(err);
-        console.error(`[job-application] done: CV UPLOAD FAILED ${cvError}`);
-      }
+    try {
+      const safe = cv.name.replace(/[^a-zA-Z0-9._-]+/g, "-").slice(0, 80);
+      // PRIVATE, and into the private store (src/lib/pii-blob.ts). The URL
+      // alone grants nothing, so a leaked link is not a leaked CV.
+      //
+      // From 2026-07-31 this asked the PUBLIC store for a private write, which
+      // a public store refuses outright ("Cannot use private access on a
+      // public store"), so every CV in that window was dropped. The private
+      // store is the fix. HQ's /api/inbox/leads/[id]/cv streams these over
+      // OIDC; it shipped first (gravixar-hq #1029). head().downloadUrl is NOT
+      // a signed URL, so HQ never redirects to it.
+      //
+      // addRandomSuffix keeps filenames unique so two applicants named cv.pdf
+      // do not collide. It is not load-bearing security.
+      const blob = await putPrivateFile(`job-applications/cv/${safe}`, cv, cv.type);
+      cvUrl = blob.url;
+    } catch (err) {
+      // SWALLOWED ON PURPOSE, so an applicant never loses a completed form to
+      // a storage fault. It was swallowed SILENTLY until 2026-09-02, and that
+      // was the wrong part: a failed upload looked exactly like an applicant
+      // who chose not to attach a CV. Now it is logged and the operator's
+      // email subject says so.
+      cvError = err instanceof Error ? err.message : String(err);
+      console.error(`[job-application] done: CV UPLOAD FAILED ${cvError}`);
     }
   }
 
