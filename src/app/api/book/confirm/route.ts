@@ -24,12 +24,21 @@ export async function POST(req: Request) {
   } catch {
     return NextResponse.json({ error: "bad_json" }, { status: 400 });
   }
+
+  // Honeypot, read off the RAW body and BEFORE validation, with a silent
+  // success so a bot learns nothing. It used to sit after the parse, where it
+  // could never run: confirmSchema caps `website` at zero characters, so a
+  // filled honeypot failed validation first and the bot got a 422 instead.
+  const honeypot = (body as { website?: unknown } | null)?.website;
+  if (typeof honeypot === "string" && honeypot.length > 0) {
+    return NextResponse.json({ ok: true });
+  }
+
   const parsed = confirmSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json({ error: "invalid_input" }, { status: 422 });
   }
-  const { name, email, code, token, startUtc, service, note, source, website } = parsed.data;
-  if (website) return NextResponse.json({ ok: true }); // honeypot
+  const { name, email, code, token, startUtc, service, note, source } = parsed.data;
 
   // 0. Without the secret, verifyCode() cannot distinguish a real token from a
   // forged one in any meaningful way, so say so plainly instead of returning
