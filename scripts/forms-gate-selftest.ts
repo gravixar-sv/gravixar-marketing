@@ -98,6 +98,33 @@ async function main() {
 
     check(net.resendCalls === sends, `${r.name}: no email sent by any of these`);
   }
+
+  // The forms now send `ts`. The JSON schemas are plain z.object, which strips
+  // unknown keys, so a real submission still validates and `ts` never reaches
+  // the stored record or HQ. (/api/job-application builds its payload field by
+  // field, so `ts` never reaches its schema at all.)
+  const { leadSchema } = await import("../src/lib/lead");
+  const { serviceInquirySchema } = await import("../src/lib/service-inquiry");
+  const { earlyAccessSchema } = await import("../src/lib/early-access");
+  const gateKeys = { website: "", hp_website: "", ts: Date.now() - 10_000 };
+  const message = "Client approvals live in three email threads and nobody knows which one was signed off.";
+  const real = [
+    { name: "lead", schema: leadSchema, body: { name: "Test Visitor", email: "visitor@example.com", message } },
+    {
+      name: "service-inquiry",
+      schema: serviceInquirySchema,
+      body: { name: "Test Visitor", email: "visitor@example.com", message, sourcePage: "/services/ai-tooling" },
+    },
+    { name: "early-access", schema: earlyAccessSchema, body: { email: "visitor@example.com" } },
+  ];
+  for (const { name, schema, body } of real) {
+    const parsed = schema.safeParse({ ...body, ...gateKeys });
+    check(
+      parsed.success && !("ts" in parsed.data) && !("hp_website" in parsed.data),
+      `${name}: a real submission with ts validates, and ts is not kept`,
+      parsed.success ? Object.keys(parsed.data) : parsed.error.issues,
+    );
+  }
 }
 
 main()
