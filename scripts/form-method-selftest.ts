@@ -9,14 +9,23 @@
 // and any analytics that records page URLs. `method="post"` keeps the fields
 // in the request body.
 //
+// And NO `encType`, even on a form with a file input. Next 16 treats a
+// multipart POST to a page as a server-action call. With no action id it
+// fails: `next start` on 16.3.4 answers 404 "Server action not found." and
+// logs "Failed to find Server Action" (another Gravixar app saw a 500). A
+// default url-encoded POST re-renders the page with a 200. With JS on, the
+// forms build their own request (JobApplicationForm sends the CV as its own
+// FormData), so the attribute buys nothing and breaks the pre-hydration case.
+//
 // Two checks:
 //   1. Source scan. Every <form> in src/ whose JSX contains an element with a
-//      `name` attribute must say method="post". A form with no named field
-//      submits nothing, so it is listed as skipped rather than failed. This
-//      catches a new form as well as a regression in an old one.
+//      `name` attribute must say method="post" and must not set encType. A
+//      form with no named field submits nothing, so it is listed as skipped
+//      rather than failed. This catches a new form as well as a regression in
+//      an old one.
 //   2. Render. The four lead forms are rendered to HTML, which is what the
 //      browser gets before hydration, and their <form> tag must carry
-//      method="post" alongside the named fields.
+//      method="post", no enctype, alongside the named fields.
 
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
@@ -69,8 +78,26 @@ function namedFields(form: ts.JsxElement): string[] {
   return found;
 }
 
+/** Attributes that override the form's own method or encoding for one
+ *  submit button (`formMethod="get"` would bring the GET back). */
+function buttonOverrides(form: ts.JsxElement): string[] {
+  const found: string[] = [];
+  const visit = (n: ts.Node) => {
+    if (ts.isJsxOpeningElement(n) || ts.isJsxSelfClosingElement(n)) {
+      for (const p of n.attributes.properties) {
+        if (ts.isJsxAttribute(p) && /^form(method|enctype)$/i.test(p.name.getText())) {
+          found.push(`${n.tagName.getText()} ${p.name.getText()}`);
+        }
+      }
+    }
+    ts.forEachChild(n, visit);
+  };
+  form.children.forEach(visit);
+  return found;
+}
+
 // 1. Source scan.
-const forms: { where: string; method?: string; named: string[] }[] = [];
+const forms: { where: string; method?: string; encType: boolean; overrides: string[]; named: string[] }[] = [];
 for (const file of tsxFiles(join(ROOT, "src"))) {
   const src = ts.createSourceFile(file, readFileSync(file, "utf8"), ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
   const visit = (n: ts.Node) => {
@@ -79,6 +106,10 @@ for (const file of tsxFiles(join(ROOT, "src"))) {
       forms.push({
         where: `${relative(ROOT, file).replaceAll("\\", "/")}:${line}`,
         method: literal(attr(n.openingElement, "method"))?.toLowerCase(),
+        encType: n.openingElement.attributes.properties.some(
+          (p) => ts.isJsxAttribute(p) && p.name.getText().toLowerCase() === "enctype",
+        ),
+        overrides: buttonOverrides(n),
         named: namedFields(n),
       });
     }
@@ -95,6 +126,8 @@ for (const f of forms) {
     continue;
   }
   check(f.method === "post", `${f.where}: method="post" (named: ${f.named.join(", ")})`, { method: f.method ?? null });
+  check(!f.encType, `${f.where}: no encType (a multipart page POST is a failed server-action call)`);
+  check(f.overrides.length === 0, `${f.where}: no submit button overrides the method or encoding`, f.overrides);
 }
 
 // 2. Render.
@@ -126,6 +159,8 @@ async function main() {
     const missing = fields.filter((f) => !html.includes(`name="${f}"`));
     check(missing.length === 0, `${label}: renders its named fields`, { missing });
     check(/\smethod="post"/.test(formTag), `${label}: rendered <form> carries method="post"`, formTag);
+    check(!/\senctype=/i.test(formTag), `${label}: rendered <form> has no enctype`, formTag);
+    check(!/\sform(method|enctype)=/i.test(html), `${label}: no rendered button overrides method or encoding`);
   }
 }
 
