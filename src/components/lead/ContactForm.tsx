@@ -32,6 +32,10 @@ type FormState =
 
 export function ContactForm() {
   const [state, setState] = useState<FormState>({ kind: "idle" });
+  // Form-render timestamp for the anti-bot time trap (src/lib/form-gate.ts):
+  // a genuine fill takes more than 2s from mount, a replayed form is over
+  // 24h old. Same pattern as BookCall.
+  const [renderedAt] = useState(() => Date.now());
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -49,6 +53,7 @@ export function ContactForm() {
       tools: tools.length > 0 ? tools : undefined,
       message: String(fd.get("message") ?? ""),
       website: String(fd.get("website") ?? ""), // honeypot
+      ts: renderedAt, // time trap
       source: sourceTag("contact-page"),
     };
 

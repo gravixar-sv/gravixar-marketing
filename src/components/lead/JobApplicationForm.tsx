@@ -62,6 +62,8 @@ export function JobApplicationForm({
   screeningQuestions = [],
 }: Props) {
   const [state, setState] = useState<FormState>({ kind: "idle" });
+  // Form-render timestamp for the anti-bot time trap (src/lib/form-gate.ts).
+  const [renderedAt] = useState(() => Date.now());
   // Flexible links: the applicant can add as many as they like (LinkedIn,
   // portfolio, online CV, GitHub, socials). Forgiving: no scheme required.
   const [links, setLinks] = useState<string[]>([""]);
@@ -142,6 +144,7 @@ export function JobApplicationForm({
     body.set("sourcePage", sourcePage);
     body.set("source", "careers");
     body.set("website", String(fd.get("website") ?? "")); // honeypot
+    body.set("ts", String(renderedAt)); // time trap
     if (screeningAnswers.length > 0) {
       body.set("screeningAnswers", JSON.stringify(screeningAnswers));
     }

@@ -46,6 +46,8 @@ type FormState =
 export function EarlyAccessForm() {
   const [state, setState] = useState<FormState>({ kind: "idle" });
   const [interest, setInterest] = useState("");
+  // Form-render timestamp for the anti-bot time trap (src/lib/form-gate.ts).
+  const [renderedAt] = useState(() => Date.now());
   const nowId = useId();
   const availableNow = AVAILABLE_NOW.has(interest);
 
@@ -64,6 +66,7 @@ export function EarlyAccessForm() {
       need: String(fd.get("need") ?? "") || undefined,
       source: sourceTag("early-access-page"),
       website: String(fd.get("website") ?? ""), // honeypot
+      ts: renderedAt, // time trap
     };
 
     try {

@@ -8,6 +8,7 @@
 import { NextResponse } from "next/server";
 import { checkBotId } from "botid/server";
 import { randomUUID } from "node:crypto";
+import { gateFieldsFromJson, gateLeadForm } from "@/lib/form-gate";
 import {
   earlyAccessSchema,
   INTEREST_LABELS,
@@ -24,12 +25,9 @@ export const dynamic = "force-dynamic";
 export async function POST(req: Request) {
   // Bot check, warn-only. See /api/lead/route.ts for context: Vercel
   // Bot Protection is not yet enabled at the platform level, so
-  // checkBotId() over-flags. Log for visibility, allow the submission
-  // through; honeypot + zod still gate spam.
+  // checkBotId() over-flags. The gate below logs it and allows the
+  // submission through; honeypot, time trap and zod still gate spam.
   const bot = await checkBotId();
-  if (bot.isBot) {
-    console.warn("[early-access] botid flagged as bot; warn-only mode, allowing through");
-  }
 
   let payload: unknown;
   try {
@@ -38,17 +36,18 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "invalid_json" }, { status: 400 });
   }
 
+  // Anti-bot gate BEFORE the schema, with a silent success so bots don't
+  // learn to retry. See src/lib/form-gate.ts.
+  if (!gateLeadForm(gateFieldsFromJson(payload), bot, "early-access").ok) {
+    return NextResponse.json({ ok: true });
+  }
+
   const parsed = earlyAccessSchema.safeParse(payload);
   if (!parsed.success) {
     return NextResponse.json(
       { error: "invalid", issues: parsed.error.issues },
       { status: 400 },
     );
-  }
-
-  // Honeypot, silent success so bots don't learn to retry.
-  if (parsed.data.website && parsed.data.website.length > 0) {
-    return NextResponse.json({ ok: true });
   }
 
   const record: EarlyAccessRecord = {

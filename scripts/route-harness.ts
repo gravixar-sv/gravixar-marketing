@@ -37,6 +37,8 @@ type Reply = () => Response | Promise<Response>;
 export const net = {
   /** Calls that reached the stubbed Resend API. */
   resendCalls: 0,
+  /** The JSON body of the last call to the stubbed Resend API. */
+  lastResendBody: null as Record<string, unknown> | null,
   /** Any other URL a handler tried to reach. Must stay empty. */
   unexpected: [] as string[],
   /** What the stubbed Resend API answers. Throw to simulate a network failure. */
@@ -46,10 +48,15 @@ export const net = {
 };
 
 export function stubNetwork(): void {
-  globalThis.fetch = (async (input: RequestInfo | URL) => {
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
     if (url.startsWith(RESEND_BASE_URL)) {
       net.resendCalls += 1;
+      try {
+        net.lastResendBody = typeof init?.body === "string" ? JSON.parse(init.body) : null;
+      } catch {
+        net.lastResendBody = null;
+      }
       return net.reply();
     }
     net.unexpected.push(url);
@@ -63,6 +70,12 @@ export function jsonRequest(path: string, body: unknown): Request {
     headers: { "content-type": "application/json" },
     body: JSON.stringify(body),
   });
+}
+
+export function multipartRequest(path: string, fields: Record<string, string>): Request {
+  const body = new FormData();
+  for (const [k, v] of Object.entries(fields)) body.set(k, v);
+  return new Request(`http://localhost:3300${path}`, { method: "POST", body });
 }
 
 export interface Outcome {

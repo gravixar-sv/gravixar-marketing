@@ -10,13 +10,15 @@
 //
 // Behaviour parity with the other lead routes:
 // - BotID warn-only until Vercel Bot Protection is enabled
-// - Honeypot silent-success so bots don't learn to retry
+// - Anti-bot gate (honeypot, time trap, staleness) before the schema, with a
+//   silent success so bots don't learn to retry
 // - Side-effects best-effort; a missing key skips rather than fails
 // - 200 to the visitor as long as we have their data
 
 import { NextResponse } from "next/server";
 import { checkBotId } from "botid/server";
 import { randomUUID } from "node:crypto";
+import { gateFieldsFromForm, gateLeadForm } from "@/lib/form-gate";
 import {
   jobApplicationSchema,
   CV_CONTENT_TYPES,
@@ -33,17 +35,18 @@ export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   const bot = await checkBotId();
-  if (bot.isBot) {
-    console.warn(
-      "[job-application] botid flagged as bot; warn-only mode, allowing through",
-    );
-  }
 
   let form: FormData;
   try {
     form = await req.formData();
   } catch {
     return NextResponse.json({ error: "invalid_form" }, { status: 400 });
+  }
+
+  // Anti-bot gate BEFORE the schema and before the CV is touched: silent
+  // success. See src/lib/form-gate.ts.
+  if (!gateLeadForm(gateFieldsFromForm(form), bot, "job-application").ok) {
+    return NextResponse.json({ ok: true });
   }
 
   const str = (k: string): string => {
@@ -81,11 +84,6 @@ export async function POST(req: Request) {
       { error: "invalid", issues: parsed.error.issues },
       { status: 400 },
     );
-  }
-
-  // Honeypot: silent success.
-  if (parsed.data.website && parsed.data.website.length > 0) {
-    return NextResponse.json({ ok: true });
   }
 
   // CV: validate + upload server-side to a private Blob. Type/size are hard

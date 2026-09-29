@@ -40,6 +40,8 @@ export function ServiceInquiryForm({
   submitLabel = "Send",
 }: Props) {
   const [state, setState] = useState<FormState>({ kind: "idle" });
+  // Form-render timestamp for the anti-bot time trap (src/lib/form-gate.ts).
+  const [renderedAt] = useState(() => Date.now());
   const doneRef = useRef<HTMLDivElement>(null);
 
   // The form unmounts on success; move focus to the confirmation so keyboard
@@ -62,6 +64,7 @@ export function ServiceInquiryForm({
       message: String(fd.get("message") ?? ""),
       sourcePage,
       website: String(fd.get("website") ?? ""), // honeypot
+      ts: renderedAt, // time trap
       source: sourceTag("service-page"),
     };
 

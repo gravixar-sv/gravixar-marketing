@@ -58,6 +58,30 @@ async function main() {
       "request-code: an accepted send still answers { ok, token }",
       r,
     );
+    // src/lib/resend.ts builds its client with core's createResendMailer.
+    // With RESEND_FROM_EMAIL unset, the sender is the site default, as it was
+    // before the move.
+    check(
+      net.lastResendBody?.from === "Gravixar <leads@mail.gravixar.com>",
+      "mailer: the code goes out from the default sender",
+      net.lastResendBody?.from,
+    );
+  }
+
+  {
+    // Fail open: with no key, getResend() is null and the route says so,
+    // rather than issuing a token for a code nobody will send.
+    const env = process.env as Record<string, string | undefined>;
+    const key = env.RESEND_API_KEY;
+    delete env.RESEND_API_KEY;
+    const before = net.resendCalls;
+    const r = await call(requestCode.POST, jsonRequest("/api/book/request-code", visitor()));
+    env.RESEND_API_KEY = key;
+    check(
+      r.status === 503 && r.json?.error === "email_unavailable" && net.resendCalls === before,
+      "mailer: no RESEND_API_KEY -> 503 email_unavailable, nothing sent",
+      r,
+    );
   }
 
   const booking = () => ({

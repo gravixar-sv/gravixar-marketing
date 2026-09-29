@@ -34,11 +34,13 @@
     "validate:content": "tsx scripts/content-validate.ts",
     "seo:draft": "tsx --env-file=.env.local scripts/seo-agent-local.ts",
     "prebuild": "pnpm run validate:content && pnpm run validate:chat && pnpm run test",
-    "test": "pnpm run validate:pii-blob && pnpm run validate:booking && pnpm run validate:form-method",
+    "test": "pnpm run validate:pii-blob && pnpm run validate:booking && pnpm run validate:form-method && pnpm run validate:forms && pnpm run validate:headers",
     "validate:chat": "tsx scripts/chat-pack-validate.ts",
     "validate:pii-blob": "tsx scripts/pii-blob-selftest.ts",
     "validate:booking": "tsx scripts/booking-routes-selftest.ts",
-    "validate:form-method": "tsx scripts/form-method-selftest.ts"
+    "validate:form-method": "tsx scripts/form-method-selftest.ts",
+    "validate:forms": "tsx scripts/forms-gate-selftest.ts",
+    "validate:headers": "tsx scripts/headers-parity-selftest.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.92",

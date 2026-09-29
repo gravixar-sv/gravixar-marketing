@@ -6,13 +6,19 @@
 //
 // Behavior parity with /api/lead:
 // - BotID warn-only until Vercel Bot Protection is enabled
-// - Honeypot silent-success so bots don't learn to retry
+// - Anti-bot gate (honeypot, time trap, staleness) before the schema, with a
+//   silent success so bots don't learn to retry
 // - Both side-effects best-effort, missing keys skip rather than fail
 // - 200 to the visitor as long as we have their data in memory
+//
+// Two callers: ServiceInquiryForm (sends `ts`) and Bosun's chat handoff
+// card, which sends neither `ts` nor a honeypot, so only BotID and the
+// schema see it. `ts` is optional in the gate, which is why that still works.
 
 import { NextResponse } from "next/server";
 import { checkBotId } from "botid/server";
 import { randomUUID } from "node:crypto";
+import { gateFieldsFromJson, gateLeadForm } from "@/lib/form-gate";
 import {
   serviceInquirySchema,
   type ServiceInquiryRecord,
@@ -26,11 +32,6 @@ export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   const bot = await checkBotId();
-  if (bot.isBot) {
-    console.warn(
-      "[service-inquiry] botid flagged as bot; warn-only mode, allowing through",
-    );
-  }
 
   let payload: unknown;
   try {
@@ -39,17 +40,17 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "invalid_json" }, { status: 400 });
   }
 
+  // Anti-bot gate BEFORE the schema: silent success. See src/lib/form-gate.ts.
+  if (!gateLeadForm(gateFieldsFromJson(payload), bot, "service-inquiry").ok) {
+    return NextResponse.json({ ok: true });
+  }
+
   const parsed = serviceInquirySchema.safeParse(payload);
   if (!parsed.success) {
     return NextResponse.json(
       { error: "invalid", issues: parsed.error.issues },
       { status: 400 },
     );
-  }
-
-  // Honeypot: silent success.
-  if (parsed.data.website && parsed.data.website.length > 0) {
-    return NextResponse.json({ ok: true });
   }
 
   const record: ServiceInquiryRecord = {
