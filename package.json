@@ -33,9 +33,11 @@
     "typecheck": "tsc --noEmit",
     "validate:content": "tsx scripts/content-validate.ts",
     "seo:draft": "tsx --env-file=.env.local scripts/seo-agent-local.ts",
-    "prebuild": "pnpm run validate:content && pnpm run validate:chat && pnpm run validate:pii-blob",
+    "prebuild": "pnpm run validate:content && pnpm run validate:chat && pnpm run test",
+    "test": "pnpm run validate:pii-blob && pnpm run validate:booking",
     "validate:chat": "tsx scripts/chat-pack-validate.ts",
-    "validate:pii-blob": "tsx scripts/pii-blob-selftest.ts"
+    "validate:pii-blob": "tsx scripts/pii-blob-selftest.ts",
+    "validate:booking": "tsx scripts/booking-routes-selftest.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.92",

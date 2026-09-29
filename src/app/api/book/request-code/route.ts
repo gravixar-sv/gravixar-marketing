@@ -67,8 +67,16 @@ export async function POST(req: Request) {
   if (!resend) {
     return NextResponse.json({ error: "email_unavailable" }, { status: 503 });
   }
+  // The Resend SDK (v6) does NOT throw when a send fails: an API rejection
+  // (bad key, unverified domain, quota) and a network failure both come back
+  // as `{ data: null, error }`. Until 2026-09-29 this block only caught a
+  // throw, so a failed send still answered `{ ok: true, token }` and the
+  // visitor waited on the verify step for a code that was never sent. The
+  // `error` field is the failure signal; the catch stays for anything that
+  // does throw before the request is made.
+  let failure: string | null = null;
   try {
-    await resend.emails.send({
+    const { error } = await resend.emails.send({
       from: FROM_EMAIL,
       to: email,
       subject: `Your Gravixar verification code: ${code}`,
@@ -80,7 +88,13 @@ export async function POST(req: Request) {
         `It expires in 10 minutes. If you didn't request this, ignore this email.`,
       ].join("\n"),
     });
-  } catch {
+    if (error) failure = `${error.name}: ${error.message}`;
+  } catch (err) {
+    failure = err instanceof Error ? err.message : String(err);
+  }
+  if (failure) {
+    // No address in the log line: the visitor's email is personal data.
+    console.error(`[request-code] verification email not sent: ${failure}`);
     return NextResponse.json({ error: "send_failed" }, { status: 502 });
   }
 
