@@ -97,8 +97,13 @@ export function ServiceInquiryForm({
 
   const submitting = state.kind === "submitting";
 
+  // method="post" covers a submit before React hydrates. With no method the
+  // browser does a native GET and writes every named field (name, email,
+  // message) into the URL, and from there into request logs and history.
+  // POST keeps them in the body. After hydration onSubmit takes over.
+  // scripts/form-method-selftest.ts fails the build if it goes missing.
   return (
-    <form onSubmit={onSubmit} className="space-y-5" aria-busy={submitting}>
+    <form method="post" onSubmit={onSubmit} className="space-y-5" aria-busy={submitting}>
       <div className="grid gap-5 sm:grid-cols-2">
         <TextField
           label="Your name"
