@@ -15,6 +15,7 @@
 
 import Link from "next/link";
 import { useId, useState } from "react";
+import { createFormClock } from "@gravixar/forms";
 import { cn } from "@/lib/cn";
 import { sourceTag } from "@/lib/source-tag";
 import { Button } from "@/components/ui/Button";
@@ -46,8 +47,9 @@ type FormState =
 export function EarlyAccessForm() {
   const [state, setState] = useState<FormState>({ kind: "idle" });
   const [interest, setInterest] = useState("");
-  // Form-render timestamp for the anti-bot time trap (src/lib/form-gate.ts).
-  const [renderedAt] = useState(() => Date.now());
+  // The anti-bot time trap's clock, started at mount (src/lib/form-gate.ts):
+  // it sends `te`, how long the form was open, and `ts`, the fallback.
+  const [clock] = useState(() => createFormClock());
   const nowId = useId();
   const availableNow = AVAILABLE_NOW.has(interest);
 
@@ -66,7 +68,7 @@ export function EarlyAccessForm() {
       need: String(fd.get("need") ?? "") || undefined,
       source: sourceTag("early-access-page"),
       website: String(fd.get("website") ?? ""), // honeypot
-      ts: renderedAt, // time trap
+      ...clock.fields(), // time trap: ts and te
     };
 
     try {

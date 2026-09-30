@@ -12,6 +12,10 @@
 //   - a form rendered a few seconds ago, and a client that sends no `ts` at
 //     all (a cached old bundle, or Bosun's chat handoff), still reach the
 //     schema;
+//   - `te`, how long the form was open on the browser's own clock, decides
+//     the time trap when it is usable: a device clock 10 minutes fast no
+//     longer drops a real fill, and an instant `te` trips even with an old
+//     `ts`. An unusable `te` is ignored and `ts` decides;
 //   - a trip sends no email and writes nothing.
 
 import {
@@ -96,17 +100,40 @@ async function main() {
     const legacy = await send({});
     check(reachedSchema(legacy), `${r.name}: no ts and no honeypot (old bundle, Bosun) -> reaches the schema`, legacy);
 
+    // `te`. The forms send it from the kit's createFormClock(). A device
+    // clock 10 minutes fast puts `ts` in the server's future, so `ts` alone
+    // reads a 30-second fill as too fast and drops the lead.
+    const aheadTs = Date.now() + 10 * 60_000;
+    const skewTsOnly = await send({ website: "", ts: aheadTs });
+    check(silent(skewTsOnly) && tripped(skewTsOnly, "ts_too_fast"), `${r.name}: clock 10 min fast, ts alone -> dropped (why te exists)`, skewTsOnly);
+
+    const skew = await send({ website: "", ts: aheadTs, te: 30_000 });
+    check(reachedSchema(skew), `${r.name}: clock 10 min fast, te 30s -> reaches the schema`, skew);
+
+    const instant = await send({ website: "", ts: Date.now() - 10_000, te: 400 });
+    check(silent(instant) && tripped(instant, "ts_too_fast"), `${r.name}: te under 2s -> silent 200, even with a 10s-old ts`, instant);
+
+    const oldTab = await send({ website: "", ts: Date.now() - 72 * HOUR, te: 72 * HOUR });
+    check(reachedSchema(oldTab), `${r.name}: a tab open for 3 days -> reaches the schema (no staleness on te)`, oldTab);
+
+    const teOnly = await send({ website: "", te: 500 });
+    check(silent(teOnly) && tripped(teOnly, "ts_too_fast"), `${r.name}: te alone arms the trap`, teOnly);
+
+    const badTe = await send({ website: "", ts: Date.now(), te: "-5" });
+    check(silent(badTe) && tripped(badTe, "ts_too_fast"), `${r.name}: an unusable te is ignored and ts decides`, badTe);
+
     check(net.resendCalls === sends, `${r.name}: no email sent by any of these`);
   }
 
-  // The forms now send `ts`. The JSON schemas are plain z.object, which strips
-  // unknown keys, so a real submission still validates and `ts` never reaches
-  // the stored record or HQ. (/api/job-application builds its payload field by
-  // field, so `ts` never reaches its schema at all.)
+  // The forms send `ts` and `te`, as strings (the kit's createFormClock()).
+  // The JSON schemas are plain z.object, which strips unknown keys, so a real
+  // submission still validates and neither reaches the stored record or HQ.
+  // (/api/job-application builds its payload field by field, so they never
+  // reach its schema at all.)
   const { leadSchema } = await import("../src/lib/lead");
   const { serviceInquirySchema } = await import("../src/lib/service-inquiry");
   const { earlyAccessSchema } = await import("../src/lib/early-access");
-  const gateKeys = { website: "", hp_website: "", ts: Date.now() - 10_000 };
+  const gateKeys = { website: "", hp_website: "", ts: String(Date.now() - 10_000), te: "10000" };
   const message = "Client approvals live in three email threads and nobody knows which one was signed off.";
   const real = [
     { name: "lead", schema: leadSchema, body: { name: "Test Visitor", email: "visitor@example.com", message } },
@@ -120,8 +147,8 @@ async function main() {
   for (const { name, schema, body } of real) {
     const parsed = schema.safeParse({ ...body, ...gateKeys });
     check(
-      parsed.success && !("ts" in parsed.data) && !("hp_website" in parsed.data),
-      `${name}: a real submission with ts validates, and ts is not kept`,
+      parsed.success && !("ts" in parsed.data) && !("te" in parsed.data) && !("hp_website" in parsed.data),
+      `${name}: a real submission with ts and te validates, and neither is kept`,
       parsed.success ? Object.keys(parsed.data) : parsed.error.issues,
     );
   }

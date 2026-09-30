@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { createFormClock } from "@gravixar/forms";
 import { cn } from "@/lib/cn";
 import { Button } from "@/components/ui/Button";
 import {
@@ -62,8 +63,9 @@ export function JobApplicationForm({
   screeningQuestions = [],
 }: Props) {
   const [state, setState] = useState<FormState>({ kind: "idle" });
-  // Form-render timestamp for the anti-bot time trap (src/lib/form-gate.ts).
-  const [renderedAt] = useState(() => Date.now());
+  // The anti-bot time trap's clock, started at mount (src/lib/form-gate.ts):
+  // it sends `te`, how long the form was open, and `ts`, the fallback.
+  const [clock] = useState(() => createFormClock());
   // Flexible links: the applicant can add as many as they like (LinkedIn,
   // portfolio, online CV, GitHub, socials). Forgiving: no scheme required.
   const [links, setLinks] = useState<string[]>([""]);
@@ -144,7 +146,7 @@ export function JobApplicationForm({
     body.set("sourcePage", sourcePage);
     body.set("source", "careers");
     body.set("website", String(fd.get("website") ?? "")); // honeypot
-    body.set("ts", String(renderedAt)); // time trap
+    clock.stamp(body); // time trap: sets ts and te
     if (screeningAnswers.length > 0) {
       body.set("screeningAnswers", JSON.stringify(screeningAnswers));
     }

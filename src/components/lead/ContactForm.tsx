@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { createFormClock } from "@gravixar/forms";
 import { cn } from "@/lib/cn";
 import { sourceTag } from "@/lib/source-tag";
 import { SERVICE_LABELS, SERVICE_OPTIONS } from "@/lib/services";
@@ -32,10 +33,12 @@ type FormState =
 
 export function ContactForm() {
   const [state, setState] = useState<FormState>({ kind: "idle" });
-  // Form-render timestamp for the anti-bot time trap (src/lib/form-gate.ts):
-  // a genuine fill takes more than 2s from mount, a replayed form is over
-  // 24h old. Same pattern as BookCall.
-  const [renderedAt] = useState(() => Date.now());
+  // The anti-bot time trap's clock, started at mount (src/lib/form-gate.ts).
+  // `te` is how long the form was open, measured on the browser's own
+  // clock, so a device clock that is minutes off can't make a genuine fill
+  // look under 2s. `ts`, the render time, is the gate's fallback. Same
+  // pattern as BookCall.
+  const [clock] = useState(() => createFormClock());
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -53,7 +56,7 @@ export function ContactForm() {
       tools: tools.length > 0 ? tools : undefined,
       message: String(fd.get("message") ?? ""),
       website: String(fd.get("website") ?? ""), // honeypot
-      ts: renderedAt, // time trap
+      ...clock.fields(), // time trap: ts and te
       source: sourceTag("contact-page"),
     };
 

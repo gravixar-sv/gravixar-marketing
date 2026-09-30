@@ -11,9 +11,10 @@
 // - Both side-effects best-effort, missing keys skip rather than fail
 // - 200 to the visitor as long as we have their data in memory
 //
-// Two callers: ServiceInquiryForm (sends `ts`) and Bosun's chat handoff
-// card, which sends neither `ts` nor a honeypot, so only BotID and the
-// schema see it. `ts` is optional in the gate, which is why that still works.
+// Two callers: ServiceInquiryForm (sends `ts` and `te`) and Bosun's chat
+// handoff card, which sends neither time field nor a honeypot, so only BotID
+// and the schema see it. Both are optional in the gate, which is why that
+// still works.
 
 import { NextResponse } from "next/server";
 import { checkBotId } from "botid/server";

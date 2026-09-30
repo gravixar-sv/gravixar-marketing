@@ -6,6 +6,9 @@
 //   never throws. A rejected or unreachable send must answer 502 send_failed.
 //   Before 2026-09-29 it answered `{ ok: true, token }`, and the visitor
 //   waited on the verify step for a code that had never been sent.
+//   The time trap in front of the send reads `te`, how long the form was open
+//   on the browser's own clock, so a device clock running fast no longer
+//   gets the silent empty token.
 // confirm: a filled honeypot gets the silent success. Before 2026-09-29 the
 //   schema rejected it first, so a bot got a 422 naming the field instead.
 
@@ -65,6 +68,34 @@ async function main() {
       net.lastResendBody?.from === "Gravixar <leads@mail.gravixar.com>",
       "mailer: the code goes out from the default sender",
       net.lastResendBody?.from,
+    );
+  }
+
+  {
+    // BookCall sends `te` from the kit's createFormClock(). With a device
+    // clock 10 minutes fast, `ts` alone reads a real fill as too fast: the
+    // gate answers `{ ok: true, token: "" }`, no code is sent, and the
+    // visitor waits on the verify step for nothing.
+    net.reply = () => Response.json({ id: "selftest-email-id" }, { status: 200 });
+    const ahead = { ...visitor(), ts: Date.now() + 10 * 60_000 };
+    const before = net.resendCalls;
+    const tsOnly = await call(requestCode.POST, jsonRequest("/api/book/request-code", ahead));
+    check(
+      tsOnly.json?.token === "" && net.resendCalls === before && tsOnly.logs.some((l) => l.includes("ts_too_fast")),
+      "request-code: clock 10 min fast, ts alone -> empty token, no send (why te exists)",
+      tsOnly,
+    );
+    const withTe = await call(requestCode.POST, jsonRequest("/api/book/request-code", { ...ahead, te: 30_000 }));
+    check(
+      withTe.status === 200 && typeof withTe.json?.token === "string" && withTe.json.token.length > 10 && net.resendCalls === before + 1,
+      "request-code: clock 10 min fast, te 30s -> the code is sent",
+      withTe,
+    );
+    const instant = await call(requestCode.POST, jsonRequest("/api/book/request-code", { ...visitor(), te: 400 }));
+    check(
+      instant.json?.ok === true && instant.json?.token === "" && net.resendCalls === before + 1,
+      "request-code: te under 2s -> silent empty token, no send, even with a 10s-old ts",
+      instant,
     );
   }
 
