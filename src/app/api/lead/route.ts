@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { checkBotId } from "botid/server";
 import { randomUUID } from "node:crypto";
+import { gateFieldsFromJson, gateLeadForm } from "@/lib/form-gate";
 import { leadSchema, type LeadRecord } from "@/lib/lead";
 import { TEAM_SIZE_LABELS } from "@/lib/early-access";
 import { FROM_EMAIL, NOTIFY_EMAIL, getResend } from "@/lib/resend";
@@ -13,13 +14,10 @@ export const dynamic = "force-dynamic";
 export async function POST(req: Request) {
   // Bot check, warn-only. Vercel Bot Protection is not yet enabled at
   // the platform level, so checkBotId() runs without Deep Analysis and
-  // over-flags legitimate browsers. Log for visibility, let the
-  // submission through; honeypot + zod still gate spam. Flip back to
-  // blocking once Bot Protection is enabled in Vercel's Firewall tab.
+  // over-flags legitimate browsers. The gate below logs it and lets the
+  // submission through; honeypot, time trap and zod still gate spam. Flip
+  // to blocking once Bot Protection is enabled in Vercel's Firewall tab.
   const bot = await checkBotId();
-  if (bot.isBot) {
-    console.warn("[lead] botid flagged as bot; warn-only mode, allowing through");
-  }
 
   let payload: unknown;
   try {
@@ -28,17 +26,18 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "invalid_json" }, { status: 400 });
   }
 
+  // Anti-bot gate (honeypot, time trap, staleness) BEFORE the schema, with a
+  // silent success so bots don't learn to retry. See src/lib/form-gate.ts.
+  if (!gateLeadForm(gateFieldsFromJson(payload), bot, "lead").ok) {
+    return NextResponse.json({ ok: true });
+  }
+
   const parsed = leadSchema.safeParse(payload);
   if (!parsed.success) {
     return NextResponse.json(
       { error: "invalid", issues: parsed.error.issues },
       { status: 400 },
     );
-  }
-
-  // Honeypot, silent success so bots don't learn to retry.
-  if (parsed.data.website && parsed.data.website.length > 0) {
-    return NextResponse.json({ ok: true });
   }
 
   const record: LeadRecord = {

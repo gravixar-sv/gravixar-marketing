@@ -15,7 +15,8 @@ const schema = z.object({
   name: z.string().max(120).optional(),
   website: z.string().optional(), // legacy honeypot name (cached clients)
   hp_website: z.string().optional(), // fleet honeypot (@gravixar-sv/core/antibot)
-  ts: z.number().optional(), // form-render timestamp (time-trap)
+  ts: z.number().optional(), // form-render timestamp (time-trap fallback)
+  te: z.number().optional(), // ms the form was open, on the browser's clock (time-trap)
 });
 
 export async function POST(req: Request) {
@@ -41,7 +42,7 @@ export async function POST(req: Request) {
   // no signal to adapt against.
   const bot = await checkBotId();
   const gate = checkAntiBot(
-    { hp_website: parsed.data.hp_website ?? parsed.data.website, ts: parsed.data.ts },
+    { hp_website: parsed.data.hp_website ?? parsed.data.website, ts: parsed.data.ts, te: parsed.data.te },
     bot,
     { botIdBlocks: true },
   );

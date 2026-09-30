@@ -34,16 +34,19 @@
     "validate:content": "tsx scripts/content-validate.ts",
     "seo:draft": "tsx --env-file=.env.local scripts/seo-agent-local.ts",
     "prebuild": "pnpm run validate:content && pnpm run validate:chat && pnpm run test",
-    "test": "pnpm run validate:pii-blob && pnpm run validate:booking && pnpm run validate:form-method",
+    "test": "pnpm run validate:pii-blob && pnpm run validate:booking && pnpm run validate:form-method && pnpm run validate:forms && pnpm run validate:headers",
     "validate:chat": "tsx scripts/chat-pack-validate.ts",
     "validate:pii-blob": "tsx scripts/pii-blob-selftest.ts",
     "validate:booking": "tsx scripts/booking-routes-selftest.ts",
-    "validate:form-method": "tsx scripts/form-method-selftest.ts"
+    "validate:form-method": "tsx scripts/form-method-selftest.ts",
+    "validate:forms": "tsx scripts/forms-gate-selftest.ts",
+    "validate:headers": "tsx scripts/headers-parity-selftest.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.92",
     "@fontsource-variable/mona-sans": "^5.2.8",
-    "@gravixar-sv/core": "^0.8.3",
+    "@gravixar-sv/core": "^0.9.0",
+    "@gravixar/forms": "^0.2.0",
     "@mdx-js/react": "^3.1.1",
     "@octokit/rest": "^22.0.1",
     "@phosphor-icons/react": "^2.1.10",

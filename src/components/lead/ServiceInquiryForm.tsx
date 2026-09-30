@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createFormClock } from "@gravixar/forms";
 import { cn } from "@/lib/cn";
 import { sourceTag } from "@/lib/source-tag";
 import { Button } from "@/components/ui/Button";
@@ -40,6 +41,9 @@ export function ServiceInquiryForm({
   submitLabel = "Send",
 }: Props) {
   const [state, setState] = useState<FormState>({ kind: "idle" });
+  // The anti-bot time trap's clock, started at mount (src/lib/form-gate.ts):
+  // it sends `te`, how long the form was open, and `ts`, the fallback.
+  const [clock] = useState(() => createFormClock());
   const doneRef = useRef<HTMLDivElement>(null);
 
   // The form unmounts on success; move focus to the confirmation so keyboard
@@ -62,6 +66,7 @@ export function ServiceInquiryForm({
       message: String(fd.get("message") ?? ""),
       sourcePage,
       website: String(fd.get("website") ?? ""), // honeypot
+      ...clock.fields(), // time trap: ts and te
       source: sourceTag("service-page"),
     };
 

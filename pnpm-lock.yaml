@@ -36,8 +36,11 @@ importers:
         specifier: ^5.2.8
         version: 5.2.8
       '@gravixar-sv/core':
-        specifier: ^0.8.3
-        version: 0.8.3(@simplewebauthn/server@13.3.2)(@vercel/blob@2.8.0)(bcryptjs@3.0.3)(eslint-config-next@16.2.10(@typescript-eslint/parser@8.62.1(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3))(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3))(eslint@9.39.4(jiti@2.7.0))(next@16.3.4(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@types/node@24.13.2)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(otplib@13.4.1)(qrcode@1.5.4)(resend@6.16.0(@react-email/render@2.0.9(react-dom@19.2.7(react@19.2.7))(react@19.2.7)))
+        specifier: ^0.9.0
+        version: 0.9.0(@simplewebauthn/server@13.3.2)(@vercel/blob@2.8.0)(bcryptjs@3.0.3)(eslint-config-next@16.2.10(@typescript-eslint/parser@8.62.1(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3))(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3))(eslint@9.39.4(jiti@2.7.0))(next@16.3.4(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@types/node@24.13.2)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(otplib@13.4.1)(qrcode@1.5.4)(resend@6.16.0(@react-email/render@2.0.9(react-dom@19.2.7(react@19.2.7))(react@19.2.7)))
+      '@gravixar/forms':
+        specifier: ^0.2.0
+        version: 0.2.0
       '@mdx-js/react':
         specifier: ^3.1.1
         version: 3.1.1(@types/react@19.2.17)(react@19.2.7)
@@ -455,8 +458,8 @@ packages:
   '@fontsource-variable/mona-sans@5.2.8':
     resolution: {integrity: sha512-8OWdTcP8KvRxkU1Skkk+tX3D5XHN9buejxSDwrT7teRfGnpKBYxQUApV/+zS8TzeHiSU8H5Tc0HfBr57ahgcvA==}
 
-  '@gravixar-sv/core@0.8.3':
-    resolution: {integrity: sha512-kTYJ9Zgnbfy7YyG5fKUDKtdMjmMSJ26Y+JBpw0NOPtOEuJVyX9Bd9qQsSXeQpmNmO3MPmL5D6QyxtoOOQDQRyQ==, tarball: https://npm.pkg.github.com/download/@gravixar-sv/core/0.8.3/3180398612343d12dc2717ecbf83942439bc9d56}
+  '@gravixar-sv/core@0.9.0':
+    resolution: {integrity: sha512-0g7/1aWy75lJ6vJ5tm6mpT3ZHf1r7BbdFj3ZeYytHKGxGLNfpNmjA74u5WTRNB9pAGifMVtDMqm3epD3MR/UPg==, tarball: https://npm.pkg.github.com/download/@gravixar-sv/core/0.9.0/cc9e8f892d933417ccf43d69281774b051bf1270}
     peerDependencies:
       '@simplewebauthn/server': ^13.3.1 || ^14
       '@vercel/blob': ^2.4.0
@@ -467,6 +470,14 @@ packages:
       otplib: ^13.4.1
       qrcode: ^1.5.4
       resend: ^6.12.4
+
+  '@gravixar/forms@0.2.0':
+    resolution: {integrity: sha512-SBJ1X3/q74bPsMtEn2CNE0UMUemjXymYePhB+dFXLtAgAhvoAdjDXaKAyJVtTADU7Z+oi7YeLdMnoqv2LZ3MNQ==}
+    engines: {node: '>=20'}
+
+  '@gravixar/headers@0.1.0':
+    resolution: {integrity: sha512-8VFtnToxe5+NLFOm9g/8Y+1JJ7t1pKVyCyWy/Ctq5JFLEJOoWnhFl8u9Yiduf5onhBln1ziZTZiKHT5RAyA31A==}
+    engines: {node: '>=20'}
 
   '@hexagon/base64@1.1.28':
     resolution: {integrity: sha512-lhqDEAvWixy3bZ+UOYbPwUbBkwBq5C1LAJ/xPC8Oi+lL54oyakv/npbA0aU2hgCsx/1NUd4IBvV03+aUBWxerw==}
@@ -3800,8 +3811,10 @@ snapshots:
 
   '@fontsource-variable/mona-sans@5.2.8': {}
 
-  '@gravixar-sv/core@0.8.3(@simplewebauthn/server@13.3.2)(@vercel/blob@2.8.0)(bcryptjs@3.0.3)(eslint-config-next@16.2.10(@typescript-eslint/parser@8.62.1(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3))(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3))(eslint@9.39.4(jiti@2.7.0))(next@16.3.4(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@types/node@24.13.2)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(otplib@13.4.1)(qrcode@1.5.4)(resend@6.16.0(@react-email/render@2.0.9(react-dom@19.2.7(react@19.2.7))(react@19.2.7)))':
+  '@gravixar-sv/core@0.9.0(@simplewebauthn/server@13.3.2)(@vercel/blob@2.8.0)(bcryptjs@3.0.3)(eslint-config-next@16.2.10(@typescript-eslint/parser@8.62.1(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3))(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3))(eslint@9.39.4(jiti@2.7.0))(next@16.3.4(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@types/node@24.13.2)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(otplib@13.4.1)(qrcode@1.5.4)(resend@6.16.0(@react-email/render@2.0.9(react-dom@19.2.7(react@19.2.7))(react@19.2.7)))':
     dependencies:
+      '@gravixar/forms': 0.2.0
+      '@gravixar/headers': 0.1.0
       '@simplewebauthn/server': 13.3.2
       '@vercel/blob': 2.8.0
       bcryptjs: 3.0.3
@@ -3811,6 +3824,10 @@ snapshots:
       otplib: 13.4.1
       qrcode: 1.5.4
       resend: 6.16.0(@react-email/render@2.0.9(react-dom@19.2.7(react@19.2.7))(react@19.2.7))
+
+  '@gravixar/forms@0.2.0': {}
+
+  '@gravixar/headers@0.1.0': {}
 
   '@hexagon/base64@1.1.28': {}
 

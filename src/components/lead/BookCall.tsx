@@ -23,6 +23,7 @@
 // nothing else in the picker is coral.
 
 import { useEffect, useRef, useState } from "react";
+import { createFormClock } from "@gravixar/forms";
 import { SERVICE_LABELS, SERVICE_OPTIONS } from "@/lib/services";
 import { sourceTag } from "@/lib/source-tag";
 import { Arrow, Button, buttonClass } from "@/components/ui/Button";
@@ -289,9 +290,12 @@ export function BookCall() {
   const [service, setService] = useState<string>("");
   const [note, setNote] = useState("");
   const [website, setWebsite] = useState(""); // honeypot
-  // Form-render timestamp for the @gravixar-sv/core/antibot time-trap: a
-  // genuine fill takes >2s from mount; a replayed form is >24h stale.
-  const [renderedAt] = useState(() => Date.now());
+  // The clock for the @gravixar-sv/core/antibot time trap, started at
+  // mount. `te` is how long the form has been open, measured on the
+  // browser's own clock, so a device clock that runs fast can't make a
+  // genuine fill look under 2s and silently lose the code email. `ts`, the
+  // render time by the device's clock, is the gate's fallback.
+  const [clock] = useState(() => createFormClock());
 
   const [token, setToken] = useState("");
   const [code, setCode] = useState("");
@@ -340,12 +344,14 @@ export function BookCall() {
     setBusy(true);
     setError(null);
     try {
+      const { ts, te } = clock.fields();
       const res = await fetch("/api/book/request-code", {
         method: "POST",
         headers: { "content-type": "application/json" },
         // One hidden input feeds both honeypot names: `website` (legacy +
-        // confirm route) and `hp_website` (@gravixar-sv/core/antibot).
-        body: JSON.stringify({ email, name, website, hp_website: website, ts: renderedAt }),
+        // confirm route) and `hp_website` (@gravixar-sv/core/antibot). The
+        // route's schema types the two time fields as numbers.
+        body: JSON.stringify({ email, name, website, hp_website: website, ts: Number(ts), te: Number(te) }),
       });
       const data = (await res.json().catch(() => ({}))) as { token?: string; error?: string };
       if (!res.ok) throw new Error(data.error ?? `request_failed_${res.status}`);

@@ -1,6 +1,18 @@
 import type { NextConfig } from "next";
 import { withBotId } from "botid/next/config";
+import { buildHeaders } from "@gravixar-sv/core/headers";
 
+// Security headers come from the fleet builder (@gravixar-sv/core/headers).
+// Its defaults already match this site for HSTS, nosniff, X-Frame-Options
+// DENY, Referrer-Policy and DNS prefetch off. The site's own policy is the
+// three overrides below.
+//
+// CSP and Permissions-Policy use `replace`, not a merge. A merge would add
+// core's defaults this site never sent (magnetometer, accelerometer and
+// gyroscope in Permissions-Policy) and move frame-src to the end of the CSP,
+// and a later change to core's defaults would reach this site unreviewed.
+// Replacing keeps the headers byte-identical to the hand-written list they
+// replaced, which scripts/headers-parity-selftest.ts checks on every build.
 const CSP_DIRECTIVES: Record<string, string[]> = {
   "default-src":   ["'self'"],
   "script-src":    ["'self'", "'unsafe-inline'", "https://cal.com", "https://app.cal.com", "https://va.vercel-scripts.com"],
@@ -16,21 +28,11 @@ const CSP_DIRECTIVES: Record<string, string[]> = {
   "upgrade-insecure-requests": [],
 };
 
-const CSP_HEADER = Object.entries(CSP_DIRECTIVES)
-  .map(([k, v]) => (v.length ? `${k} ${v.join(" ")}` : k))
-  .join("; ");
-
-const SECURITY_HEADERS = [
-  { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
-  { key: "X-Content-Type-Options",    value: "nosniff" },
-  { key: "X-Frame-Options",           value: "DENY" },
-  { key: "Referrer-Policy",           value: "strict-origin-when-cross-origin" },
-  { key: "Permissions-Policy",        value: "camera=(), microphone=(), geolocation=(), payment=(), usb=()" },
-  { key: "X-DNS-Prefetch-Control",    value: "off" },
-  { key: "Content-Security-Policy",   value: CSP_HEADER },
-  { key: "Access-Control-Allow-Origin", value: "https://gravixar.com" },
-  { key: "Vary",                        value: "Origin" },
-];
+const SECURITY_HEADERS = buildHeaders({
+  permissionsPolicy: { replace: { camera: [], microphone: [], geolocation: [], payment: [], usb: [] } },
+  csp: { replace: CSP_DIRECTIVES },
+  cors: "https://gravixar.com",
+});
 
 const nextConfig: NextConfig = {
   pageExtensions: ["ts", "tsx", "mdx"],
