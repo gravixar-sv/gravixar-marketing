@@ -111,7 +111,9 @@ export function Footer() {
           <p>
             © {new Date().getFullYear()} {SITE.name}. Built by Qamar. Proof first, pitch second.
           </p>
-          <p>Islamabad, working with teams in Pakistan and the UK.</p>
+          {/* The office address, the same one the structured data and the
+              Google Business Profile carry (2026-10-04). */}
+          <p>Phase 4 Civic Center, Bahria Town, Rawalpindi. Working with teams in Pakistan and the UK.</p>
         </div>
       </div>
 

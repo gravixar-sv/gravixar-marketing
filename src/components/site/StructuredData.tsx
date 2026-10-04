@@ -134,9 +134,17 @@ export function StructuredDataGlobal() {
     // the Gravixar position on the operator's profile. Not a new claim.
     foundingDate: "2013",
     founder: { "@id": PERSON_ID },
+    // The office, written as Robonamix's Google Business Profile has it, the
+    // same building (operator, 2026-10-04: one address for both businesses).
+    // Until then this said only "Islamabad", which matched neither listing.
+    // The Person above keeps Islamabad: that is where Qamar lives, not the
+    // company's address.
     address: {
       "@type": "PostalAddress",
-      addressLocality: "Islamabad",
+      streetAddress: "Phase 4 Civic Center, Bahria Town",
+      addressLocality: "Rawalpindi",
+      addressRegion: "Punjab",
+      postalCode: "46220",
       addressCountry: "PK",
     },
     description: SITE.tagline,
