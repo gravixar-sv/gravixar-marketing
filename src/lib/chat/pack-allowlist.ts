@@ -77,7 +77,9 @@ export const PACK_EXCLUDED: Record<PackKind, readonly string[]> = {
   // seoTitle: the search-result label for a service whose name is not what
   // buyers type (the HQ brain's S217 keyword map). Bosun names every service
   // by its title, so a visitor never meets two names for the same offer.
-  service: ["proof", "order", "updatedAt", "metaDescription", "audience", "seoTitle"],
+  // headline: the page's own H1 where it differs from the title, for the same
+  // reason as seoTitle. Bosun keeps naming the offer by its title.
+  service: ["proof", "order", "updatedAt", "metaDescription", "audience", "seoTitle", "headline"],
   compare: [
     "competitorUrl",
     "linkedCaseStudy",

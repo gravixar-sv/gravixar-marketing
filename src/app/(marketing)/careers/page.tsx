@@ -13,7 +13,9 @@ export const revalidate = 300;
 export const metadata: Metadata = buildMetadata({
   title: "Careers at Gravixar, build systems that run",
   description:
-    "Careers at Gravixar. Small on purpose: the systems I build run real businesses, and a person signs off on every AI action. For people who would rather ship something running than talk about it.",
+    // 193 characters until 2026-10-04, past the ~160 a result row shows. The
+    // sentence that went was the one a reader loses to the cut anyway.
+    "Careers at Gravixar. Small on purpose: the systems I build run real businesses, and a person signs off on every AI action.",
   path: "/careers",
 });
 

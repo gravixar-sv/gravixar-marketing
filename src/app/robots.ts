@@ -26,6 +26,9 @@ export default function robots(): MetadataRoute.Robots {
       ...AI_CRAWLERS.map((userAgent) => ({ userAgent, allow: "/" })),
     ],
     sitemap: `${SITE.url}/sitemap.xml`,
-    host: SITE.url,
+    // No `host`. It printed "Host: https://gravixar.com", a Yandex-only
+    // directive that Google ignores and that expects a bare host, not a URL.
+    // The canonical host is enforced where it counts: the www and
+    // .vercel.app 308s in next.config.ts and the canonical tag on every page.
   };
 }
