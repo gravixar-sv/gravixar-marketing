@@ -99,16 +99,23 @@ export default async function ServicePage(
         ]}
       />
 
+      {/* A `headline` (the searched phrase, per the keyword map) becomes the
+          H1 and the offer's own name moves into the eyebrow after its group,
+          so the page still says what the offer is called. The card-to-H1
+          morph is skipped then: the card on /services shows the title, and
+          morphing one string into a different one would stretch the text.
+          The H1 sets in word by word instead, like every other inner page. */}
       <PageHeader
         eyebrow={
           <>
             <span className="sr-only">All services, </span>
             {group}
+            {s.meta.headline ? ` · ${s.meta.title}` : null}
           </>
         }
         eyebrowHref="/services"
-        title={s.meta.title}
-        titleTransition={`svc-${slug}`}
+        title={s.meta.headline ?? s.meta.title}
+        titleTransition={s.meta.headline ? undefined : `svc-${slug}`}
         lede={s.meta.tagline}
       >
         <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between lg:gap-14">

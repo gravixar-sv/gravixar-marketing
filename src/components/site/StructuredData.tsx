@@ -33,20 +33,64 @@ function absolute(src: string): string {
 // EVERY entry here must link BACK to gravixar.com. An unreciprocated sameAs is
 // an unverifiable assertion, which is the same defect class as an unsourced
 // number, so the bar for adding one is the same: go and check.
+//
+// Two lists, because they are two entities. Until 2026-10-04 the Organization
+// carried the PERSON's profiles (his LinkedIn, his Instagram), which told
+// Google the company and the man were the same thing, while the company's own
+// pages, the ones Google already shows for "gravixar" (the LinkedIn company
+// Page and the Facebook Page in the image pack, the Business Profile as the
+// knowledge panel), were tied to nothing on this site.
+//
+// The person:
 //   - LinkedIn profile: the operator's, trailing slash matching Footer.tsx.
-//   - GitHub org: public, and github.com/gravixar-sv carries gravixar.com in
-//     its profile link (checked 2026-09-01, HTTP 200 + reciprocal link).
+//   - GitHub: public, and github.com/gravixar-sv carries gravixar.com in its
+//     profile link (checked 2026-09-01, HTTP 200 + reciprocal link). It is the
+//     operator's own account under the brand name, so it sits on both lists.
 //   - Instagram: the site already links it from the footer on all 60 pages,
 //     so omitting it here made the machine-readable identity narrower than
 //     the human-readable one. If the footer link goes, this goes with it.
-// NOT added: the LinkedIn company Page (blocked from automated verification
-// by HTTP 999, so unconfirmed) and X/@gravixar (no account confirmed to
-// exist). Neither is worth an unverifiable entry.
-const PROFILES = [
+const PERSON_PROFILES = [
   "https://www.linkedin.com/in/qamarabbas/",
   "https://github.com/gravixar-sv",
   "https://www.instagram.com/qabbas4/",
 ];
+
+// The company (all three checked 2026-10-04):
+//   - LinkedIn company Page: HTTP 200 to a logged-out fetch that day (it was
+//     999 when this list was first written), and its website field is
+//     gravixar.com.
+//   - Facebook Page "Gravixar | Islamabad": the page links gravixar.com
+//     (fetched through m.facebook.com; www refuses scripted fetches).
+//   - Google Business Profile, by its CID: the knowledge panel Google shows
+//     for "gravixar" (CID 4704859556706404783) lists https://gravixar.com/ as
+//     its website. This is the link that ties the panel to this site.
+// NOT added: X/@gravixar (no account confirmed to exist).
+const ORG_PROFILES = [
+  "https://www.linkedin.com/company/gravixar",
+  "https://www.facebook.com/gravixar/",
+  "https://www.google.com/maps?cid=4704859556706404783",
+  "https://github.com/gravixar-sv",
+];
+
+// The site's own author string, for the article schemas below: only an author
+// who IS the Person node gets its @id, so a future guest author cannot be
+// silently merged into him.
+function authorNode(author: string) {
+  return author === SITE.author
+    ? { "@type": "Person", "@id": PERSON_ID, name: author }
+    : { "@type": "Person", name: author };
+}
+
+// The publisher of every article and the provider of every service is the one
+// Organization node, by @id, so search reads one company and not N inline
+// copies of a name.
+const PUBLISHER = {
+  "@type": "Organization",
+  "@id": ORG_ID,
+  name: SITE.name,
+  url: SITE.url,
+  logo: { "@type": "ImageObject", url: `${SITE.url}/logos/gravixar-wordmark.png` },
+};
 
 /** Person + Organization + WebSite, global, render in root layout. */
 export function StructuredDataGlobal() {
@@ -76,7 +120,7 @@ export function StructuredDataGlobal() {
     description:
       "Builds operations infrastructure, brand work, and AI tooling for teams that want what they're buying running before the contract.",
     worksFor: { "@id": ORG_ID },
-    sameAs: PROFILES,
+    sameAs: PERSON_PROFILES,
   };
 
   const organization = {
@@ -96,7 +140,7 @@ export function StructuredDataGlobal() {
       addressCountry: "PK",
     },
     description: SITE.tagline,
-    sameAs: PROFILES,
+    sameAs: ORG_PROFILES,
   };
 
   const website = {
@@ -134,11 +178,7 @@ export function StructuredDataService({
     name,
     description,
     url,
-    provider: {
-      "@type": "Organization",
-      name: SITE.name,
-      url: SITE.url,
-    },
+    provider: PUBLISHER,
     areaServed: { "@type": "Place", name: "Worldwide" },
   };
   return <ScriptLd data={service} id={`ld-service-${name.replace(/\s+/g, "-").toLowerCase()}`} />;
@@ -171,12 +211,8 @@ export function StructuredDataCaseStudy({
     // the asset existed and was simply never passed through to the schema.
     ...(image ? { image: [absolute(image)] } : {}),
     datePublished: publishedAt,
-    author: { "@type": "Person", name: author },
-    publisher: {
-      "@type": "Organization",
-      name: SITE.name,
-      logo: { "@type": "ImageObject", url: `${SITE.url}/logos/gravixar-wordmark.png` },
-    },
+    author: authorNode(author),
+    publisher: PUBLISHER,
   };
   return <ScriptLd data={article} id="ld-article" />;
 }
@@ -250,12 +286,8 @@ export function StructuredDataBlogPost({
     ...(image ? { image: [absolute(image)] } : {}),
     datePublished: publishedAt,
     dateModified: updatedAt ?? publishedAt,
-    author: { "@type": "Person", name: author },
-    publisher: {
-      "@type": "Organization",
-      name: SITE.name,
-      logo: { "@type": "ImageObject", url: `${SITE.url}/logos/gravixar-wordmark.png` },
-    },
+    author: authorNode(author),
+    publisher: PUBLISHER,
   };
   return <ScriptLd data={post} id="ld-blogpost" />;
 }

@@ -23,10 +23,14 @@ import styles from "./hero/Hero.module.css";
 //
 // Copy lives in content/home/hero.mdx: the title (split at its comma into the
 // sans claim and the serif tail, the page's one human-voice phrase) and the
-// lead as the body's first paragraph. No eyebrow since 2026-09-23: "The AI-ops
+// lead as the body's first paragraph. No eyebrow from 2026-09-23: "The AI-ops
 // platform" told a buyer this was software to sign up for, one line above "I
-// build...", and the hosted version has no date. The slot still renders if a
-// plain fact is ever put back in the frontmatter. The body is printed as plain
+// build...", and the hosted version has no date. A plain fact went back in on
+// 2026-10-04: the company's name and its two service lines. Without it the
+// word "Gravixar" appeared on the homepage only in the <title>, the logo's alt
+// text and the footer's copyright line, while Google's top 10 for "gravixar"
+// held no gravixar.com URL in the US, the UK or Pakistan (SEO audit,
+// 2026-10-04). Keep the brand name in this slot. The body is printed as plain
 // text, not MDX, because MDX paragraphs carry long-form prose styles and the
 // lead is a different rank.
 //

@@ -148,9 +148,16 @@ export const serviceSchema = z.object({
   title: z.string().min(3).max(80),
   // Optional <title> for search results, for a service whose name is not what
   // buyers type (the S217 keyword map: "custom client portal" for Operations
-  // Infrastructure). Only the browser tab and search results read it; the H1,
-  // the cards and every list keep `title`, so the site's naming never changes.
+  // Infrastructure). Only the browser tab and search results read it; the H1
+  // (unless `headline` is set), the cards and every list keep `title`.
   seoTitle: z.string().min(3).max(70).optional(),
+  // Optional H1 for the service page itself, for the same kind of service:
+  // the keyword map puts the searched phrase in the H1 as well as the title,
+  // with the coined name kept above it as the eyebrow. Only the page's own
+  // heading reads it. The cards, the nav, the breadcrumb, the Service schema
+  // and Bosun all keep `title`, so the offer still has one name everywhere a
+  // visitor meets it as a choice.
+  headline: z.string().min(3).max(80).optional(),
   slug,
   bucket: serviceBucket,
   // Which tier of engagement this is. Four of them, because they are

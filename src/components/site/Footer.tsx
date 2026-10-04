@@ -56,6 +56,15 @@ export function Footer() {
                 Ops Leak Audit
               </Link>
             </li>
+            {/* The second fixed-price front door. Until 2026-10-04 it was
+                linked from 6 of the 67 pages in the sitemap (the homepage,
+                /services, two other service pages and two posts), so a
+                crawler reached it as rarely as a visitor did. */}
+            <li>
+              <Link href="/services/system-audit" className={linkClass}>
+                AI Code Confidence Review
+              </Link>
+            </li>
             <li>
               <Link href="/contact" className={linkClass}>
                 Book a call
