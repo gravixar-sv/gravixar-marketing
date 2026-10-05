@@ -147,6 +147,12 @@ export function StructuredDataGlobal() {
       postalCode: "46220",
       addressCountry: "PK",
     },
+    // The public contact details, the same on every listing (operator,
+    // 2026-10-05: gravixar@gmail.com is Gravixar's public email; the number is
+    // the one on the Business Profile and LinkedIn). Until then the email sat
+    // only on the Person and the Organization carried no telephone.
+    telephone: "+92 336 5676672",
+    email: "gravixar@gmail.com",
     description: SITE.tagline,
     sameAs: ORG_PROFILES,
   };
