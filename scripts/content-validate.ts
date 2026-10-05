@@ -21,6 +21,7 @@ import path from "node:path";
 import matter from "gray-matter";
 import {
   blogPostSchema,
+  buyerPageSchema,
   caseStudySchema,
   compareSchema,
   graphicsItemSchema,
@@ -56,6 +57,7 @@ const SECTIONS: Section[] = [
   { dir: "pages", schema: pageSchema, label: "pages" },
   { dir: "compare", schema: compareSchema, label: "compare" },
   { dir: "modules", schema: moduleSchema, label: "modules" },
+  { dir: "buyers", schema: buyerPageSchema, label: "buyers" },
 ];
 
 const inDrafts = (rel: string) =>
@@ -192,6 +194,55 @@ function comparePricingHasSource(
   return [
     "states a price but has no `sources` entry. Add sources: [{ claim, url, verifiedAt }] naming where the figure was read.",
   ];
+}
+
+// A PRICE QUOTED AWAY FROM ITS SERVICE MUST BE THAT SERVICE'S PRICE. Added
+// 2026-10-05 with the buyer pages and the service FAQs, which repeat prices in
+// prose because an answer engine lifts the sentence, not the terms strip. A
+// price lives on a service's `pricing` line; everywhere else it is a copy, and
+// a copy is how the retired "From $2,500" survived a month on other pages.
+//
+// So every dollar figure on a buyer page, and in a service's FAQ answers, has
+// to appear on SOME service's pricing line. When a price moves, the build
+// fails on every page still quoting the old one, instead of a reader finding
+// two numbers. Dollar figures only: the pound and dirham conversions are
+// "about" and "at today's exchange rates" by the audit page's own wording.
+// The body of a service page is not checked: it legitimately quotes figures
+// that are not prices (the audit's "$25 a seat").
+const DOLLAR_FIGURE = /\x24\d+(?:,\d{3})*/g;
+
+async function publishedServicePrices(): Promise<Set<string>> {
+  const figures = new Set<string>();
+  for (const file of await walk(path.join(ROOT, "services"))) {
+    if (inDrafts(path.relative(ROOT, file))) continue;
+    const { data } = matter(await fs.readFile(file, "utf-8"));
+    if (typeof data.pricing !== "string") continue;
+    for (const m of data.pricing.matchAll(DOLLAR_FIGURE)) figures.add(m[0]);
+  }
+  return figures;
+}
+
+function unpublishedPrices(
+  rel: string,
+  raw: string,
+  data: Record<string, unknown>,
+  published: Set<string>,
+): string[] {
+  const where = rel.replace(/\\/g, "/");
+  let text = "";
+  if (where.startsWith("buyers/")) text = raw;
+  else if (where.startsWith("services/") && Array.isArray(data.faqs)) {
+    text = data.faqs
+      .map((f: { answer?: unknown }) => (typeof f.answer === "string" ? f.answer : ""))
+      .join("\n");
+  }
+  const stray = [...new Set([...text.matchAll(DOLLAR_FIGURE)].map((m) => m[0]))].filter(
+    (f) => !published.has(f),
+  );
+  return stray.map(
+    (f) =>
+      `quotes ${f}, which is on no service's pricing line. Quote a published price, or change the service's pricing line first.`,
+  );
 }
 
 // CASE-STUDY METRICS PROVENANCE. The homepage carries four numbers, each with
@@ -502,6 +553,7 @@ async function main() {
   let total = 0;
   let failures = 0;
   let unsourcedMetrics = 0;
+  const servicePrices = await publishedServicePrices();
 
   for (const { dir, schema, label } of SECTIONS) {
     const sectionDir = path.join(ROOT, dir);
@@ -543,6 +595,13 @@ async function main() {
         console.error(`
 [${label}] ${rel}`);
         for (const issue of priceIssues) console.error(`  - ${issue}`);
+      }
+
+      const strayPrices = unpublishedPrices(rel, raw, data, servicePrices);
+      if (strayPrices.length > 0) {
+        failures++;
+        console.error(`\n[${label}] ${rel}`);
+        for (const issue of strayPrices) console.error(`  - ${issue}`);
       }
 
       const result = schema.safeParse(data);

@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import {
   loadBlogPosts,
+  loadBuyerPages,
   loadCaseStudies,
   loadCompares,
   loadGraphics,
@@ -27,7 +28,7 @@ function newest(dates: (string | undefined)[]): Date | undefined {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [services, posts, studies, graphics, compares, modules, careers, tagHubs] =
+  const [services, posts, studies, graphics, compares, modules, careers, tagHubs, buyers] =
     await Promise.all([
       loadServices(),
       loadBlogPosts(),
@@ -37,6 +38,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       loadModules(),
       getCareersRoles(),
       loadTagHubs(),
+      loadBuyerPages(),
     ]);
 
   const url = (path: string) => `${SITE.url}${path}`;
@@ -72,6 +74,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     ...staticRoutes.map((r) => entry(r.path, r.lastModified)),
     ...services.map((s) => entry(`/services/${s.meta.slug}`, newest([s.meta.updatedAt]))),
+    // Buyer pages carry a required updatedAt, so each one's date is its own.
+    ...buyers.map((b) => entry(`/for/${b.meta.slug}`, new Date(b.meta.updatedAt))),
     ...studies.map((s) => entry(`/work/${s.meta.slug}`, new Date(s.meta.publishedAt))),
     ...posts.map((p) => entry(`/blog/${p.meta.slug}`, new Date(postDate(p)))),
     // Only the hubs that are a genuine subset of the blog. The rest are served

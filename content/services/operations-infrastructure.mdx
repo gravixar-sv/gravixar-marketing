@@ -2,15 +2,17 @@
 title: "Operations Infrastructure"
 # What buyers search for (brain/research/seo-keyword-map-2026-09-27.md): used for
 # the browser tab and search results only; the page and every list keep the title.
-seoTitle: "Custom Client Portals and Internal Tools"
+# The buyer and the place joined the phrase on 2026-10-05: every competitor an AI
+# answer cited for these questions had both in its title, and this page had neither.
+seoTitle: "Custom Client Portals for Agencies and Firms in the UK and UAE"
 # The same phrase as this page's H1, per the keyword map ("put the phrase in the
 # title and H1, keep Operations Infrastructure as the eyebrow"). The eyebrow
 # above it names the offer, and every card, list and the chat keep the title.
-headline: "Custom client portals and internal tools"
+headline: "Custom client portals for agencies and firms in the UK and UAE"
 slug: "operations-infrastructure"
 bucket: "operations"
-tagline: "Custom portals and internal tools for your clients, your staff, and your new hires, built around how your business already works. Not a Notion template."
-metaDescription: "Custom client and staff portals with a set review process, a record of every change, and real permissions. $28,000 to $55,000 fixed, typically 4 to 10 weeks."
+tagline: "Custom portals and internal tools for your clients and your team, built around how your business already works."
+metaDescription: "Custom client portals for agencies and accounting and law firms in the UK and UAE. $28,000 to $55,000 fixed, typically 4 to 10 weeks."
 deliverables:
   - "Custom portals for clients and staff, built new (Next.js) or on WordPress, your call"
   - "Hiring and onboarding, with a task checklist for each role"
@@ -18,12 +20,17 @@ deliverables:
   - "Project workspaces with a full change history and a set review process"
   - "Permissions by role, a log of every change, and a safe way to undo"
   - "One path for every job, from the first enquiry to the delivered work"
+# Clients named since 2026-10-05 (HQ brain decision
+# gravixar-names-clients-and-what-was-built). Broomstick Hub is the portal of
+# Broomstick Creative, the same client (brain/projects/broomstick.md). The portal's
+# "4 years in production" label went: what "four years" measured is still the
+# owner's open answer, and the audit page and the case study already dropped it.
 proof:
-  - { label: "Agency portal, 4 years in production", href: "/work/bs-hub", kind: "case-study" }
-  - { label: "monday.com rollout, 10 to 50+ users", href: "/work/monday-rollout-agency", kind: "case-study" }
+  - { label: "Broomstick Hub, the agency portal for Broomstick Creative", href: "/work/bs-hub", kind: "case-study" }
+  - { label: "monday.com rollout for Broomstick Creative, 10 to 50+ users", href: "/work/monday-rollout-agency", kind: "case-study" }
   # live in production on its own domain since 2026-06-22, 250 clients / 2,042
   # panels as of 2026-07-27 (brain: ledgers/infra beeline-domain-golive-2026-06-22)
-  - { label: "Healthcare ops platform, live: 250 clients, 2,042 panels", href: "/work/beeline", kind: "case-study" }
+  - { label: "Beeline's credentialing platform, live: 250 clients, 2,042 panels", href: "/work/beeline", kind: "case-study" }
   - { label: "Click through a working portal", href: "https://demo.gravixar.com/lattice", kind: "live-demo" }
 # A published range since 2026-09-14. Without one, a buyer with a real budget
 # had no way to rule themselves in before a call, so most of them did not book.
@@ -32,28 +39,58 @@ proof:
 # Leave the comma after the range alone: the refusal copy in
 # src/lib/chat/refusals.ts carries the same "$55,000," and registers against it.
 pricing: "$28,000 to $55,000, fixed before the build starts. Typically 4 to 10 weeks for a working portal."
+# Questions from HQ's AI-answer tracker, word for word where that is honest.
+# Every answer starts with the answer. Plain text only: these strings are also
+# the FAQPage structured data. Prices here must be a service's published price
+# (scripts/content-validate.ts checks).
+faqs:
+  - question: "Who builds custom client portals for accounting firms in the UK?"
+    answer: "Gravixar does. I'm Qamar, and I build custom client portals for accounting and law practices in the UK, working remotely from my office in Pakistan, at $28,000 to $55,000 with the price fixed before the build starts. I haven't published a build for an accounting firm yet. The closest published work is Beeline's credentialing platform, which replaced a color-coded workbook and by the end of July 2026 held 250 clients and 2,042 insurer applications in one system."
+  - question: "Who builds client portals for agencies in Dubai?"
+    answer: "Gravixar does, remotely. I work from my office in Pakistan with teams in the UAE and the UK, and I don't have an office in Dubai. The agency work I can name is for Broomstick Creative, which works across the UAE and Pakistan: Broomstick Hub, its agency portal, and the monday.com rollout that brought its Dubai project and account managers onto one delivery system. A portal build is $28,000 to $55,000, fixed before it starts."
+  - question: "Who can build a client approval portal for a marketing agency?"
+    answer: "I can, and you can try one before you talk to me. The Lattice demo at demo.gravixar.com/lattice runs the whole loop on sample data: an editor submits a draft, the project manager passes it to the client, and the client approves it. In the marketing agency portal on my work page, every version is kept, and a draft that went out too early can be recalled. A build is $28,000 to $55,000, fixed, typically 4 to 10 weeks."
+  - question: "Who can build an internal operations dashboard for an agency?"
+    answer: "Gravixar can, either inside a tool you already pay for or as part of a custom portal. For Broomstick Creative the monday.com rollout added a dashboard for each role across six workspaces, so who is carrying what is visible without asking anyone. If the tool you have can carry the dashboard, that's the cheaper answer, and when it can't, the dashboard becomes part of a build at $28,000 to $55,000."
+  - question: "Do you build custom client portals for professional services firms?"
+    answer: "Yes, for professional services firms and agencies in the UK and the UAE, working remotely from Pakistan. Each client logs in and sees only their own work, and every job follows a fixed path from the first enquiry to sign-off with every change on the record. The price is $28,000 to $55,000, fixed before the build starts, and a working portal typically takes 4 to 10 weeks."
+  - question: "How much does a custom client portal cost?"
+    answer: "$28,000 to $55,000 for a working portal, with the price fixed before the build starts, and typically 4 to 10 weeks. If you aren't sure yet what the portal should do, the Ops Leak Audit is $3,500 fixed, and the full fee comes off a build that starts within 90 days of its readout."
 track: "build"
 order: 1
 updatedAt: "2026-09-14"
 ---
 
-You can try one right now at [demo.gravixar.com/lattice](https://demo.gravixar.com/lattice). No sign-up. You play all three parts: submit a draft as the editor, pass it to the client as the project manager, then approve it as the client. It is a working app, not a screenshot. The setup is built for the demo, but the review flow inside it is the one a real agency has run for four years.
+I build custom client portals for agencies and for accounting and law practices in the UK and the UAE, working remotely from my office in Pakistan. A build is $28,000 to $55,000, with the price fixed before the build starts, and a working portal typically takes 4 to 10 weeks. The one I'd point you to first is Broomstick Hub, the agency portal I built for Broomstick Creative, an agency working across the UAE and Pakistan. A new client there goes from first inquiry to an active project in about 10 minutes, where the same thing by email took two to three days.
+
+You can click through a working portal right now at [demo.gravixar.com/lattice](https://demo.gravixar.com/lattice), with no sign-up. You play all three parts: submit a draft as the editor, pass it to the client as the project manager, then approve it as the client. Everything in it is sample data, and it's built separately from any client's system on purpose, so you can press every button.
 
 {/* demo-shot: the page renders the Lattice screenshot here */}
 
 ## What I deliver
 
-- A portal built around how your clients actually move through your business, not a template bent to fit
+- A portal shaped around how your clients already move through your business
 - A fixed path for every piece of work: draft, internal review, client review, approved
+- A login for each client that shows only their own work, where they approve it
 - Automatic assignment of who picks up what, based on workload and skills
 - A record of every change to every item, with a safe undo for the fields you choose
-- The boring parts that hold it all up: email templates, notifications, exports, and real control over who sees what
-- Hiring and onboarding when the team grows: same portal, new tab
+- Email templates, notifications, exports, and real control over who sees what
+- Hiring and onboarding when the team grows, in the same portal
 
-I build in small steps. In week one, you have something running. By week ten, your team has been using it for real work.
+I build in small steps. In week one you have something running, even if it's small, and by week ten your team has been using it for real work.
 
-## Not only for agencies
+## Agencies
 
-The same foundation now runs a healthcare credentialing platform, live with 2,042 payer panels across 250 clients, and a booking system for a driving school, with the school's own rules (age limits, guardian consent, instructor availability) built into the core instead of added on later. If your business runs on records, approvals, and handoffs, the same shape fits. Only the industry changes.
+Two of the portals on my [work page](/work) run agencies. In [Broomstick Hub](/work/bs-hub), every inquiry moves through 12 fixed steps to a live project, so its status is never a note someone typed, and every change is logged. AI picks the next intake question and drafts a brand brief from the prospect's website, and it never approves anything. The [page for agencies](/for/agencies) has the rest, including the [monday.com rollout](/work/monday-rollout-agency) that took Broomstick Creative's team from 10 people to more than 50 on one delivery system.
 
-For teams that already have a WordPress site and want it modernized rather than rebuilt, I will work in that codebase. The shape of the system matters more than the framework.
+## Accounting and law practices
+
+A practice needs mostly the same machinery from a portal. Each client sees only their own work, and every change is on the record. I haven't published a build for an accounting or law firm yet. The closest is [Beeline](/work/beeline), a healthcare credentialing and billing company, where status is worked out from each application instead of typed into a workbook, and each person starts the day with their own follow-up list, most overdue first. Every amount of money is stored with the exchange rate it was recorded at, so a report run again later matches the original line for line. The [page for accounting and law practices](/for/accounting-and-law-firms) covers what changes for a firm.
+
+If your business runs on records and approvals, the same shape fits, and only the industry changes. If you already have a WordPress site and want it modernized rather than rebuilt, I'll work in that codebase.
+
+## What it costs
+
+$28,000 to $55,000, fixed before the build starts, and typically 4 to 10 weeks to a working portal. I fix the price once I've seen how work moves today, so you know the number before anything is built. If you'd rather start from numbers, the [Ops Leak Audit](/services/ops-leak-audit) is $3,500 fixed, and the full fee comes off a build that starts within 90 days of its readout.
+
+Pairs with **[Ops Leak Audit](/services/ops-leak-audit)** when you want the hours counted before you commit, and with **[Fractional AI Ops Lead](/services/fractional-ai-ops-lead)** when the portal has AI in it that needs watching after launch.

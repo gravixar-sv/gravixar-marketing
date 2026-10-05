@@ -41,6 +41,21 @@ const baseImage = z.object({
 // page does not make.
 const metaDescription = z.string().min(70).max(160).optional();
 
+// A page's own Q&A, rendered as a "Common questions" list AND as FAQPage
+// JSON-LD from the same strings, so the markup can never say something the
+// page does not. Plain text, no markdown: the answer is quoted verbatim into
+// structured data, where a link would arrive as literal brackets. Shared by
+// compare pages, service pages and buyer pages, so the bounds are one rule.
+const faqList = z
+  .array(
+    z.object({
+      question: z.string().min(5).max(200),
+      answer: z.string().min(20),
+    }),
+  )
+  .min(3)
+  .max(8);
+
 export const blogPostSchema = z.object({
   title: z.string().min(3).max(120),
   slug,
@@ -194,6 +209,12 @@ export const serviceSchema = z.object({
     )
     .default([]),
   pricing: z.string().optional(), // free-form, "From $X" or "Project-based"
+  // Optional "Common questions" under the article, added 2026-10-05 for the
+  // answer-first rewrite: HQ's AI-answer tracker named gravixar.com in 0 of
+  // 75 answers to the 25 questions it asks, and each question here is one of
+  // those, word for word where that is honest. Every answer starts with the
+  // direct answer, because that sentence is the one an engine lifts.
+  faqs: faqList.optional(),
   order: z.number().int().nonnegative().default(0),
   // ISO date, e.g. "2026-07-30". When the scope of this offer last moved,
   // not when the page copy was tweaked. Optional: a service that has never
@@ -349,20 +370,44 @@ export const compareSchema = z.object({
       }),
     )
     .optional(),
-  faqs: z
-    .array(
-      z.object({
-        question: z.string().min(5).max(200),
-        answer: z.string().min(20),
-      }),
-    )
-    .min(3)
-    .max(8),
+  faqs: faqList,
   publishedAt: isoDate,
   updatedAt: isoDate.optional(),
   draft: z.boolean().default(false),
 });
 export type Compare = z.infer<typeof compareSchema>;
+
+// Buyer pages: one page per kind of buyer, at /for/<slug> (/for/agencies,
+// /for/accounting-and-law-firms). Added 2026-10-05. Every competitor an AI
+// answer cited for these buyers had a page in the buyer's own words with a
+// place in the title; gravixar.com never used the words "agency",
+// "accounting" or "law firm" on /services. One real page per buyer, never a
+// page per city: the problems, what I build for them, named proof and how the
+// pricing works. The service rows render each price from its own service, and
+// any dollar figure in the prose must be on a service's pricing line
+// (scripts/content-validate.ts), so a moved price fails the build here.
+export const buyerPageSchema = z.object({
+  // The H1. Unlike a service, a buyer page has no coined name to protect, so
+  // the searched phrase IS the title.
+  title: z.string().min(3).max(80),
+  // The browser tab and the search result, when it should differ from the H1.
+  seoTitle: z.string().min(3).max(70).optional(),
+  slug,
+  // The buyer as it reads after "For", lower case ("agencies"), for the
+  // eyebrow, the breadcrumb, the services heading and llms.txt.
+  buyer: z.string().min(3).max(60),
+  lede: z.string().min(20).max(240),
+  metaDescription,
+  // Service slugs, rendered as the service rows (name, price, promise) in
+  // this order. A slug with no service behind it FAILS the build in the
+  // route rather than dropping a row quietly.
+  services: z.array(slug).min(1),
+  faqs: faqList,
+  order: z.number().int().nonnegative().default(0),
+  updatedAt: isoDate,
+  draft: z.boolean().default(false),
+});
+export type BuyerPage = z.infer<typeof buyerPageSchema>;
 
 // Module library entries: each describes a reusable production-tested
 // pattern (auth, audit log, review state machine, AI guardrail, etc.)
@@ -432,6 +477,7 @@ export const SCHEMAS = {
   pages: pageSchema,
   compare: compareSchema,
   modules: moduleSchema,
+  buyers: buyerPageSchema,
 } as const;
 
 export type ContentKind = keyof typeof SCHEMAS;

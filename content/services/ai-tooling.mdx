@@ -1,9 +1,16 @@
 ---
 title: "AI Tooling & Automations"
+# What buyers ask for, with the place in it (2026-10-05): the questions HQ's
+# AI-answer tracker asks are "human-in-the-loop review", "AI agents" for
+# accounting practices, and "AI automation" in Dubai. Browser tab and search
+# results only; every card, list and the chat keep the title.
+seoTitle: "AI automation and agents with human review, UK and UAE"
+# The H1, for the same reason. The offer's own name moves into the eyebrow.
+headline: "AI automation with a person approving, for UK and UAE firms"
 slug: "ai-tooling"
 bucket: "ai"
 tagline: "AI that handles the repetitive work inside the tools you already use. Nothing gets published until a person says yes, and you can switch AI providers when a better one comes out."
-metaDescription: "The AI that drafts posts for this site is the pattern: it does the boring 80%, and nothing goes live until I approve it. First build in 2 to 4 weeks."
+metaDescription: "AI automation and agents for agencies and accounting and law firms in the UK and UAE, with a person approving. First build usually 2 to 4 weeks."
 deliverables:
   - "AI that drafts blog posts, case studies, and social posts, all held for your approval"
   - "Enquiry forms that ask follow-up questions and write a brief from a website link"
@@ -11,28 +18,57 @@ deliverables:
   - "Custom AI agents connected to monday.com, ClickUp, your CRM, or your portal"
   - "Flags on suspicious activity, and suggestions for who should pick up what"
   - "Works with Claude, GPT, or Gemini, and switches when a better one comes out"
+# Clients named since 2026-10-05 (HQ brain decision
+# gravixar-names-clients-and-what-was-built). Broomstick Hub is the portal of
+# Broomstick Creative, the same client (brain/projects/broomstick.md).
 proof:
   - { label: "The AI that drafts posts for this site", href: "/blog", kind: "live-demo" }
   - { label: "A supervised agent console you can run", href: "https://demo.gravixar.com/studio-mix", kind: "live-demo" }
-  - { label: "AI intake wizard in a production portal", href: "/work/bs-hub", kind: "case-study" }
-  - { label: "HIPAA-aware AI guardrails in a healthcare platform", href: "/work/beeline", kind: "case-study" }
+  - { label: "AI intake in Broomstick Hub, Broomstick Creative's agency portal", href: "/work/bs-hub", kind: "case-study" }
+  - { label: "A patient-data guard on every AI call in Beeline's platform", href: "/work/beeline", kind: "case-study" }
 pricing: "Priced once I see the scope. A first build usually takes 2 to 4 weeks."
+# Questions from HQ's AI-answer tracker, word for word where that is honest.
+# Every answer starts with the answer. Plain text only: these strings are also
+# the FAQPage structured data. Prices here must be a service's published price
+# (scripts/content-validate.ts checks). The code-review answer names no client
+# on purpose: a client's problem count is not the line to put its name on.
+faqs:
+  - question: "How do I add human-in-the-loop review to AI automation in my firm?"
+    answer: "Put the approval step in the software itself, at the point where the AI's work would leave the system. In what I build, AI drafts and suggests, and nothing it produces goes out or changes a record until a person approves it, and the system keeps a record of what it did. Broomstick Hub, the agency portal I built for Broomstick Creative, runs this way: AI drafts the brand brief before the first call, and it never approves anything. A first build usually takes 2 to 4 weeks."
+  - question: "Who can help an accounting practice set up AI agents safely?"
+    answer: "Gravixar can, for practices in the UK and the UAE, working remotely from Pakistan. I build the agent inside the tools you already use, with a person approving anything it would send or change, and a check on free text for data that shouldn't be stored. That check runs on every AI request in Beeline's credentialing platform, where patient data is kept out by design. I haven't published an accounting build yet, so that is the closest proof. The price is set once I see the scope."
+  - question: "Is there a fractional AI officer for a professional services firm in the UK?"
+    answer: "Yes, in a narrow form. The Fractional AI Ops Lead is $3,500 a month for one live AI system, starting when a build ships. I check what the system actually produced every month and add one new capability a quarter. When the AI model or your data changes, you hear it from me first. It looks after a system you run. A firm-wide AI strategy and staff training are outside it. I work with UK firms remotely from Pakistan."
+  - question: "Who audits AI-generated code before launch?"
+    answer: "Gravixar does, as the AI Code Confidence Review: $6,500 fixed for one codebase, with the scope agreed in writing before I start. AI agents hunt for problems first, then a second pass tries to prove each one wrong, so only the ones that hold up reach your report, ranked by how much they matter. On an agency portal I built, 14 parallel checks found 63 problems, and the fixes closed 87, older ones included, with 252 of 252 tests passing."
+  - question: "Can you help a small business in the UK with AI governance?"
+    answer: "Yes, for the part of governance that lives in the software. Every AI system I build keeps a record of what it did, and a person approves anything it would send or change. You can also switch AI providers from one place in the code. A written AI policy or staff training is outside what I offer. I work with UK businesses remotely from Pakistan, and a first build usually takes 2 to 4 weeks."
 track: "build"
 order: 2
 updatedAt: "2026-07-30"
 ---
 
-The best example is running on this site. Every week, an AI checks what people are searching for, picks an angle, drafts a blog post, and drops it in a folder for review. Nothing goes live until I approve it.
+I build AI automation and AI agents for agencies and for accounting and law practices in the UK and the UAE, working remotely from my office in Pakistan, and nothing the AI drafts goes out or changes a record until a person approves it. It's priced once I see the scope, and a first build usually takes 2 to 4 weeks. The named example is Broomstick Hub, the agency portal I built for Broomstick Creative, an agency working across the UAE and Pakistan. There, AI picks the next intake question and drafts a brand brief from the prospect's website, and it never approves anything or messages a client on its own.
 
-That is the pattern I sell: AI does the boring 80%, and a person keeps the steering wheel for the 20% that matters. No "agentic" magic that publishes garbage at 3am. And you are not tied to one AI company. The model is set in one place in the code, so you can switch when a better one comes out.
+The plainest example runs on this site. Twice a week an AI drafts an article from what people are searching for and drops it in a folder for review, and nothing goes live until I approve it. I wrote up [the 41 days this blog went without a post](/blog/bottleneck-is-approval-not-generation) while four drafts sat waiting, because that wait is the real limit on this kind of system, and the approval step is the part I sell.
 
 {/* demo-shot: the page renders the Studio Mix screenshot here */}
 
 ## What it usually looks like
 
 - **A smarter enquiry form.** A new lead answers 4 to 7 questions that change based on their answers, and AI writes a brand brief from their website. Your team walks into the first call already knowing the basics.
-- **A nightly watch.** Every night it checks your activity log for work that is stuck, sudden floods of signups, bursts of deleted records, and anything else unusual. You get an email when something looks off, not when everything is fine.
+- **A nightly watch.** Every night it checks your activity log for work that is stuck, sudden floods of signups, bursts of deleted records, and anything else unusual. You get an email when something looks off, and silence when everything is fine.
 - **Posts that wait for you.** Drafts line up for review. You approve once, and it posts to LinkedIn, X, and your blog. A person always makes the call.
 - **A sorted inbox.** New messages get sorted by urgency, topic, and intent, with a suggested owner. A person confirms.
 
 If you already run systems and want AI working inside them, this is the job.
+
+## For accounting and law practices
+
+On [Beeline's credentialing platform](/work/beeline), every free-text box is checked for patient details before anything is saved, and every AI request carries a standing instruction to keep them out. That's the pattern I'd bring to a practice holding clients' tax or legal documents. AI drafts and sorts, and a person signs off on anything that leaves the firm. I haven't published a build for an accounting or law firm yet, so Beeline is the proof I can point to, and the [page for accounting and law practices](/for/accounting-and-law-firms) says what a portal for a firm would hold.
+
+## Your choice of AI model
+
+You aren't tied to one AI company. The model is set in one place in the code, so you can move between Claude, GPT and Gemini when a better one comes out.
+
+Pairs with **[Fractional AI Ops Lead](/services/fractional-ai-ops-lead)** when the system is live and needs someone checking what it produces, and with **[Ops Leak Audit](/services/ops-leak-audit)** when you aren't sure yet which job to hand to AI first.

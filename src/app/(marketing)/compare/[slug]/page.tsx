@@ -4,11 +4,9 @@ import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/site/PageHeader";
 import { MDX } from "@/content/mdx";
 import { ContactCTA } from "@/components/home/ContactCTA";
-import {
-  StructuredDataBreadcrumb,
-  StructuredDataFAQ,
-} from "@/components/site/StructuredData";
+import { StructuredDataBreadcrumb } from "@/components/site/StructuredData";
 import { ArticleBody, RailBlock } from "@/components/content/ArticleBody";
+import { CommonQuestions } from "@/components/content/CommonQuestions";
 import { extractToc } from "@/components/content/longform";
 import { Arrow } from "@/components/ui/Button";
 import { loadCaseStudies, loadCompares, loadServices } from "@/content/loaders";
@@ -73,7 +71,6 @@ export default async function ComparePage(
           { name: c.meta.competitor, url },
         ]}
       />
-      <StructuredDataFAQ faqs={c.meta.faqs} />
 
       <article className="read-track">
         <PageHeader
@@ -125,24 +122,7 @@ export default async function ComparePage(
         >
           <MDX source={c.body} />
 
-          <section id={FAQ_ID} aria-labelledby={`${FAQ_ID}-h`} className="mt-16 scroll-mt-28">
-            <h2
-              id={`${FAQ_ID}-h`}
-              className="text-[1.625rem] font-semibold leading-[1.18] tracking-[-0.02em] text-ink-50 md:text-subsection"
-            >
-              Common questions
-            </h2>
-            <dl className="mt-6 border-t border-line-soft">
-              {c.meta.faqs.map((f) => (
-                <div key={f.question} className="border-b border-line-soft py-6">
-                  <dt className="text-[1.125rem] font-semibold leading-snug text-ink-100">
-                    {f.question}
-                  </dt>
-                  <dd className="mt-2.5 text-prose text-ink-300">{f.answer}</dd>
-                </div>
-              ))}
-            </dl>
-          </section>
+          <CommonQuestions faqs={c.meta.faqs} id={FAQ_ID} className="mt-16" />
         </ArticleBody>
       </article>
 

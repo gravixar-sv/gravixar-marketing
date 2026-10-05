@@ -4,24 +4,40 @@ import { PageHeader } from "@/components/site/PageHeader";
 import { Reveal } from "@/components/site/Reveal";
 import { ContactCTA } from "@/components/home/ContactCTA";
 import { FrontDoor } from "@/components/services/FrontDoor";
-import { TRACK_LABEL, type Track } from "@/components/services/model";
+import { leadFigure, TRACK_LABEL, type Track } from "@/components/services/model";
 import { ServiceRow } from "@/components/services/ServiceRow";
-import { loadServices } from "@/content/loaders";
+import { loadBuyerPages, loadServices } from "@/content/loaders";
 import { separatorBefore } from "@/lib/prose";
 import { buildMetadata } from "@/lib/seo";
 
 export const revalidate = 3600;
 
-// Describes the tracks, not the services inside them, because the list of
-// services keeps growing and a description that enumerates them goes stale on
-// the next one. Tracks change when the shape of the business changes, and it
-// changed on 2026-09-14: a fixed-price audit became the first step.
-export const metadata: Metadata = buildMetadata({
-  title: "Ops leak audit, operations infrastructure, AI tooling, code review",
-  description:
-    "Start with a fixed-price audit of where your team's hours go. Then I build the fix, and check that it holds after launch.",
-  path: "/services",
-});
+// Names the buyers, the places and the front door, not every service, because
+// the list of services keeps growing and a description that enumerates them
+// goes stale on the next one. Until 2026-10-05 it named the four offers and no
+// buyer or country at all, while every competitor an AI answer cited had the
+// buyer and the place in its title ("Client Portal Development for UK
+// Professional Services Firms"). The audit's price is read from its own
+// frontmatter, so the description cannot quote a price the page has dropped.
+export async function generateMetadata(): Promise<Metadata> {
+  const services = await loadServices();
+  const front = services.find((s) => s.meta.track === "start" && s.meta.audience === "everyone");
+  const figure = front ? leadFigure(front.meta) : null;
+  const audit = figure ? `a ${figure.figure} ${figure.qualifier === "fixed" ? "fixed-price " : ""}audit` : "an audit";
+  return buildMetadata({
+    title: "Client portals, ops audits and AI tooling for the UK and UAE",
+    description: `For agencies and for accounting and law practices in the UK and UAE. Start with ${audit} of where your team's hours go, then I build the fix.`,
+    path: "/services",
+  });
+}
+
+// The buyer pages the intro links, by slug. Looked up rather than hardcoded
+// as hrefs, so a buyer page that is renamed or drafted turns its words back
+// into plain text instead of leaving a link to a 404.
+const BUYER_LINKS = {
+  agencies: "agencies",
+  practices: "accounting-and-law-firms",
+} as const;
 
 // The menu tracks after the front door, in ascending commitment: a project
 // that ends, a system I keep checking after it ships, a site I keep running.
@@ -39,7 +55,15 @@ export const metadata: Metadata = buildMetadata({
 const MENU_TRACKS: Track[] = ["build", "ongoing", "maintain"];
 
 export default async function ServicesIndexPage() {
-  const all = await loadServices();
+  const [all, buyers] = await Promise.all([loadServices(), loadBuyerPages()]);
+  const buyerLink = (slug: string, text: string) =>
+    buyers.some((b) => b.meta.slug === slug) ? (
+      <Link href={`/for/${slug}`} className="link-quiet">
+        {text}
+      </Link>
+    ) : (
+      text
+    );
   // The menu is for a stranger. Existing-clients offers keep their pages and
   // get one sentence under the menu instead of a row in it.
   const services = all.filter((s) => s.meta.audience === "everyone");
@@ -51,7 +75,14 @@ export default async function ServicesIndexPage() {
       <PageHeader
         eyebrow="Services"
         title="Start with the numbers. Then decide what to build."
-        lede="Not sure what you need? The audit below is the first step, at a fixed price. Every service links to proof you can check: a case study, a live demo, or a system running today."
+        lede={
+          <>
+            I build client portals and AI tooling for {buyerLink(BUYER_LINKS.agencies, "agencies")}{" "}
+            and for {buyerLink(BUYER_LINKS.practices, "accounting and law practices")} in the UK and
+            the UAE, working from my office in Pakistan. Not sure what you need? The audit below is
+            the first step, at a fixed price, and every service links to proof you can check.
+          </>
+        }
       />
 
       {frontDoor.length > 0 ? (

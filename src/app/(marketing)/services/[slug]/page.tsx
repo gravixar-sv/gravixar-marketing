@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/site/PageHeader";
 import { Reveal } from "@/components/site/Reveal";
+import { CommonQuestions } from "@/components/content/CommonQuestions";
 import { MDX } from "@/content/mdx";
 import { Arrow, buttonClass } from "@/components/ui/Button";
 import {
@@ -167,6 +168,11 @@ export default async function ServicePage(
             }
             return null;
           })}
+
+          {/* In the reading column, after the article, so the aside's deal card
+              stays beside the prose. The FAQPage JSON-LD comes from the same
+              list inside the component. */}
+          {s.meta.faqs ? <CommonQuestions faqs={s.meta.faqs} className="mt-16" /> : null}
         </article>
 
         <ServiceAside
