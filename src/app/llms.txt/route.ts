@@ -165,8 +165,13 @@ export async function GET() {
   if (buyers.length > 0) {
     lines.push("## Who it is for");
     lines.push("");
+    // The meta description, not the lede: the lede is written to sit under
+    // the H1 and leaves the buyer and the place to it, while the description
+    // has to stand alone in a result row, which is what a line here is.
     for (const b of buyers) {
-      lines.push(`- [For ${b.meta.buyer}](${url(`/for/${b.meta.slug}`)}): ${b.meta.lede}`);
+      lines.push(
+        `- [For ${b.meta.buyer}](${url(`/for/${b.meta.slug}`)}): ${b.meta.metaDescription ?? b.meta.lede}`,
+      );
     }
     lines.push("");
   }
