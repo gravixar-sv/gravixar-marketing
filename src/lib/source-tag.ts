@@ -19,11 +19,21 @@
 // /contact, submit) and is gone on reload. The privacy page says what this
 // records.
 //
-// HQ reads `source` in two places, and a suffixed tag is safe for both:
-// `sourcePageHref` only treats a domain-shaped source as a host (a colon never
-// matches), and `isStudioLead` matches one exact Robonamix value this site
-// never sends. Every lead schema caps `source` at 80 characters; the longest
-// base here plus a 30-character suffix is 48.
+// The post, too (2026-10-05). A tagged link in a LinkedIn first comment
+// carries `utm_content=<the HQ post's id>`, and when it does the id rides
+// after the channel: "contact-page:linkedin:<id>". HQ reads it back off the
+// end (src/lib/social/attribution.ts in gravixar-hq) to count leads per post,
+// which "linkedin" alone could not: three posts a week share that channel. It
+// rides only with the channel it was tagged with, so a later visit from
+// somewhere else never inherits it.
+//
+// HQ reads `source` in three places, and a suffixed tag is safe for all of
+// them: `sourcePageHref` only treats a domain-shaped source as a host (a colon
+// never matches), `isStudioLead` matches one exact Robonamix value this site
+// never sends, and the post reader only acts on a last segment shaped exactly
+// like an HQ draft id. Every lead schema caps `source` at 80 characters; the
+// longest base here (17) plus a 30-character channel and a 30-character
+// content, with their colons, is 79.
 
 const MAX_SUFFIX = 30;
 
@@ -52,6 +62,18 @@ function tagFrom(search: string): string | null {
   return raw ? clean(raw) || null : null;
 }
 
+/** The `utm_content` on a URL, cleaned like the channel, or null. */
+export function contentFrom(search: string): string | null {
+  const raw = new URLSearchParams(search).get("utm_content");
+  return raw ? clean(raw) || null : null;
+}
+
+/** The tag itself, given what the visit said. Pure, so every case is fixtured. */
+export function composeTag(base: string, channel: string | null, content: string | null): string {
+  if (!channel) return base;
+  return content ? `${base}:${channel}:${content}` : `${base}:${channel}`;
+}
+
 /** The referring site as a channel name, or null for a direct or in-site visit. */
 export function referrerName(referrer: string, ownHost: string): string | null {
   let host: string;
@@ -70,6 +92,8 @@ export function referrerName(referrer: string, ownHost: string): string | null {
 
 // undefined until the visit has been read; null once read and found untagged.
 let visitSuffix: string | null | undefined;
+// The landing page's utm_content, kept beside the channel it came with.
+let visitContent: string | null = null;
 
 /**
  * Reads how this visit arrived, once. Called on first paint by
@@ -78,14 +102,17 @@ let visitSuffix: string | null | undefined;
  */
 export function rememberVisitSource(): void {
   if (typeof window === "undefined" || visitSuffix !== undefined) return;
-  visitSuffix =
-    tagFrom(window.location.search) ??
-    referrerName(document.referrer, window.location.hostname);
+  const tagged = tagFrom(window.location.search);
+  visitSuffix = tagged ?? referrerName(document.referrer, window.location.hostname);
+  // Only a tagged landing has content worth keeping: a referrer-named visit
+  // was never given one.
+  visitContent = tagged ? contentFrom(window.location.search) : null;
 }
 
 export function sourceTag(base: string): string {
   if (typeof window === "undefined") return base;
   rememberVisitSource();
-  const suffix = tagFrom(window.location.search) ?? visitSuffix ?? null;
-  return suffix ? `${base}:${suffix}` : base;
+  const here = tagFrom(window.location.search);
+  if (here) return composeTag(base, here, contentFrom(window.location.search));
+  return composeTag(base, visitSuffix ?? null, visitContent);
 }
