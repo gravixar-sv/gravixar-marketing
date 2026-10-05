@@ -22,6 +22,7 @@
 // omission: this manifest is the priority set, not the sitemap.
 
 import {
+  loadBuyerPages,
   loadCaseStudies,
   loadCompares,
   loadGraphics,
@@ -29,6 +30,7 @@ import {
   loadServices,
 } from "@/content/loaders";
 import type { Service } from "@/content/schema";
+import { leadFigure } from "@/components/services/model";
 import { DEMO_SCENES } from "@/lib/demos";
 import { SITE } from "@/lib/seo";
 
@@ -52,13 +54,42 @@ const TRACK_CLAUSE: Record<Service["track"], string> = {
 const listedTitle = (s: Service) =>
   s.audience === "existing-clients" ? `${s.title} (for existing clients)` : s.title;
 
+// Named clients and what was built for each, added 2026-10-05 (HQ brain
+// decision gravixar-names-clients-and-what-was-built: Qamar, "we can name what
+// we built for which client"). Two limits travel with it. A client appears
+// here only if it is on the home page's logo wall, and a line says only what
+// its case study already says, with the date where the case study dates it.
+// The case studies themselves still describe their clients generically; the
+// pairing of name and study is what this list adds. Each line is dropped if
+// its case study is not loaded, so a renamed or drafted study cannot leave a
+// line pointing at a 404.
+const NAMED_WORK: { slug: string; line: string }[] = [
+  {
+    slug: "bs-hub",
+    line: "Broomstick Creative, a creative agency working across the UAE and Pakistan: Broomstick Hub, the agency portal Gravixar built for it. A new client goes from first inquiry to an active project in about 10 minutes, down from two to three days of email, and AI drafts briefs but never approves anything.",
+  },
+  {
+    slug: "monday-rollout-agency",
+    line: "Broomstick Creative: a monday.com rollout in four phases, the Islamabad delivery teams first and the Dubai project and account managers third. The team grew from 10 people to more than 50 on one delivery system. Running since September 2021.",
+  },
+  {
+    slug: "lucidlink-wasabi",
+    line: "Broomstick Creative: Dropbox and local disks replaced with LucidLink streaming storage and a Wasabi archive, so editors open live projects from any machine. More than 80% of event delivery runs this way.",
+  },
+  {
+    slug: "beeline",
+    line: "Beeline, a healthcare credentialing and billing company: its credentialing platform, live on its own domain since June 2026 and holding 250 clients and 2,042 insurer applications by the end of July 2026. Patient data stays out of it by design.",
+  },
+];
+
 export async function GET() {
-  const [services, studies, compares, modules, graphics] = await Promise.all([
+  const [services, studies, compares, modules, graphics, buyers] = await Promise.all([
     loadServices(),
     loadCaseStudies(),
     loadCompares(),
     loadModules(),
     loadGraphics(),
+    loadBuyerPages(),
   ]);
 
   const url = (path: string) => `${SITE.url}${path}`;
@@ -91,6 +122,20 @@ export async function GET() {
     `Gravixar is an AI-ops platform built by Qamar: productized modules (portals, intake wizards, content agents) that run operations with a human approving every write. Today it ships as high-touch custom builds, several of them carrying a client's daily operations in production, plus ongoing retainers that keep shipped systems running. A hosted version of the same modules, rented by the month, does not exist yet and carries no announced date; there is a waitlist. Every module has a working version live somewhere: on this site, at demo.gravixar.com, or in a client's production stack, open to use before pricing comes up. ${DEMO_SCENES.length} live demo scenes at demo.gravixar.com, no sign-in.`,
   );
   lines.push("");
+  // Who it is for and where, in the words a buyer asks in. The UK and the UAE
+  // are served remotely; the only address is the Rawalpindi office. The front
+  // door's name and price are read from its frontmatter, like every other
+  // figure in this file, so a price change cannot leave this line behind.
+  const frontDoor = services.find((s) => s.meta.track === "start" && s.meta.audience === "everyone");
+  const frontFigure = frontDoor ? leadFigure(frontDoor.meta) : null;
+  const firstStep =
+    frontDoor && frontFigure
+      ? ` The first step is the ${frontDoor.meta.title} at ${frontFigure.figure}${frontFigure.qualifier ? ` ${frontFigure.qualifier}` : ""}, and each service page says how that service is priced.`
+      : "";
+  lines.push(
+    `${SITE.name} serves agencies and accounting and law practices in the United Kingdom and the United Arab Emirates, remotely, from its office in Rawalpindi, Pakistan.${firstStep}`,
+  );
+  lines.push("");
 
   lines.push("## Core pages");
   lines.push("");
@@ -116,6 +161,26 @@ export async function GET() {
     );
   }
   lines.push("");
+
+  if (buyers.length > 0) {
+    lines.push("## Who it is for");
+    lines.push("");
+    for (const b of buyers) {
+      lines.push(`- [For ${b.meta.buyer}](${url(`/for/${b.meta.slug}`)}): ${b.meta.lede}`);
+    }
+    lines.push("");
+  }
+
+  const loadedStudies = new Set(studies.map((cs) => cs.meta.slug));
+  const named = NAMED_WORK.filter((w) => loadedStudies.has(w.slug));
+  if (named.length > 0) {
+    lines.push("## Named clients and what was built");
+    lines.push("");
+    for (const w of named) {
+      lines.push(`- ${w.line} [Case study](${url(`/work/${w.slug}`)})`);
+    }
+    lines.push("");
+  }
 
   lines.push("## Case studies (shipped systems, live or handed off)");
   lines.push("");

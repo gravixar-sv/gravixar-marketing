@@ -72,6 +72,15 @@ const ORG_PROFILES = [
   "https://github.com/gravixar-sv",
 ];
 
+// The countries the company works in, as ISO 3166 codes beside their names, so
+// a consumer that matches on either finds them. Order is the buyer's order:
+// the two markets the service pages are written for, then home.
+const AREA_SERVED = [
+  { "@type": "Country", name: "United Kingdom", identifier: "GB" },
+  { "@type": "Country", name: "United Arab Emirates", identifier: "AE" },
+  { "@type": "Country", name: "Pakistan", identifier: "PK" },
+];
+
 // The site's own author string, for the article schemas below: only an author
 // who IS the Person node gets its @id, so a future guest author cannot be
 // silently merged into him.
@@ -148,6 +157,14 @@ export function StructuredDataGlobal() {
       addressCountry: "PK",
     },
     description: SITE.tagline,
+    // Where the buyers are, added 2026-10-05. The UK and the UAE are served
+    // remotely, so they are areas served and never an address: the office
+    // above stays the only place the company claims to be. Each one rests on
+    // published work: the footer's "teams in Pakistan, the UK and the UAE",
+    // and the UAE through the Dubai managers on /work/monday-rollout-agency.
+    // Deliberately still NO telephone or email here: which public address the
+    // company uses is the owner's open choice.
+    areaServed: AREA_SERVED,
     sameAs: ORG_PROFILES,
   };
 

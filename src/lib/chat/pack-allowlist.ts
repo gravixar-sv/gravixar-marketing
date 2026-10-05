@@ -79,7 +79,14 @@ export const PACK_EXCLUDED: Record<PackKind, readonly string[]> = {
   // by its title, so a visitor never meets two names for the same offer.
   // headline: the page's own H1 where it differs from the title, for the same
   // reason as seoTitle. Bosun keeps naming the offer by its title.
-  service: ["proof", "order", "updatedAt", "metaDescription", "audience", "seoTitle", "headline"],
+  // faqs: written for answer engines, and the answers name clients (Broomstick
+  // Creative, Beeline) next to what was built for them. A chat answer naming
+  // who a build was for is a different act from a reader finding it on the
+  // page, and clause 6 keeps the case study client: line as Bosun's ceiling,
+  // the same reasoning as module runningIn below. Promoting these to READ
+  // should be its own deliberate diff (the compare FAQs are READ because they
+  // name no client).
+  service: ["proof", "order", "updatedAt", "metaDescription", "audience", "seoTitle", "headline", "faqs"],
   compare: [
     "competitorUrl",
     "linkedCaseStudy",

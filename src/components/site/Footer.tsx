@@ -112,8 +112,11 @@ export function Footer() {
             © {new Date().getFullYear()} {SITE.name}. Built by Qamar. Proof first, pitch second.
           </p>
           {/* The office address, the same one the structured data and the
-              Google Business Profile carry (2026-10-04). */}
-          <p>Phase 4 Civic Center, Bahria Town, Rawalpindi. Working with teams in Pakistan and the UK.</p>
+              Google Business Profile carry (2026-10-04). The UAE joined the
+              markets on 2026-10-05: the Dubai managers on the monday.com
+              rollout are published work. Served from here, so it is a market
+              and never a second address. */}
+          <p>Phase 4 Civic Center, Bahria Town, Rawalpindi. Working with teams in Pakistan, the UK and the UAE.</p>
         </div>
       </div>
 

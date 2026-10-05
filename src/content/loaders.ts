@@ -9,6 +9,7 @@ import path from "node:path";
 import matter from "gray-matter";
 import {
   blogPostSchema,
+  buyerPageSchema,
   caseStudySchema,
   compareSchema,
   graphicsItemSchema,
@@ -17,6 +18,7 @@ import {
   pageSchema,
   serviceSchema,
   type BlogPost,
+  type BuyerPage,
   type CaseStudy,
   type Compare,
   type GraphicsItem,
@@ -169,6 +171,27 @@ export async function loadCompares({
   return items
     .filter((i) => includeDrafts || !i.meta.draft)
     .sort((a, b) => b.meta.publishedAt.localeCompare(a.meta.publishedAt));
+}
+
+// The /for/<slug> pages, one per kind of buyer. Curated order, then slug, so
+// the links on /services and in llms.txt read the same way every build.
+export async function loadBuyerPages({
+  includeDrafts = false,
+}: { includeDrafts?: boolean } = {}): Promise<Loaded<BuyerPage>[]> {
+  const items = await loadDir(
+    "buyers",
+    (data, file) => {
+      const result = buyerPageSchema.safeParse(data);
+      if (!result.success) {
+        throw new Error(`Invalid frontmatter in ${file}:\n${result.error.message}`);
+      }
+      return result.data;
+    },
+    { includeDrafts },
+  );
+  return items
+    .filter((i) => includeDrafts || !i.meta.draft)
+    .sort((a, b) => a.meta.order - b.meta.order || a.meta.slug.localeCompare(b.meta.slug));
 }
 
 export async function loadGraphics({
