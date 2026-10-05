@@ -1,0 +1,44 @@
+---
+title: "An AI audit trail has to show who said yes, and to which version"
+slug: "ai-audit-trail-who-said-yes-to-which-version"
+excerpt: "Logging what the AI produced is the easy half. The record a client asks for names the person who approved, the version they approved, and what changed after."
+metaDescription: "An AI audit trail that a client trusts records the AI under its own name, the person who approved, the exact version, and every change made after approval."
+publishedAt: "2026-10-05"
+tags: ["ai-governance", "ai-tooling", "ops-infrastructure"]
+draft: true
+aiAssisted: true
+---
+
+This post was drafted by an AI on my laptop on a Monday afternoon, and the first thing it did after writing the file was commit it under its own name. In the history of this site's code, that commit is signed "gravixar weekly research", with its own email address, and it sits in a folder the site doesn't publish. When I move the file out, that move is a second commit, under my name. So anyone reading the history can tell which words the AI wrote and which decision was mine, without asking me.
+
+I set it up that way because of a question clients keep asking about AI in their own work, and a survey published this year put numbers on it.
+
+## What accounting firms said they need
+
+Uku, which makes accounting software, surveyed firms in eight countries in May and June 2026 for its [AI in Accounting report](https://getuku.com/ai-in-accounting-report/). 62% said their trust in AI depends on a person approving before anything is sent or filed. 44% picked a clear audit trail of what the AI did. Not one firm said it already fully trusts AI. The report describes the sample as dozens of firms, so I'd read those percentages as a direction rather than a measurement, but the direction matches every conversation I've had with a professional services firm about AI.
+
+What I notice is that the two asks are really one ask. An approval nobody can find later doesn't help you when a client disputes a filing, and a log of AI output with no approval in it only proves the machine was busy.
+
+## Most AI logs record the wrong half
+
+The usual AI log stores the prompt, the response, the model and a timestamp. That's useful when you're debugging the AI. It's close to useless when a client says "I never agreed to that", because the question they're asking is about people. Who looked at it, which version did they look at, and did anything change after they said yes?
+
+So when I build a review step around AI work, the record has to hold four things, and the AI's output is only one of them.
+
+The first is the AI's work under its own identity. If the AI's changes are logged as the person who happened to be signed in, you can't separate them later. On this blog that's the separate commit name. Inside a client system it's a separate actor on every audit row.
+
+The second is the approval as its own entry, with a name and a time. In the [client sign-off flow](/modules/review-state-machine) I run in an agency portal, work moves through fixed steps, from draft to internal review to client approval, and each step writes its own line to the audit log. Nobody can mark work approved by editing a status field, and the AI can't approve at all. It drafts briefs and that's where its part stops.
+
+The third is the version. An approval has to point at what was approved, not at the task in general. When a client asks for changes in that same flow, the work goes back to draft, the earlier approvals stay in the history, and the next submission is flagged so the reviewer sees exactly what changed since they last said yes. Without that, a second approval quietly covers edits the reviewer never saw.
+
+The fourth is what happens after approval. In the [audit log I use in the agency portal and the healthcare platform](/modules/audit-log-restore), some edits can be undone in one click, and the undo writes a new row pointing back at the original. Status, money amounts and who owns a piece of work are never on that list. Changing those needs a person, and that person shows up in the record too. Records about contracts and money are kept for seven years and everyday changes for one.
+
+## What a client actually asks
+
+The engineering in all of this is simple. The discipline is in where the approval lives. I wrote before about how [the approval is the bottleneck on this blog, not the drafting](/blog/bottleneck-is-approval-not-generation), and the audit trail is the reason I'm fine with that. When someone asks me whether a post was reviewed, I can show them the commit that moved it, who made it and when, and the diff between what the AI wrote and what went live.
+
+For an accounting firm the same question comes from a client or a regulator, and it's about a filing or an email to a client. "Did a person check this before it went out, and is the thing they checked the thing that was sent?" If the system can answer that from its own records, the firm can use AI for the drafting and still stand behind the work. If it can't, every AI-assisted email is a small bet that nobody will ever ask.
+
+## Where it costs me
+
+Keeping the approval as a separate act means things wait for me. One draft on this blog sat in that unpublished folder for 40 days before I moved it out. The record shows that too, with the date the AI committed it and the date I moved it, which isn't flattering, but it's accurate. A firm running the same setup would see its own slow approvals the same way, and so would its clients.
