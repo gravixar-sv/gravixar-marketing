@@ -1,7 +1,7 @@
 ---
 title: "Human in the loop AI: three live examples, and how to tell if the human is real"
 slug: "human-in-the-loop-ai-examples-three-live-systems"
-excerpt: "Three systems I run put a person between the AI and the outcome. The test I use for each is the same: can the work move without them, and can I count the times they said no."
+excerpt: "Three systems I run put a person between the AI and the outcome. I check each one the same way: can the work move without them, and can I count the times they said no."
 metaDescription: "Three live human in the loop AI examples: an agency portal, a healthcare platform, and this blog. Plus the test for whether the human is really in the loop."
 publishedAt: "2026-09-28"
 tags: ["ai-governance", "ai-tooling", "ops-infrastructure"]
@@ -9,52 +9,38 @@ draft: true
 aiAssisted: true
 ---
 
-"Human in the loop" has become a phrase people put on a slide. It usually means somebody could look at the output if they wanted to. That is not a loop. That is a hope.
+I run three systems where a person sits between the AI and the result, and I built each one differently because the risk in each one is different. When someone describes their own setup as "human in the loop", it often turns out to mean somebody could look at the output if they wanted to, so I judge my three with two questions that would catch that.
 
-I run three systems where a person really does sit between the AI and the result. They are built differently, because the risk in each one is different. But I judge all three with the same two questions, and I think they are the only two that matter.
-
-**Can the work move forward without the person?** If it can, the person is optional, and optional steps get skipped in a busy week.
-
-**Can I count the times the person said no?** If every review ends in "approved", I have a rubber stamp, not a reviewer.
-
-Here is how each system answers them.
+The first is whether the work can move forward without the person. If it can, the person is optional, and optional steps get skipped in a busy week. The second is whether I can count the times the person said no. If every review ends in "approved", I can't tell a reviewer from a habit.
 
 ## Example 1: an agency portal where AI drafts and never approves
 
-The first is a client portal for a digital agency. AI works at three points in it: it writes a brand brief from a new client's website, it writes the follow-up questions in the signup form, and it runs a daily check for anything unusual in the activity log.
+The first is a client portal for a digital agency. AI works at a few points in it. It writes a brand brief from a new client's website, it writes the follow-up questions in the signup form, and it runs a daily check for anything unusual in the activity log.
 
-None of those three can approve anything. Every deliverable moves through five fixed steps: draft, sent for internal review, approved internally, sent to the client, approved by the client. Each step is a button a named person presses, and each press writes a line to the audit log. There is no free-text status field an admin can quietly edit to "approved". The [full build is written up here](/work/bs-hub).
+None of that can approve anything. Every deliverable moves through five fixed steps, from draft through internal review and internal approval to the client's review and the client's approval. Each step is a button a named person presses, and each press writes a line to the audit log. There's no free-text status field an admin can quietly edit to "approved". The [full build is written up here](/work/bs-hub).
 
-The part I would copy into any system is smaller. The activity log has a Restore button that undoes a change in one click, but only for fields on a short approved list. Status, money amounts, and who owns a task are never on it. Those need a person to decide, every time, and the list is where that line is drawn in the code.
+The part I'd copy into any system is smaller. The activity log has a Restore button that undoes a change in one click, but only for fields on a short approved list. Status, money amounts and who owns a task are never on it, so those need a person to decide every time, and the list is where that line is drawn in the code.
 
-It also works the other way. If the AI is down or slow, its step is skipped and everything else goes ahead. The person is required. The AI is not.
+It also works the other way. If the AI is down or slow, its step is skipped and everything else goes ahead, because the person is required and the AI was only ever there to save them time.
 
 ## Example 2: a healthcare platform where the check runs before the person
 
-The second is a credentialing platform for a healthcare billing company. The risk there is not a bad draft. It is patient data ending up somewhere it should not.
+The second is a credentialing platform for a healthcare billing company. The risk there is patient data ending up somewhere it shouldn't.
 
-So the order is reversed. A machine check runs before any person sees anything: every free-text box is checked for patient details before it is saved, and every AI request carries a standing instruction to keep them out. Patient data does not live in the system at all, and the code enforces that, not a policy document.
+So the order is reversed. A check in the code runs before any person sees anything. Every free-text box is checked for patient details before it's saved, and every AI request carries a standing instruction to keep them out. Patient data doesn't live in the system at all, and the code enforces that rather than a policy document.
 
-This is the honest exception to "keep a human in the loop". When the rule is mechanical, like "no patient identifiers in this field", a person is the wrong check. People get tired. A check in the code does not. I put people where the call needs judgement, and code where it needs to be the same every time. The [platform is written up here](/work/beeline).
+This is where I'd make an exception to "keep a human in the loop". When the rule is mechanical, like "no patient identifiers in this field", a person gets tired and a check in the code doesn't, so I put people where the call needs judgement and code where it needs to be the same every time. The [platform is written up here](/work/beeline).
 
 ## Example 3: this blog, where I can count the no's
 
-The third is the one you are reading. An AI drafts posts for this site, and every draft lands in a folder the site does not publish. A post goes live only when I move the file out of that folder, which is a change in the code history with my name and a date on it. I wrote about why that queue exists in [the bottleneck is approval, not generation](/blog/bottleneck-is-approval-not-generation).
+The third is the one you're reading. An AI drafts posts for this site, and every draft lands in a folder the site doesn't publish. A post goes live only when the file is moved out of that folder, which is a change in the code history with a name and a date on it. I wrote about why that queue exists in [the bottleneck is approval, not generation](/blog/bottleneck-is-approval-not-generation).
 
-That setup passes the first test by construction. The second test is the interesting one, because I can answer it from the history.
+That setup passes the first question by construction, so the second one is where it gets interesting, and I can answer it from the history. Between the end of May and the end of September, 20 drafts reached that folder. 14 were published, usually within about four days, and the other 6 were deleted. Two of those were deleted outright rather than fixed.
 
-Since the end of May, 20 drafts have reached that folder. I published 14 of them, usually within about four days. I deleted the other 6, and two of those I deleted rather than tried to fix.
-
-The deletions have a pattern. The drafts I published were about one specific mechanism: a status log, an approval step, a portal that broke at a certain size. Most of the ones I deleted were general advice anyone could have written, like how to write an onboarding document. That tells me what the review is for. It is not catching typos. It is catching posts that should not exist.
-
-A reviewer who deleted nothing would have told me the opposite: either the AI was perfect, or nobody was really reading.
+The deletions have a pattern. The published drafts were each about one specific mechanism, like a status log, an approval step, or a portal that broke at a certain size. Most of the deleted ones were general advice anyone could have written, like how to write an onboarding document. So the review here mostly decides which posts should exist at all, and typos are a small part of it.
 
 ## How to check your own system
 
-If you have AI in your workflow and someone tells you a person reviews it, ask three things.
+If you have AI in your workflow and someone tells you a person reviews it, start by finding the step the AI can't pass on its own. If the answer is "the team knows to check", there isn't a step. Then ask for a rejected output from the last month, with who rejected it and why. If nobody has rejected anything, I'd want to know whether anyone is reading.
 
-- **Show me where it stops.** Find the step the AI cannot pass on its own. If the answer is "the team knows to check", there is no step.
-- **Show me a no.** Ask for a rejected output from the last month, with who rejected it and why. No rejections means no review.
-- **Show me what the person never touches.** Some checks should be code, not people. If a human is the only thing standing between your client data and an AI prompt, move that check into the system.
-
-Most teams I talk to can answer the first question and not the second. That is the gap worth closing, and it is the part I build into [the AI systems I set up for clients](/services/ai-tooling).
+It's also worth asking what the person never touches. If a human is the only thing standing between your client data and an AI prompt, that check belongs in the system, which is the part I build into [the AI systems I set up for clients](/services/ai-tooling).
