@@ -1,0 +1,57 @@
+# IndexNow: after every production deploy, tell Bing (and the other IndexNow
+# engines) which gravixar.com URLs changed, so ChatGPT search and Copilot,
+# which answer from Bing's index, see a changed page in minutes rather than at
+# Bing's next crawl. What is sent and why: scripts/indexnow-submit.mjs.
+#
+# Trigger: Vercel's GitHub integration writes a GitHub deployment for every
+# build, in the environment "Production" or "Preview", and posts a
+# deployment_status when it is ready. Every status starts this workflow; the
+# job runs only for a successful Production one, so preview deploys show up
+# here as skipped runs.
+#
+# No secrets: the key is public by design and is read from public/<key>.txt
+# at the deployed commit, and the default token only reads deployments.
+
+name: IndexNow
+
+on:
+  deployment_status:
+  workflow_dispatch:
+    inputs:
+      full:
+        description: Submit every URL in the sitemap, not only those changed since the previous production deploy
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+  deployments: read
+
+jobs:
+  submit:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.deployment_status.state == 'success' &&
+       github.event.deployment.environment == 'Production')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            public
+            scripts
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+
+      - name: Submit changed URLs to IndexNow
+        run: node scripts/indexnow-submit.mjs
+        env:
+          SITE_URL: https://gravixar.com
+          PRODUCTION_ENVIRONMENT: Production
+          GITHUB_TOKEN: ${{ github.token }}
+          DEPLOYMENT_ID: ${{ github.event.deployment.id }}
+          FULL: ${{ github.event_name == 'workflow_dispatch' && inputs.full }}
