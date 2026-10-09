@@ -101,7 +101,7 @@ The fix was not more fields. Each person got a "my day" list, most overdue first
 
 A call kit puts the insurer's phone line, their portal, the reference number, the expected turnaround and the last three touches on one screen, so a chase call takes one tab instead of six. Availability is tracked per insurer and per state, so an application that is doomed before it is filed can be caught before it is filed.
 
-Around that sits the daily ops layer, which was built first: a work-from-home, office or field check-in on the first visit of the Karachi day, leave with pro-rated balances for new joiners, credential expiry alerts at 90, 60, 30 and 7 days, team invites by role and region, and an activity feed where an admin can undo an allowed change in one click. Every reminder writes a log row, so nothing sends twice.
+Around that sits the daily ops layer, which was built first: a work-from-home, office or field check-in on the first visit of the Karachi day, leave with pro-rated balances for new joiners, [credential expiry alerts](/modules/credentials-tracker) at 90, 60, 30 and 7 days, team invites by role and region, and an activity feed where an admin can undo an allowed change in one click. Every reminder writes a log row, so nothing sends twice.
 
 The finance module is the part I am most pleased with. It runs salaries, expenses with receipts, payroll, bonuses, and a monthly invoice that forecasts the next month and then reconciles against what was actually spent. Invoices print with US dollar and rupee columns side by side, and the people who pay them get their own dollar-only view where they can acknowledge an invoice, raise a query, or mark it paid.
 
@@ -131,7 +131,7 @@ Four things went wrong that are worth writing down. They are the reason a signed
 
 **The salary calculator takes the slow, safe route.** Working back from take-home pay to a gross salary has a fast shortcut that is right most of the time. It goes wrong when a bonus pushes a salary into a new tax band, and the answer drifts by about 10k PKR. The slower method cannot drift that way, and a note in the code records the example so nobody swaps the shortcut back in.
 
-**Invite-only signup.** There is no public sign-up page. Admins create users, the invitee gets a one-time email link, sets a password, and the account goes live. Self-serve signup has no value for a clinic operations platform, and it has a real cost: a bigger surface for patient data to leak through.
+**Invite-only signup.** There is [no public sign-up page](/modules/identity-auth). Admins create users, the invitee gets a one-time email link, sets a password, and the account goes live. Self-serve signup has no value for a clinic operations platform, and it has a real cost: a bigger surface for patient data to leak through.
 
 ## What's next
 

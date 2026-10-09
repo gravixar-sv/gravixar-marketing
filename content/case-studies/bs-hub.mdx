@@ -58,9 +58,9 @@ homeLine: "New clients go from first inquiry to a live project in about 10 minut
 
 The portal handles four distinct surfaces in one codebase: **public marketing and the signup wizard**, **a client's view of their own work**, **the operations console for project managers and admins**, and **internal HR and presence tools**. Each has its own permissions, its own dashboard, and its own record of who changed what.
 
-Every named unit, from sign-in at the base to the daily security check at the top, is catalogued in the repository with a map of what depends on what. That catalogue is the recipe. When I build a portal for the next client, I work down the list and decide unit by unit what to keep, drop, or change. A plain task tracker needs a fraction of it. An internal HR tool needs less than that.
+Every named unit, from [sign-in](/modules/identity-auth) at the base to the daily security check at the top, is catalogued in the repository with a map of what depends on what. That catalogue is the recipe. When I build a portal for the next client, I work down the list and decide unit by unit what to keep, drop, or change. A plain task tracker needs a fraction of it. An internal HR tool needs less than that.
 
-The piece I'm proudest of is the review flow on tasks. Every deliverable moves through five fixed steps:
+The piece I'm proudest of is [the review flow on tasks](/modules/review-state-machine). Every deliverable moves through five fixed steps:
 
 Draft → sent for internal review → approved internally → sent to the client → approved by the client.
 

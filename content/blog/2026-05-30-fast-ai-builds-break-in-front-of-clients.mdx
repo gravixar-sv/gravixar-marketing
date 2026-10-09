@@ -28,7 +28,7 @@ That is the failure that costs money, and it is invisible precisely because the 
 The hard part of an AI build is not the happy path. The model gives you the happy path almost for free. The hard part is everything around the edge of it:
 
 - **Exception handling.** What does the system do when it is not sure? A real build has a confidence floor, and below it the lead goes to a human, not to a guess.
-- **A human in the loop where it matters.** Not on everything, that is just a slow tool. On the decisions that are expensive to get wrong, and only those.
+- **[A human in the loop](/blog/human-in-the-loop-ai-examples-three-live-systems) where it matters.** Not on everything, that is just a slow tool. On the decisions that are expensive to get wrong, and only those.
 - **[An audit trail](/modules/audit-log-restore).** When a lead lands in the wrong place, you need to be able to ask the system why it decided that, and get an actual answer. "The model said so" is not an answer you can fix.
 - **A way to watch for drift.** The inputs change. The questions people ask in June are not the questions they asked in March. Something has to notice that the classifier is slowly getting worse before a client does.
 
