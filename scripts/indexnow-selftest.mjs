@@ -10,7 +10,8 @@
 //      what the workflow sends, and IndexNow answers 403.
 //   2. Sitemap parsing: urlset, sitemapindex, entities, a missing lastmod.
 //   3. URL selection: lastmod is a date, so a page changed on the day of the
-//      previous deploy carries midnight and must still count as changed.
+//      previous deploy carries midnight and must still count as changed; a
+//      page with no lastmod goes when the deploy changed the site.
 //   4. Host check and the 10,000-URL request limit.
 
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
@@ -24,6 +25,7 @@ import {
   foreignUrls,
   parseSitemap,
   selectUrls,
+  siteMayHaveChanged,
 } from "./indexnow-submit.mjs";
 
 const failures = [];
@@ -104,20 +106,52 @@ const entries = [
   { loc: "https://gravixar.com/blog/new", lastmod: "2026-10-06T00:00:00.000Z" },
   { loc: "https://gravixar.com/services", lastmod: "2026-09-26T00:00:00.000Z" },
 ];
-const sameDay = selectUrls(entries, "2026-10-05T11:49:31Z");
+const sameDay = selectUrls(entries, "2026-10-05T11:49:31Z", { sendUndated: false });
 check(
   sameDay.urls.join() === "https://gravixar.com/blog,https://gravixar.com/blog/new",
   "lastmod on the previous deploy's day counts as changed, older does not",
   sameDay,
 );
-check(sameDay.undatedSkipped === 1, "a URL with no lastmod is skipped on an incremental run, and counted", sameDay);
+check(
+  sameDay.undatedSkipped === 1,
+  "a URL with no lastmod is skipped, and counted, when the deploy changed nothing the site is built from",
+  sameDay,
+);
+const siteChanged = selectUrls(entries, "2026-10-05T11:49:31Z", { sendUndated: true });
+check(
+  siteChanged.urls.join() === "https://gravixar.com/,https://gravixar.com/blog,https://gravixar.com/blog/new" &&
+    siteChanged.undatedSkipped === 0,
+  "a URL with no lastmod is sent when the deploy changed the site",
+  siteChanged,
+);
+check(
+  selectUrls(entries, "2026-10-05T11:49:31Z").urls.includes("https://gravixar.com/"),
+  "sending URLs with no lastmod is the default, so an unknown answer errs toward sending",
+);
 check(selectUrls(entries, null).urls.length === 4, "no previous deployment sends every URL");
 check(selectUrls(entries, "2026-10-05T11:49:31Z", { full: true }).urls.length === 4, "a full run sends every URL");
 check(
   selectUrls([{ loc: "https://gravixar.com/" }, { loc: "https://gravixar.com/about" }], "2026-10-05T11:49:31Z").urls.length === 2,
   "a sitemap with no lastmod at all sends every URL",
 );
-check(selectUrls(entries, "2026-10-07T00:00:01Z").urls.length === 0, "nothing dated on or after the previous deploy sends nothing");
+check(
+  selectUrls(entries, "2026-10-07T00:00:01Z", { sendUndated: false }).urls.length === 0,
+  "nothing dated on or after the previous deploy, on a deploy that left the site alone, sends nothing",
+);
+
+// 3b. Which deploys can have changed a page with no lastmod.
+check(siteMayHaveChanged(["src/app/page.tsx"]), "site inputs: a page's source changed");
+check(siteMayHaveChanged(["content/services/ops-leak-audit.mdx"]), "site inputs: content changed");
+check(siteMayHaveChanged(["CLAUDE.md", "vercel.ts"]), "site inputs: vercel.ts counts as the site");
+check(siteMayHaveChanged(["pnpm-lock.yaml"]), "site inputs: dependencies changed");
+check(siteMayHaveChanged(["emails/welcome.tsx"]), "site inputs: an unlisted path counts as the site");
+check(siteMayHaveChanged(null), "site inputs: unknown counts as changed");
+check(
+  !siteMayHaveChanged([".github/workflows/indexnow.yml", "scripts/indexnow-submit.mjs", "CHANGELOG.md", "renovate.json"]),
+  "site inputs: only workflows, scripts and root notes",
+);
+check(!siteMayHaveChanged([]), "site inputs: a same-commit redeploy changes nothing");
+check(siteMayHaveChanged(["content/blog/post.md"]), "site inputs: a nested .md file is not a root note");
 
 // 4. Host and request size.
 check(

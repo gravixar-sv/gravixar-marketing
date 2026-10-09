@@ -24,10 +24,15 @@
 // at noon. Comparing instants would miss every same-day change; comparing days
 // re-sends the few pages dated the previous deploy's day, which is harmless.
 // URLs with no lastmod (home, about, contact and the other pages whose content
-// holds no date) cannot be judged changed, so an incremental run skips them and
-// says how many; a full run sends them. Everything is sent when there is no
-// previous production deployment, when the sitemap carries no lastmod at all,
-// or when FULL=true (the workflow_dispatch input).
+// holds no date) have no date to judge by, so the deploy's own changes decide:
+// the files GitHub's compare lists between the previous production deploy's
+// commit and this one. If every one of them is in NON_SITE_PATHS (workflows,
+// scripts, notes), no undated page can have changed, so they are skipped and
+// counted; any other file, or no answer from GitHub, sends them. robonamix.com's
+// scripts/indexnow.mjs keeps the same rule (2026-10-09; before it, this script
+// never sent them on a deploy and that one always did). Everything is sent when
+// there is no previous production deployment, when the sitemap carries no
+// lastmod at all, or when FULL=true (the workflow_dispatch input).
 //
 // Env:
 //   SITE_URL                 https://gravixar.com (the sitemap's host; IndexNow
@@ -49,6 +54,34 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 export const INDEXNOW_ENDPOINT = "https://api.indexnow.org/indexnow";
 export const MAX_URLS_PER_REQUEST = 10_000;
 const KEY_FILE = /^[0-9a-f]{32}\.txt$/;
+// GitHub's compare lists at most 300 files; a list that long may be cut short.
+const COMPARE_FILE_CAP = 300;
+
+/**
+ * Paths a deploy can change without changing any page: CI, tooling and the
+ * notes at the root. Anything not matched counts as a site input (content/,
+ * src/, public/, emails/, patches/, vercel.ts, the dependencies), so a path
+ * nobody listed errs toward sending.
+ */
+export const NON_SITE_PATHS = [
+  /^\.github\//,
+  /^\.claude\//,
+  /^scripts\//,
+  /^[^/]+\.md$/,
+  /^renovate\.json$/,
+  /^\.gitignore$/,
+  /^\.gitattributes$/,
+  /^\.env\.example$/,
+];
+
+/**
+ * Whether a deploy that changed `files` can have changed a page with no
+ * lastmod. `null` (GitHub could not say) counts as yes.
+ */
+export function siteMayHaveChanged(files) {
+  if (!files) return true;
+  return files.some((f) => !NON_SITE_PATHS.some((re) => re.test(f)));
+}
 
 /** The one IndexNow key in `publicDir`, checked against its file's content. */
 export function findKey(publicDir) {
@@ -122,11 +155,13 @@ function startOfUtcDay(ms) {
 /**
  * Which sitemap entries to submit. `previousLiveAt` is when the previous
  * successful production deployment went live (ISO string), or null if there
- * was none. See the header for why the comparison is by UTC day.
+ * was none. `sendUndated` is siteMayHaveChanged's answer for this deploy. See
+ * the header for why the comparison is by UTC day.
  */
-export function selectUrls(entries, previousLiveAt, { full = false } = {}) {
+export function selectUrls(entries, previousLiveAt, { full = false, sendUndated = true } = {}) {
   const all = entries.map((e) => e.loc);
-  const dated = entries.filter((e) => e.lastmod && !Number.isNaN(Date.parse(e.lastmod)));
+  const isDated = (e) => Boolean(e.lastmod) && !Number.isNaN(Date.parse(e.lastmod));
+  const dated = entries.filter(isDated);
   const undated = entries.length - dated.length;
   if (full) return { urls: all, reason: "full run requested", undatedSkipped: 0 };
   if (!previousLiveAt) {
@@ -138,9 +173,11 @@ export function selectUrls(entries, previousLiveAt, { full = false } = {}) {
   const since = startOfUtcDay(Date.parse(previousLiveAt));
   const sinceDay = new Date(since).toISOString().slice(0, 10);
   return {
-    urls: dated.filter((e) => Date.parse(e.lastmod) >= since).map((e) => e.loc),
-    reason: `lastmod on or after ${sinceDay}, the UTC day the previous production deployment went live (${previousLiveAt})`,
-    undatedSkipped: undated,
+    urls: entries.filter((e) => (isDated(e) ? Date.parse(e.lastmod) >= since : sendUndated)).map((e) => e.loc),
+    reason:
+      `lastmod on or after ${sinceDay}, the UTC day the previous production deployment went live (${previousLiveAt})` +
+      (undated && sendUndated ? `, and the ${undated} URLs with no lastmod because this deploy changed the site` : ""),
+    undatedSkipped: sendUndated ? 0 : undated,
   };
 }
 
@@ -186,7 +223,8 @@ async function githubJson(path, token) {
 
 /**
  * The production deployment before `currentId` that reached `success`, as
- * { id, sha, liveAt }, or null. With no `currentId` (a manual run) the newest
+ * { id, sha, liveAt, currentSha }, or null; `currentSha` is the commit of the
+ * deployment this run is for. With no `currentId` (a manual run) the newest
  * successful production deployment is treated as the current one.
  */
 async function previousProductionDeploy({ repo, token, environment, currentId }) {
@@ -196,10 +234,12 @@ async function previousProductionDeploy({ repo, token, environment, currentId })
   // so a deploy that lands while this run is going is never mistaken for the
   // previous one.
   let i = 0;
+  let currentSha;
   if (currentId) {
     const at = deployments.findIndex((d) => String(d.id) === String(currentId));
     if (at === -1) throw new Error(`deployment ${currentId} is not among the newest 30 ${environment} deployments`);
     i = at + 1;
+    currentSha = deployments[at].sha;
   }
   let skippedCurrent = Boolean(currentId);
   for (; i < deployments.length; i++) {
@@ -209,12 +249,31 @@ async function previousProductionDeploy({ repo, token, environment, currentId })
     if (!success) continue;
     if (!skippedCurrent) {
       skippedCurrent = true;
+      currentSha = d.sha;
       console.log(`Manual run: deployment ${d.id} (${d.sha.slice(0, 7)}) stands in as the current one`);
       continue;
     }
-    return { id: d.id, sha: d.sha, liveAt: success.created_at };
+    return { id: d.id, sha: d.sha, liveAt: success.created_at, currentSha };
   }
   return null;
+}
+
+/**
+ * The files changed between two commits, from GitHub's compare (a rename
+ * counts under both names). null when GitHub cannot say, or when the list may
+ * be cut short: the caller then treats every page as possibly changed.
+ */
+async function changedFiles({ repo, token, base, head }) {
+  if (!base || !head) return null;
+  if (base === head) return [];
+  try {
+    const cmp = await githubJson(`/repos/${repo}/compare/${base}...${head}`, token);
+    if (!Array.isArray(cmp.files) || cmp.files.length >= COMPARE_FILE_CAP) return null;
+    return cmp.files.flatMap((f) => [f.filename, f.previous_filename].filter(Boolean));
+  } catch (err) {
+    console.log(`Could not compare ${base.slice(0, 7)}...${head.slice(0, 7)}: ${err.message}`);
+    return null;
+  }
 }
 
 async function main() {
@@ -258,6 +317,7 @@ async function main() {
   console.log(`Sitemap: ${entries.length} URLs on ${host}, ${entries.filter((e) => e.lastmod).length} with a lastmod`);
 
   let previous = null;
+  let sendUndated = true;
   if (!full) {
     const repo = env.GITHUB_REPOSITORY;
     const token = env.GITHUB_TOKEN;
@@ -273,11 +333,22 @@ async function main() {
         ? `Previous production deployment: ${previous.id} (${previous.sha.slice(0, 7)}), live at ${previous.liveAt}`
         : "Previous production deployment: none found",
     );
+    if (previous) {
+      const files = await changedFiles({ repo, token, base: previous.sha, head: previous.currentSha });
+      sendUndated = siteMayHaveChanged(files);
+      console.log(
+        files === null
+          ? "This deploy's changed files are unknown: URLs with no lastmod go"
+          : `This deploy changed ${files.length} file(s); ${sendUndated ? "some build the site, so URLs with no lastmod go" : "none builds the site, so URLs with no lastmod wait"}`,
+      );
+    }
   }
 
-  const { urls, reason, undatedSkipped } = selectUrls(entries, previous?.liveAt ?? null, { full });
+  const { urls, reason, undatedSkipped } = selectUrls(entries, previous?.liveAt ?? null, { full, sendUndated });
   console.log(`Selected ${urls.length} URLs: ${reason}`);
-  if (undatedSkipped) console.log(`Skipped ${undatedSkipped} URLs with no lastmod (a full run sends them)`);
+  if (undatedSkipped) {
+    console.log(`Skipped ${undatedSkipped} URLs with no lastmod: this deploy changed nothing the site is built from (a full run sends them)`);
+  }
   for (const u of urls) console.log(`  ${u}`);
   if (urls.length === 0) {
     console.log("IndexNow: nothing changed, nothing submitted");
