@@ -1,10 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist_Mono, Newsreader } from "next/font/google";
-// Mona Sans with its width axis (wght 200-900, wdth 75-125), so display sizes
-// can run slightly condensed. Hubot Sans was retired 2026-09-23: its capital
-// I carries slab serifs, which read as a fallback glyph in every first-person
-// heading on a site written as "I".
-import "@fontsource-variable/mona-sans/wdth.css";
+import localFont from "next/font/local";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { SourceCapture } from "@/components/site/SourceCapture";
@@ -16,14 +12,40 @@ import "@/styles/globals.css";
 // (DemoBanner, Navbar, Footer, main wrapper) lives in (marketing)/layout.tsx
 // so admin and other non-marketing routes don't inherit it.
 //
-// Three voices, one job each: Mona Sans is the brand (self-hosted via
-// @fontsource-variable), Geist Mono is machine output (URLs, timestamps,
-// status), and Newsreader italic is the human voice, used for one phrase per
-// page at most. next/font self-hosts the two Google faces.
+// Three voices, one job each: Mona Sans is the brand, Geist Mono is machine
+// output (URLs, timestamps, status), and Newsreader italic is the human voice,
+// used for one phrase per page at most. next/font self-hosts all three.
+//
+// The brand face is Mona Sans Variable, latin, trimmed to what this site sets:
+// weights 400 to 700 (normal, medium, semibold, and bold for **strong**) and
+// widths 94% to 100% (h1/h2 and a few display numbers run at 94%). The
+// package's file carries wght 200-900 and wdth 75-125 and weighed 98 KB, the
+// largest thing a phone fetched before its first paint; the trimmed file is
+// 56 KB. Hubot Sans was retired 2026-09-23: its capital I carries slab serifs,
+// which read as a fallback glyph in every first-person heading.
+//
+// To use a weight or width outside those ranges, regenerate the file first or
+// the browser will synthesise it. scripts/trim-brand-font.mjs says how.
+//
+// Served under a neutral family name: Mona Sans is OFL with the Reserved Font
+// Name "Mona", and this file is a modified (trimmed) copy.
+const brandSans = localFont({
+  src: "../fonts/brand-sans-latin.woff2",
+  variable: "--font-brand-sans",
+  weight: "400 700",
+  style: "normal",
+  display: "swap",
+  declarations: [{ prop: "font-stretch", value: "94% 100%" }],
+  // The hero text on every page is set in it, so it is worth the early fetch.
+  preload: true,
+});
 const geistMono = Geist_Mono({
   subsets: ["latin"],
   variable: "--font-geist-mono",
   display: "swap",
+  // Not preloaded: machine output (timestamps, labels) is never the first
+  // thing read, and its preload competed with the brand face on a phone.
+  preload: false,
 });
 const newsreader = Newsreader({
   subsets: ["latin"],
@@ -66,7 +88,7 @@ export default function RootLayout({
     // so a navigation from a scrolled page never animates the jump to top.
     <html
       lang="en"
-      className={`${geistMono.variable} ${newsreader.variable}`}
+      className={`${brandSans.variable} ${geistMono.variable} ${newsreader.variable}`}
       data-scroll-behavior="smooth"
     >
       <head>
