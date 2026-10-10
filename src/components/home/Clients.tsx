@@ -63,11 +63,21 @@ function Logo({ client, dup }: { client: ClientEntry; dup: boolean }) {
         // The first set is the accessible roster, so its alt is the client's
         // name. The duplicate exists only for the loop and is hidden above.
         alt={dup ? "" : client.name}
-        width={client.width}
-        height={client.height}
+        // The size it renders at (md+), not the file's natural size, keeping
+        // the file's aspect ratio. next/image builds its 1x/2x srcset from
+        // these, so the natural 1200px width was served as 2048w and 3840w
+        // files for a mark drawn about 130px wide.
+        width={Math.round((client.h * client.width) / client.height)}
+        height={client.h}
         // Eager for the first pass, lazy for the duplicate: the duplicate
-        // reuses the cached files, so it costs nothing on first wrap.
+        // reuses the cached files, so it costs nothing on first wrap. Eager,
+        // not lazy, because the rail clips sideways: a lazy logo off the right
+        // edge would load only as it slid in, and pop. fetchPriority "low"
+        // stops React 19 hoisting a <link rel=preload> for each one into
+        // <head>, where seven of them competed with the hero for a phone's
+        // bandwidth (HQ brain task marketing-mobile-lcp-fixes).
         loading={dup ? "lazy" : "eager"}
+        fetchPriority="low"
         style={{ "--h": `${client.h}px` } as CSSProperties}
         className="h-[calc(var(--h)*0.85)] w-auto max-w-none opacity-50 transition-opacity duration-200 ease-out [filter:brightness(0)_invert(1)] hover:opacity-90 md:h-[var(--h)]"
       />

@@ -82,7 +82,7 @@ export async function Hero({ meta, body }: { meta: HomeBlock; body: string }) {
       <div className="grid gap-y-4 sm:gap-y-10 lg:grid-cols-12 lg:items-start lg:gap-x-12">
         <div className="relative z-10 lg:col-span-6">
           {meta.eyebrow ? (
-            <p className="hero-enter text-caption font-medium text-ink-400">{meta.eyebrow}</p>
+            <p className="hero-enter-text text-caption font-medium text-ink-400">{meta.eyebrow}</p>
           ) : null}
           <SetInType
             as="h1"
@@ -92,7 +92,9 @@ export async function Hero({ meta, body }: { meta: HomeBlock; body: string }) {
             className={`${styles.title} ${meta.eyebrow ? "mt-5" : ""} text-display font-semibold text-ink-50`}
           />
           {lead ? (
-            <p className="hero-enter mt-6 max-w-[34ch] text-lead text-ink-300 [animation-delay:260ms]">
+            // No fade and no delay: this is the largest paint on a phone (see
+            // .hero-enter-text in globals.css).
+            <p className="hero-enter-text mt-6 max-w-[34ch] text-lead text-ink-300">
               {lead}
             </p>
           ) : null}

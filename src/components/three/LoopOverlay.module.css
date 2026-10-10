@@ -8,6 +8,11 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
+  /* Cards resize as the scene moves. Layout containment keeps that layout
+     work inside this layer instead of re-laying-out the page. Safe because
+     the layer's own size comes from inset: 0, never from its contents. No
+     paint containment: badges and the pop-up may overhang the edge. */
+  contain: layout style;
 }
 
 /* ---------- Card hit areas ---------- */

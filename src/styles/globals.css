@@ -421,6 +421,23 @@
   .hero-enter {
     animation: rise-in 720ms var(--ease-out-expo) both;
   }
+  /* The home hero's eyebrow and lede: the same rise, with no fade and no
+     delay. The lede is the page's largest paint on a phone, and an element
+     that starts at opacity 0 does not count as painted until it fades in, so
+     the fade pushed the phone's Largest Contentful Paint back by its delay
+     and duration. The text is readable from the first frame and still rises
+     into place. 2026-10-10, HQ brain task marketing-mobile-lcp-fixes. */
+  @keyframes rise-only {
+    from {
+      transform: translateY(12px);
+    }
+    to {
+      transform: none;
+    }
+  }
+  .hero-enter-text {
+    animation: rise-only 720ms var(--ease-out-expo) both;
+  }
 
   /* SET IN TYPE: the page-arrival signature. <SetInType> splits a headline
      into words; each word rises out of its own clip. Server-rendered, no JS,
@@ -945,6 +962,7 @@
     will-change: auto;
   }
   .hero-enter,
+  .hero-enter-text,
   .site-header,
   .bosun-launcher,
   .sit-w > span,

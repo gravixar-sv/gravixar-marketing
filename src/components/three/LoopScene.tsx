@@ -36,7 +36,8 @@ const toScene = (items: LoopItem[]): SceneItem[] =>
  * "The approval loop": tasks wait on a ring for a person to say yes at the
  * gate. The queue itself is owned by the caller (HeroStage); this draws it.
  * Renders a static SVG first; three.js loads after the page's load event and
- * an idle callback, then cross-fades in, and only then does the DOM layer
+ * an idle callback (on a phone, after the first touch or 6 seconds), then
+ * cross-fades in, and only then does the DOM layer
  * (hover, tap and keyboard on each card) appear, because until then there is
  * no live card for it to sit on.
  */
@@ -142,13 +143,34 @@ export function LoopScene({ items, progress = 0, interactive = true, className, 
           // Chunk failed to load: the static drawing stays.
         });
     };
-    const schedule = () => {
+    const idle = () => {
       if (disposed) return;
       if (typeof window.requestIdleCallback === "function") {
         idleId = window.requestIdleCallback(boot, { timeout: 2000 });
       } else {
         timeoutId = window.setTimeout(boot, 200);
       }
+    };
+    // On a phone the scene waits for the visitor's first touch, scroll or
+    // key, or 6 seconds, whichever is first. Its chunk evaluates in one task
+    // of about 280ms on a mid-range phone, the longest on the page, and booting
+    // straight after load put that task in the middle of the page settling.
+    // The static drawing is already there and the 3D cross-fades over it, so
+    // the wait shows nothing missing. Desktop boots as before. 2026-10-10, HQ
+    // brain task marketing-mobile-lcp-fixes.
+    const phone = window.matchMedia("(max-width: 767px)").matches;
+    const WAKE = ["pointerdown", "touchstart", "scroll", "keydown"] as const;
+    let waitId = 0;
+    const wake = () => {
+      for (const e of WAKE) window.removeEventListener(e, wake);
+      window.clearTimeout(waitId);
+      idle();
+    };
+    const schedule = () => {
+      if (disposed) return;
+      if (!phone) return idle();
+      for (const e of WAKE) window.addEventListener(e, wake, { once: true, passive: true });
+      waitId = window.setTimeout(wake, 6000);
     };
     if (document.readyState === "complete") schedule();
     else window.addEventListener("load", schedule, { once: true });
@@ -169,6 +191,8 @@ export function LoopScene({ items, progress = 0, interactive = true, className, 
     return () => {
       disposed = true;
       window.removeEventListener("load", schedule);
+      for (const e of WAKE) window.removeEventListener(e, wake);
+      window.clearTimeout(waitId);
       if (idleId && typeof window.cancelIdleCallback === "function") window.cancelIdleCallback(idleId);
       window.clearTimeout(timeoutId);
       window.clearTimeout(litTimer.current);
