@@ -150,6 +150,7 @@ export async function GET() {
   lines.push(`- [Blog](${url("/blog")}): Field notes on agency operations, delivery process, and keeping AI in the loop. Some posts are drafted by the SEO agent running on this site, flagged as such on the post, and published only when a human promotes the file`);
   lines.push(`- [Careers](${url("/careers")}): Current openings, published from the same hiring system Qamar runs internally, each role page carrying JobPosting structured data and its own apply form`);
   lines.push(`- [Contact](${url("/contact")}): Lead form plus in-house 30-minute call booking (email-verified code, reusable Google Meet room, calendar invite)`);
+  lines.push(`- [Ops Leak calculator](${url("/ops-leak-calculator")}): A free three-minute self-check. A visitor enters their team, the hours a week spent on status reports, chasing approvals, typing into a second tool and looking for files, and an hourly cost, and sees a monthly estimate on the page with no email. An optional PDF of the breakdown is emailed on request`);
   lines.push(`- [Early access](${url("/early-access")}): Waitlist for the module library. The modules are real and running in production inside builds; a hosted account where you rent one by the month does not exist yet, and the page prints no date`);
   lines.push("");
 
