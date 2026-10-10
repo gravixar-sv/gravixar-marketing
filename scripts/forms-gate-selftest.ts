@@ -56,6 +56,12 @@ async function main() {
       POST: (await import("../src/app/api/job-application/route")).POST,
       multipart: true,
     },
+    {
+      name: "ops-leak-calculator",
+      path: "/api/ops-leak-calculator",
+      POST: (await import("../src/app/api/ops-leak-calculator/route")).POST,
+      multipart: false,
+    },
   ];
 
   const HOUR = 3_600_000;

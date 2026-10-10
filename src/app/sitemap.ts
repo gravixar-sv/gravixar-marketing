@@ -61,6 +61,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { path: "/compare", lastModified: newest(compares.map(compareDate)) },
     { path: "/contact" },
     { path: "/early-access" },
+    { path: "/ops-leak-calculator" },
     { path: "/privacy" },
   ];
 

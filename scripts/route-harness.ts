@@ -39,6 +39,8 @@ export const net = {
   resendCalls: 0,
   /** The JSON body of the last call to the stubbed Resend API. */
   lastResendBody: null as Record<string, unknown> | null,
+  /** Every JSON body sent to the stubbed Resend API, in order, for routes that send more than one. */
+  resendBodies: [] as Record<string, unknown>[],
   /** Any other URL a handler tried to reach. Must stay empty. */
   unexpected: [] as string[],
   /** What the stubbed Resend API answers. Throw to simulate a network failure. */
@@ -54,6 +56,7 @@ export function stubNetwork(): void {
       net.resendCalls += 1;
       try {
         net.lastResendBody = typeof init?.body === "string" ? JSON.parse(init.body) : null;
+        if (net.lastResendBody) net.resendBodies.push(net.lastResendBody);
       } catch {
         net.lastResendBody = null;
       }
