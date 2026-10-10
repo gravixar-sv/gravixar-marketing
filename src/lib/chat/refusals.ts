@@ -51,9 +51,11 @@ export const REFUSALS: Record<RefusalReason, string> = {
   // MANDATE CLAUSE 9b. Contracts, terms, references, insurance. Since
   // 2026-09-26 the Ops Leak Audit publishes how it is paid, its NDA and its
   // credit against a build, so this points there rather than calling all of
-  // it unpublished. Everything else still is, so any answer would be invented.
+  // it unpublished. Since 2026-10-10 the Fractional AI Ops Lead publishes its
+  // minimum term, its notice period and who pays the AI and hosting bills.
+  // Everything else still is unpublished, so any answer would be invented.
   client_commercials:
-    `The Ops Leak Audit's terms are on its page: how it is paid, the NDA, and when the fee comes off a build. Anything beyond that, like contracts, references or insurance, is not published, so I would be inventing it. Qamar can answer it properly, ${RESPONSE_CEILING} if you leave your details, or sooner on a call.`,
+    `Two sets of terms are published. The Ops Leak Audit's page says how it is paid, the NDA, and when the fee comes off a build. The Fractional AI Ops Lead's page says how long it runs before you can stop, the notice, and who pays the AI and hosting bills. Anything beyond that, like contracts, references or insurance, is not published, so I would be inventing it. Qamar can answer it properly, ${RESPONSE_CEILING} if you leave your details, or sooner on a call.`,
 
   // MANDATE CLAUSE 8. There is no identity layer on this site, so Bosun cannot
   // confirm or deny that anyone is a client, and must not try.
