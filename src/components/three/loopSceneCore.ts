@@ -700,6 +700,9 @@ export function createLoopScene(host: HTMLElement, opts: LoopSceneOptions): Loop
       stencil: false,
       powerPreference: "high-performance",
       preserveDrawingBuffer: false,
+      // Never draw the scene in software: LoopScene's hardwareWebGL() checks
+      // first, and this holds the line if a GPU goes away between the two.
+      failIfMajorPerformanceCaveat: true,
     });
   } catch {
     context = null;

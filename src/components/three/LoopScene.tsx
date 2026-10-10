@@ -29,6 +29,26 @@ export interface LoopSceneProps {
 
 const FADE = "opacity 600ms cubic-bezier(0.22, 1, 0.36, 1)";
 
+/**
+ * Whether WebGL here runs on a graphics card. `failIfMajorPerformanceCaveat`
+ * is the standard way to ask: the browser refuses the context when it would
+ * fall back to software rendering (SwiftShader, llvmpipe, Microsoft Basic
+ * Render). Found 2026-10-10: PageSpeed's desktop test has no GPU, and the same
+ * build scored 97 and 73 two hours apart depending on whether the scene's
+ * frames landed as long tasks. Real visitors on such machines got the same
+ * stutter. The probe context is released straight away.
+ */
+function hardwareWebGL(): boolean {
+  try {
+    const gl = document.createElement("canvas").getContext("webgl2", { failIfMajorPerformanceCaveat: true });
+    if (!gl) return false;
+    gl.getExtension("WEBGL_lose_context")?.loseContext();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 const toScene = (items: LoopItem[]): SceneItem[] =>
   items.map(({ id, category, priority, version }) => ({ id, category, priority, version }));
 
@@ -36,8 +56,8 @@ const toScene = (items: LoopItem[]): SceneItem[] =>
  * "The approval loop": tasks wait on a ring for a person to say yes at the
  * gate. The queue itself is owned by the caller (HeroStage); this draws it.
  * Renders a static SVG first; three.js loads after the page's load event and
- * an idle callback (on a phone, after the first touch or 6 seconds), then
- * cross-fades in, and only then does the DOM layer
+ * an idle callback (on a phone, after the first touch or 6 seconds), and only
+ * where WebGL runs on a graphics card (hardwareWebGL), then cross-fades in, and only then does the DOM layer
  * (hover, tap and keyboard on each card) appear, because until then there is
  * no live card for it to sit on.
  */
@@ -114,6 +134,11 @@ export function LoopScene({ items, progress = 0, interactive = true, className, 
     const reduceMq = window.matchMedia("(prefers-reduced-motion: reduce)");
 
     const boot = () => {
+      // No graphics card behind WebGL (a VM, a blocklisted driver, a headless
+      // test browser): the browser would draw every frame on the CPU, and the
+      // scene turns into a train of 50-150ms tasks that make the page stutter.
+      // Stay on the static drawing, and skip downloading three.js at all.
+      if (!hardwareWebGL()) return;
       import("./loopSceneCore")
         .then(({ createLoopScene }) => {
           if (disposed) return;
