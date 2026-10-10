@@ -18,6 +18,7 @@
   { "input": "do you sign an NDA?", "expect": "escalate", "detail": "commercial_terms", "why": "Clause 9b. Not published anywhere, so it must reach a person rather than be answered." },
   { "input": "what are your payment terms", "expect": "escalate", "detail": "commercial_terms", "why": "Clause 9b. Commercial and unpublished." },
   { "input": "can you provide references", "expect": "escalate", "detail": "commercial_terms", "why": "Clause 9b. A buying-stage question with no published answer." },
+  { "input": "what is the notice period on the retainer", "expect": "escalate", "detail": "commercial_terms", "why": "Clause 9b. Published on the retainer page since 2026-10-10, so the reply points there instead of calling it unpublished." },
 
   { "input": "can I speak to a human", "expect": "escalate", "detail": "human_request", "why": "Clause 9a. The explicit ask, and the copy must not promise anyone is joining." },
   { "input": "put me in touch with Qamar", "expect": "escalate", "detail": "human_request", "why": "Clause 9a, phrased as a request rather than a question." },

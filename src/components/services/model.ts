@@ -92,6 +92,11 @@ const DEAL: Record<string, Term[]> = {
     { label: "Payment", value: "Half to book, half after the readout, if it was useful" },
     { label: "Credit", value: "The fee comes off a build started within 90 days" },
   ],
+  // Added 2026-10-10 with the retainer's published term and cost split.
+  "fractional-ai-ops-lead": [
+    { label: "Term", value: "3 months, then month to month with 30 days' notice" },
+    { label: "Running costs", value: "AI and hosting in your name, billed to you directly" },
+  ],
 };
 
 export function dealFor(meta: Service): Term[] {

@@ -123,7 +123,8 @@ const CONTENT_DENY: readonly { reason: RefusalReason; re: RegExp }[] = [
 // ---- 4. Escalation triggers ------------------------------------------
 const ESCALATE: readonly { trigger: EscalationTrigger; re: RegExp }[] = [
   {
-    // MANDATE CLAUSE 9b. Beyond the Ops Leak Audit's own published terms, none
+    // MANDATE CLAUSE 9b. Beyond the published terms of the Ops Leak Audit and
+    // the Fractional AI Ops Lead (refusals.ts client_commercials), none
     // of this is published anywhere, so the honest move is a person, not a
     // refusal that reads as a door closing.
     trigger: "commercial_terms",
