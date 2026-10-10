@@ -82,6 +82,9 @@ export function LoopOverlay({
 }) {
   const cardEls = useRef(new Map<string, HTMLButtonElement>());
   const boxes = useRef(new Map<string, { x: number; y: number; w: number; h: number }>());
+  // The width and height last written to each card, so a frame only writes
+  // them when they change (see update()).
+  const sizes = useRef(new Map<string, { w: number; h: number }>());
   const stage = useRef({ w: 0, h: 0 });
   const gateEl = useRef<HTMLDivElement>(null);
   const popEl = useRef<HTMLDivElement>(null);
@@ -154,8 +157,17 @@ export function LoopOverlay({
           const el = cardEls.current.get(c.id);
           if (!el) continue;
           el.style.transform = `translate3d(${(c.x + c.w / 2).toFixed(1)}px, ${(c.y + c.h / 2).toFixed(1)}px, 0)`;
-          el.style.width = `${c.w.toFixed(1)}px`;
-          el.style.height = `${c.h.toFixed(1)}px`;
+          // Width and height are layout properties, so writing them forces a
+          // layout. They were written for every card on every frame even when
+          // unchanged; now only when one moves by half a pixel or more, and
+          // `.layer` contains layout (LoopOverlay.module.css) so a write never
+          // reaches the rest of the page. The transform above stays per frame.
+          const sized = sizes.current.get(c.id);
+          if (!sized || Math.abs(sized.w - c.w) >= 0.5 || Math.abs(sized.h - c.h) >= 0.5) {
+            el.style.width = `${c.w.toFixed(1)}px`;
+            el.style.height = `${c.h.toFixed(1)}px`;
+            sizes.current.set(c.id, { w: c.w, h: c.h });
+          }
           el.dataset.placed = "true";
         }
         const g = gateEl.current;
@@ -225,7 +237,12 @@ export function LoopOverlay({
             key={it.id}
             ref={(el) => {
               if (el) cardEls.current.set(it.id, el);
-              else cardEls.current.delete(it.id);
+              else {
+                cardEls.current.delete(it.id);
+                // A remounted card starts with no inline size, so forget the
+                // last one written and let the next frame size it.
+                sizes.current.delete(it.id);
+              }
             }}
             type="button"
             data-id={it.id}
