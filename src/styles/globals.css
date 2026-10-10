@@ -61,11 +61,13 @@
   --color-danger: #e5645c;
 
   /* Type. Mona Sans is the single family, loaded with its width axis so
-     display sizes can run slightly condensed. Newsreader italic is the human
+     display sizes can run slightly condensed (trimmed to wght 400-700 and
+     wdth 94-100%: see brandSans in src/app/layout.tsx before setting a weight
+     or width outside those). Newsreader italic is the human
      voice: one phrase per page at most (the hero h1 tail, pull quotes, the
      About opening, the closing CTA line), never UI, never under 20px. */
-  --font-sans: "Mona Sans Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-display: "Mona Sans Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-brand-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: var(--font-brand-sans), ui-sans-serif, system-ui, sans-serif;
   --font-serif: var(--font-newsreader), ui-serif, Georgia, "Times New Roman", serif;
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", monospace;
 
