@@ -7,7 +7,6 @@ settings:
 overrides:
   path-to-regexp@<6.3.0: ^6.3.0
   ws@<8.21.0: ^8.21.0
-  brace-expansion@<1.1.18: ^1.1.18
   browserslist@<4.28.7: ^4.28.7
   baseline-browser-mapping@<2.11.0: ^2.11.0
   esbuild@<0.28.1: ^0.28.1
@@ -22,6 +21,7 @@ overrides:
   sharp@<0.35.5: ^0.35.5
   source-map-js@>=1.0.0 <1.2.2: ^1.2.2
   undici@<6.28.1: ^6.28.1
+  brace-expansion@<1.1.21: ^1.1.21
 
 patchedDependencies:
   gray-matter@4.0.3:
@@ -1489,8 +1489,8 @@ packages:
       react:
         optional: true
 
-  brace-expansion@1.1.18:
-    resolution: {integrity: sha512-Edep/X9fGqVNmzKBVsDYIOtD+z1tuezV70LBjdCst9Tqu76lsnvRiZ6oTic1n+/BIwX6QDGAO94PN4N2SADvtw==}
+  brace-expansion@1.1.21:
+    resolution: {integrity: sha512-9zeA+KLZNNzglF2TPKRQEDyx6Yby7daAkuy8MiPzpXPsYDWi/DRM8jmwUDxokQjYqBpv5DgPiwD4h4ZZSy1Ujw==}
 
   brace-expansion@5.0.12:
     resolution: {integrity: sha512-YovQ3rzhaLMIrDjNDMkNS01tea93qhEhG5xy8f6+R0l+dw3Ki+5sCoIoI942iuLZTHWogWktgwVDhU09iNEimQ==}
@@ -4838,7 +4838,7 @@ snapshots:
       next: 16.4.0(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@types/node@24.13.2)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       react: 19.2.7
 
-  brace-expansion@1.1.18:
+  brace-expansion@1.1.21:
     dependencies:
       balanced-match: 1.0.2
       concat-map: 0.0.1
@@ -6413,7 +6413,7 @@ snapshots:
 
   minimatch@3.1.5:
     dependencies:
-      brace-expansion: 1.1.18
+      brace-expansion: 1.1.21
 
   minimist@1.2.8: {}
 
